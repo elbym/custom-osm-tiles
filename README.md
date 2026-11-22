@@ -3,8 +3,8 @@
 Statische Kacheln (WebP) für Leaflet, nur für einen kleinen Bereich um einen Marker, selbst gehostet.
 
 ```sh
-./make-tiles.py   # Standard: styles/klar.toml, Bielefeld, 5 km, z10-18 -> out/klar
-./make-tiles.py --lat 52.115 --lon 8.67 --style styles/hydda.toml --out out/kunde-xy
+./make-tiles.py   # Standard: styles/clear.toml, Bielefeld, 5 km, z10-18 -> out/clear
+./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --out out/kunde-xy
 # ab z17 nur 1 km um den Marker: --detail-from 17 --detail-radius 1
 # optional: --retina (@2x), --area <geofabrik-name>, --viewport 2560x1440 (größte Kartengröße, damit niedrige Zoomstufen sie füllen)
 ```
@@ -16,7 +16,7 @@ Ergebnis in `out/<name>/` (`tiles/`, `leaflet/`, `index.html`): einfach neben di
 Jeder Stil ist eine kurze Textdatei in `styles/`. Das Skript baut daraus zusammen mit der Grundlage `style/base.json` (OSM Bright) den fertigen Stil.
 
 ```toml
-title = "Hydda (nachempfunden)"  # Fenstertitel, die Schrift wird angehängt
+title = "North"              # Fenstertitel, die Schrift wird angehängt
 font = "Overpass"            # Standardschrift, siehe Abschnitt Schriften
 text_scale = 1.15            # Faktor für alle Beschriftungen
 attribution = "Stil inspiriert von …"
@@ -30,20 +30,19 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 
 | Datei | Vorbild |
 |---|---|
-| `klar.toml` | eigener Stil: kühl und reduziert, Farbe nur für Hauptstraßen (Standard) |
-| `apple.toml` | angelehnt an den Gesamteindruck von Apple Maps (eigene Farbwahl) |
-| `hydda.toml` | Farben nach der Palette von Hydda (BSD-3) |
-| `osm-openmaptiles.toml` | inspiriert von OSM OpenMapTiles, Farben nach openstreetmap-carto (CC0) |
-| `osm-leicht.toml` | OSM-Standardkarte (Mapnik/openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
-| `wikimedia.toml` | Wikimedia Maps („osm-intl“, Farben aus github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
+| `clear.toml` | **Clear**: eigener Stil, kühl und reduziert, Farbe nur für Hauptstraßen (Standard) |
+| `cupertino.toml` | **Cupertino**: angelehnt an den Gesamteindruck von Apple Maps (eigene Farbwahl) |
+| `north.toml` | **North**: Farben nach der Palette von Hydda (BSD-3) |
+| `osm-light.toml` | **OSM light**: OSM-Standardkarte (Mapnik/openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
+| `wiki.toml` | **Wiki**: Wikimedia Maps („osm-intl“, Farben aus github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
 
-Die Stile sind eigene Umsetzungen. Von den Vorbildern sind nur Farbwerte übernommen, keine Stildateien. Beim Wikimedia-Stil verlangt die Lizenz (CC BY 3.0) eine Namensnennung; sie steht in `attribution` und erscheint auf der Karte.
+Die Stile sind eigene Umsetzungen. Von den Vorbildern sind nur Farbwerte übernommen, keine Stildateien. Beim Stil Wiki verlangt die Lizenz (CC BY 3.0) eine Namensnennung; sie steht in `attribution` und erscheint auf der Karte.
 
 ## Varianten vergleichen
 
 ```sh
 ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # jeder Stil × jede Schrift -> out/<stil>-<schrift>
-./make-tiles.py --all --style styles/klar.toml ...          # nur ein Stil, alle Schriften
+./make-tiles.py --all --style styles/clear.toml ...          # nur ein Stil, alle Schriften
 ```
 
 `--all` kombiniert jeden Stil in `styles/` mit jeder Schrift in `style/fonts/`. Eine neue Schrift oder ein neuer Stil ergibt also automatisch alle Kombinationen. `out/compare.html` zeigt vier davon im 2×2-Raster mit synchronem Ausschnitt; jedes Fenster hat eine eigene Auswahl.
@@ -60,7 +59,25 @@ Der Bereich muss innerhalb von `--area` liegen (Namen siehe https://download.geo
 
 ## Schriften
 
-Die Schriften liegen als Glyphen in `style/fonts/`, die Quellen samt Lizenz in `fonts-src/<schrift>/`. Noto Sans ist keine eigene Variante, sondern nur Ersatz für Zeichen, die einer Schrift fehlen (z. B. Kyrillisch). Sie ist nicht im Git, `make-tiles.py` lädt sie beim ersten Lauf.
+Im Git liegen nur die Schriftquellen samt Lizenz (`fonts-src/<schrift>/`). Die Glyphen, die die Karte braucht, erzeugt `make-tiles.py` beim ersten Lauf nach `style/fonts/`. Dafür nötig:
+
+```sh
+pip install -r requirements.txt        # fontTools
+cargo install build_pbf_glyphs         # Rust-Programm, nicht über pip
+```
+
+Welche Schnitte aus welcher Datei entstehen, steht in `style/fonts.toml`. Jede Tabelle dort ist eine Schrift und damit eine Variante bei `--all`:
+
+```toml
+[Literata]
+Regular = { file = "literata/Literata-VF.ttf", wght = 400, opsz = 12 }
+Bold    = { file = "literata/Literata-VF.ttf", wght = 700, opsz = 12 }
+Italic  = { file = "literata/Literata-Italic-VF.ttf", wght = 400, opsz = 12 }
+scale   = 1.05     # optional: Größenfaktor
+streets = "450"    # optional: eigener Schnitt für Straßennamen (muss oben als Schnitt stehen)
+```
+
+Ohne Achsenwerte wird die Datei unverändert übernommen. Mit Achsenwerten wird aus der variablen Schrift ein fester Schnitt erzeugt. Neue Schrift: Dateien nach `fonts-src/<schrift>/` legen, Tabelle in `fonts.toml` ergänzen, fertig. Nach einer Änderung an einem bestehenden Schnitt dessen Ordner in `style/fonts/` löschen, damit er neu erzeugt wird.
 
 | Schrift | Art | Lizenz |
 |---|---|---|
@@ -68,16 +85,6 @@ Die Schriften liegen als Glyphen in `style/fonts/`, die Quellen samt Lizenz in `
 | Literata, Newsreader | Serifen | OFL |
 | TeX Gyre Schola | Serifen | GUST Font License |
 
-Liegt eine Schrift nur als variable Datei vor (Atkinson Hyperlegible Next, Literata, Public Sans, Newsreader), werden die Schnitte daraus erzeugt: Regular = Gewicht 400, Bold = 700. Literata und Newsreader haben zusätzlich eine Achse für die optische Größe; dafür gilt 12, passend zur Größe der Beschriftungen.
-
-`style/fonts.toml` enthält Einstellungen pro Schrift: `scale` gleicht unterschiedlich große Schriftbilder aus, `streets` wählt einen eigenen Schnitt für Straßennamen (zum Beispiel Gewicht 450). Einen solchen Schnitt erzeugt man aus der variablen Schrift:
-
-```sh
-python3 -m fontTools.varLib.instancer fonts-src/public-sans/PublicSans-VF.ttf wght=450 -o "/tmp/w/Public Sans 450.ttf"
-build_pbf_glyphs /tmp/w /tmp/g && mv "/tmp/g/Public Sans 450" style/fonts/
-```
- Mit `--font "<Name>"` lässt sich eine einzelne Schrift rendern, zusammen mit `--all` in allen Stilen.
-
-Neue Schrift einbauen: TTF oder OTF nach `fonts-src/<schrift>/` legen, dann `build_pbf_glyphs fonts-src/<schrift> style/fonts` ausführen. Die Ordner danach in `<Name> Regular|Bold|Italic` umbenennen.
+Noto Sans ist keine eigene Variante, sondern nur Ersatz für Zeichen, die einer Schrift fehlen (z. B. Kyrillisch). `make-tiles.py` lädt sie beim ersten Lauf fertig herunter. Mit `--font "<Name>"` lässt sich eine einzelne Schrift rendern, zusammen mit `--all` in allen Stilen.
 
 Namensnennung: © OpenStreetMap-Mitwirkende (ODbL), © OpenMapTiles, dazu das `attribution` des Stils.

@@ -1,5 +1,52 @@
-# Einstellungen pro Schrift, zusätzlich zum Stil. Beispiel:
+# Schriften für die Karten. Jede Tabelle ist eine Schrift (= eine Variante bei --all).
 #
-# ["Public Sans"]
-# scale = 1.05     # Größenfaktor (gleicht unterschiedlich große Schriftbilder aus)
-# streets = "450"  # Schnitt für Straßennamen statt "Regular"; braucht Ordner style/fonts/Public Sans 450
+# Schnitte: <Schnitt> = { file = "<Pfad in fonts-src/>", <Achse> = <Wert>, ... }
+#   Ohne Achsen wird die Datei so übernommen; mit Achsen wird aus der variablen Schrift
+#   ein fester Schnitt erzeugt (fontTools). Die Glyphen entstehen beim ersten Lauf in
+#   style/fonts/<Schrift> <Schnitt>/. Gebraucht werden Regular, Bold, Italic.
+#
+# Weitere Einstellungen:
+#   scale   = 1.05   Größenfaktor (gleicht unterschiedlich große Schriftbilder aus)
+#   streets = "450"  Schnitt für Straßennamen statt Regular (muss oben als Schnitt stehen)
+#
+# Noto Sans fehlt hier absichtlich: sie ist nur Ersatzschrift und wird fertig geladen.
+
+["Atkinson Hyperlegible Next"]
+Regular = { file = "atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-VF.ttf", wght = 400 }
+Bold    = { file = "atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-VF.ttf", wght = 700 }
+Italic  = { file = "atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-Italic-VF.ttf", wght = 400 }
+
+["Fira Sans"]
+Regular = { file = "fira-sans/FiraSans-Regular.ttf" }
+Bold    = { file = "fira-sans/FiraSans-Bold.ttf" }
+Italic  = { file = "fira-sans/FiraSans-Italic.ttf" }
+
+[Inter]
+Regular = { file = "inter/Inter-Regular.ttf" }
+Bold    = { file = "inter/Inter-Bold.ttf" }
+Italic  = { file = "inter/Inter-Italic.ttf" }
+
+[Literata]   # optische Größe 12 = Lesegröße der Kartenbeschriftung
+Regular = { file = "literata/Literata-VF.ttf", wght = 400, opsz = 12 }
+Bold    = { file = "literata/Literata-VF.ttf", wght = 700, opsz = 12 }
+Italic  = { file = "literata/Literata-Italic-VF.ttf", wght = 400, opsz = 12 }
+
+[Newsreader]
+Regular = { file = "newsreader/Newsreader-VF.ttf", wght = 400, opsz = 12 }
+Bold    = { file = "newsreader/Newsreader-VF.ttf", wght = 700, opsz = 12 }
+Italic  = { file = "newsreader/Newsreader-Italic-VF.ttf", wght = 400, opsz = 12 }
+
+[Overpass]
+Regular = { file = "overpass/overpass-regular.otf" }
+Bold    = { file = "overpass/overpass-bold.otf" }
+Italic  = { file = "overpass/overpass-italic.otf" }
+
+["Public Sans"]
+Regular = { file = "public-sans/PublicSans-VF.ttf", wght = 400 }
+Bold    = { file = "public-sans/PublicSans-VF.ttf", wght = 700 }
+Italic  = { file = "public-sans/PublicSans-Italic-VF.ttf", wght = 400 }
+
+["TeX Gyre Schola"]
+Regular = { file = "tex-gyre-schola/texgyreschola-regular.otf" }
+Bold    = { file = "tex-gyre-schola/texgyreschola-bold.otf" }
+Italic  = { file = "tex-gyre-schola/texgyreschola-italic.otf" }

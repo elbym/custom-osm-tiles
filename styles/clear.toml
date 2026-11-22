@@ -1,11 +1,11 @@
-# "klar": eigener Stil für Kartenausschnitte auf Websites.
+# "Clear": eigener Stil für Kartenausschnitte auf Websites.
 # Kühl und reduziert, als Gegenpol zu den warmen OSM-Stilen:
 #   - neutrales, leicht kühles Grau als Grund; weiße Straßen treten klar hervor
 #   - Gebäude kühlgrau, gut sichtbar, aber ruhig
 #   - Farbe nur als Akzent: Haupt- und Fernstraßen in warmem Bernstein, alles andere grau/weiß
 #   - Wasser klares Mittelblau, Grün satt und frisch
 #   - Schrift fast schwarz mit weißer Kontur; unwichtige Orte und Einbahnpfeile ausgeblendet
-title = "klar (eigener Stil)"
+title = "Clear"
 font = "Overpass"
 text_scale = 1.15
 hide = ["poi_r20", "road_oneway*"]

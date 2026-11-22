@@ -1,7 +1,7 @@
 # Angelehnt an den Look von Apple Maps (hell): warmes Hellgrau, sattes Grün und Blau,
 # weiße Straßen, gelbe Hauptstraßen, ruhige dunkelgraue Schrift.
 # Eigene Farbwahl nach dem Gesamteindruck, keine Apple-Dateien oder -Symbole.
-title = "Apple-Maps-Anlehnung"
+title = "Cupertino"
 font = "Inter"
 text_scale = 1.15
 hide = ["poi_r20", "road_oneway*"]

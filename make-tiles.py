@@ -2,11 +2,11 @@
 """Statische Leaflet-Kacheln für einen kleinen Bereich rendern.
 
 Beispiel:
-  ./make-tiles.py                               # styles/klar.toml, Bielefeld -> out/klar
-  ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/hydda.toml --out out/kunde-xy
+  ./make-tiles.py                               # styles/clear.toml, Bielefeld -> out/clear
+  ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --out out/kunde-xy
   ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # jeder Stil × jede Schrift zum Vergleichen
 """
-import argparse, fnmatch, re, io, json, math, shutil, subprocess, sys, time, tomllib, urllib.request, zipfile
+import argparse, fnmatch, re, io, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.request, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -71,9 +71,36 @@ def fetch(url):
         return r.read()
 
 
+def font_config():
+    """style/fonts.toml: Schriften, ihre Schnitte und Einstellungen."""
+    return tomllib.loads((ROOT / "style" / "fonts.toml").read_text())
+
+
 def fonts():
-    """Schriften für --all = Ordner "<Name> Regular" in style/fonts, ohne die Ersatzschrift."""
-    return sorted(d.name[:-8] for d in (ROOT / "style" / "fonts").glob("* Regular") if d.name != "Noto Sans Regular")
+    """Schriften für --all (Noto Sans ist nur Ersatzschrift und steht nicht in fonts.toml)."""
+    return sorted(font_config())
+
+
+def ensure_glyphs():
+    """Fehlende Glyphen aus fonts-src/ erzeugen (style/fonts/ ist nicht im Git)."""
+    dest = ROOT / "style" / "fonts"
+    todo = [(font, face, spec) for font, cfg in font_config().items() for face, spec in cfg.items()
+            if isinstance(spec, dict) and not (dest / f"{font} {face}").exists()]
+    if not todo:
+        return
+    tool = shutil.which("build_pbf_glyphs") or sys.exit(
+        "build_pbf_glyphs fehlt: cargo install build_pbf_glyphs (siehe requirements.txt)")
+    with tempfile.TemporaryDirectory() as tmp:
+        for font, face, spec in todo:
+            src = ROOT / "fonts-src" / spec["file"]
+            # Dateiname = Ordnername der Glyphen, z. B. "Literata Bold"
+            out = Path(tmp) / f"{font} {face}{src.suffix}"
+            axes = [f"{k}={v}" for k, v in spec.items() if k != "file"]
+            if axes:
+                run(sys.executable, "-m", "fontTools.varLib.instancer", str(src), *axes, "-o", str(out))
+            else:
+                shutil.copy(src, out)
+        run(tool, tmp, str(dest))
 
 
 def build_style(toml_path, font=None):
@@ -81,7 +108,7 @@ def build_style(toml_path, font=None):
     t = tomllib.loads(Path(toml_path).read_text())
     s = json.loads((ROOT / "style" / "base.json").read_text())
     font = font or t.get("font", "Noto Sans")
-    fcfg = tomllib.loads((ROOT / "style" / "fonts.toml").read_text()).get(font, {})
+    fcfg = font_config().get(font, {})
     scale = t.get("text_scale", 1) * fcfg.get("scale", 1)
     r = lambda v: round(v * scale * 2) / 2
     for l in s["layers"]:
@@ -190,7 +217,7 @@ def main():
     p.add_argument("--viewport", default="2560x1440", help="größte Kartengröße in px")
     p.add_argument("--area", default="detmold-regbez", help="Geofabrik-Name")
     p.add_argument("--retina", action="store_true", help="zusätzlich @2x rendern")
-    p.add_argument("--style", help="Standard: styles/klar.toml; mit --all: nur dieser Stil")
+    p.add_argument("--style", help="Standard: styles/clear.toml; mit --all: nur dieser Stil")
     p.add_argument("--font", help="Schrift statt der des Stils; mit --all: nur diese Schrift")
     p.add_argument("--all", action="store_true", help="jeder Stil × jede Schrift nach out/<stil>-<schrift>")
     p.add_argument("--out", help="Standard: out/<stilname>")
@@ -201,8 +228,9 @@ def main():
 
     mb = ensure_mbtiles(a.area)
     ensure_noto()
+    ensure_glyphs()
     if not a.all:
-        st = Path(a.style or ROOT / "styles" / "klar.toml")
+        st = Path(a.style or ROOT / "styles" / "clear.toml")
         render(a, st, Path(a.out) if a.out else ROOT / "out" / st.stem, mb, a.font)
         return
     for st in [Path(a.style)] if a.style else sorted((ROOT / "styles").glob("*.toml")):

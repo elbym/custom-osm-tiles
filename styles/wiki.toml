@@ -2,7 +2,7 @@
 # Farbwerte aus dessen CartoCSS übernommen bzw. dort berechnete Werte umgerechnet.
 # Design © Mapbox und Wikimedia Foundation, CC BY 3.0 -> Namensnennung unten.
 # Original nutzt Noto Sans; hier Public Sans als Standard (Noto ist nur Ersatzschrift).
-title = "Wikimedia (nachempfunden)"
+title = "Wiki"
 font = "Public Sans"
 text_scale = 1.15
 attribution = "Kartendesign nach Wikimedia Maps (© Mapbox, Wikimedia Foundation, CC BY 3.0)"

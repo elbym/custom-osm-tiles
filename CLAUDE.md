@@ -7,14 +7,14 @@ Pre-renders static Leaflet raster tiles for a small area around one marker, per 
 ## Commands
 
 ```sh
-# podman required, not docker; defaults = styles/klar.toml, Bielefeld, 5 km, z10-18 -> out/klar
+# podman required, not docker; defaults = styles/clear.toml, Bielefeld, 5 km, z10-18 -> out/clear
 ./make-tiles.py
-./make-tiles.py --lat 52.115 --lon 8.67 --style styles/hydda.toml --out out/kunde-xy
+./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --out out/kunde-xy
 ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # every style × every font -> out/<style>-<font>, for comparing
 # preview: open out/<name>/index.html or out/compare.html directly via file://
 ```
 
-There are no tests. To check a rendering change, re-render and look at a tile near the marker, e.g. `out/klar/tiles/16/34321/21641.webp` (after `--all`: `out/klar-overpass/…`) (z18: `18/137286/86565`) for the Bielefeld default. `magick` is installed to turn WebP into PNG contact sheets.
+There are no tests. To check a rendering change, re-render and look at a tile near the marker, e.g. `out/clear/tiles/16/34321/21641.webp` (after `--all`: `out/clear-overpass/…`) (z18: `18/137286/86565`) for the Bielefeld default. `magick` is installed to turn WebP into PNG contact sheets.
 
 ## How it fits together
 
@@ -41,11 +41,21 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   Do all customisation in `styles/*.toml`, not in `base.json`.
 - TOML keys:
   - `title` is the window/tab title; the font name is appended automatically.
-  - `font` replaces "Noto Sans" in every `text-font`. Noto stays in the stack as fallback. `--all` ignores it and loops over `fonts()` (every `style/fonts/* Regular` dir except Noto Sans, which is fallback only, because the user dislikes it as a label font); `--font` overrides it, and with `--all` it limits the loop to that one font.
-  - `text_scale` scales all `text-size` values except the `*shield*` layers. It is multiplied by `scale` from the font's table in `style/fonts.toml`. That table can also set `streets` = a face suffix (e.g. `"450"`) used for the `highway-name*` layers instead of Regular. Several fonts only exist as variable TTFs in `fonts-src/` (Atkinson Hyperlegible Next, Literata, Public Sans, Newsreader). Their faces are static instances cut with `fontTools.varLib.instancer`: Regular = wght 400, Bold = 700, and Literata/Newsreader also get opsz=12. Name the output files `<Name> Regular.ttf` etc., so `build_pbf_glyphs` already produces the right folder names. Pass each axis as a separate argument. `brotli` is not installed, so take TTF/OTF from upstream (google/fonts, CTAN), not WOFF2.
+  - `font` replaces "Noto Sans" in every `text-font`. Noto stays in the stack as fallback. `--all` ignores it and loops over `fonts()`, which are the tables in `style/fonts.toml`. Noto Sans is deliberately not there: it is fallback only, because the user dislikes it as a label font. `--font` overrides it, and with `--all` it limits the loop to that one font.
+  - `text_scale` scales all `text-size` values except the `*shield*` layers. It is multiplied by `scale` from the font's table in `style/fonts.toml`. That table can also set `streets` = a face suffix (e.g. `"450"`) used for the `highway-name*` layers instead of Regular. `brotli` is not installed, so take new fonts as TTF/OTF from upstream (google/fonts, CTAN), not WOFF2.
   - `hide` is a list of layer-id globs to hide.
   - `[paint."glob"]` / `[layout."glob"]` set properties on matching layer ids. They apply in file order, so the last match wins. Only properties whose prefix fits the layer type are applied, which makes broad globs like `water*` safe.
-- `klar` is our own design (default). `apple` only borrows the overall look of Apple Maps (own colours, no Apple assets, and no "Apple" in the public attribution). `hydda`, `osm-openmaptiles`, `osm-leicht` (a lighter, decluttered take on the osm.org standard map) and `wikimedia` are recreations. `wikimedia` takes its colours from wikimedia/osm-bright.tm2, whose design is CC BY 3.0, so its `attribution` must stay.
+- Styles, with the user-chosen names:
+  - `clear` ("Clear") is our own design and the default.
+  - `cupertino` ("Cupertino") only borrows the overall look of Apple Maps: own colours, no Apple assets, and no "Apple" in the public attribution.
+  - `north` ("North") recreates Hydda's palette.
+  - `osm-light` ("OSM light") is a lighter, decluttered take on the osm.org standard map.
+  - `wiki` ("Wiki") recreates Wikimedia Maps. Its colours come from wikimedia/osm-bright.tm2, whose design is CC BY 3.0, so its `attribution` must stay.
 - POI layers: a low `rank` means important, so `poi_r1` holds the most important places and `poi_r20` the least. Hide `poi_r20`, not `poi_r1`.
 - For the recreations, only colour values were taken from the originals, never their style files. That is what the user asked for, to avoid licence problems, and each recreation names its inspiration in `attribution`.
-- Fonts are glyph PBFs in `style/fonts/<Font Name>/`, generated with `build_pbf_glyphs fonts-src/<font> style/fonts`. The tool only reads TTF/OTF and names output folders after the file stem, so rename them to `<Name> Regular|Bold|Italic`. Sources plus licences live in `fonts-src/<font>/`. Noto Sans glyphs are gitignored (100 MB); `ensure_noto()` downloads them on first run.
+- Fonts: only the sources plus licences (`fonts-src/<font>/`) are in git. `style/fonts/` is gitignored.
+  - `ensure_glyphs()` builds any missing `style/fonts/<Font> <Face>/` from the face specs in `style/fonts.toml` (`{ file, <axis> = value }`).
+  - Faces with axes are cut with `fontTools.varLib.instancer`; the rest are copied. The temp file is named `<Font> <Face>.ttf`, because `build_pbf_glyphs` names output folders after the file stem.
+  - It only rebuilds missing folders, so delete a folder after changing its spec.
+  - Needs fontTools (`requirements.txt`) and `build_pbf_glyphs` (cargo).
+  - Noto Sans glyphs (100 MB) are downloaded ready-made by `ensure_noto()`.

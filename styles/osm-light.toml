@@ -1,7 +1,7 @@
 # Angelehnt an die OSM-Standardkarte (OpenStreetMap.Mapnik / openstreetmap-carto, CC0),
 # aber leichter und aufgeräumter: alle Farben aufgehellt und entsättigt, unwichtige Orte
 # und Einbahnpfeile ausgeblendet, Fußwege dezent statt kräftig rot.
-title = "OSM-Standard, leicht (nachempfunden)"
+title = "OSM light"
 font = "Public Sans"
 text_scale = 1.15
 attribution = "Stil inspiriert von openstreetmap-carto"

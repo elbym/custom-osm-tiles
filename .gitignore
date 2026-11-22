@@ -1,6 +1,6 @@
 data/
 out/
-style/fonts/Noto Sans */
+style/fonts/
 __pycache__/
 style/tiles.mbtiles
 style/style.json
