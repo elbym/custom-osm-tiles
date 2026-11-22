@@ -1,0 +1,73 @@
+# Grauer Grund, kräftiges Blau, graugrüne Hauptstraßen. Eigene Umsetzung,
+# Farben nach der Palette von Hydda (https://github.com/karlwettin/carto-style-hydda, BSD-3).
+title = "Hydda (nachempfunden)"
+font = "Overpass"
+text_scale = 1.15
+attribution = "Stil inspiriert von Hydda"
+hide = ["poi_r20"]   # rank: klein = wichtig; nur die unwichtigsten ausblenden
+
+[paint."background"]
+background-color = "#e0e0e0"
+
+[paint."landuse-*"]
+fill-color = "#dbdbdb"
+[paint."landuse-industrial"]
+fill-color = "#d7d7d7"
+[paint."landuse-cemetery"]
+fill-color = "#d6ded2"
+[paint."park"]
+fill-color = "#c2debd"
+[paint."landcover-wood"]
+fill-color = "#c3d9ad"
+fill-opacity = 1
+[paint."landcover-grass*"]
+fill-color = "#e6f2c1"
+[paint."landcover-sand"]
+fill-color = "#ffeec7"
+
+[paint."water*"]
+fill-color = "#3ebcef"
+line-color = "#3ebcef"
+
+[paint."building*"]
+fill-color = "#cfcfcf"
+fill-outline-color = "#c2c2c2"
+
+# Straßen: Autobahn/Bundesstraße graugrün mit hellem Rand, sonst hell mit graugrünem Rand
+[paint."*-minor*"]
+line-color = "#f6f6f6"
+[paint."*-casing"]
+line-color = "#c0ccc4"
+[paint."*-primary*"]
+line-color = "#f6f6f6"
+[paint."*-secondary-tertiary*"]
+line-color = "#f6f6f6"
+[paint."*-link"]
+line-color = "#f6f6f6"
+[paint."*-motorway*"]
+line-color = "#c0ccc4"
+[paint."*-trunk*"]
+line-color = "#c0ccc4"
+[paint."*-motorway*-casing"]
+line-color = "#f6f6f6"
+[paint."*-trunk*-casing"]
+line-color = "#f6f6f6"
+[paint."*-path*"]
+line-color = "#c0ccc4"
+[paint."*railway*"]
+line-color = "#999999"
+
+[paint."label_*"]
+text-color = "#222222"
+text-halo-color = "rgba(255,255,255,0.66)"
+[paint."label_village"]
+text-color = "#555555"
+[paint."label_other"]
+text-color = "#888888"
+[paint."highway-name-*"]
+text-color = "#222222"
+text-halo-color = "#ffffff"
+[paint."poi_*"]
+text-color = "#888888"
+[paint."water*label"]
+text-color = "#1a6e99"

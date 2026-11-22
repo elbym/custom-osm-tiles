@@ -1,0 +1,83 @@
+# Angelehnt an die OSM-Standardkarte (OpenStreetMap.Mapnik / openstreetmap-carto, CC0),
+# aber leichter und aufgeräumter: alle Farben aufgehellt und entsättigt, unwichtige Orte
+# und Einbahnpfeile ausgeblendet, Fußwege dezent statt kräftig rot.
+title = "OSM-Standard, leicht (nachempfunden)"
+font = "Public Sans"
+text_scale = 1.15
+attribution = "Stil inspiriert von openstreetmap-carto"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#f5f3ee"
+
+[paint."landuse-*"]
+fill-color = "#eae9e8"
+fill-opacity = 1
+[paint."landuse-commercial"]
+fill-color = "#f6e6e5"
+[paint."landuse-industrial"]
+fill-color = "#f1e7ef"
+[paint."landuse-cemetery"]
+fill-color = "#c9dccc"
+[paint."landuse-hospital"]
+fill-color = "#fbf8e6"
+[paint."landuse-school"]
+fill-color = "#fbf8e6"
+[paint."park"]
+fill-color = "#daf7dc"
+[paint."landcover-*"]
+fill-color = "#dcf0c8"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#c6dfbb"
+[paint."landcover-sand"]
+fill-color = "#f7f0d8"
+
+[paint."water*"]
+fill-color = "#b5d9e4"
+line-color = "#b5d9e4"
+
+[paint."building*"]
+fill-color = "#e6dfd9"
+fill-outline-color = "#d3c8be"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#ffffff"
+[paint."*-link"]
+line-color = "#ffffff"
+[paint."*-secondary-tertiary*"]
+line-color = "#f9fbd6"
+[paint."*-primary*"]
+line-color = "#fde2c0"
+[paint."*-trunk*"]
+line-color = "#fbc8b8"
+[paint."*-motorway*"]
+line-color = "#efb0bc"
+[paint."*-casing"]
+line-color = "#d2d2d2"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#b8bf75"
+[paint."*-primary*-casing"]
+line-color = "#cfaa66"
+[paint."*-trunk*-casing"]
+line-color = "#dc9580"
+[paint."*-motorway*-casing"]
+line-color = "#e07a96"
+[paint."*-path"]
+line-color = "#f0aca4"
+[paint."*railway*"]
+line-color = "#a3a3a3"
+
+[paint."label_*"]
+text-color = "#222222"
+text-halo-color = "#ffffff"
+[paint."highway-name-*"]
+text-color = "#3a3a3a"
+text-halo-color = "#ffffff"
+[paint."poi_*"]
+text-color = "#5a5a5a"
+[paint."water*label"]
+text-color = "#4f86b5"

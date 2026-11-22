@@ -1,0 +1,5 @@
+# Einstellungen pro Schrift, zusätzlich zum Stil. Beispiel:
+#
+# ["Public Sans"]
+# scale = 1.05     # Größenfaktor (gleicht unterschiedlich große Schriftbilder aus)
+# streets = "450"  # Schnitt für Straßennamen statt "Regular"; braucht Ordner style/fonts/Public Sans 450

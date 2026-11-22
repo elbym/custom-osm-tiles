@@ -1,0 +1,61 @@
+# Nachbau des Kartenstils von Wikimedia Maps ("osm-intl", https://github.com/wikimedia/osm-bright.tm2).
+# Farbwerte aus dessen CartoCSS übernommen bzw. dort berechnete Werte umgerechnet.
+# Design © Mapbox und Wikimedia Foundation, CC BY 3.0 -> Namensnennung unten.
+# Original nutzt Noto Sans; hier Public Sans als Standard (Noto ist nur Ersatzschrift).
+title = "Wikimedia (nachempfunden)"
+font = "Public Sans"
+text_scale = 1.15
+attribution = "Kartendesign nach Wikimedia Maps (© Mapbox, Wikimedia Foundation, CC BY 3.0)"
+
+[paint."background"]
+background-color = "#f8f4f0"          # @land
+[paint."park"]
+fill-color = "#d8e8c8"
+[paint."landcover-grass*"]
+fill-color = "#d8e8c8"
+[paint."landuse-cemetery"]
+fill-color = "#d5e3c7"                # mix(#d8e8c8, #ddd, 25 %)
+[paint."landuse-hospital"]
+fill-color = "#ffddee"
+[paint."landuse-school"]
+fill-color = "#f0e8f8"
+
+[paint."water"]
+fill-color = "#8fb7df"                # @water - #111
+[paint."waterway*"]
+line-color = "#a0c8f0"                # @water
+
+# Straßen: Füllung wie OSM Bright, Ränder rötlich-braun (Hauptstraßen) bzw. grau (Nebenstraßen)
+[paint."*-minor"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#ffffff"
+[paint."*-casing"]
+line-color = "#c6c3c0"                # @land * 0.8
+[paint."*-service-track-casing"]
+line-color = "#dfdcd8"                # @land * 0.9
+[paint."*-motorway*-casing"]
+line-color = "#e19966"                # mix(@motorway, #800, 75 %)
+[paint."*-trunk*-casing"]
+line-color = "#e1b380"                # mix(@main, #800, 75 %)
+[paint."*-primary*-casing"]
+line-color = "#e1b380"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#e1b380"
+[paint."*-link-casing"]
+line-color = "#e1b380"
+[paint."*-path"]
+line-color = "#ccbbaa"
+[paint."*railway*"]
+line-color = "#bbbbbb"
+
+[paint."label_*"]
+text-color = "#333333"
+text-halo-color = "rgba(255,255,255,0.5)"
+[paint."highway-name-*"]
+text-color = "#666666"
+text-halo-color = "rgba(255,255,255,0.5)"
+[paint."poi_*"]
+text-color = "#663333"
+[paint."water*label"]
+text-color = "#5c9ee0"                # darken(@water, 15)

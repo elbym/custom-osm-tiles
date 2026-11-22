@@ -16,15 +16,21 @@ const map = L.map('map', {
   minZoom: c.zmin, maxZoom: c.zmax,
   maxBounds: c.bounds, maxBoundsViscosity: 1
 }).setView([c.lat, c.lon], Math.min(c.zmax, c.detail_from - 1));
-const url = c.retina ? 'tiles/{z}/{x}/{y}{r}.png' : 'tiles/{z}/{x}/{y}.png';
+const url = c.retina ? 'tiles/{z}/{x}/{y}{r}.webp' : 'tiles/{z}/{x}/{y}.webp';
 // Übersicht: über detail_from-1 hinaus hochskaliert, damit außerhalb des Detailbereichs nichts leer bleibt
 L.tileLayer(url, {
   maxNativeZoom: Math.min(c.zmax, c.detail_from - 1), bounds: c.bounds,
-  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>, © OpenMapTiles'
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>, © OpenMapTiles' + (c.attribution ? ', ' + c.attribution : '')
 }).addTo(map);
 // Detail: echte Kacheln ab detail_from, nur um den Marker
 if (c.zmax >= c.detail_from) L.tileLayer(url, { minZoom: c.detail_from, bounds: c.detail }).addTo(map);
 L.marker([c.lat, c.lon]).addTo(map);
+// In compare.html (iframe): Ausschnitt mit der anderen Karte synchron halten
+if (parent !== window) {
+  let syncing = false;  // setView ohne Animation feuert moveend sofort: nicht zurückschicken
+  map.on('moveend', () => { if (!syncing) parent.postMessage({ center: map.getCenter(), zoom: map.getZoom() }, '*'); });
+  addEventListener('message', e => { syncing = true; map.setView(e.data.center, e.data.zoom, { animate: false }); syncing = false; });
+}
 </script>
 </body>
 </html>

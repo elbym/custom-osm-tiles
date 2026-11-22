@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Stile in Streifen</title>
+<link rel="stylesheet" href="leaflet/leaflet.css">
+<style>
+  html, body { margin: 0; height: 100%; font: 14px system-ui, sans-serif; }
+  #map { position: absolute; inset: 0; }
+  #titles { position: absolute; inset: 0 0 auto 0; z-index: 1000; display: flex; pointer-events: none; }
+  #titles div { flex: 1; padding: .3rem .5rem; background: rgb(255 255 255 / .85); border-left: 1px solid #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #font { position: absolute; top: 2.2rem; left: .5rem; z-index: 1000; font: inherit; padding: .2rem; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="titles"></div>
+<select id="font" title="Schrift für alle Streifen"></select>
+<script src="variants.js"></script>
+<script src="leaflet/leaflet.js"></script>
+<script>
+// Eine Karte, ein Streifen pro Stil, alle in derselben Schrift (?font=…).
+// Jeder Stil ist eine eigene Kachelebene in einem eigenen Pane, das per clip-path auf seinen Streifen beschnitten wird.
+const q = new URLSearchParams(location.search);
+const all = Object.entries(CONFIGS);
+const fonts = [...new Set(all.map(([, c]) => c.font))].sort();
+const font = fonts.includes(q.get('font')) ? q.get('font') : fonts[0];
+const strips = [...new Set(all.map(([, c]) => c.style))].sort()
+  .map(style => all.find(([, c]) => c.style === style && c.font === font))
+  .filter(Boolean);
+
+const c0 = strips[0][1];
+const map = L.map('map', {
+  minZoom: c0.zmin, maxZoom: c0.zmax, maxBounds: c0.bounds, maxBoundsViscosity: 1, zoomControl: false
+}).setView([c0.lat, c0.lon], Math.min(c0.zmax, c0.detail_from - 1));
+L.control.zoom({ position: 'bottomleft' }).addTo(map);
+map.attributionControl.addAttribution('© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>, © OpenMapTiles');
+
+const panes = strips.map(([name, c], i) => {
+  const pane = map.createPane('strip' + i);
+  pane.style.zIndex = 200 + i;
+  const url = name + (c.retina ? '/tiles/{z}/{x}/{y}{r}.webp' : '/tiles/{z}/{x}/{y}.webp');
+  L.tileLayer(url, { pane: 'strip' + i, maxNativeZoom: Math.min(c.zmax, c.detail_from - 1), bounds: c.bounds }).addTo(map);
+  if (c.zmax >= c.detail_from) L.tileLayer(url, { pane: 'strip' + i, minZoom: c.detail_from, bounds: c.detail }).addTo(map);
+  if (c.attribution) map.attributionControl.addAttribution(c.attribution);
+  return pane;
+});
+L.marker([c0.lat, c0.lon]).addTo(map);
+
+// Streifen-Zuschnitt: Panes liegen im verschobenen mapPane, daher dessen Position abziehen
+function clip() {
+  const size = map.getSize(), pos = L.DomUtil.getPosition(map.getPane('mapPane')), n = panes.length;
+  panes.forEach((pane, i) => {
+    const x0 = size.x * i / n - pos.x, x1 = size.x * (i + 1) / n - pos.x, y0 = -pos.y, y1 = size.y - pos.y;
+    pane.style.clipPath = `polygon(${x0}px ${y0}px, ${x1}px ${y0}px, ${x1}px ${y1}px, ${x0}px ${y1}px)`;
+  });
+}
+map.on('move zoom viewreset resize', clip);
+clip();
+
+// Kopfzeile: Stil je Streifen; Schriftwahl darunter
+const head = document.getElementById('titles');
+strips.forEach(([name]) => {
+  head.appendChild(document.createElement('div')).textContent = TITLES[name].split(' · ')[0];
+});
+const sel = document.getElementById('font');
+sel.innerHTML = fonts.map(f => `<option${f === font ? ' selected' : ''}>${f}</option>`).join('');
+sel.onchange = () => { q.set('font', sel.value); location.search = q; };
+</script>
+</body>
+</html>

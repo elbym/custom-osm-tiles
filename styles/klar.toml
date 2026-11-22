@@ -1,0 +1,83 @@
+# "klar": eigener Stil für Kartenausschnitte auf Websites.
+# Kühl und reduziert, als Gegenpol zu den warmen OSM-Stilen:
+#   - neutrales, leicht kühles Grau als Grund; weiße Straßen treten klar hervor
+#   - Gebäude kühlgrau, gut sichtbar, aber ruhig
+#   - Farbe nur als Akzent: Haupt- und Fernstraßen in warmem Bernstein, alles andere grau/weiß
+#   - Wasser klares Mittelblau, Grün satt und frisch
+#   - Schrift fast schwarz mit weißer Kontur; unwichtige Orte und Einbahnpfeile ausgeblendet
+title = "klar (eigener Stil)"
+font = "Overpass"
+text_scale = 1.15
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#eef0f2"
+[paint."landuse-*"]
+fill-color = "#e9ecee"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-color = "#bfdcc4"
+[paint."landuse-hospital"]
+fill-color = "#efe6ea"
+[paint."landuse-school"]
+fill-color = "#e8e8f0"
+[paint."park"]
+fill-color = "#b5dcb9"
+[paint."landcover-*"]
+fill-color = "#b5dcb9"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#9fd0a6"
+[paint."landcover-sand"]
+fill-color = "#ece7da"
+
+[paint."water*"]
+fill-color = "#9fc4e6"
+line-color = "#9fc4e6"
+
+[paint."building*"]
+fill-color = "#dde1e5"
+fill-outline-color = "#c5ccd3"
+
+# Straßen: weiß mit kühlgrauer Kontur; nur Haupt-/Fernstraßen und Autobahn farbig
+[paint."*-minor*"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#ffffff"
+[paint."*-secondary-tertiary*"]
+line-color = "#ffffff"
+[paint."*-link"]
+line-color = "#ffffff"
+[paint."*-primary*"]
+line-color = "#ffd98a"
+[paint."*-trunk*"]
+line-color = "#ffd98a"
+[paint."*-motorway*"]
+line-color = "#ffc35c"
+[paint."*-casing"]
+line-color = "#c3cad1"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#a9b2bc"
+[paint."*-primary*-casing"]
+line-color = "#d9a440"
+[paint."*-trunk*-casing"]
+line-color = "#d9a440"
+[paint."*-motorway*-casing"]
+line-color = "#c8892a"
+[paint."*-path"]
+line-color = "#a6afb8"
+[paint."*railway*"]
+line-color = "#8d959e"
+
+[paint."label_*"]
+text-color = "#1a1e22"
+text-halo-color = "#ffffff"
+[paint."highway-name-*"]
+text-color = "#2c3238"
+text-halo-color = "#ffffff"
+[paint."poi_*"]
+text-color = "#4f5760"
+[paint."poi_transit"]
+text-color = "#1f5f99"
+[paint."water*label"]
+text-color = "#2a6496"

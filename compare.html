@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Kartenvergleich</title>
+<style>
+  body { margin: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; height: 100dvh; font: 14px system-ui, sans-serif; }
+  section { display: flex; flex-direction: column; min-width: 0; min-height: 0; outline: 1px solid #ccc; }
+  label { display: flex; gap: .6rem; align-items: center; padding: .3rem .6rem; background: #f4f4f4; }
+  label b { flex: 1; }
+  iframe { flex: 1; border: 0; width: 100%; }
+</style>
+</head>
+<body>
+<script src="variants.js"></script>
+<script>
+// 2×2 Varianten (Ordner neben dieser Datei); Auswahl steht in der URL (?1=…&2=…&3=…&4=…)
+const q = new URLSearchParams(location.search);
+const frames = [1, 2, 3, 4].map(i => {
+  const pick = q.get(i) || VARIANTS[(i - 1) % VARIANTS.length];
+  const sec = document.body.appendChild(document.createElement('section'));
+  sec.innerHTML = `<label><b>${i} · ${TITLES[pick] || pick}</b><select>${VARIANTS.map(v => `<option value="${v}"${v === pick ? ' selected' : ''}>${TITLES[v] || v}</option>`).join('')}</select></label><iframe src="${pick}/index.html"></iframe>`;
+  sec.querySelector('select').onchange = e => { q.set(i, e.target.value); location.search = q; };
+  return sec.querySelector('iframe');
+});
+// Ausschnitt synchronisieren: Nachricht einer Karte an alle anderen weiterreichen
+addEventListener('message', e => {
+  for (const f of frames) if (f.contentWindow !== e.source) f.contentWindow.postMessage(e.data, '*');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+# Angelehnt an den Look von Apple Maps (hell): warmes Hellgrau, sattes Grün und Blau,
+# weiße Straßen, gelbe Hauptstraßen, ruhige dunkelgraue Schrift.
+# Eigene Farbwahl nach dem Gesamteindruck, keine Apple-Dateien oder -Symbole.
+title = "Apple-Maps-Anlehnung"
+font = "Inter"
+text_scale = 1.15
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#f4f2ee"
+[paint."landuse-*"]
+fill-color = "#efece7"
+fill-opacity = 1
+[paint."landuse-hospital"]
+fill-color = "#f6e4e4"
+[paint."landuse-school"]
+fill-color = "#f0ebdf"
+[paint."landuse-cemetery"]
+fill-color = "#d9e6cf"
+[paint."park"]
+fill-color = "#cde8bd"
+[paint."landcover-*"]
+fill-color = "#cde8bd"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#bfe0ad"
+[paint."landcover-sand"]
+fill-color = "#f3ead2"
+
+[paint."water*"]
+fill-color = "#9fd0f3"
+line-color = "#9fd0f3"
+
+[paint."building*"]
+fill-color = "#e5e2dc"
+fill-outline-color = "#d3cec6"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#ffffff"
+[paint."*-secondary-tertiary*"]
+line-color = "#ffffff"
+[paint."*-link"]
+line-color = "#ffffff"
+[paint."*-primary*"]
+line-color = "#fde69a"
+[paint."*-trunk*"]
+line-color = "#fde69a"
+[paint."*-motorway*"]
+line-color = "#f9c95f"
+[paint."*-casing"]
+line-color = "#dcd7cf"
+[paint."*-primary*-casing"]
+line-color = "#e6c56a"
+[paint."*-trunk*-casing"]
+line-color = "#e6c56a"
+[paint."*-motorway*-casing"]
+line-color = "#e3a83a"
+[paint."*-path"]
+line-color = "#cfc8bc"
+[paint."*railway*"]
+line-color = "#c2bdb5"
+
+[paint."label_*"]
+text-color = "#2b2b2b"
+text-halo-color = "#ffffff"
+[paint."highway-name-*"]
+text-color = "#5a5a5a"
+text-halo-color = "#ffffff"
+[paint."poi_*"]
+text-color = "#6b6b6b"
+[paint."water*label"]
+text-color = "#3f86c0"

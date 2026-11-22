@@ -3,3 +3,4 @@ out/
 style/fonts/Noto Sans */
 __pycache__/
 style/tiles.mbtiles
+style/style.json

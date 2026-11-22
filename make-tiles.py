@@ -2,10 +2,11 @@
 """Statische Leaflet-Kacheln für einen kleinen Bereich rendern.
 
 Beispiel:
-  ./make-tiles.py                     # Bielefeld -> out/test
-  ./make-tiles.py --lat 52.115 --lon 8.67 --radius 5 --out out/kunde-xy
+  ./make-tiles.py                               # styles/klar.toml, Bielefeld -> out/klar
+  ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/hydda.toml --out out/kunde-xy
+  ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # jeder Stil × jede Schrift zum Vergleichen
 """
-import argparse, io, json, math, shutil, subprocess, sys, time, urllib.request, zipfile
+import argparse, fnmatch, re, io, json, math, shutil, subprocess, sys, time, tomllib, urllib.request, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -70,34 +71,76 @@ def fetch(url):
         return r.read()
 
 
-def main():
-    p = argparse.ArgumentParser()
-    p.add_argument("--lat", type=float, default=52.0211, help="Standard: Bielefeld")
-    p.add_argument("--lon", type=float, default=8.5347)
-    p.add_argument("--radius", type=float, default=5, help="km um den Marker")
-    p.add_argument("--zoom", default="10-18", help="z. B. 10-14")
-    p.add_argument("--detail-from", type=int, default=17, help="ab dieser Stufe nur --detail-radius")
-    p.add_argument("--detail-radius", type=float, default=1, help="km, für die Detailstufen")
-    p.add_argument("--viewport", default="2560x1440", help="größte Kartengröße in px")
-    p.add_argument("--area", default="detmold-regbez", help="Geofabrik-Name")
-    p.add_argument("--retina", action="store_true", help="zusätzlich @2x rendern")
-    p.add_argument("--out", default="out/test")
-    a = p.parse_args()
+def fonts():
+    """Schriften für --all = Ordner "<Name> Regular" in style/fonts, ohne die Ersatzschrift."""
+    return sorted(d.name[:-8] for d in (ROOT / "style" / "fonts").glob("* Regular") if d.name != "Noto Sans Regular")
+
+
+def build_style(toml_path, font=None):
+    """styles/<name>.toml + style/base.json (OSM Bright) -> fertiger Stil, Titel, Namensnennung."""
+    t = tomllib.loads(Path(toml_path).read_text())
+    s = json.loads((ROOT / "style" / "base.json").read_text())
+    font = font or t.get("font", "Noto Sans")
+    fcfg = tomllib.loads((ROOT / "style" / "fonts.toml").read_text()).get(font, {})
+    scale = t.get("text_scale", 1) * fcfg.get("scale", 1)
+    r = lambda v: round(v * scale * 2) / 2
+    for l in s["layers"]:
+        lay = l.setdefault("layout", {})
+        if "text-font" in lay:  # Basis nutzt "Noto Sans X"; Noto bleibt Ersatz für fehlende Zeichen
+            lay["text-font"] = [f.replace("Noto Sans", font) for f in lay["text-font"]] + \
+                ([] if font == "Noto Sans" else lay["text-font"])
+            if l["id"].startswith("highway-name") and "streets" in fcfg:
+                lay["text-font"][0] = lay["text-font"][0].replace("Regular", fcfg["streets"])
+        size = lay.get("text-size")
+        if size is not None and "shield" not in l["id"]:  # Schildtext muss ins Schild passen
+            if isinstance(size, (int, float)):
+                lay["text-size"] = r(size)
+            elif size[0] == "interpolate":
+                for i in range(4, len(size), 2):
+                    size[i] = r(size[i])
+        if any(fnmatch.fnmatch(l["id"], g) for g in t.get("hide", [])):
+            lay["visibility"] = "none"
+        # [paint."muster"] / [layout."muster"]: nur Eigenschaften, die zum Ebenentyp passen
+        prefixes = ("text-", "icon-", "symbol-") if l["type"] == "symbol" else (l["type"] + "-",)
+        for kind in ("paint", "layout"):
+            for glob, props in t.get(kind, {}).items():
+                if fnmatch.fnmatch(l["id"], glob):
+                    l.setdefault(kind, {}).update(
+                        {k: v for k, v in props.items() if k.startswith(prefixes) or k == "visibility"})
+    return s, f"{t.get('title', Path(toml_path).stem)} · {font}", t.get("attribution", ""), font
+
+
+def write_previews(outdir):
+    """Vergleichsseiten + variants.js (Titel und Konfiguration aller Varianten) nach outdir."""
+    for f in ("compare.html", "streifen.html"):
+        shutil.copy(ROOT / f, outdir / f)
+    shutil.copytree(ROOT / "vendor" / "leaflet", outdir / "leaflet", dirs_exist_ok=True)
+    names = sorted(d.name for d in outdir.iterdir() if (d / "index.html").exists())
+    titles, configs = {}, {}
+    for n in names:
+        page = (outdir / n / "index.html").read_text()
+        titles[n] = re.search(r"<title>(.*?)</title>", page)[1]
+        configs[n] = json.loads(re.search(r"const c = (\{.*\});", page)[1])
+    (outdir / "variants.js").write_text(
+        f"const VARIANTS = {json.dumps(names)};\n"
+        f"const TITLES = {json.dumps(titles, ensure_ascii=False)};\n"
+        f"const CONFIGS = {json.dumps(configs, ensure_ascii=False)};\n")
+
+
+def render(a, style_file, out, mb, font=None):
     zmin, zmax = map(int, a.zoom.split("-"))
     vw, vh = map(int, a.viewport.split("x"))
-    if not (0 <= zmin <= zmax <= 20):
-        sys.exit("--zoom ungültig")
-
-    mb = ensure_mbtiles(a.area)
-    ensure_noto()
-    out = Path(a.out)
     b = bbox(a.lat, a.lon, a.radius)
     # ponytail: high zooms only near the marker; Leaflet upscales z(detail_from-1) outside
     d = bbox(a.lat, a.lon, min(a.radius, a.detail_radius))
+    style, title, attribution, font = build_style(style_file, font)
+    built = DATA / f"style-{out.name}.json"
+    built.write_text(json.dumps(style, ensure_ascii=False))
 
     name = f"tiles-{PORT}"
     run("podman", "run", "-d", "--rm", "--name", name, "-p", f"127.0.0.1:{PORT}:8080",
         "-v", f"{ROOT / 'style'}:/data:Z", "-v", f"{mb}:/data/tiles.mbtiles:ro,Z",
+        "-v", f"{built}:/data/style.json:ro,Z",
         TILESERVER, "--config", "/data/config.json")
     try:
         base = f"http://127.0.0.1:{PORT}/styles/map"
@@ -110,15 +153,16 @@ def main():
         else:
             sys.exit("tileserver-gl startet nicht: podman logs " + name)
 
+        shutil.rmtree(out / "tiles", ignore_errors=True)
         count = 0
         for z in range(zmin, zmax + 1):
             for x, y in (tiles_for(d, z, 0, 0) if z >= a.detail_from else tiles_for(b, z, vw, vh)):
                 for sfx in ["", "@2x"] if a.retina else [""]:
-                    f = out / "tiles" / str(z) / str(x) / f"{y}{sfx}.png"
+                    f = out / "tiles" / str(z) / str(x) / f"{y}{sfx}.webp"
                     f.parent.mkdir(parents=True, exist_ok=True)
-                    f.write_bytes(fetch(f"{base}/{z}/{x}/{y}{sfx}.png"))
+                    f.write_bytes(fetch(f"{base}/{z}/{x}/{y}{sfx}.webp"))
                     count += 1
-            print(f"z{z} fertig", flush=True)
+            print(f"{out.name}: z{z} fertig", flush=True)
     finally:
         subprocess.run(["podman", "stop", name], capture_output=True)
 
@@ -126,10 +170,45 @@ def main():
     page = (ROOT / "template.html").read_text()
     cfg = dict(lat=a.lat, lon=a.lon, zmin=zmin, zmax=zmax, retina=a.retina,
                detail_from=a.detail_from, bounds=[[b[0], b[1]], [b[2], b[3]]],
-               detail=[[d[0], d[1]], [d[2], d[3]]])
-    (out / "index.html").write_text(page.replace("/*CONFIG*/{}", json.dumps(cfg)))
-    size = sum(f.stat().st_size for f in (out / "tiles").rglob("*.png"))
+               detail=[[d[0], d[1]], [d[2], d[3]]], attribution=attribution,
+               style=Path(style_file).stem, font=font)
+    page = page.replace("<title>Karte</title>", f"<title>{title}</title>")
+    (out / "index.html").write_text(page.replace("/*CONFIG*/{}", json.dumps(cfg, ensure_ascii=False)))
+    write_previews(out.parent)
+    size = sum(f.stat().st_size for f in (out / "tiles").rglob("*.webp"))
     print(f"{count} Kacheln, {size / 1e6:.1f} MB -> {out}")
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--lat", type=float, default=52.0211, help="Standard: Bielefeld")
+    p.add_argument("--lon", type=float, default=8.5347)
+    p.add_argument("--radius", type=float, default=5, help="km um den Marker")
+    p.add_argument("--zoom", default="10-18", help="z. B. 10-14")
+    p.add_argument("--detail-from", type=int, default=17, help="ab dieser Stufe nur --detail-radius")
+    p.add_argument("--detail-radius", type=float, default=1, help="km, für die Detailstufen")
+    p.add_argument("--viewport", default="2560x1440", help="größte Kartengröße in px")
+    p.add_argument("--area", default="detmold-regbez", help="Geofabrik-Name")
+    p.add_argument("--retina", action="store_true", help="zusätzlich @2x rendern")
+    p.add_argument("--style", help="Standard: styles/klar.toml; mit --all: nur dieser Stil")
+    p.add_argument("--font", help="Schrift statt der des Stils; mit --all: nur diese Schrift")
+    p.add_argument("--all", action="store_true", help="jeder Stil × jede Schrift nach out/<stil>-<schrift>")
+    p.add_argument("--out", help="Standard: out/<stilname>")
+    a = p.parse_args()
+    zmin, zmax = map(int, a.zoom.split("-"))
+    if not (0 <= zmin <= zmax <= 20):
+        sys.exit("--zoom ungültig")
+
+    mb = ensure_mbtiles(a.area)
+    ensure_noto()
+    if not a.all:
+        st = Path(a.style or ROOT / "styles" / "klar.toml")
+        render(a, st, Path(a.out) if a.out else ROOT / "out" / st.stem, mb, a.font)
+        return
+    for st in [Path(a.style)] if a.style else sorted((ROOT / "styles").glob("*.toml")):
+        for font in [a.font] if a.font else fonts():
+            slug = font.lower().replace(" ", "-")
+            render(a, st, ROOT / "out" / f"{st.stem}-{slug}", mb, font)
 
 
 if __name__ == "__main__":
