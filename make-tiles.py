@@ -234,15 +234,34 @@ def build_site(a):
         meta = tomllib.loads(st.read_text())
         for font in cfg["fonts"][meta.get("category", "standard")]:
             out = site / f"{st.stem}-{font.lower().replace(' ', '-')}"
-            if a.missing and (out / "config.json").exists():
+            done = out / "config.json"
+            keep = a.missing and done.exists()
+            if keep and json.loads(done.read_text()).get("retina") == s.retina:
                 continue
-            render(s, st, out, mb, font, standalone=False)
+            render(s, st, out, mb, font, standalone=False, keep=keep)  # keep: nur fehlende Kacheln (z. B. @2x)
     write_previews(site)
     (site / "compare.html").unlink(missing_ok=True)       # veröffentlicht wird nur die Streifen-Ansicht
     shutil.move(site / "streifen.html", site / "index.html")
     (site / ".nojekyll").touch()                          # GitHub Pages: Dateien unverändert ausliefern
     size = sum(f.stat().st_size for f in site.rglob("*") if f.is_file())
     print(f"site/: {size / 1e6:.0f} MB")
+
+
+def quantize(data, colors):
+    """PNG auf eine Palette reduzieren (pngquant, ohne Dithering)."""
+    return subprocess.run(["pngquant", str(colors), "--nofs", "--strip", "--speed", "1", "-"],
+                          input=data, capture_output=True, check=True).stdout
+
+
+def optimize(files):
+    """PNGs verlustfrei nachkomprimieren (oxipng, falls installiert), erst nach dem Rendern: oxipng nutzt dann
+    alle Kerne allein. Gemessen: 32 Farben + oxipng so groß wie 24 Farben ohne, aber genauer."""
+    files = [str(f) for f in files]
+    if OXIPNG and files:  # ponytail: -o 2; -o 4 spart nur 0,3–1 % mehr bei doppelter Zeit
+        subprocess.run([OXIPNG, "-q", "-o", "2", "--strip", "safe", *files], check=True)
+
+
+OXIPNG = shutil.which("oxipng") or shutil.which(str(Path.home() / ".cargo/bin/oxipng"))
 
 
 def readme_previews(a, mb):
@@ -254,13 +273,14 @@ def readme_previews(a, mb):
         style = build_style(st, meta.get("preview_font", meta.get("font")))[0]
         with tileserver(style, f"readme-{st.stem}", mb) as base:
             data = fetch(f"{base}/static/{a.lon},{a.lat},12/512x512.png")
-        data = subprocess.run(["pngquant", str(a.colors), "--nofs", "--strip", "--speed", "1", "-"],
-                              input=data, capture_output=True, check=True).stdout
+        data = quantize(data, a.colors)
         (dest / f"{st.stem}.png").write_bytes(data)
+        optimize([dest / f"{st.stem}.png"])
+        data = (dest / f"{st.stem}.png").read_bytes()
         print(f"{st.stem}: {len(data) / 1e3:.0f} kB", flush=True)
 
 
-def render(a, style_file, out, mb, font=None, standalone=True):
+def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     """Kacheln + config.json nach out/; standalone: zusätzlich eigene index.html mit Leaflet (Website-Karte)."""
     zmin, zmax = map(int, a.zoom.split("-"))
     vw, vh = map(int, a.viewport.split("x"))
@@ -269,7 +289,8 @@ def render(a, style_file, out, mb, font=None, standalone=True):
     d = bbox(a.lat, a.lon, min(a.radius, a.detail_radius))
     style, title, attribution, font = build_style(style_file, font)
     with tileserver(style, out.name, mb) as base:
-        shutil.rmtree(out / "tiles", ignore_errors=True)
+        if not keep:  # keep: vorhandene Kacheln behalten (z. B. nur @2x ergänzen)
+            shutil.rmtree(out / "tiles", ignore_errors=True)
         jobs = [(z, x, y, sfx) for z in range(zmin, zmax + 1)
                 for x, y in (tiles_for(d, z, 0, 0) if z >= a.detail_from else tiles_for(b, z, vw, vh))
                 for sfx in (["", "@2x"] if a.retina else [""])]
@@ -281,17 +302,20 @@ def render(a, style_file, out, mb, font=None, standalone=True):
         def get(job):
             z, x, y, sfx = job
             f = out / "tiles" / str(z) / str(x) / f"{y}{sfx}.{ext}"
+            if keep and f.exists():
+                return None
             f.parent.mkdir(parents=True, exist_ok=True)
             data = fetch(f"{base}/{z}/{x}/{y}{sfx}.{ext}")
             if ext == "png":  # Palette mit wenigen Farben, ohne Dithering (gemessen: kleiner als WebP, gleiche Qualität)
-                data = subprocess.run(["pngquant", str(a.colors), "--nofs", "--strip", "--speed", "1", "-"],
-                                      input=data, capture_output=True, check=True).stdout
+                data = quantize(data, a.colors)
             f.write_bytes(data)
+            return f if ext == "png" else None
 
         # tileserver-gl rendert parallel (Renderer-Pools in style/config.json); so viele Anfragen gleichzeitig
         with ThreadPoolExecutor(WORKERS) as pool:
-            list(pool.map(get, jobs))
+            written = [f for f in pool.map(get, jobs) if f]
         count = len(jobs)
+    optimize(written)  # nach dem Stoppen des Containers
 
     cfg = dict(lat=a.lat, lon=a.lon, zmin=zmin, zmax=zmax, retina=a.retina,
                detail_from=a.detail_from, bounds=[[b[0], b[1]], [b[2], b[3]]],
@@ -323,7 +347,7 @@ def main():
     p.add_argument("--retina", action="store_true", help="zusätzlich @2x rendern")
     p.add_argument("--format", choices=["png", "webp"], default="png",
                    help="png = Palette über pngquant (Standard, kleinste Dateien), webp = direkt vom tileserver")
-    p.add_argument("--colors", type=int, default=24, help="Farben je PNG-Kachel (pngquant), Standard 24")
+    p.add_argument("--colors", type=int, default=32, help="Farben je PNG-Kachel (pngquant), Standard 32")
     p.add_argument("--label", help="Text im Terminal-Marker der Nerd-Stile (~/<label>), Standard: hier")
     p.add_argument("--style", help="Standard: styles/clear.toml; mit --all: nur dieser Stil")
     p.add_argument("--font", help="Schrift statt der des Stils; mit --all: nur diese Schrift")

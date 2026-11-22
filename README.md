@@ -6,7 +6,7 @@
 > auf der Webseite integrieren. Fertig. 
 > Ohne eigenen Abschnitt im Datenschutz. 
 
-Statische Kartenkacheln (PNG mit 24-Farben-Palette, wahlweise WebP) für Leaflet, nur für einen kleinen Bereich um einen Marker, selbst gehostet. Die Website braucht damit keine Anfragen an Kartendienste; auch Leaflet liegt lokal.
+Statische Kartenkacheln (PNG mit 32-Farben-Palette, wahlweise WebP) für Leaflet, nur für einen kleinen Bereich um einen Marker, selbst gehostet. Die Website braucht damit keine Anfragen an Kartendienste; auch Leaflet liegt lokal.
 
 ## Vorschau
 
@@ -56,7 +56,7 @@ Außerdem nötig: podman und pngquant (`sudo dnf install pngquant`). Beim ersten
 | `--viewport` | größte Kartengröße in px, damit niedrige Zoomstufen sie füllen | `2560x1440` |
 | `--retina` | zusätzlich @2x-Kacheln für hochauflösende Bildschirme | aus |
 | `--format` | `png` (Palette über pngquant) oder `webp` | `png` |
-| `--colors` | Farben je PNG-Kachel | 24 |
+| `--colors` | Farben je PNG-Kachel | 32 |
 | `--area` | Geofabrik-Region, muss den Bereich enthalten (https://download.geofabrik.de) | `detmold-regbez` |
 | `--label` | Text im Marker (Sprechblase bzw. Terminal `~/<label>`) | `hier` |
 | `--out` | Zielordner | `out/<stilname>` |
@@ -89,7 +89,7 @@ Beide Seiten haben die Schalter **Standard | Nerd** und **Hell | Dunkel**. Stile
 ./make-tiles.py --site [--missing]     # Einstellungen aus site.toml -> site/
 ```
 
-`site.toml` legt Ort (Berlin, Brandenburger Tor), Label, Zoom (16), Bereich (1,2 km um das Brandenburger Tor), Retina (aus, sonst über dem 1-GB-Limit von Pages) und die Schriften je Gruppe fest (Standard: Fira Sans und Public Sans; Nerd: JetBrains Mono und Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
+`site.toml` legt Ort (Bielefeld, Sparrenburg), Label, Zoom (16), Bereich (1,2 km um die Sparrenburg), Retina (aus, sonst über dem 1-GB-Limit von Pages) und die Schrift je Gruppe fest (Standard: Fira Sans; Nerd: Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
 
 Die Streifen-Seite nutzt Tailwind CSS, lokal gebaut (kein CDN): `npm install && npm run css` erzeugt `vendor/streifen.css` aus `src/streifen.css`. Im Querformat sind die Streifen senkrecht, im Hochformat (Handy) waagerecht. Der Dialog „Über“ nennt alle Quellen und Lizenzen.
 
@@ -177,21 +177,24 @@ Mit `--font` lässt sich jede Schrift mit jedem Stil kombinieren, auch eine Mono
 
 ## Bildformat
 
-Gemessen an 81 Kacheln (Zoom 16, Retina, Stil Clear): PNG mit 24-Farben-Palette über pngquant ist so genau wie WebP, aber etwa 8 % kleiner.
+Standard: PNG mit 32-Farben-Palette über pngquant, danach verlustfrei mit oxipng nachkomprimiert (optional, `cargo install oxipng`; ohne oxipng wird der Schritt übersprungen).
 
-| Format | Größe | Abweichung vom Original |
-|---|---|---|
-| WebP | 3,91 MB | 0,91 % |
-| PNG, pngquant 32 Farben | 3,94 MB | 0,74 % |
-| **PNG, pngquant 24 Farben** (Standard) | **3,58 MB** | 0,90 % |
-| PNG, pngquant 16 Farben | 3,20 MB | 1,03 % |
+Gemessen an 80 Retina-Kacheln um die Sparrenburg (Zoom 16; Stile Clear, Papier, Protomaps Dark, Dracula, Gruvbox Light):
+
+| Farben | ohne oxipng | mit oxipng | Abweichung vom Original |
+|---|---|---|---|
+| 16 | 2,99 MB | 2,68 MB | 1,30 % |
+| 24 | 3,30 MB | 3,04 MB | 0,88 % |
+| **32** (Standard) | 3,62 MB | **3,37 MB** | **0,70 %** |
+
+oxipng kostet auf einer 2-Kern-VM etwa 0,2 s pro Kachel. Unter 16 Farben verlieren Symbole sichtbar Farbe. Zum Vergleich (ältere Messung, Stil Clear): WebP ist etwa so groß wie 32 Farben ohne oxipng, weicht aber mit 0,91 % stärker ab.
 
 Ohne Dithering (`--nofs`), sonst werden die Dateien größer und die Flächen unruhig.
 
 ## Ablauf
 
 1. **Planetiler** (Podman) baut aus dem Geofabrik-Extrakt einmalig `data/<area>.mbtiles` (OpenMapTiles-Schema). Zum Aktualisieren die Datei löschen.
-2. **tileserver-gl** (Podman) rendert den Stil; das Skript fragt nur die nötigen Kacheln ab, vier gleichzeitig, und reduziert sie mit pngquant auf eine Farbpalette.
+2. **tileserver-gl** (Podman) rendert den Stil; das Skript fragt nur die nötigen Kacheln ab, vier gleichzeitig, reduziert sie mit pngquant auf eine Farbpalette und komprimiert sie mit oxipng nach.
 3. Der Container wird danach gestoppt. Das Ergebnis ist rein statisch.
 
 Namensnennung auf der Karte: © OpenStreetMap-Mitwirkende (ODbL), © OpenMapTiles, dazu das `attribution` des Stils.

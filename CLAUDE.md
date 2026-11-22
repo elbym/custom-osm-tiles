@@ -7,14 +7,14 @@ Pre-renders static Leaflet tiles (palette PNG via pngquant by default, or WebP) 
 ## Commands
 
 ```sh
-pip install -r requirements.txt && cargo install build_pbf_glyphs   # once; podman (not docker) and pngquant must be installed
+pip install -r requirements.txt && cargo install build_pbf_glyphs oxipng   # once; podman (not docker) and pngquant must be installed
 
 ./make-tiles.py                                        # defaults: styles/clear.toml, Bielefeld, 5 km, z10-18 -> out/clear
 ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --font Inter --retina --out out/kunde-xy
 ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # preview set: each style in its preview_font -> out/<style>-<font> (~2 min)
 ./make-tiles.py --all --all-fonts --missing ...           # full matrix: each style × every font of its groups (slow)
 ./make-tiles.py --all --style styles/wiki.toml ...     # one style (preview_font; add --all-fonts for all);  --font X: one font for all styles, ignoring groups
-./make-tiles.py --site [--missing]                     # public preview per site.toml (Berlin, z16, retina) -> site/ for GitHub Pages
+./make-tiles.py --site [--missing]                     # public preview per site.toml (Bielefeld/Sparrenburg, z16, no retina) -> site/ for GitHub Pages
 npm install && npm run css                             # rebuild vendor/streifen.css (Tailwind v4) after changing streifen.html classes
 ./make-tiles.py --readme-previews                      # docs/previews/<style>.png: 512×512, z12, no marker (README gallery, ~30 s)
 ./make-tiles.py --reindex [--label "Firma"]            # rewrite all out/*/index.html from template + styles, no rendering
@@ -34,7 +34,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
    - Mounts: `style/` as `/data`, the mbtiles as `/data/tiles.mbtiles`, the built style over `/data/style.json`. `style/config.json` holds the font and sprite paths and the renderer pools.
    - It fetches the needed `{z}/{x}/{y}[@2x].png|webp` with `WORKERS = 4` parallel requests, then stops the container.
    - Measured for 198 z16 retina tiles: 1 worker 8.5 s, 4 workers 2.6 s, 8 or more about 3.4 s, because rendering and WebP encoding already use several cores. Container start is about 0.7 s, so one container per variant is fine.
-   - Format: by default each tile is fetched as PNG and piped through `pngquant <colors> --nofs --strip` (`--colors`, default 24). Measured: 24 colours match WebP's error (about 0.9 %) at about 8 % less size, and ImageMagick quantising is 3–4× slower. `--format webp` keeps the old path. The extension is stored as `ext` in the config, and `template.html`/`streifen.html` build tile URLs from it.
+   - Format: by default each tile is fetched as PNG and piped through `quantize()`: `pngquant <colors> --nofs --strip` (`--colors`, default 32), and `optimize()` runs `oxipng -o 2` over the new files after the container has stopped (optional; looked up in PATH and `~/.cargo/bin`). Measured on 80 retina tiles around the Sparrenburg: oxipng saves 7–10 % losslessly (about 0.2 s per tile on this 2-core VM); 32 colours + oxipng is the size of 24 without it, but more accurate (RMSE 0.70 % vs 0.88 %). 16 colours + oxipng would be 19 % smaller with no visible difference in samples, 12 loses icon colours. ImageMagick quantising is 3–4× slower. `--format webp` keeps the old path. The extension is stored as `ext` in the config, and `template.html`/`streifen.html` build tile URLs from it.
    - Finally it fills `template.html` into `out/<name>/index.html` by replacing the `/*CONFIG*/{}` placeholder with JSON. The config includes `style`, `font`, `category`, `mode`, `family` and `attribution`.
 `tileserver(style, tag, mb)` is the context manager both paths share. `render()` fetches tiles through it. `readme_previews()` fetches one tileserver static image per style (`/styles/map/static/lon,lat,12/512x512.png`) in its `preview_font`, runs it through pngquant and writes it to `docs/previews/`. The README gallery is a Hell/Dunkel table per family that links those files, so update it when styles are added or renamed.
 5. `write_previews()` copies `compare.html`, `streifen.html` and Leaflet into `out/`, and regenerates `out/variants.js` (`VARIANTS`, `TITLES`, `CONFIGS`) from every `out/*/index.html`.
@@ -46,7 +46,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 - Vector data stops at z14; tileserver-gl overzooms for z15–18.
 
 **Public site:**
-- `build_site()` reads `site.toml` and renders each style × the fonts of its category into `site/`.
+- `build_site()` reads `site.toml` and renders each style × the fonts of its category into `site/`. Since 2026-11-22 one font per category (Fira Sans / Maple Mono) to halve the render time on the 2-core VM.
 - It turns `streifen.html` into `site/index.html`, drops `compare.html`, and adds `.nojekyll`.
 - Publish `site/` as an orphan `gh-pages` branch (force-pushed, no history). Never commit tiles to `main`. The Pages limit is 1 GB.
 - `streifen.html` is styled with Tailwind v4, built locally into `vendor/streifen.css`, never from a CDN.
@@ -73,7 +73,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - `preview_font` is the only font `--all` renders, unless `--all-fonts` is given: Fira Sans for standard styles and Maple Mono for nerd styles, at the user's request, to keep preview renders fast.
   - `font` is the default font. It replaces "Noto Sans" in every `text-font`, and Noto stays in the stack as fallback.
   - `fonts` lists the font groups that `--all --all-fonts` renders. The default is `["sans", "serif"]`; the editor themes add `"mono"`. A single run with `--font`, or `--all --font X`, ignores the groups.
-  - `language` (default `de`): `build_style()` swaps OSM Bright's `["get", "name_en"]` in every `text-field` for `name:<language>`, so the label falls back to the local `name`. Upstream prefers English, which showed "Federal Chancellery" etc. in Berlin.
+  - `language` (default `de`): `build_style()` swaps OSM Bright's `["get", "name_en"]` in every `text-field` for `name:<language>`, so the label falls back to the local `name`. Upstream prefers English, which showed "Federal Chancellery" etc. in the old Berlin preview.
   - `text_scale` scales `text-size`, except the `*shield*` layers.
   - `hide` is a list of layer-id globs to hide.
   - `[paint."glob"]` / `[layout."glob"]` set properties on matching layer ids. They apply in file order, so the last match wins. Only properties whose prefix fits the layer type are applied, which makes broad globs like `water*` safe.
