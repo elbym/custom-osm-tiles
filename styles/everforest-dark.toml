@@ -1,0 +1,117 @@
+# Everforest Dark: Kartenstil nach dem Editor-Theme Everforest (https://github.com/sainnhe/everforest, MIT).
+# Farben aus der Palette des Themes (Medium); dunkel.
+title = "Everforest Dark"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Everforest"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "JetBrains Mono"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
+fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
+text_scale = 1.15
+attribution = "Farben nach Everforest (MIT)"
+hide = ["poi_r20", "road_oneway*"]
+
+# Charakter: weich und kontrastarm, kein Leuchtschein. Grüngrauer Grund in den Stufen bg_dim < bg0 < bg1 < bg2,
+# Straßen in den Grau-/Cremetönen, Gelb für Hauptstraßen, Orange nur für die Autobahn, Wasser aqua-blau.
+[paint."background"]
+background-color = "#2d353b"
+[paint."landuse-*"]
+fill-color = "#343f44"
+fill-opacity = 1
+# Grünflächen ausnahmsweise grün: Everforest-Green (#a7c080) ist die Signaturfarbe des Themes; 18 % (Wald 26 %)
+[paint."park"]
+fill-color = "#434e47"
+[paint."landcover-*"]
+fill-color = "#434e47"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#4d594d"
+[paint."landuse-cemetery"]
+fill-color = "#434e47"
+
+# Wasser in Everforest-Blue (#7fbbb3), 35 % mit dem Grund gemischt; Flüsse 45 %
+[paint."water*"]
+fill-color = "#4a6465"
+line-color = "#527171"
+
+[paint."building*"]
+fill-color = "#3d484d"
+fill-outline-color = "#475258"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#56635f"
+[paint."*-service-track"]
+line-color = "#56635f"
+[paint."*-link"]
+line-color = "#56635f"
+[paint."*-secondary-tertiary*"]
+line-color = "#859289"
+[paint."*-primary*"]
+line-color = "#dbbc7f"
+[paint."*-trunk*"]
+line-color = "#dbbc7f"
+[paint."*-motorway*"]
+line-color = "#e69875"
+[paint."*-casing"]
+line-color = "#232a2e"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#232a2e"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#3d484d"
+fill-outline-color = "#3d484d"
+[paint."aeroway-*"]
+fill-color = "#3d484d"
+line-color = "#3d484d"
+[paint."*-path"]
+line-color = "#7a8478"
+[paint."*railway*"]
+line-color = "#859289"
+[paint."road_area_pier"]
+fill-color = "#2d353b"
+[paint."road_pier"]
+line-color = "#2d353b"
+
+[paint."*label*"]
+text-color = "#d3c6aa"
+text-halo-color = "#2d353b"
+[paint."label_*"]
+text-color = "#d3c6aa"
+text-halo-color = "#2d353b"
+[paint."highway-name-*"]
+text-color = "#9da9a0"
+text-halo-color = "#2d353b"
+[paint."poi_*"]
+text-color = "#9da9a0"
+text-halo-color = "#2d353b"
+[paint."poi_transit"]
+text-color = "#83c092"
+[paint."water*label"]
+text-color = "#7fbbb3"
+[paint."airport"]
+text-color = "#9da9a0"
+text-halo-color = "#2d353b"
+
+# >>> Akzent-Beschriftung
+# Straßennummern ohne weißes Schild (Sprite-Bild, nicht umfärbbar), stattdessen in den Akzentfarben des Themes:
+# Autobahn #e69875, Bundes-/Hauptstraße #dbbc7f, Land-/Kreisstraße #83c092. Hauptstraßennamen ebenfalls #dbbc7f.
+[layout."*shield*"]
+icon-image = ""
+text-size = 12
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#e69875", ["trunk", "primary"], "#dbbc7f", "#83c092"]
+text-halo-color = "#2d353b"
+text-halo-width = 1.5
+[paint."highway-name-major"]
+text-color = "#dbbc7f"
+# <<< Akzent-Beschriftung
+
+# >>> Marker
+# Terminal-Marker: Kästchen "~/<--label>" mit Block-Cursor, Stiel und Punkt auf der Position
+[marker]
+type = "terminal"   # leaflet | terminal
+color = "#a7c080"      # Rahmen, Cursor, Stiel
+color2 = "#83c092"     # Prompt ~/
+bg = "#2d353b"
+fg = "#d3c6aa"
+# <<< Marker

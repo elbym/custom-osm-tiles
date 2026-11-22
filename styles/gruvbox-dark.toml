@@ -1,0 +1,117 @@
+# Gruvbox Dark: Kartenstil nach dem Editor-Theme Gruvbox (https://github.com/morhetz/gruvbox, MIT).
+# Farben aus der Palette des Themes; dunkel.
+title = "Gruvbox Dark"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Gruvbox"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "JetBrains Mono"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
+fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
+text_scale = 1.15
+attribution = "Farben nach Gruvbox (MIT)"
+hide = ["poi_r20", "road_oneway*"]
+
+# Charakter: warmes Retro, kein Leuchtschein. Grund und Häuser in den Braungrau-Stufen bg0 < bg1 < bg2,
+# Nebenstraßen bg3, Hauptstraßen Gelb, Autobahn Orange, Wasser im gedeckten Gruvbox-Blau.
+[paint."background"]
+background-color = "#282828"
+[paint."landuse-*"]
+fill-color = "#32302f"
+fill-opacity = 1
+# Grünflächen in Gruvbox-Orange (#fe8019), 20 % (Wald 28 %) mit dem Grund gemischt
+[paint."park"]
+fill-color = "#533a25"
+[paint."landcover-*"]
+fill-color = "#533a25"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#644124"
+[paint."landuse-cemetery"]
+fill-color = "#533a25"
+
+# Wasser in Gruvbox-Blue (#83a598), 35 % mit dem Grund gemischt; Flüsse 45 %
+[paint."water*"]
+fill-color = "#48544f"
+line-color = "#51605a"
+
+[paint."building*"]
+fill-color = "#3c3836"
+fill-outline-color = "#504945"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#665c54"
+[paint."*-service-track"]
+line-color = "#665c54"
+[paint."*-link"]
+line-color = "#665c54"
+[paint."*-secondary-tertiary*"]
+line-color = "#a89984"
+[paint."*-primary*"]
+line-color = "#d79921"
+[paint."*-trunk*"]
+line-color = "#d79921"
+[paint."*-motorway*"]
+line-color = "#d65d0e"
+[paint."*-casing"]
+line-color = "#1d2021"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#1d2021"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#3c3836"
+fill-outline-color = "#3c3836"
+[paint."aeroway-*"]
+fill-color = "#3c3836"
+line-color = "#3c3836"
+[paint."*-path"]
+line-color = "#7c6f64"
+[paint."*railway*"]
+line-color = "#928374"
+[paint."road_area_pier"]
+fill-color = "#282828"
+[paint."road_pier"]
+line-color = "#282828"
+
+[paint."*label*"]
+text-color = "#ebdbb2"
+text-halo-color = "#282828"
+[paint."label_*"]
+text-color = "#ebdbb2"
+text-halo-color = "#282828"
+[paint."highway-name-*"]
+text-color = "#d5c4a1"
+text-halo-color = "#282828"
+[paint."poi_*"]
+text-color = "#bdae93"
+text-halo-color = "#282828"
+[paint."poi_transit"]
+text-color = "#8ec07c"
+[paint."water*label"]
+text-color = "#83a598"
+[paint."airport"]
+text-color = "#bdae93"
+text-halo-color = "#282828"
+
+# >>> Akzent-Beschriftung
+# Straßennummern ohne weißes Schild (Sprite-Bild, nicht umfärbbar), stattdessen in den Akzentfarben des Themes:
+# Autobahn #fe8019, Bundes-/Hauptstraße #fabd2f, Land-/Kreisstraße #8ec07c. Hauptstraßennamen ebenfalls #fabd2f.
+[layout."*shield*"]
+icon-image = ""
+text-size = 12
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#fe8019", ["trunk", "primary"], "#fabd2f", "#8ec07c"]
+text-halo-color = "#282828"
+text-halo-width = 1.5
+[paint."highway-name-major"]
+text-color = "#fabd2f"
+# <<< Akzent-Beschriftung
+
+# >>> Marker
+# Terminal-Marker: Kästchen "~/<--label>" mit Block-Cursor, Stiel und Punkt auf der Position
+[marker]
+type = "terminal"   # leaflet | terminal
+color = "#fabd2f"      # Rahmen, Cursor, Stiel
+color2 = "#8ec07c"     # Prompt ~/
+bg = "#282828"
+fg = "#ebdbb2"
+# <<< Marker

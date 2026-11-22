@@ -1,0 +1,95 @@
+# "Papier Dunkel": dunkles Gegenstück zu "Papier", wie eine Karte auf dunklem Karton.
+#   - Grund dunkles Sepiabraun, Flächen leicht abgestuft
+#   - Straßen in hellerem Braun mit fast schwarzer Kontur, Hauptstraßen ocker, Autobahn terrakotta
+#   - Wald und Parks dunkles Oliv, Wasser dunkles Graublau
+#   - Schrift Cremeweiß wie die Papierfarbe der hellen Variante
+title = "Papier Dunkel"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Papier"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "Literata"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+text_scale = 1.15
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#231d16"
+[paint."landuse-*"]
+fill-color = "#282118"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-color = "#2d2f1e"
+[paint."park"]
+fill-color = "#2d2f1e"
+[paint."landcover-*"]
+fill-color = "#2d2f1e"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#343824"
+[paint."landcover-sand"]
+fill-color = "#30281b"
+
+[paint."water*"]
+fill-color = "#1f2c30"
+line-color = "#2a3b40"
+
+[paint."building*"]
+fill-color = "#33291e"
+fill-outline-color = "#46392a"
+
+# Straßen: helleres Braun mit dunkler Kontur, Hauptstraßen ocker, Autobahn terrakotta
+[paint."*-minor*"]
+line-color = "#4a3e2e"
+[paint."*-service-track"]
+line-color = "#4a3e2e"
+[paint."*-link"]
+line-color = "#4a3e2e"
+[paint."*-secondary-tertiary*"]
+line-color = "#6a5940"
+[paint."*-primary*"]
+line-color = "#9a7840"
+[paint."*-trunk*"]
+line-color = "#9a7840"
+[paint."*-motorway*"]
+line-color = "#a85d35"
+[paint."*-casing"]
+line-color = "#1a150f"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#1a150f"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#33291e"
+fill-outline-color = "#33291e"
+[paint."aeroway-*"]
+fill-color = "#30281d"
+line-color = "#30281d"
+[paint."*-path"]
+line-color = "#6b5a44"
+[paint."*railway*"]
+line-color = "#8a7860"
+[paint."road_area_pier"]
+fill-color = "#231d16"
+[paint."road_pier"]
+line-color = "#231d16"
+
+[paint."label_*"]
+text-color = "#eadfc8"
+text-halo-color = "#231d16"
+[paint."highway-name-*"]
+text-color = "#cbbd9f"
+text-halo-color = "#231d16"
+[paint."poi_*"]
+text-color = "#b59f80"
+text-halo-color = "#231d16"
+[paint."poi_transit"]
+text-color = "#c4705c"
+[paint."water*label"]
+text-color = "#8fb0b8"
+
+# >>> Marker
+# Sprechblasen-Marker (angelehnt an Heroicons "chat-bubble-bottom-center"): Label in der Blase, Spitze unten mittig auf der Position
+[marker]
+type = "bubble"     # leaflet | bubble | terminal
+color = "#c47a4a"     # Rahmen und Spitze
+bg = "#231d16"         # Blase
+fg = "#eadfc8"         # Schrift
+# <<< Marker

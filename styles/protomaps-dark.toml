@@ -1,0 +1,102 @@
+# Protomaps Dark: Kartenstil nach den Protomaps Basemaps, Variante "dark"
+# (https://github.com/protomaps/basemaps, Design von Geraldine Sarmiento, CC0). Nur Farbwerte übernommen.
+# Fast schwarz und sehr zurückhaltend: Straßen nur wenige Grauwerte heller als der Grund, Gebäude dunkler,
+# Grün und Wasser nur angedeutet. Ideal, wenn die Karte hinter dem Inhalt zurücktreten soll.
+title = "Protomaps Dark"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Protomaps"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "Inter"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+text_scale = 1.15
+attribution = "Farben nach Protomaps Basemaps (CC0)"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#1f1f1f"
+[paint."landuse-*"]
+fill-color = "#1f1f1f"
+fill-opacity = 1
+[paint."landuse-industrial"]
+fill-color = "#222222"
+[paint."landuse-hospital"]
+fill-color = "#252424"
+[paint."landuse-school"]
+fill-color = "#262323"
+[paint."landuse-cemetery"]
+fill-color = "#1c2421"
+[paint."park"]
+fill-color = "#192a24"
+[paint."landcover-*"]
+fill-color = "#192a24"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#202121"
+[paint."landcover-sand"]
+fill-color = "#212123"
+
+[paint."water*"]
+fill-color = "#31353f"
+line-color = "#31353f"
+
+[paint."building*"]
+fill-color = "#111111"
+fill-outline-color = "#111111"
+
+# Straßen: Grautreppe #333 < #3d3d3d < #474747, Konturen im Grundton
+[paint."*-minor*"]
+line-color = "#3d3d3d"
+[paint."*-service-track"]
+line-color = "#333333"
+[paint."*-link"]
+line-color = "#3d3d3d"
+[paint."*-secondary-tertiary*"]
+line-color = "#3d3d3d"
+[paint."*-primary*"]
+line-color = "#3d3d3d"
+[paint."*-trunk*"]
+line-color = "#474747"
+[paint."*-motorway*"]
+line-color = "#474747"
+[paint."*-casing"]
+line-color = "#1f1f1f"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#1e1e1e"
+fill-outline-color = "#1e1e1e"
+[paint."aeroway-area"]
+fill-color = "#1e1e1e"
+[paint."aeroway-runway"]
+line-color = "#333333"
+[paint."aeroway-taxiway"]
+line-color = "#333333"
+[paint."*-path"]
+line-color = "#333333"
+[paint."*railway*"]
+line-color = "#000000"
+[paint."road_area_pier"]
+fill-color = "#333333"
+[paint."road_pier"]
+line-color = "#333333"
+
+[paint."label_*"]
+text-color = "#7a7a7a"
+text-halo-color = "#212121"
+[paint."highway-name-*"]
+text-color = "#666666"
+text-halo-color = "#1f1f1f"
+[paint."poi_*"]
+text-color = "#93939f"
+text-halo-color = "#1f1f1f"
+[paint."poi_transit"]
+text-color = "#4299bb"
+[paint."water*label"]
+text-color = "#4299bb"
+
+# >>> Marker
+# Sprechblasen-Marker (angelehnt an Heroicons "chat-bubble-bottom-center"): Label in der Blase, Spitze unten mittig auf der Position
+[marker]
+type = "bubble"     # leaflet | bubble | terminal
+color = "#2b5cea"     # Rahmen und Spitze (Protomaps "lapis", dunkle Variante)
+bg = "#1f1f1f"         # Blase
+fg = "#e0e0e0"         # Schrift
+# <<< Marker

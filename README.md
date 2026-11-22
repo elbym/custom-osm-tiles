@@ -14,13 +14,18 @@ Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bi
 
 | | Hell | Dunkel |
 |---|---|---|
+| **Americana**<br><sub>Standard</sub> | <a href="docs/previews/americana.png"><img src="docs/previews/americana.png" width="256" alt="OSM Americana"></a><br>OSM Americana | <a href="docs/previews/americana-dark.png"><img src="docs/previews/americana-dark.png" width="256" alt="OSM Americana Dark"></a><br>OSM Americana Dark |
 | **Clear**<br><sub>Standard</sub> | <a href="docs/previews/clear.png"><img src="docs/previews/clear.png" width="256" alt="Clear"></a><br>Clear | <a href="docs/previews/clear-dark.png"><img src="docs/previews/clear-dark.png" width="256" alt="Clear Dark"></a><br>Clear Dark |
 | **Cupertino**<br><sub>Standard</sub> | <a href="docs/previews/cupertino.png"><img src="docs/previews/cupertino.png" width="256" alt="Cupertino"></a><br>Cupertino | <a href="docs/previews/cupertino-dark.png"><img src="docs/previews/cupertino-dark.png" width="256" alt="Cupertino Dark"></a><br>Cupertino Dark |
 | **North**<br><sub>Standard</sub> | <a href="docs/previews/north.png"><img src="docs/previews/north.png" width="256" alt="North"></a><br>North | <a href="docs/previews/north-dark.png"><img src="docs/previews/north-dark.png" width="256" alt="North Dark"></a><br>North Dark |
 | **OSM**<br><sub>Standard</sub> | <a href="docs/previews/osm-light.png"><img src="docs/previews/osm-light.png" width="256" alt="OSM light"></a><br>OSM light | <a href="docs/previews/osm-dark.png"><img src="docs/previews/osm-dark.png" width="256" alt="OSM dark"></a><br>OSM dark |
+| **Papier**<br><sub>Standard</sub> | <a href="docs/previews/papier.png"><img src="docs/previews/papier.png" width="256" alt="Papier"></a><br>Papier | <a href="docs/previews/papier-dark.png"><img src="docs/previews/papier-dark.png" width="256" alt="Papier Dunkel"></a><br>Papier Dunkel |
+| **Protomaps**<br><sub>Standard</sub> | <a href="docs/previews/protomaps-light.png"><img src="docs/previews/protomaps-light.png" width="256" alt="Protomaps Light"></a><br>Protomaps Light | <a href="docs/previews/protomaps-dark.png"><img src="docs/previews/protomaps-dark.png" width="256" alt="Protomaps Dark"></a><br>Protomaps Dark |
 | **Wiki**<br><sub>Standard</sub> | <a href="docs/previews/wiki.png"><img src="docs/previews/wiki.png" width="256" alt="Wiki"></a><br>Wiki | <a href="docs/previews/wiki-dark.png"><img src="docs/previews/wiki-dark.png" width="256" alt="Wiki Dark"></a><br>Wiki Dark |
 | **Catppuccin**<br><sub>Nerd</sub> | <a href="docs/previews/catppuccin-latte.png"><img src="docs/previews/catppuccin-latte.png" width="256" alt="Catppuccin Latte"></a><br>Catppuccin Latte | <a href="docs/previews/catppuccin-mocha.png"><img src="docs/previews/catppuccin-mocha.png" width="256" alt="Catppuccin Mocha"></a><br>Catppuccin Mocha |
 | **Dracula**<br><sub>Nerd</sub> | <a href="docs/previews/dracula-light.png"><img src="docs/previews/dracula-light.png" width="256" alt="Alucard"></a><br>Alucard | <a href="docs/previews/dracula.png"><img src="docs/previews/dracula.png" width="256" alt="Dracula"></a><br>Dracula |
+| **Everforest**<br><sub>Nerd</sub> | <a href="docs/previews/everforest-light.png"><img src="docs/previews/everforest-light.png" width="256" alt="Everforest Light"></a><br>Everforest Light | <a href="docs/previews/everforest-dark.png"><img src="docs/previews/everforest-dark.png" width="256" alt="Everforest Dark"></a><br>Everforest Dark |
+| **Gruvbox**<br><sub>Nerd</sub> | <a href="docs/previews/gruvbox-light.png"><img src="docs/previews/gruvbox-light.png" width="256" alt="Gruvbox Light"></a><br>Gruvbox Light | <a href="docs/previews/gruvbox-dark.png"><img src="docs/previews/gruvbox-dark.png" width="256" alt="Gruvbox Dark"></a><br>Gruvbox Dark |
 | **Nightfox**<br><sub>Nerd</sub> | <a href="docs/previews/dayfox.png"><img src="docs/previews/dayfox.png" width="256" alt="Dayfox"></a><br>Dayfox | <a href="docs/previews/nightfox.png"><img src="docs/previews/nightfox.png" width="256" alt="Nightfox"></a><br>Nightfox |
 | **Solarized**<br><sub>Nerd</sub> | <a href="docs/previews/solarized-light.png"><img src="docs/previews/solarized-light.png" width="256" alt="Solarized Light"></a><br>Solarized Light | <a href="docs/previews/solarized-dark.png"><img src="docs/previews/solarized-dark.png" width="256" alt="Solarized Dark"></a><br>Solarized Dark |
 | **Tokyo Night**<br><sub>Nerd</sub> | <a href="docs/previews/tokyonight-day.png"><img src="docs/previews/tokyonight-day.png" width="256" alt="Tokyo Night Day"></a><br>Tokyo Night Day | <a href="docs/previews/tokyonight-night.png"><img src="docs/previews/tokyonight-night.png" width="256" alt="Tokyo Night"></a><br>Tokyo Night |
@@ -84,7 +89,7 @@ Beide Seiten haben die Schalter **Standard | Nerd** und **Hell | Dunkel**. Stile
 ./make-tiles.py --site [--missing]     # Einstellungen aus site.toml -> site/
 ```
 
-`site.toml` legt Ort (Berlin, Brandenburger Tor), Label, Zoom (16), Bereich (3,6 km, damit sich der linke Streifen bei 1920 px Fensterbreite durch alle Stile bis nach rechts schieben lässt), Retina (aus, sonst über dem 1-GB-Limit von Pages) und die Schriften je Gruppe fest (Standard: Fira Sans und Public Sans; Nerd: JetBrains Mono und Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
+`site.toml` legt Ort (Berlin, Brandenburger Tor), Label, Zoom (16), Bereich (1,2 km um das Brandenburger Tor), Retina (aus, sonst über dem 1-GB-Limit von Pages) und die Schriften je Gruppe fest (Standard: Fira Sans und Public Sans; Nerd: JetBrains Mono und Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
 
 Die Streifen-Seite nutzt Tailwind CSS, lokal gebaut (kein CDN): `npm install && npm run css` erzeugt `vendor/streifen.css` aus `src/streifen.css`. Im Querformat sind die Streifen senkrecht, im Hochformat (Handy) waagerecht. Der Dialog „Über“ nennt alle Quellen und Lizenzen.
 
@@ -114,14 +119,19 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 
 | Stil | Gruppe | Vorbild |
 |---|---|---|
+| **OSM Americana** / Dark | Standard | Stil der OSM-US-Community (openstreetmap-americana, CC0); dunkle Variante eigene Ableitung |
 | **Clear** / Clear Dark | Standard | eigener Stil: kühl und reduziert, Farbe nur für Hauptstraßen (Standard) |
 | **Cupertino** / Dark | Standard | angelehnt an den Gesamteindruck von Apple Maps (eigene Farbwahl) |
 | **North** / Dark | Standard | Farben nach der Palette von Hydda (BSD-3) |
 | **OSM light** / OSM dark | Standard | OSM-Standardkarte (openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
+| **Papier** | Standard | eigener Stil: warmes Cremeweiß, Sepia-Konturen, Olivgrün, wie eine gedruckte Karte; dunkel wie auf dunklem Karton |
+| **Protomaps Light** / **Dark** | Standard | Protomaps Basemaps (Design CC0) |
 | **Wiki** / Dark | Standard | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
 | **Dayfox** / **Nightfox** | Nerd | Editor-Theme Nightfox (MIT) |
 | **Catppuccin Latte** / **Mocha** | Nerd | Catppuccin (MIT) |
 | **Alucard** / **Dracula** | Nerd | Dracula, helle Variante nach der offiziellen Alucard-Palette (MIT) |
+| **Everforest Light** / **Dark** | Nerd | Everforest (MIT) |
+| **Gruvbox Light** / **Dark** | Nerd | Gruvbox (MIT) |
 | **Solarized Light** / **Dark** | Nerd | Solarized (MIT) |
 | **Tokyo Night Day** / **Night** | Nerd | tokyonight.nvim (Apache-2.0) |
 | **Cyberpunk Day** / **Neon Cyberpunk** | Nerd | maptoposter „neon_cyberpunk“ (MIT); helle Variante eigener Entwurf |
@@ -132,7 +142,7 @@ Die Standard-Stile haben einen **Sprechblasen-Marker** (angelehnt an das Heroico
 
 Die Nerd-Stile haben statt des Leaflet-Markers einen **Terminal-Marker**: ein Kästchen `~/<label>` mit Block-Cursor (nicht blinkend) in den Akzentfarben, darunter Stiel und Punkt auf der Position (Abschnitt `[marker]` in der Stil-Datei: `type = "terminal"`, `color`, `color2`, `bg`, `fg`). Der Text nutzt die Monoschrift des Betrachters (`ui-monospace`).
 
-Grünflächen (Parks, Wiesen, Wald) erscheinen in den Nerd-Stilen in der Signaturfarbe des Themes, mit dem Grund gemischt: Tokyo Night Neon-Pink, Dracula/Alucard Lila, Catppuccin Peach, Nightfox/Dayfox Cyan, Solarized Gold (bei Solarized Dark in OKLCH bestimmt, weil die Mischung mit dem blaugrünen Grund sonst Grün ergäbe).
+Grünflächen (Parks, Wiesen, Wald) erscheinen in den Nerd-Stilen in der Signaturfarbe des Themes, mit dem Grund gemischt: Tokyo Night Neon-Pink, Dracula/Alucard Lila, Catppuccin Peach, Nightfox/Dayfox Cyan, Solarized Gold (bei Solarized Dark in OKLCH bestimmt, weil die Mischung mit dem blaugrünen Grund sonst Grün ergäbe), Gruvbox Orange. Everforest bleibt grün, weil Grün dort die Signaturfarbe ist.
 
 In den Nerd-Stilen erscheinen Straßennummern (A, B, L, K) ohne weißes Schild, dafür in den Akzentfarben des Themes, je nach Straßenart (Block „Akzent-Beschriftung“ am Ende der Datei).
 

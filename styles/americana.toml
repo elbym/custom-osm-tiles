@@ -1,0 +1,95 @@
+# OSM Americana: Kartenstil nach dem Stil der OSM-US-Community
+# (https://github.com/osm-americana/openstreetmap-americana, CC0). Nur Farbwerte übernommen.
+# Kräftig und freundlich: warmweißer Grund, weiße Straßen mit dunkelgrauer Kontur, Bundesstraßen rot gerandet,
+# Autobahnen rot; Grün hell-mintig, Wasser hellblau. Keine US-Schilder (die Sprites gibt es hier nicht).
+title = "OSM Americana"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"          # light | dark
+family = "Americana"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "Public Sans"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+text_scale = 1.15
+attribution = "Farben nach OSM Americana (CC0)"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#f9f5f0"
+[paint."landuse-*"]
+fill-color = "#f9f5f0"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-color = "#e0e4d8"
+[paint."park"]
+fill-color = "#d7eede"
+[paint."landcover-*"]
+fill-color = "#d7eede"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#b5dcc0"   # Americana "pitch" (136°, 41 %, 75 %) als kräftigeres Grün für Wald
+
+[paint."water*"]
+fill-color = "#c6d8ec"
+line-color = "#92b1d3"
+
+[paint."building*"]
+fill-color = "#dedede"
+fill-outline-color = "#cccccc"
+
+# Straßen: weiß; Kontur hellgrau (Nebenstraßen) bzw. dunkelgrau (ab Landstraße); Bundesstraße rot gerandet, Autobahn rot
+[paint."*-minor*"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#ffffff"
+[paint."*-link"]
+line-color = "#ffffff"
+[paint."*-secondary-tertiary*"]
+line-color = "#ffffff"
+[paint."*-primary*"]
+line-color = "#ffffff"
+[paint."*-trunk*"]
+line-color = "#ffffff"
+[paint."*-motorway*"]
+line-color = "#e56c6c"
+[paint."*-casing"]
+line-color = "#bfbfbf"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#3b3b3b"
+[paint."*-primary*-casing"]
+line-color = "#3b3b3b"
+[paint."*-trunk*-casing"]
+line-color = "#e21d1d"
+[paint."*-motorway*-casing"]
+line-color = "#ae1e1e"
+[paint."aeroway-area"]
+fill-color = "#efedf7"
+[paint."aeroway-runway"]
+line-color = "#bbb3df"
+[paint."aeroway-taxiway"]
+line-color = "#bbb3df"
+[paint."*-path"]
+line-color = "#bfbfbf"
+[paint."*railway*"]
+line-color = "#999999"
+
+[paint."label_*"]
+text-color = "#1a1a1a"
+text-halo-color = "#ffffff"
+[paint."highway-name-*"]
+text-color = "#3b3b3b"
+text-halo-color = "#ffffff"
+[paint."poi_*"]
+text-color = "#693f23"
+text-halo-color = "#ffffff"
+[paint."poi_transit"]
+text-color = "#a20067"
+[paint."water*label"]
+text-color = "#294666"
+
+# >>> Marker
+# Sprechblasen-Marker (angelehnt an Heroicons "chat-bubble-bottom-center"): Label in der Blase, Spitze unten mittig auf der Position
+[marker]
+type = "bubble"     # leaflet | bubble | terminal
+color = "#bf2033"     # Rahmen und Spitze (Americana "red", Pantone 187)
+bg = "#ffffff"         # Blase
+fg = "#1a1a1a"         # Schrift
+# <<< Marker

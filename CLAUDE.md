@@ -50,10 +50,12 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 - It turns `streifen.html` into `site/index.html`, drops `compare.html`, and adds `.nojekyll`.
 - Publish `site/` as an orphan `gh-pages` branch (force-pushed, no history). Never commit tiles to `main`. The Pages limit is 1 GB.
 - `streifen.html` is styled with Tailwind v4, built locally into `vendor/streifen.css`, never from a CDN.
-  - The `dark:` variant is bound to `<html data-mode>`, which follows the page's light/dark switch.
+  - The `dark:` variant is bound to `<html data-mode>`, which follows the page's light/dark switch. Without `?mode`, the mode follows `prefers-color-scheme` (reload on change).
   - Classes set from JS are fine, because Tailwind scans the HTML source.
-  - Portrait screens get horizontal strips: `clip()` checks `matchMedia('(orientation: portrait)')`.
+  - Split: the "Teilung" switch sets `?split=cols|rows` (no reload); without it, portrait gets rows. `setSplit()` writes `<html data-split>`, which drives the custom variants `cols:`/`rows:` (title layout, bar position) and `clip()`.
+  - Full screen on iPhone: `#map` and `#titles` are `fixed h-lvh` (behind Safari's bars, `viewport-fit=cover`); `.leaflet-bottom` is lifted by `100lvh - 100dvh + safe-area` so zoom and attribution stay visible.
   - On small screens (custom variant `compact:` in `src/streifen.css` = portrait or height ≤ 32rem) the options bar is collapsed to a "☰ Optionen" button (top right in portrait, because the attribution sits at the bottom). It toggles `data-open` on `#bar`; tapping the map or Esc closes it.
+- The "Stile" dropdown (`<details id="pick">`) lists the families of the current category as checkboxes. Unchecked ones go into `?aus=Fam1,Fam2`, applied (page reload) when the dropdown closes; at least one strip always stays, and switching category clears `aus`.
 - The "Über" dialog holds all attributions. Keep it complete; the user insisted on this.
 
 **Preview pages** (opened via file://):
@@ -80,13 +82,15 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - The label is set via `textContent`, never as HTML.
   - `streifen.html` carries a copy of `markerIcon()` and its CSS, and uses the middle strip's marker. Keep both copies in sync.
 - `--reindex` rewrites every `out/*/index.html` from `template.html` and the current style metadata (category, mode, family, attribution, marker) without rendering. Use it after template or marker changes.
-- Nerd styles show green areas (`park`, `landcover-*`, `landuse-cemetery`, `landcover-wood`) in the theme's signature colour instead of green (Tokyo Night magenta2 pink, Dracula/Alucard purple, Catppuccin Latte peach, Nightfox/Dayfox cyan, Solarized yellow), mixed with the background: dark 20 % (wood 28 %), light 25 % (wood 35 %). This was a user request; Tokyo Night uses `magenta2`. Exceptions: catppuccin-mocha uses Catppuccin green `#a6e3a1` (18 %, wood 26 %) as part of its pastel character; in solarized-dark the RGB mix with the teal base turned green, so it uses an OKLCH dark gold (#4b3b13), mixed again 45 % (wood 60 %) with base03 so the petrol ground dominates.
+- Nerd styles show green areas (`park`, `landcover-*`, `landuse-cemetery`, `landcover-wood`) in the theme's signature colour instead of green (Tokyo Night magenta2 pink, Dracula/Alucard purple, Catppuccin Latte peach, Nightfox/Dayfox cyan, Solarized yellow, Gruvbox orange), mixed with the background: dark 20 % (wood 28 %), light 25 % (wood 35 %). This was a user request; Tokyo Night uses `magenta2`. Exceptions: Everforest stays green (Everforest green is its signature colour). catppuccin-mocha uses Catppuccin green `#a6e3a1` (18 %, wood 26 %) as part of its pastel character; in solarized-dark the RGB mix with the teal base turned green, so it uses an OKLCH dark gold (#4b3b13), mixed again 45 % (wood 60 %) with base03 so the petrol ground dominates.
 - Dark nerd styles each have their own character (user request, because they all looked alike); every colour is still a palette colour or a mix of two. Each file says its character in the comment above `[paint."background"]`.
   - Neon glow (blurred casing in the accent colour) only on `dracula`, `tokyonight-night` and `cyberpunk`.
   - `catppuccin-mocha`: pastel, no glow, surfaces stepped crust < mantle < base < surface, roads lavender/mauve/peach, water sapphire.
   - `solarized-dark`: flat, no glow, roads only in base tones, yellow/orange just for trunk/primary and motorway.
   - `nightfox`: muted navy, no glow, water deep blue, orange motorway the only warm accent.
   - `dracula`: colourful: secondary/tertiary orange, paths green, minor roads comment, water cyan 55 %.
+  - `gruvbox-dark`: warm retro, no glow, brown-grey bg steps, roads bg3/fg4, yellow primary, orange motorway, muted blue water.
+  - `everforest-dark`: soft and low-contrast, no glow, green-grey ground, grey/cream roads, yellow primary, orange only motorway.
   - `tokyonight-night`: blue neon for trunk/primary, magenta2 motorway, water blue0.
   - Road ref and major-name labels use the same colours as their road lines.
 - Nerd styles end with a `# >>> Akzent-Beschriftung … # <<<` block. It hides the white shield sprite (`icon-image = ""`, because sprite PNGs cannot be recoloured) and colours road refs by class with a `match` expression: motorway / trunk+primary / rest, using the theme's accent colours. Major road names get the primary accent too. Keep the block at the end of the file so it wins.
@@ -97,10 +101,13 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
     - `cupertino`: borrows only the overall look of Apple Maps. Own colours, no Apple assets, and no "Apple" in the public attribution.
     - `north`: Hydda palette.
     - `osm-light`: a lighter, decluttered osm.org standard map.
+    - `papier`: own design, printed-map look (cream, sepia casings, olive green, Literata); `papier-dark` = dark sepia card.
+    - `americana`: OSM Americana colours (CC0): white roads with dark casings, red trunk casing and motorway. `americana-dark` is our own derivation (upstream has no dark flavour).
+    - `protomaps-light`/`-dark`: Protomaps Basemaps flavours (design CC0).
     - `wiki`: Wikimedia Maps colours from wikimedia/osm-bright.tm2. The design is CC BY 3.0, so this attribution must stay, in `wiki-dark` too.
-  - **Standard dark:** `clear-dark`, `cupertino-dark`, `north-dark`, `osm-dark`, `wiki-dark`.
+  - **Standard dark:** `clear-dark`, `cupertino-dark`, `north-dark`, `osm-dark`, `wiki-dark`, `americana-dark`, `papier-dark`, `protomaps-dark`.
   - **Nerd, not editor themes:** `cyberpunk` ("Neon Cyberpunk", colours 1:1 from maptoposter `neon_cyberpunk.json`, MIT, neon glow on roads) and `cyberpunk-day` (own light counterpart: same hues darkened, no glow).
-  - **Nerd** (editor-theme palettes): `dayfox`/`nightfox`, `catppuccin-latte`/`-mocha`, `dracula-light` ("Alucard", the official Dracula light palette) / `dracula`, `solarized-light`/`-dark` (all MIT), and `tokyonight-day`/`-night` (Apache-2.0).
+  - **Nerd** (editor-theme palettes): `dayfox`/`nightfox`, `catppuccin-latte`/`-mocha`, `dracula-light` ("Alucard", the official Dracula light palette) / `dracula`, `solarized-light`/`-dark`, `gruvbox-light`/`-dark`, `everforest-light`/`-dark` (all MIT), and `tokyonight-day`/`-night` (Apache-2.0).
 - For the recreations, only colour values were taken from the originals, never their style files. That is what the user asked for, to avoid licence problems, and each recreation names its inspiration in `attribution`.
 - Dark and editor-theme styles share one role mapping: bg, landuse, buildings, water, green, three road tiers, text.
   - The `*-dark` standard styles were derived in OKLCH, not by inversion (inversion makes white roads darker than the ground). The light background's hue becomes a dark neutral ramp, and accents are relit.

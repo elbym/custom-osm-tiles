@@ -10,23 +10,24 @@
 </head>
 <body class="h-dvh overflow-hidden bg-neutral-400 font-sans text-sm text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100">
 
-<div id="map" class="absolute inset-0 bg-neutral-400 dark:bg-neutral-800"></div>
+<div id="map" class="fixed inset-x-0 top-0 h-lvh bg-neutral-400 dark:bg-neutral-800"></div>
 
-<!-- Stilnamen: Querformat oben je Streifen, Hochformat links je (waagerechtem) Streifen -->
-<div id="titles" class="pointer-events-none absolute inset-0 z-[1000] flex landscape:flex-row portrait:flex-col"></div>
+<!-- Stilnamen: senkrechte Streifen (cols) oben je Streifen, waagerechte (rows) links je Streifen.
+     Karte und Titel sind 100lvh hoch, reichen also auf dem iPhone hinter die Safari-Leisten (viewport-fit=cover). -->
+<div id="titles" class="pointer-events-none fixed inset-x-0 top-0 h-lvh z-[1000] flex cols:flex-row rows:flex-col"></div>
 
 <!-- Bedienleiste: Desktop/Querformat oben links unter den Titeln, Hochformat oben rechts (unten liegt die
      Namensnennung). Auf kleinen Bildschirmen (compact: Hochformat oder niedrige Höhe) zugeklappt: nur ein
      Knopf "Optionen", der die Leiste auf- und zuklappt (data-open am #bar). -->
 <div id="bar" class="group absolute z-[1001] flex items-start gap-2 rounded-lg bg-white/90 p-2 shadow-lg backdrop-blur dark:bg-neutral-900/90
-  flex-col landscape:top-10 landscape:left-2 portrait:right-2 portrait:top-[max(.5rem,env(safe-area-inset-top))] portrait:items-end
+  flex-col cols:top-10 cols:left-2 rows:right-2 rows:top-[max(.5rem,env(safe-area-inset-top))] rows:items-end
   max-w-[calc(100%-1rem)] compact:p-1.5">
   <button id="bar-toggle" aria-expanded="false" aria-controls="bar-items"
     class="hidden max-w-full items-center gap-2 rounded-md border border-neutral-400 px-3 py-1 dark:border-neutral-600 compact:inline-flex">
     <span aria-hidden="true" class="w-3 text-center group-data-open:hidden">☰</span><span aria-hidden="true" class="hidden w-3 text-center group-data-open:inline">✕</span>
     <span>Optionen</span>
   </button>
-  <div id="bar-items" class="flex flex-wrap items-center gap-2 portrait:justify-end compact:hidden compact:group-data-open:flex">
+  <div id="bar-items" class="flex flex-wrap items-center gap-2 rows:justify-end compact:hidden compact:group-data-open:flex">
   <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="cat" role="group" aria-label="Gruppe">
     <button value="standard" class="px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Standard</button>
     <button value="nerd" class="border-l border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Nerd</button>
@@ -38,6 +39,15 @@
   <label class="inline-flex items-center gap-1"><span class="sr-only">Schrift</span>
     <select id="font" class="rounded-md border border-neutral-400 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-800"></select>
   </label>
+  <!-- Stile ein-/ausblenden: Häkchen setzen, beim Zuklappen wird neu geladen (?aus=Familie,…) -->
+  <details id="pick" class="relative">
+    <summary class="cursor-pointer list-none rounded-md border border-neutral-400 px-3 py-1 dark:border-neutral-600">Stile <span id="pick-count"></span></summary>
+    <div id="pick-list" class="absolute left-0 top-full z-10 mt-1 flex max-h-[60dvh] flex-col gap-1 overflow-auto whitespace-nowrap rounded-md bg-white p-2 shadow-lg rows:left-auto rows:right-0 dark:bg-neutral-900"></div>
+  </details>
+  <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="split" role="group" aria-label="Teilung">
+    <button value="cols" title="Senkrechte Streifen" class="px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">▥ Senkrecht</button>
+    <button value="rows" title="Waagerechte Streifen" class="border-l border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">▤ Waagerecht</button>
+  </span>
   <button id="about-open" class="rounded-md border border-neutral-400 px-3 py-1 dark:border-neutral-600">Über</button>
   </div>
 </div>
@@ -80,7 +90,10 @@
 const q = new URLSearchParams(location.search);
 const all = Object.entries(CONFIGS);
 const cat = q.get('cat') === 'nerd' ? 'nerd' : 'standard';
-const mode = q.get('mode') === 'dark' ? 'dark' : 'light';
+// Modus: ?mode=light|dark, sonst Systemeinstellung (Wechsel im System lädt neu, solange kein ?mode gesetzt ist)
+const dark = matchMedia('(prefers-color-scheme: dark)');
+const mode = ['light', 'dark'].includes(q.get('mode')) ? q.get('mode') : dark.matches ? 'dark' : 'light';
+dark.addEventListener('change', () => { if (!q.has('mode')) location.reload(); });
 document.documentElement.dataset.mode = mode;
 const inSet = c => c.category === cat && c.mode === mode;
 const fonts = [...new Set(all.filter(([, c]) => inSet(c)).map(([, c]) => c.font))].sort();
@@ -89,25 +102,46 @@ const font = fonts.includes(q.get('font')) ? q.get('font') : fonts[0];
 const orderOf = fam => Math.min(...all.filter(([, c]) => c.family === fam).map(([, c]) => c.order ?? 50));
 const families = [...new Set(all.filter(([, c]) => c.category === cat).map(([, c]) => c.family))]
   .sort((a, b) => orderOf(a) - orderOf(b) || a.localeCompare(b));
-const strips = families.map(fam => [fam, all.find(([, c]) => inSet(c) && c.family === fam && c.font === font)]);
+// Ausgeblendete Familien (?aus=…); mindestens ein Streifen bleibt
+const off = new Set((q.get('aus') || '').split(',').filter(Boolean));
+const shown = families.filter(f => !off.has(f)).length ? families.filter(f => !off.has(f)) : families;
+const strips = shown.map(fam => [fam, all.find(([, c]) => inSet(c) && c.family === fam && c.font === font)]);
 
 const go = (key, val) => { q.set(key, val); location.search = q; };
 for (const [id, val] of [['cat', cat], ['mode', mode]]) {
   for (const b of document.querySelectorAll(`#${id} button`)) {
     b.setAttribute('aria-pressed', b.value === val);
-    b.onclick = () => go(id, b.value);
+    b.onclick = () => { if (id === 'cat') q.delete('aus'); go(id, b.value); };  // aus= gilt je Gruppe
   }
 }
 const sel = document.getElementById('font');
 sel.innerHTML = fonts.map(f => `<option${f === font ? ' selected' : ''}>${f}</option>`).join('');
 sel.onchange = () => go('font', sel.value);
 
+// Stil-Auswahl: Änderungen sammeln, beim Zuklappen anwenden
+const pick = document.getElementById('pick'), list = document.getElementById('pick-list');
+document.getElementById('pick-count').textContent = `(${shown.length}/${families.length})`;
+for (const fam of families) {
+  const label = list.appendChild(document.createElement('label'));
+  label.className = 'flex items-center gap-2';
+  const box = label.appendChild(document.createElement('input'));
+  box.type = 'checkbox'; box.value = fam; box.checked = shown.includes(fam);
+  label.append(fam);
+}
+pick.addEventListener('toggle', () => {
+  if (pick.open) return;
+  const aus = [...list.querySelectorAll('input:not(:checked)')].map(b => b.value);
+  if (aus.length === families.length) { for (const b of list.querySelectorAll('input')) b.checked = shown.includes(b.value); return; }
+  if (aus.join() === families.filter(f => !shown.includes(f)).join()) return;
+  if (aus.length) go('aus', aus.join(',')); else { q.delete('aus'); location.search = q; }
+});
+
 // Auf kleinen Bildschirmen zugeklappte Optionen: Knopf klappt auf/zu, Tippen auf die Karte oder Esc schließt
 const bar = document.getElementById('bar'), toggle = document.getElementById('bar-toggle');
 const setOpen = open => { bar.toggleAttribute('data-open', open); toggle.setAttribute('aria-expanded', open); };
 toggle.onclick = () => setOpen(!bar.hasAttribute('data-open'));
-document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
-document.getElementById('map').addEventListener('pointerdown', () => setOpen(false));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { setOpen(false); pick.open = false; } });
+document.getElementById('map').addEventListener('pointerdown', () => { setOpen(false); pick.open = false; });
 
 const c0 = (strips.find(([, v]) => v)?.[1] || all[0])[1];
 const map = L.map('map', {
@@ -133,29 +167,43 @@ const panes = strips.map(([, v], i) => {
 const mid = strips[Math.floor(strips.length / 2)][1] || strips.find(([, v]) => v)[1];
 L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker), title: mid?.[1].marker?.label }).addTo(map);
 
-// Streifen-Zuschnitt: Panes liegen im verschobenen mapPane, daher dessen Position abziehen
+// Teilung (?split=cols|rows): ohne Angabe nach Ausrichtung (Hochformat waagerecht). data-split am <html>
+// steuert die Tailwind-Varianten cols:/rows:, clip() die Streifen. Umschalten ohne Neuladen.
 const portrait = matchMedia('(orientation: portrait)');
+let split;
+function setSplit(v) {
+  split = v || (portrait.matches ? 'rows' : 'cols');
+  document.documentElement.dataset.split = split;
+  for (const b of document.querySelectorAll('#split button')) b.setAttribute('aria-pressed', b.value === split);
+}
+setSplit(['cols', 'rows'].includes(q.get('split')) && q.get('split'));
+for (const b of document.querySelectorAll('#split button')) b.onclick = () => {
+  q.set('split', b.value); history.replaceState(null, '', '?' + q);
+  setSplit(b.value); map.invalidateSize(); clip();
+};
+
+// Streifen-Zuschnitt: Panes liegen im verschobenen mapPane, daher dessen Position abziehen
 function clip() {
   const size = map.getSize(), pos = L.DomUtil.getPosition(map.getPane('mapPane')), n = panes.length;
   panes.forEach((pane, i) => {
     let x0 = 0, x1 = size.x, y0 = 0, y1 = size.y;
-    if (portrait.matches) { y0 = size.y * i / n; y1 = size.y * (i + 1) / n; }
+    if (split === 'rows') { y0 = size.y * i / n; y1 = size.y * (i + 1) / n; }
     else { x0 = size.x * i / n; x1 = size.x * (i + 1) / n; }
     x0 -= pos.x; x1 -= pos.x; y0 -= pos.y; y1 -= pos.y;
     pane.style.clipPath = `polygon(${x0}px ${y0}px, ${x1}px ${y0}px, ${x1}px ${y1}px, ${x0}px ${y1}px)`;
   });
 }
 map.on('move zoom viewreset resize', clip);
-portrait.addEventListener('change', () => { map.invalidateSize(); clip(); });
+portrait.addEventListener('change', () => { if (!q.get('split')) setSplit(); map.invalidateSize(); clip(); });
 clip();
 
 // Stilnamen je Streifen bzw. Hinweis, wenn die Familie diesen Modus/diese Schrift nicht hat
 const head = document.getElementById('titles');
 for (const [fam, v] of strips) {
   const cell = head.appendChild(document.createElement('div'));
-  cell.className = 'flex-1 min-w-0 min-h-0 landscape:border-l portrait:border-t border-black/30 first:border-0 dark:border-white/30';
+  cell.className = 'flex-1 min-w-0 min-h-0 cols:pt-[env(safe-area-inset-top)] rows:first:pt-[env(safe-area-inset-top)] rows:pl-[env(safe-area-inset-left)] cols:first:pl-[env(safe-area-inset-left)] cols:border-l rows:border-t border-black/30 first:border-0 dark:border-white/30';
   const tag = cell.appendChild(document.createElement('span'));
-  tag.className = 'inline-block max-w-full truncate bg-white/85 px-2 py-1 font-medium dark:bg-neutral-900/85 landscape:w-full portrait:rounded-br-md';
+  tag.className = 'inline-block max-w-full truncate bg-white/85 px-2 py-1 font-medium dark:bg-neutral-900/85 cols:w-full rows:rounded-br-md';
   if (v) tag.textContent = TITLES[v[0]].split(' · ')[0];
   else {
     const hasMode = all.some(([, c]) => inSet(c) && c.family === fam);

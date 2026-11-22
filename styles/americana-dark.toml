@@ -1,0 +1,99 @@
+# OSM Americana Dark: eigene dunkle Ableitung von OSM Americana
+# (https://github.com/osm-americana/openstreetmap-americana, CC0; das Original hat keine dunkle Variante).
+# Charakter wie hell: Straßen klar umrandet, Bundesstraßen rot gerandet, Autobahn rot. Grund warmes Dunkelgrau,
+# Straßen hellgrau mit fast schwarzer Kontur, Rot aufgehellt, Grün und Wasser in Americanas Farbtönen (136°/211°) abgedunkelt.
+title = "OSM Americana Dark"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Americana"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "Public Sans"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+text_scale = 1.15
+attribution = "Farben nach OSM Americana (CC0)"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#1f1d1b"
+[paint."landuse-*"]
+fill-color = "#1f1d1b"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-color = "#2a2d25"
+[paint."park"]
+fill-color = "#1f3326"
+[paint."landcover-*"]
+fill-color = "#1f3326"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#24402d"
+
+[paint."water*"]
+fill-color = "#1e3045"
+line-color = "#2b4666"
+
+[paint."building*"]
+fill-color = "#2e2c2a"
+fill-outline-color = "#3a3836"
+
+# Straßen: Nebenstraßen dunkelgrau, ab Landstraße hellgrau mit schwarzer Kontur; Bundesstraße rot gerandet, Autobahn rot
+[paint."*-minor*"]
+line-color = "#4a4846"
+[paint."*-service-track"]
+line-color = "#4a4846"
+[paint."*-link"]
+line-color = "#4a4846"
+[paint."*-secondary-tertiary*"]
+line-color = "#77736f"
+[paint."*-primary*"]
+line-color = "#8c8884"
+[paint."*-trunk*"]
+line-color = "#8c8884"
+[paint."*-motorway*"]
+line-color = "#c45454"
+[paint."*-casing"]
+line-color = "#141312"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#0b0a0a"
+[paint."*-primary*-casing"]
+line-color = "#0b0a0a"
+[paint."*-trunk*-casing"]
+line-color = "#d43a3a"
+[paint."*-motorway*-casing"]
+line-color = "#6e1a1a"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#2e2c2a"
+fill-outline-color = "#2e2c2a"
+[paint."aeroway-*"]
+fill-color = "#2a2833"
+line-color = "#4a4466"
+[paint."*-path"]
+line-color = "#5a5652"
+[paint."*railway*"]
+line-color = "#6b6b6b"
+[paint."road_area_pier"]
+fill-color = "#1f1d1b"
+[paint."road_pier"]
+line-color = "#1f1d1b"
+
+[paint."label_*"]
+text-color = "#e8e4df"
+text-halo-color = "#1f1d1b"
+[paint."highway-name-*"]
+text-color = "#c8c4bf"
+text-halo-color = "#1f1d1b"
+[paint."poi_*"]
+text-color = "#c9a083"
+text-halo-color = "#1f1d1b"
+[paint."poi_transit"]
+text-color = "#e05aa8"
+[paint."water*label"]
+text-color = "#8fb0d6"
+
+# >>> Marker
+# Sprechblasen-Marker (angelehnt an Heroicons "chat-bubble-bottom-center"): Label in der Blase, Spitze unten mittig auf der Position
+[marker]
+type = "bubble"     # leaflet | bubble | terminal
+color = "#e0404f"     # Rahmen und Spitze (Americana "red", aufgehellt)
+bg = "#1f1d1b"         # Blase
+fg = "#e8e4df"         # Schrift
+# <<< Marker

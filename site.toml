@@ -5,8 +5,8 @@ lat = 52.5163              # Brandenburger Tor
 lon = 13.3777
 label = "Berlin"           # Text im Marker
 zoom = "16-16"
-radius = 3.6               # km um den Mittelpunkt; so groß, dass sich der linke Streifen bei 1920 px
-                           # Fensterbreite durch alle Stile bis ganz nach rechts schieben lässt (1 + 2·4/5 Breiten)
+radius = 1.2               # km um den Mittelpunkt; kleiner Ausschnitt rund ums Brandenburger Tor (Kacheln: mindestens
+                           # ein viewport, siehe tiles_for(); größere Fenster sind dann nicht mehr verschiebbar)
 viewport = "1920x1920"     # größte Kartengröße; quadratisch, damit Hoch- und Querformat gefüllt sind
 retina = false             # mit Retina wären es ~2,4 GB, über dem Pages-Limit von 1 GB
 

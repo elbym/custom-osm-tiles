@@ -5,6 +5,14 @@
 /* "dark:" folgt dem Hell/Dunkel-Schalter der Seite (data-mode am <html>), nicht der Systemeinstellung */
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
+/* "cols:"/"rows:" Streifen senkrecht bzw. waagerecht (data-split am <html>, Schalter "Teilung") */
+@custom-variant cols (&:where([data-split="cols"], [data-split="cols"] *));
+@custom-variant rows (&:where([data-split="rows"], [data-split="rows"] *));
+
+/* Karte ist 100lvh hoch (hinter den Safari-Leisten); Zoom und Namensnennung bleiben über der unteren Leiste */
+.leaflet-bottom { bottom: calc(100lvh - 100dvh + env(safe-area-inset-bottom)); }
+.leaflet-right { right: env(safe-area-inset-right); }
+
 /* "compact:" kleine Bildschirme (Hochformat oder niedrige Höhe, z. B. Handy quer): Optionen zugeklappt */
 @custom-variant compact {
   @media (orientation: portrait) { @slot; }
