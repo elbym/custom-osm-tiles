@@ -53,6 +53,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - The `dark:` variant is bound to `<html data-mode>`, which follows the page's light/dark switch.
   - Classes set from JS are fine, because Tailwind scans the HTML source.
   - Portrait screens get horizontal strips: `clip()` checks `matchMedia('(orientation: portrait)')`.
+  - On small screens (custom variant `compact:` in `src/streifen.css` = portrait or height ≤ 32rem) the options bar is collapsed to a "☰ Optionen" button (top right in portrait, because the attribution sits at the bottom). It toggles `data-open` on `#bar`; tapping the map or Esc closes it.
 - The "Über" dialog holds all attributions. Keep it complete; the user insisted on this.
 
 **Preview pages** (opened via file://):

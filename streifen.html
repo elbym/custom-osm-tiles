@@ -15,9 +15,18 @@
 <!-- Stilnamen: Querformat oben je Streifen, Hochformat links je (waagerechtem) Streifen -->
 <div id="titles" class="pointer-events-none absolute inset-0 z-[1000] flex landscape:flex-row portrait:flex-col"></div>
 
-<!-- Bedienleiste: Desktop/Querformat oben links unter den Titeln, Hochformat unten über die ganze Breite -->
-<div id="bar" class="absolute z-[1001] flex flex-wrap items-center gap-2 rounded-lg bg-white/90 p-2 shadow-lg backdrop-blur
-  dark:bg-neutral-900/90 landscape:top-10 landscape:left-2 portrait:inset-x-2 portrait:bottom-[max(.5rem,env(safe-area-inset-bottom))] portrait:justify-center">
+<!-- Bedienleiste: Desktop/Querformat oben links unter den Titeln, Hochformat oben rechts (unten liegt die
+     Namensnennung). Auf kleinen Bildschirmen (compact: Hochformat oder niedrige Höhe) zugeklappt: nur ein
+     Knopf "Optionen", der die Leiste auf- und zuklappt (data-open am #bar). -->
+<div id="bar" class="group absolute z-[1001] flex items-start gap-2 rounded-lg bg-white/90 p-2 shadow-lg backdrop-blur dark:bg-neutral-900/90
+  flex-col landscape:top-10 landscape:left-2 portrait:right-2 portrait:top-[max(.5rem,env(safe-area-inset-top))] portrait:items-end
+  max-w-[calc(100%-1rem)] compact:p-1.5">
+  <button id="bar-toggle" aria-expanded="false" aria-controls="bar-items"
+    class="hidden max-w-full items-center gap-2 rounded-md border border-neutral-400 px-3 py-1 dark:border-neutral-600 compact:inline-flex">
+    <span aria-hidden="true" class="w-3 text-center group-data-open:hidden">☰</span><span aria-hidden="true" class="hidden w-3 text-center group-data-open:inline">✕</span>
+    <span>Optionen</span>
+  </button>
+  <div id="bar-items" class="flex flex-wrap items-center gap-2 portrait:justify-end compact:hidden compact:group-data-open:flex">
   <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="cat" role="group" aria-label="Gruppe">
     <button value="standard" class="px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Standard</button>
     <button value="nerd" class="border-l border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Nerd</button>
@@ -30,6 +39,7 @@
     <select id="font" class="rounded-md border border-neutral-400 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-800"></select>
   </label>
   <button id="about-open" class="rounded-md border border-neutral-400 px-3 py-1 dark:border-neutral-600">Über</button>
+  </div>
 </div>
 
 <!-- Über / Namensnennung -->
@@ -91,6 +101,13 @@ for (const [id, val] of [['cat', cat], ['mode', mode]]) {
 const sel = document.getElementById('font');
 sel.innerHTML = fonts.map(f => `<option${f === font ? ' selected' : ''}>${f}</option>`).join('');
 sel.onchange = () => go('font', sel.value);
+
+// Auf kleinen Bildschirmen zugeklappte Optionen: Knopf klappt auf/zu, Tippen auf die Karte oder Esc schließt
+const bar = document.getElementById('bar'), toggle = document.getElementById('bar-toggle');
+const setOpen = open => { bar.toggleAttribute('data-open', open); toggle.setAttribute('aria-expanded', open); };
+toggle.onclick = () => setOpen(!bar.hasAttribute('data-open'));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+document.getElementById('map').addEventListener('pointerdown', () => setOpen(false));
 
 const c0 = (strips.find(([, v]) => v)?.[1] || all[0])[1];
 const map = L.map('map', {
