@@ -6,39 +6,66 @@
 <link rel="stylesheet" href="leaflet/leaflet.css">
 <style>
   html, body { margin: 0; height: 100%; font: 14px system-ui, sans-serif; }
-  #map { position: absolute; inset: 0; }
+  #map { position: absolute; inset: 0; background: #888; }
   #titles { position: absolute; inset: 0 0 auto 0; z-index: 1000; display: flex; pointer-events: none; }
   #titles div { flex: 1; padding: .3rem .5rem; background: rgb(255 255 255 / .85); border-left: 1px solid #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #font { position: absolute; top: 2.2rem; left: .5rem; z-index: 1000; font: inherit; padding: .2rem; }
+  #titles div.none { color: #777; font-style: italic; }
+  #bar { position: absolute; top: 2.2rem; left: .5rem; z-index: 1000; display: flex; gap: .5rem; align-items: center;
+         background: rgb(255 255 255 / .9); padding: .3rem .4rem; border-radius: 4px; box-shadow: 0 1px 4px rgb(0 0 0 / .3); }
+  .seg { display: inline-flex; border: 1px solid #888; border-radius: 4px; overflow: hidden; }
+  .seg button { border: 0; padding: .2rem .6rem; background: #fff; font: inherit; cursor: pointer; }
+  .seg button + button { border-left: 1px solid #888; }
+  .seg button[aria-pressed="true"] { background: #333; color: #fff; }
+  select { font: inherit; padding: .1rem; }
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div id="titles"></div>
-<select id="font" title="Schrift für alle Streifen"></select>
+<div id="bar">
+  <span class="seg" id="cat"><button value="standard">Standard</button><button value="nerd">Nerd</button></span>
+  <span class="seg" id="mode"><button value="light">Hell</button><button value="dark">Dunkel</button></span>
+  <select id="font" title="Schrift für alle Streifen"></select>
+</div>
 <script src="variants.js"></script>
 <script src="leaflet/leaflet.js"></script>
 <script>
-// Eine Karte, ein Streifen pro Stil, alle in derselben Schrift (?font=…).
-// Jeder Stil ist eine eigene Kachelebene in einem eigenen Pane, das per clip-path auf seinen Streifen beschnitten wird.
+// Eine Karte, ein Streifen pro Stil-Familie der gewählten Gruppe (?cat=standard|nerd) im gewählten Modus
+// (?mode=light|dark), alle in derselben Schrift (?font=…). Jeder Stil ist eine Kachelebene in einem eigenen
+// Pane, das per clip-path auf seinen Streifen beschnitten wird. Familien ohne diesen Modus bleiben leer.
 const q = new URLSearchParams(location.search);
 const all = Object.entries(CONFIGS);
-const fonts = [...new Set(all.map(([, c]) => c.font))].sort();
+const cat = q.get('cat') === 'nerd' ? 'nerd' : 'standard';
+const mode = q.get('mode') === 'dark' ? 'dark' : 'light';
+const inSet = c => c.category === cat && c.mode === mode;
+const fonts = [...new Set(all.filter(([, c]) => inSet(c)).map(([, c]) => c.font))].sort();
 const font = fonts.includes(q.get('font')) ? q.get('font') : fonts[0];
-const strips = [...new Set(all.map(([, c]) => c.style))].sort()
-  .map(style => all.find(([, c]) => c.style === style && c.font === font))
-  .filter(Boolean);
+const families = [...new Set(all.filter(([, c]) => c.category === cat).map(([, c]) => c.family))].sort();
+const strips = families.map(fam => [fam, all.find(([, c]) => inSet(c) && c.family === fam && c.font === font)]);
 
-const c0 = strips[0][1];
+const go = (key, val) => { q.set(key, val); location.search = q; };
+for (const [id, val] of [['cat', cat], ['mode', mode]]) {
+  for (const b of document.querySelectorAll(`#${id} button`)) {
+    b.setAttribute('aria-pressed', b.value === val);
+    b.onclick = () => go(id, b.value);
+  }
+}
+const sel = document.getElementById('font');
+sel.innerHTML = fonts.map(f => `<option${f === font ? ' selected' : ''}>${f}</option>`).join('');
+sel.onchange = () => go('font', sel.value);
+
+const c0 = (strips.find(([, v]) => v)?.[1] || all[0])[1];
 const map = L.map('map', {
   minZoom: c0.zmin, maxZoom: c0.zmax, maxBounds: c0.bounds, maxBoundsViscosity: 1, zoomControl: false
 }).setView([c0.lat, c0.lon], Math.min(c0.zmax, c0.detail_from - 1));
 L.control.zoom({ position: 'bottomleft' }).addTo(map);
 map.attributionControl.addAttribution('© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>, © OpenMapTiles');
 
-const panes = strips.map(([name, c], i) => {
+const panes = strips.map(([, v], i) => {
   const pane = map.createPane('strip' + i);
   pane.style.zIndex = 200 + i;
+  if (!v) return pane;
+  const [name, c] = v;
   const url = name + (c.retina ? '/tiles/{z}/{x}/{y}{r}.webp' : '/tiles/{z}/{x}/{y}.webp');
   L.tileLayer(url, { pane: 'strip' + i, maxNativeZoom: Math.min(c.zmax, c.detail_from - 1), bounds: c.bounds }).addTo(map);
   if (c.zmax >= c.detail_from) L.tileLayer(url, { pane: 'strip' + i, minZoom: c.detail_from, bounds: c.detail }).addTo(map);
@@ -58,14 +85,17 @@ function clip() {
 map.on('move zoom viewreset resize', clip);
 clip();
 
-// Kopfzeile: Stil je Streifen; Schriftwahl darunter
+// Kopfzeile: Stilname je Streifen, bzw. Hinweis, wenn die Familie diesen Modus nicht hat
 const head = document.getElementById('titles');
-strips.forEach(([name]) => {
-  head.appendChild(document.createElement('div')).textContent = TITLES[name].split(' · ')[0];
-});
-const sel = document.getElementById('font');
-sel.innerHTML = fonts.map(f => `<option${f === font ? ' selected' : ''}>${f}</option>`).join('');
-sel.onchange = () => { q.set('font', sel.value); location.search = q; };
+for (const [fam, v] of strips) {
+  const cell = head.appendChild(document.createElement('div'));
+  if (v) cell.textContent = TITLES[v[0]].split(' · ')[0];
+  else {
+    const hasMode = all.some(([, c]) => inSet(c) && c.family === fam);
+    cell.textContent = hasMode ? `${fam}: nicht in ${font} gerendert` : `${fam}: nur ${mode === 'dark' ? 'hell' : 'dunkel'}`;
+    cell.className = 'none';
+  }
+}
 </script>
 </body>
 </html>

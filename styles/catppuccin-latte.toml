@@ -1,6 +1,9 @@
 # Catppuccin Latte: Kartenstil nach dem Editor-Theme Catppuccin (https://catppuccin.com, MIT).
 # Farben aus der Palette des Themes; hell.
 title = "Catppuccin Latte"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"          # light | dark
+family = "Catppuccin"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Fira Sans"
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15

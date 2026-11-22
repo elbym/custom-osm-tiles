@@ -2,6 +2,9 @@
 # aber leichter und aufgeräumter: alle Farben aufgehellt und entsättigt, unwichtige Orte
 # und Einbahnpfeile ausgeblendet, Fußwege dezent statt kräftig rot.
 title = "OSM light"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"          # light | dark
+family = "OSM"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Public Sans"
 text_scale = 1.15
 attribution = "Stil inspiriert von openstreetmap-carto"

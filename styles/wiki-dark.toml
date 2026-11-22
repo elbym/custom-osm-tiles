@@ -1,0 +1,94 @@
+# Wiki Dark: dunkle Variante, automatisch abgeleitet aus wiki.toml
+# (Farbton des Grunds -> dunkle Neutralleiter, Akzente in OKLCH aufgehellt). Von Hand anpassbar.
+title = "Wiki Dark"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Wiki"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "Public Sans"
+# fonts: Standard (sans, serif)
+text_scale = 1.15
+attribution = "Kartendesign nach Wikimedia Maps (© Mapbox, Wikimedia Foundation, CC BY 3.0)"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#2c170b"
+[paint."landuse-*"]
+fill-color = "#281408"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#403222"
+[paint."landcover-*"]
+fill-color = "#403222"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#483d2c"
+[paint."landuse-cemetery"]
+fill-color = "#403222"
+
+[paint."water*"]
+fill-color = "#48484e"
+line-color = "#48484e"
+
+[paint."building*"]
+fill-color = "#3e281b"
+fill-outline-color = "#4e372a"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#6b5244"
+[paint."*-service-track"]
+line-color = "#6b5244"
+[paint."*-link"]
+line-color = "#6b5244"
+[paint."*-secondary-tertiary*"]
+line-color = "#785e50"
+[paint."*-primary*"]
+line-color = "#867349"
+[paint."*-trunk*"]
+line-color = "#867349"
+[paint."*-motorway*"]
+line-color = "#a9804d"
+[paint."*-casing"]
+line-color = "#180600"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#180600"
+[paint."*-primary*-casing"]
+line-color = "#180600"
+[paint."*-trunk*-casing"]
+line-color = "#180600"
+[paint."*-motorway*-casing"]
+line-color = "#180600"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#4e372a"
+fill-outline-color = "#4e372a"
+[paint."aeroway-*"]
+fill-color = "#4e372a"
+line-color = "#4e372a"
+[paint."*-path"]
+line-color = "#856b5d"
+[paint."*railway*"]
+line-color = "#9b8071"
+[paint."road_area_pier"]
+fill-color = "#2c170b"
+[paint."road_pier"]
+line-color = "#2c170b"
+
+[paint."*label*"]
+text-color = "#fde2d3"
+text-halo-color = "#2c170b"
+[paint."label_*"]
+text-color = "#fde2d3"
+text-halo-color = "#2c170b"
+[paint."highway-name-*"]
+text-color = "#e4c7b7"
+text-halo-color = "#2c170b"
+[paint."poi_*"]
+text-color = "#c7aa9b"
+text-halo-color = "#2c170b"
+[paint."poi_transit"]
+text-color = "#94bce4"
+[paint."water*label"]
+text-color = "#a0c9f1"
+[paint."airport"]
+text-color = "#c7aa9b"
+text-halo-color = "#2c170b"

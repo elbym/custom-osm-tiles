@@ -2,6 +2,9 @@
 # weiße Straßen, gelbe Hauptstraßen, ruhige dunkelgraue Schrift.
 # Eigene Farbwahl nach dem Gesamteindruck, keine Apple-Dateien oder -Symbole.
 title = "Cupertino"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"          # light | dark
+family = "Cupertino"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Inter"
 text_scale = 1.15
 hide = ["poi_r20", "road_oneway*"]

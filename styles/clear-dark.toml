@@ -1,0 +1,94 @@
+# Clear Dark: dunkle Variante, automatisch abgeleitet aus clear.toml
+# (Farbton des Grunds -> dunkle Neutralleiter, Akzente in OKLCH aufgehellt). Von Hand anpassbar.
+title = "Clear Dark"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Clear"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "Overpass"
+# fonts: Standard (sans, serif)
+text_scale = 1.15
+attribution = ""
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#101e2d"
+[paint."landuse-*"]
+fill-color = "#0c1a29"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#26393e"
+[paint."landcover-*"]
+fill-color = "#26393e"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#2f4345"
+[paint."landuse-cemetery"]
+fill-color = "#26393e"
+
+[paint."water*"]
+fill-color = "#374d62"
+line-color = "#374d62"
+
+[paint."building*"]
+fill-color = "#202f3f"
+fill-outline-color = "#2f3f4f"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#495a6b"
+[paint."*-service-track"]
+line-color = "#495a6b"
+[paint."*-link"]
+line-color = "#495a6b"
+[paint."*-secondary-tertiary*"]
+line-color = "#566778"
+[paint."*-primary*"]
+line-color = "#81734f"
+[paint."*-trunk*"]
+line-color = "#81734f"
+[paint."*-motorway*"]
+line-color = "#a6813c"
+[paint."*-casing"]
+line-color = "#020c19"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#020c19"
+[paint."*-primary*-casing"]
+line-color = "#020c19"
+[paint."*-trunk*-casing"]
+line-color = "#020c19"
+[paint."*-motorway*-casing"]
+line-color = "#020c19"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#2f3f4f"
+fill-outline-color = "#2f3f4f"
+[paint."aeroway-*"]
+fill-color = "#2f3f4f"
+line-color = "#2f3f4f"
+[paint."*-path"]
+line-color = "#627486"
+[paint."*railway*"]
+line-color = "#77889b"
+[paint."road_area_pier"]
+fill-color = "#101e2d"
+[paint."road_pier"]
+line-color = "#101e2d"
+
+[paint."*label*"]
+text-color = "#d9eafd"
+text-halo-color = "#101e2d"
+[paint."label_*"]
+text-color = "#d9eafd"
+text-halo-color = "#101e2d"
+[paint."highway-name-*"]
+text-color = "#bdd0e4"
+text-halo-color = "#101e2d"
+[paint."poi_*"]
+text-color = "#a1b3c7"
+text-halo-color = "#101e2d"
+[paint."poi_transit"]
+text-color = "#7dbdfd"
+[paint."water*label"]
+text-color = "#a4c9eb"
+[paint."airport"]
+text-color = "#a1b3c7"
+text-halo-color = "#101e2d"

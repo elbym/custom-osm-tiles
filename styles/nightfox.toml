@@ -1,6 +1,9 @@
 # Nightfox: Kartenstil nach dem Editor-Theme Nightfox (https://github.com/EdenEast/nightfox.nvim, MIT).
 # Farben aus der Palette des Themes; dunkel.
 title = "Nightfox"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Nightfox"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Fira Sans"
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15

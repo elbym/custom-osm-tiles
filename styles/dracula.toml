@@ -1,6 +1,9 @@
 # Dracula: Kartenstil nach dem Editor-Theme Dracula (https://draculatheme.com, MIT).
 # Farben aus der Palette des Themes; dunkel.
 title = "Dracula"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Dracula"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Fira Sans"
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15

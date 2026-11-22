@@ -3,6 +3,9 @@
 # Design © Mapbox und Wikimedia Foundation, CC BY 3.0 -> Namensnennung unten.
 # Original nutzt Noto Sans; hier Public Sans als Standard (Noto ist nur Ersatzschrift).
 title = "Wiki"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"          # light | dark
+family = "Wiki"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Public Sans"
 text_scale = 1.15
 attribution = "Kartendesign nach Wikimedia Maps (© Mapbox, Wikimedia Foundation, CC BY 3.0)"

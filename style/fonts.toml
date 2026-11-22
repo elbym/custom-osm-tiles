@@ -12,12 +12,6 @@
 #
 # Noto Sans fehlt hier absichtlich: sie ist nur Ersatzschrift und wird fertig geladen.
 
-["Atkinson Hyperlegible Next"]
-group = "sans"
-Regular = { file = "atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-VF.ttf", wght = 400 }
-Bold    = { file = "atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-VF.ttf", wght = 700 }
-Italic  = { file = "atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-Italic-VF.ttf", wght = 400 }
-
 ["Fira Sans"]
 group = "sans"
 Regular = { file = "fira-sans/FiraSans-Regular.ttf" }
@@ -35,12 +29,6 @@ group = "serif"
 Regular = { file = "literata/Literata-VF.ttf", wght = 400, opsz = 12 }
 Bold    = { file = "literata/Literata-VF.ttf", wght = 700, opsz = 12 }
 Italic  = { file = "literata/Literata-Italic-VF.ttf", wght = 400, opsz = 12 }
-
-[Newsreader]
-group = "serif"
-Regular = { file = "newsreader/Newsreader-VF.ttf", wght = 400, opsz = 12 }
-Bold    = { file = "newsreader/Newsreader-VF.ttf", wght = 700, opsz = 12 }
-Italic  = { file = "newsreader/Newsreader-Italic-VF.ttf", wght = 400, opsz = 12 }
 
 [Overpass]
 group = "sans"

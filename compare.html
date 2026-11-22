@@ -4,25 +4,63 @@
 <meta charset="utf-8">
 <title>Kartenvergleich</title>
 <style>
-  body { margin: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; height: 100dvh; font: 14px system-ui, sans-serif; }
+  body { margin: 0; display: grid; grid-template: auto 1fr 1fr / 1fr 1fr; height: 100dvh; font: 14px system-ui, sans-serif; }
+  #bar { grid-column: 1 / -1; display: flex; gap: .6rem; align-items: center; padding: .3rem .6rem; background: #e8e8e8; border-bottom: 1px solid #bbb; }
+  .seg { display: inline-flex; border: 1px solid #888; border-radius: 4px; overflow: hidden; }
+  .seg button { border: 0; padding: .2rem .6rem; background: #fff; font: inherit; cursor: pointer; }
+  .seg button + button { border-left: 1px solid #888; }
+  .seg button[aria-pressed="true"] { background: #333; color: #fff; }
   section { display: flex; flex-direction: column; min-width: 0; min-height: 0; outline: 1px solid #ccc; }
   label { display: flex; gap: .6rem; align-items: center; padding: .3rem .6rem; background: #f4f4f4; }
   label b { flex: 1; }
+  select { font: inherit; }
   iframe { flex: 1; border: 0; width: 100%; }
 </style>
 </head>
 <body>
+<div id="bar">
+  <span class="seg" id="cat"><button value="standard">Standard</button><button value="nerd">Nerd</button></span>
+  <span class="seg" id="mode"><button value="light">Hell</button><button value="dark">Dunkel</button></span>
+</div>
 <script src="variants.js"></script>
 <script>
-// 2×2 Varianten (Ordner neben dieser Datei); Auswahl steht in der URL (?1=…&2=…&3=…&4=…)
+// 2×2 Varianten der gewählten Gruppe (?cat=standard|nerd) und des Modus (?mode=light|dark);
+// Auswahl je Fenster steht in der URL (?1=…&2=…&3=…&4=…).
+// Beim Umschalten des Modus wird jede Auswahl durch ihr Gegenstück ersetzt (gleiche Familie, gleiche Schrift).
 const q = new URLSearchParams(location.search);
-const frames = [1, 2, 3, 4].map(i => {
-  const pick = q.get(i) || VARIANTS[(i - 1) % VARIANTS.length];
+const cat = q.get('cat') === 'nerd' ? 'nerd' : 'standard';
+const mode = q.get('mode') === 'dark' ? 'dark' : 'light';
+const inSet = (v, m = mode) => v in CONFIGS && CONFIGS[v].category === cat && CONFIGS[v].mode === m;
+const list = VARIANTS.filter(v => inSet(v));
+// Startbelegung: je Familie die erste Variante, damit vier verschiedene Stile zu sehen sind
+const firsts = list.filter((v, i) => list.findIndex(w => CONFIGS[w].family === CONFIGS[v].family) === i);
+const picks = [1, 2, 3, 4].map(i => inSet(q.get(i) || '') ? q.get(i) : firsts[(i - 1) % firsts.length]);
+
+function counterpart(v, m) {
+  const c = CONFIGS[v];
+  return VARIANTS.find(w => inSet(w, m) && CONFIGS[w].family === c.family && CONFIGS[w].font === c.font)
+      || VARIANTS.find(w => inSet(w, m) && CONFIGS[w].family === c.family);
+}
+for (const b of document.querySelectorAll('#cat button')) {
+  b.setAttribute('aria-pressed', b.value === cat);
+  b.onclick = () => { location.search = new URLSearchParams({ cat: b.value, mode }); };  // andere Gruppe: Auswahl neu
+}
+for (const b of document.querySelectorAll('#mode button')) {
+  b.setAttribute('aria-pressed', b.value === mode);
+  b.onclick = () => {
+    q.set('mode', b.value);
+    picks.forEach((v, i) => { const w = v && counterpart(v, b.value); w ? q.set(i + 1, w) : q.delete(i + 1); });
+    location.search = q;
+  };
+}
+
+const frames = picks.map((pick, i) => {
   const sec = document.body.appendChild(document.createElement('section'));
-  sec.innerHTML = `<label><b>${i} · ${TITLES[pick] || pick}</b><select>${VARIANTS.map(v => `<option value="${v}"${v === pick ? ' selected' : ''}>${TITLES[v] || v}</option>`).join('')}</select></label><iframe src="${pick}/index.html"></iframe>`;
-  sec.querySelector('select').onchange = e => { q.set(i, e.target.value); location.search = q; };
+  sec.innerHTML = `<label><b>${i + 1} · ${TITLES[pick] || '–'}</b><select>${list.map(v => `<option value="${v}"${v === pick ? ' selected' : ''}>${TITLES[v]}</option>`).join('')}</select></label>` +
+                  (pick ? `<iframe src="${pick}/index.html"></iframe>` : '');
+  sec.querySelector('select').onchange = e => { q.set(i + 1, e.target.value); location.search = q; };
   return sec.querySelector('iframe');
-});
+}).filter(Boolean);
 // Ausschnitt synchronisieren: Nachricht einer Karte an alle anderen weiterreichen
 addEventListener('message', e => {
   for (const f of frames) if (f.contentWindow !== e.source) f.contentWindow.postMessage(e.data, '*');

@@ -35,11 +35,14 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 | `north.toml` | **North**: Farben nach der Palette von Hydda (BSD-3) |
 | `osm-light.toml` | **OSM light**: OSM-Standardkarte (Mapnik/openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
 | `wiki.toml` | **Wiki**: Wikimedia Maps („osm-intl“, Farben aus github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
+| `clear-dark.toml`, `cupertino-dark.toml`, `north-dark.toml`, `osm-dark.toml`, `wiki-dark.toml` | dunkle Varianten der fünf Stile oben (automatisch abgeleitet, siehe unten) |
 | `dayfox.toml`, `nightfox.toml` | **Dayfox** / **Nightfox**: Farben des Editor-Themes Nightfox (MIT), hell / dunkel |
 | `catppuccin-latte.toml`, `catppuccin-mocha.toml` | **Catppuccin Latte** / **Mocha**: Farben von Catppuccin (MIT), hell / dunkel |
 | `dracula.toml` | **Dracula**: Farben des Dracula-Themes (MIT), dunkel |
 | `solarized-light.toml`, `solarized-dark.toml` | **Solarized Light** / **Dark**: Farben von Solarized (MIT) |
 | `tokyonight-day.toml`, `tokyonight-night.toml` | **Tokyo Night Day** / **Tokyo Night**: Farben von tokyonight.nvim (Apache-2.0) |
+
+Die dunklen Varianten sind nicht invertiert (dann würden weiße Straßen dunkler als der Grund), sondern über Kartenrollen abgeleitet: Aus dem Farbton des hellen Grunds entsteht eine dunkle Graustufenleiter mit demselben Charakter (Clear kühl, Wiki warm), Wasser, Grün und Straßenfarben behalten Farbton und Sättigung und werden nur in der Helligkeit angepasst (OKLCH). Die Dateien sind danach normale Stil-Dateien und können von Hand nachjustiert werden.
 
 Die Editor-Theme-Stile ordnen jeder Palette dieselben Kartenrollen zu (Grund, Gebäude, Wasser, Grün, drei Straßenstufen, Schrift) und werden mit `fonts = ["sans", "serif", "mono"]` zusätzlich mit Monoschriften gerendert.
 
@@ -50,9 +53,12 @@ Die Stile sind eigene Umsetzungen. Von den Vorbildern sind nur Farbwerte überno
 ```sh
 ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # jeder Stil × jede Schrift -> out/<stil>-<schrift>
 ./make-tiles.py --all --style styles/clear.toml ...          # nur ein Stil, alle Schriften
+./make-tiles.py --all --missing ...                         # nur noch nicht gerenderte Varianten
 ```
 
 `--all` kombiniert jeden Stil in `styles/` mit jeder Schrift in `style/fonts/`. Eine neue Schrift oder ein neuer Stil ergibt also automatisch alle Kombinationen. `out/compare.html` zeigt vier davon im 2×2-Raster mit synchronem Ausschnitt; jedes Fenster hat eine eigene Auswahl.
+
+Beide Vorschauseiten haben oben zwei Schalter: **Standard | Nerd** (Gruppe) und **Hell | Dunkel** (Modus). Dafür trägt jeder Stil in seiner Datei `category` (standard/nerd), `mode` (light/dark) und `family`. Stile derselben Familie sind Gegenstücke: Beim Umschalten wird aus Clear „Clear Dark“, aus Catppuccin Latte „Mocha“. Hat eine Familie einen Modus nicht (Dracula gibt es nur dunkel), bleibt ihr Streifen leer und ist beschriftet.
 
 `out/streifen.html` zeigt eine einzige durchgehende Karte, senkrecht in einen Streifen pro Stil geteilt. Alle Streifen nutzen dieselbe Schrift (Auswahl links oben, steht in der URL als `?font=…`). So sieht man, wie dieselben Straßen in jedem Stil wirken.
 
@@ -89,8 +95,8 @@ Ohne Achsenwerte wird die Datei unverändert übernommen. Mit Achsenwerten wird 
 
 | Schrift | Art | Lizenz |
 |---|---|---|
-| Atkinson Hyperlegible Next, Fira Sans, Inter, Overpass, Public Sans | serifenlos | OFL |
-| Literata, Newsreader | Serifen | OFL |
+| Fira Sans, Inter, Overpass, Public Sans | serifenlos | OFL |
+| Literata | Serifen | OFL |
 | TeX Gyre Schola | Serifen | GUST Font License |
 | Fira Code, JetBrains Mono, Maple Mono, Victor Mono | Mono (nur für Stile mit `fonts = [..., "mono"]`) | OFL |
 

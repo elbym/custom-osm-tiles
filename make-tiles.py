@@ -6,7 +6,8 @@ Beispiel:
   ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --out out/kunde-xy
   ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # jeder Stil × jede Schrift zum Vergleichen
 """
-import argparse, fnmatch, re, io, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.request, zipfile
+import argparse, fnmatch, os, re, io, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.request, zipfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -15,6 +16,7 @@ PORT = 8089
 PLANETILER = "ghcr.io/onthegomap/planetiler:latest"
 TILESERVER = "docker.io/maptiler/tileserver-gl:latest"
 NOTO = "https://github.com/openmaptiles/fonts/releases/download/v2.0/noto-sans.zip"
+WORKERS = 4   # gleichzeitige Kachel-Anfragen; gemessen: mehr bremst (Rendern + WebP nutzen schon mehrere Kerne)
 
 
 def tile(lat, lon, z):
@@ -171,25 +173,30 @@ def render(a, style_file, out, mb, font=None):
         TILESERVER, "--config", "/data/config.json")
     try:
         base = f"http://127.0.0.1:{PORT}/styles/map"
-        for _ in range(60):
+        for _ in range(300):  # bis 60 s; Start dauert meist < 1 s
             try:
                 fetch(f"http://127.0.0.1:{PORT}/health")
                 break
             except OSError:
-                time.sleep(1)
+                time.sleep(0.2)
         else:
             sys.exit("tileserver-gl startet nicht: podman logs " + name)
 
         shutil.rmtree(out / "tiles", ignore_errors=True)
-        count = 0
-        for z in range(zmin, zmax + 1):
-            for x, y in (tiles_for(d, z, 0, 0) if z >= a.detail_from else tiles_for(b, z, vw, vh)):
-                for sfx in ["", "@2x"] if a.retina else [""]:
-                    f = out / "tiles" / str(z) / str(x) / f"{y}{sfx}.webp"
-                    f.parent.mkdir(parents=True, exist_ok=True)
-                    f.write_bytes(fetch(f"{base}/{z}/{x}/{y}{sfx}.webp"))
-                    count += 1
-            print(f"{out.name}: z{z} fertig", flush=True)
+        jobs = [(z, x, y, sfx) for z in range(zmin, zmax + 1)
+                for x, y in (tiles_for(d, z, 0, 0) if z >= a.detail_from else tiles_for(b, z, vw, vh))
+                for sfx in (["", "@2x"] if a.retina else [""])]
+
+        def get(job):
+            z, x, y, sfx = job
+            f = out / "tiles" / str(z) / str(x) / f"{y}{sfx}.webp"
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_bytes(fetch(f"{base}/{z}/{x}/{y}{sfx}.webp"))
+
+        # tileserver-gl rendert parallel (Renderer-Pools in style/config.json); so viele Anfragen gleichzeitig
+        with ThreadPoolExecutor(WORKERS) as pool:
+            list(pool.map(get, jobs))
+        count = len(jobs)
     finally:
         subprocess.run(["podman", "stop", name], capture_output=True)
 
@@ -199,6 +206,9 @@ def render(a, style_file, out, mb, font=None):
                detail_from=a.detail_from, bounds=[[b[0], b[1]], [b[2], b[3]]],
                detail=[[d[0], d[1]], [d[2], d[3]]], attribution=attribution,
                style=Path(style_file).stem, font=font)
+    meta = tomllib.loads(Path(style_file).read_text())  # Gliederung der Vorschau
+    cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
+               family=meta.get("family", meta.get("title", Path(style_file).stem)))
     page = page.replace("<title>Karte</title>", f"<title>{title}</title>")
     (out / "index.html").write_text(page.replace("/*CONFIG*/{}", json.dumps(cfg, ensure_ascii=False)))
     write_previews(out.parent)
@@ -220,6 +230,7 @@ def main():
     p.add_argument("--style", help="Standard: styles/clear.toml; mit --all: nur dieser Stil")
     p.add_argument("--font", help="Schrift statt der des Stils; mit --all: nur diese Schrift")
     p.add_argument("--all", action="store_true", help="jeder Stil × seine Schriftgruppen nach out/<stil>-<schrift>")
+    p.add_argument("--missing", action="store_true", help="mit --all: vorhandene Varianten überspringen")
     p.add_argument("--out", help="Standard: out/<stilname>")
     a = p.parse_args()
     zmin, zmax = map(int, a.zoom.split("-"))
@@ -236,8 +247,10 @@ def main():
     for st in [Path(a.style)] if a.style else sorted((ROOT / "styles").glob("*.toml")):
         groups = tomllib.loads(st.read_text()).get("fonts", ["sans", "serif"])
         for font in [a.font] if a.font else fonts(groups):
-            slug = font.lower().replace(" ", "-")
-            render(a, st, ROOT / "out" / f"{st.stem}-{slug}", mb, font)
+            out = ROOT / "out" / f"{st.stem}-{font.lower().replace(' ', '-')}"
+            if a.missing and (out / "index.html").exists():
+                continue
+            render(a, st, out, mb, font)
 
 
 if __name__ == "__main__":

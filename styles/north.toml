@@ -1,6 +1,9 @@
 # Grauer Grund, kräftiges Blau, graugrüne Hauptstraßen. Eigene Umsetzung,
 # Farben nach der Palette von Hydda (https://github.com/karlwettin/carto-style-hydda, BSD-3).
 title = "North"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"          # light | dark
+family = "North"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Overpass"
 text_scale = 1.15
 attribution = "Stil inspiriert von Hydda"

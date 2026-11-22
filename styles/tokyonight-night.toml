@@ -1,6 +1,9 @@
 # Tokyo Night: Kartenstil nach dem Editor-Theme Tokyo Night (https://github.com/folke/tokyonight.nvim, Apache-2.0).
 # Farben aus der Palette des Themes; dunkel.
 title = "Tokyo Night"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Tokyo Night"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "JetBrains Mono"
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15

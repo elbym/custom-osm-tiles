@@ -27,9 +27,11 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - At low zooms the viewport is bigger than the bbox, so the script renders one `--viewport` worth of tiles around it.
   - From `--detail-from` (17) on, tiles are rendered only within `--detail-radius`. The template's base layer uses `maxNativeZoom` = detail_from−1 to upscale outside that area.
   - Change both sides together.
+- Both preview pages filter by `category` (standard|nerd) and `mode` (light|dark), and pair styles via `family`. These come from the style TOML and are written into each variant's config by `render()`. In `streifen.html` there is one strip per family of the chosen category; in `compare.html`, switching mode swaps each pick for its family counterpart in the same font.
 - `streifen.html`: one Leaflet map with one tile layer per style (same font, `?font=`). Each layer sits in its own pane, and the pane is cut to its vertical strip with a `clip-path` polygon. Panes live inside the translated mapPane, so `clip()` subtracts the mapPane position on every move or zoom. It needs `style`/`font` in each variant's config, which `render()` writes into `index.html` and `write_previews()` collects into `variants.js` as `CONFIGS`.
 - Verify preview pages with headless Chromium: `chromium-browser --headless=new --allow-file-access-from-files --virtual-time-budget=8000 --screenshot=… file://…/out/streifen.html`. The Chrome extension is usually not connected.
 - Each run (via `write_previews()`) copies `compare.html` (2×2 grid), `streifen.html` and Leaflet to `out/` and regenerates `out/variants.js` (all dirs with an `index.html`, titles read from their `<title>`). Map sync uses `postMessage`, because file:// iframes are cross-origin: `template.html` posts on `moveend` when inside an iframe, and `compare.html` forwards the message to all other frames.
+- Speed: tiles are fetched with `WORKERS = 4` parallel requests, and the renderer pools in `style/config.json` are set to match. Measured on this 14-core machine for 198 z16 retina tiles: 1 worker 8.5 s, 4 workers 2.6 s, 8 or more about 3.4 s (rendering and WebP encoding already use several cores, so more workers contend). Container start is about 0.7 s, so one container per variant is fine. A full variant takes about 4.5 s. Parallel tiles differ from serial ones only by encoding noise (a few pixels at 2 % fuzz).
 - Vector data only goes to z14; tileserver-gl overzooms for z15–18.
 
 ## Styles
@@ -50,6 +52,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - `cupertino` ("Cupertino") only borrows the overall look of Apple Maps: own colours, no Apple assets, and no "Apple" in the public attribution.
   - `north` ("North") recreates Hydda's palette.
   - `osm-light` ("OSM light") is a lighter, decluttered take on the osm.org standard map.
+  - `*-dark` (clear, cupertino, north, wiki) and `osm-dark` were derived once from the light styles via role mapping in OKLCH: background hue -> dark neutral ramp, accents relit. They were not inverted. They share the theme styles' TOML layout and are hand-editable from here on. `wiki-dark` keeps the CC BY attribution.
   - `dayfox`/`nightfox`, `catppuccin-latte`/`catppuccin-mocha`, `dracula` and `solarized-*` (MIT), plus `tokyonight-*` (Apache-2.0), use editor-theme palettes. They all share one role mapping (bg, buildings, water, green, road tiers, text). Dark variants need the `highway-area` and `aeroway-*` overrides, otherwise OSM Bright's light grey pedestrian areas glare. They also need lighter minor roads (surface2) to stand out from buildings.
   - `wiki` ("Wiki") recreates Wikimedia Maps. Its colours come from wikimedia/osm-bright.tm2, whose design is CC BY 3.0, so its `attribution` must stay.
 - POI layers: a low `rank` means important, so `poi_r1` holds the most important places and `poi_r20` the least. Hide `poi_r20`, not `poi_r1`.

@@ -1,6 +1,9 @@
 # Dayfox: Kartenstil nach dem Editor-Theme Nightfox (Dayfox) (https://github.com/EdenEast/nightfox.nvim, MIT).
 # Farben aus der Palette des Themes; hell.
 title = "Dayfox"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"          # light | dark
+family = "Nightfox"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Fira Sans"
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15
