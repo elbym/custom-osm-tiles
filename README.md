@@ -78,6 +78,16 @@ Für die Vorschau nutzt jeder Stil seine `preview_font` (Standard-Stile Fira San
 
 Beide Seiten haben die Schalter **Standard | Nerd** und **Hell | Dunkel**. Stile derselben Familie sind Gegenstücke: Beim Umschalten wird aus Clear „Clear Dark“, aus Catppuccin Latte „Mocha“. Hat eine Familie einen Modus nicht, bleibt ihr Platz leer und ist beschriftet.
 
+## Öffentliche Vorschau (GitHub Pages)
+
+```sh
+./make-tiles.py --site [--missing]     # Einstellungen aus site.toml -> site/
+```
+
+`site.toml` legt Ort (Berlin, Brandenburger Tor), Label, Zoom (16), Bereich (3,6 km, damit sich der linke Streifen bei 1920 px Fensterbreite durch alle Stile bis nach rechts schieben lässt), Retina (aus, sonst über dem 1-GB-Limit von Pages) und die Schriften je Gruppe fest (Standard: Fira Sans, Inter, Literata, Overpass, Public Sans; Nerd: die vier Monoschriften). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
+
+Die Streifen-Seite nutzt Tailwind CSS, lokal gebaut (kein CDN): `npm install && npm run css` erzeugt `vendor/streifen.css` aus `src/streifen.css`. Im Querformat sind die Streifen senkrecht, im Hochformat (Handy) waagerecht. Der Dialog „Über“ nennt alle Quellen und Lizenzen.
+
 ## Stile
 
 Jeder Stil ist eine kurze Textdatei in `styles/`. Das Skript baut daraus zusammen mit der Grundlage `style/base.json` (OSM Bright) den fertigen Stil.
@@ -172,3 +182,7 @@ Ohne Dithering (`--nofs`), sonst werden die Dateien größer und die Flächen un
 3. Der Container wird danach gestoppt. Das Ergebnis ist rein statisch.
 
 Namensnennung auf der Karte: © OpenStreetMap-Mitwirkende (ODbL), © OpenMapTiles, dazu das `attribution` des Stils.
+
+## Lizenz
+
+Eigener Code und eigene Stile: MIT (siehe `LICENSE`). Schriften, Leaflet, OSM Bright und das Wiki-Design stehen unter ihren eigenen Lizenzen, Details in `LICENSE`.

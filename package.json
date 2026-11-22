@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "description": "Nur für das CSS der Vorschau-Seite (Tailwind). Ergebnis liegt eingecheckt in vendor/streifen.css.",
+  "scripts": {
+    "css": "tailwindcss -i src/streifen.css -o vendor/streifen.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4",
+    "tailwindcss": "^4"
+  }
+}

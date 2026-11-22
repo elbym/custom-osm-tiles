@@ -140,17 +140,21 @@ def build_style(toml_path, font=None):
     return s, f"{t.get('title', Path(toml_path).stem)} · {font}", t.get("attribution", ""), font
 
 
+def write_page(out, cfg):
+    """index.html einer Variante aus template.html und ihrer Konfiguration."""
+    page = (ROOT / "template.html").read_text().replace("<title>Karte</title>", f"<title>{cfg['title']}</title>")
+    (out / "index.html").write_text(page.replace("/*CONFIG*/{}", json.dumps(cfg, ensure_ascii=False)))
+
+
 def write_previews(outdir):
     """Vergleichsseiten + variants.js (Titel und Konfiguration aller Varianten) nach outdir."""
     for f in ("compare.html", "streifen.html"):
         shutil.copy(ROOT / f, outdir / f)
+    shutil.copy(ROOT / "vendor" / "streifen.css", outdir / "streifen.css")  # Tailwind, gebaut mit npm run css
     shutil.copytree(ROOT / "vendor" / "leaflet", outdir / "leaflet", dirs_exist_ok=True)
-    names = sorted(d.name for d in outdir.iterdir() if (d / "index.html").exists())
-    titles, configs = {}, {}
-    for n in names:
-        page = (outdir / n / "index.html").read_text()
-        titles[n] = re.search(r"<title>(.*?)</title>", page)[1]
-        configs[n] = json.loads(re.search(r"const c = (\{.*\});", page)[1])
+    names = sorted(d.name for d in outdir.iterdir() if (d / "config.json").exists())
+    configs = {n: json.loads((outdir / n / "config.json").read_text()) for n in names}
+    titles = {n: c["title"] for n, c in configs.items()}
     (outdir / "variants.js").write_text(
         f"const VARIANTS = {json.dumps(names)};\n"
         f"const TITLES = {json.dumps(titles, ensure_ascii=False)};\n"
@@ -158,14 +162,15 @@ def write_previews(outdir):
 
 
 def reindex(outdir, label=None):
-    """index.html aller Varianten aus template.html + aktuellen Stil-Dateien neu schreiben (ohne Rendern)."""
-    page = (ROOT / "template.html").read_text()
+    """config.json (und ggf. index.html) aller Varianten aus den aktuellen Stil-Dateien neu schreiben, ohne Rendern."""
     for d in sorted(outdir.iterdir()):
-        f = d / "index.html"
-        if not f.exists():
+        conf, page = d / "config.json", d / "index.html"
+        if conf.exists():
+            cfg = json.loads(conf.read_text())
+        elif page.exists():  # ältere Ausgabe ohne config.json
+            cfg = json.loads(re.search(r"const c = (\{.*\});", page.read_text())[1])
+        else:
             continue
-        old = f.read_text()
-        cfg = json.loads(re.search(r"const c = (\{.*\});", old)[1])
         st = ROOT / "styles" / f"{cfg['style']}.toml"
         if not st.exists():
             continue
@@ -173,10 +178,11 @@ def reindex(outdir, label=None):
         cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
                    family=meta.get("family", meta.get("title", st.stem)), attribution=meta.get("attribution", ""),
                    marker=dict(meta.get("marker", {"type": "leaflet"}),
-                               label=label or cfg.get("marker", {}).get("label", "hier")))
-        title = f"{meta.get('title', st.stem)} · {cfg['font']}"
-        f.write_text(page.replace("<title>Karte</title>", f"<title>{title}</title>")
-                         .replace("/*CONFIG*/{}", json.dumps(cfg, ensure_ascii=False)))
+                               label=label or cfg.get("marker", {}).get("label", "hier")),
+                   title=f"{meta.get('title', st.stem)} · {cfg['font']}")
+        conf.write_text(json.dumps(cfg, ensure_ascii=False))
+        if page.exists():
+            write_page(d, cfg)
     write_previews(outdir)
 
 
@@ -204,6 +210,31 @@ def tileserver(style, tag, mb):
         subprocess.run(["podman", "stop", name], capture_output=True)
 
 
+def build_site(a):
+    """Öffentliche Vorschau nach site/ (GitHub Pages): Einstellungen aus site.toml, je Stil die Schriften seiner Gruppe."""
+    cfg = tomllib.loads((ROOT / "site.toml").read_text())
+    mb = ensure_mbtiles(cfg["area"])
+    s = argparse.Namespace(**vars(a))
+    s.lat, s.lon, s.label, s.zoom = cfg["lat"], cfg["lon"], cfg["label"], cfg["zoom"]
+    s.radius, s.viewport, s.retina = cfg["radius"], cfg["viewport"], cfg["retina"]
+    s.detail_from, s.detail_radius = 99, cfg["radius"]  # kein Detailbereich
+    site = ROOT / "site"
+    site.mkdir(exist_ok=True)
+    for st in sorted((ROOT / "styles").glob("*.toml")):
+        meta = tomllib.loads(st.read_text())
+        for font in cfg["fonts"][meta.get("category", "standard")]:
+            out = site / f"{st.stem}-{font.lower().replace(' ', '-')}"
+            if a.missing and (out / "config.json").exists():
+                continue
+            render(s, st, out, mb, font, standalone=False)
+    write_previews(site)
+    (site / "compare.html").unlink(missing_ok=True)       # veröffentlicht wird nur die Streifen-Ansicht
+    shutil.move(site / "streifen.html", site / "index.html")
+    (site / ".nojekyll").touch()                          # GitHub Pages: Dateien unverändert ausliefern
+    size = sum(f.stat().st_size for f in site.rglob("*") if f.is_file())
+    print(f"site/: {size / 1e6:.0f} MB")
+
+
 def readme_previews(a, mb):
     """Je Stil ein 512×512-Bild auf Zoom 12 ohne Marker nach docs/previews/<stil>.png (für die README)."""
     dest = ROOT / "docs" / "previews"
@@ -219,7 +250,8 @@ def readme_previews(a, mb):
         print(f"{st.stem}: {len(data) / 1e3:.0f} kB", flush=True)
 
 
-def render(a, style_file, out, mb, font=None):
+def render(a, style_file, out, mb, font=None, standalone=True):
+    """Kacheln + config.json nach out/; standalone: zusätzlich eigene index.html mit Leaflet (Website-Karte)."""
     zmin, zmax = map(int, a.zoom.split("-"))
     vw, vh = map(int, a.viewport.split("x"))
     b = bbox(a.lat, a.lon, a.radius)
@@ -251,8 +283,6 @@ def render(a, style_file, out, mb, font=None):
             list(pool.map(get, jobs))
         count = len(jobs)
 
-    shutil.copytree(ROOT / "vendor" / "leaflet", out / "leaflet", dirs_exist_ok=True)
-    page = (ROOT / "template.html").read_text()
     cfg = dict(lat=a.lat, lon=a.lon, zmin=zmin, zmax=zmax, retina=a.retina,
                detail_from=a.detail_from, bounds=[[b[0], b[1]], [b[2], b[3]]],
                detail=[[d[0], d[1]], [d[2], d[3]]], attribution=attribution,
@@ -260,9 +290,11 @@ def render(a, style_file, out, mb, font=None):
     meta = tomllib.loads(Path(style_file).read_text())  # Gliederung der Vorschau
     cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
                family=meta.get("family", meta.get("title", Path(style_file).stem)),
-               marker=dict(meta.get("marker", {"type": "leaflet"}), label=a.label or "hier"))
-    page = page.replace("<title>Karte</title>", f"<title>{title}</title>")
-    (out / "index.html").write_text(page.replace("/*CONFIG*/{}", json.dumps(cfg, ensure_ascii=False)))
+               marker=dict(meta.get("marker", {"type": "leaflet"}), label=a.label or "hier"), title=title)
+    (out / "config.json").write_text(json.dumps(cfg, ensure_ascii=False))  # liest write_previews()
+    if standalone:  # eigenständige Kartenseite; für die Vorschau-Seite (--site) nicht nötig
+        shutil.copytree(ROOT / "vendor" / "leaflet", out / "leaflet", dirs_exist_ok=True)
+        write_page(out, cfg)
     write_previews(out.parent)
     size = sum(f.stat().st_size for f in (out / "tiles").rglob(f"*.{ext}"))
     print(f"{count} Kacheln, {size / 1e6:.1f} MB -> {out}")
@@ -290,15 +322,26 @@ def main():
     p.add_argument("--missing", action="store_true", help="mit --all: vorhandene Varianten überspringen")
     p.add_argument("--out", help="Standard: out/<stilname>")
     p.add_argument("--reindex", action="store_true", help="nur index.html aller Varianten in out/ neu schreiben")
+    p.add_argument("--site", action="store_true", help="öffentliche Vorschau laut site.toml nach site/ (GitHub Pages)")
     p.add_argument("--readme-previews", action="store_true",
                    help="je Stil ein 512×512-Bild (Zoom 12, ohne Marker) nach docs/previews/ für die README")
     a = p.parse_args()
     if a.reindex:
-        return reindex(ROOT / "out", a.label)
+        for d in (ROOT / "out", ROOT / "site"):
+            if d.exists():
+                reindex(d, a.label)
+        if (ROOT / "site" / "streifen.html").exists():  # site/: nur die Streifen-Ansicht, als index.html
+            (ROOT / "site" / "compare.html").unlink(missing_ok=True)
+            shutil.move(ROOT / "site" / "streifen.html", ROOT / "site" / "index.html")
+        return
     zmin, zmax = map(int, a.zoom.split("-"))
     if not (0 <= zmin <= zmax <= 20):
         sys.exit("--zoom ungültig")
 
+    if a.site:
+        ensure_noto()
+        ensure_glyphs()
+        return build_site(a)
     mb = ensure_mbtiles(a.area)
     ensure_noto()
     ensure_glyphs()

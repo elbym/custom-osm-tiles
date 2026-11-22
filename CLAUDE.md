@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Pre-renders static Leaflet tiles (palette PNG via pngquant by default, or WebP) for a small area around one marker, one set per website project. The site then needs no third-party map requests (privacy). User-facing docs are in German (README.md); answer the user in German. Remote: private GitHub repo `elbym/tiles`.
+Pre-renders static Leaflet tiles (palette PNG via pngquant by default, or WebP) for a small area around one marker, one set per website project. The site then needs no third-party map requests (privacy). User-facing docs are in German (README.md); answer the user in German. Remote: public GitHub repo `elbym/custom-osm-tiles` (renamed from `tiles`; local folder is still `tiles`).
 
 ## Commands
 
@@ -14,6 +14,8 @@ pip install -r requirements.txt && cargo install build_pbf_glyphs   # once; podm
 ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # preview set: each style in its preview_font -> out/<style>-<font> (~2 min)
 ./make-tiles.py --all --all-fonts --missing ...           # full matrix: each style × every font of its groups (slow)
 ./make-tiles.py --all --style styles/wiki.toml ...     # one style (preview_font; add --all-fonts for all);  --font X: one font for all styles, ignoring groups
+./make-tiles.py --site [--missing]                     # public preview per site.toml (Berlin, z16, retina) -> site/ for GitHub Pages
+npm install && npm run css                             # rebuild vendor/streifen.css (Tailwind v4) after changing streifen.html classes
 ./make-tiles.py --readme-previews                      # docs/previews/<style>.png: 512×512, z12, no marker (README gallery, ~30 s)
 ./make-tiles.py --reindex [--label "Firma"]            # rewrite all out/*/index.html from template + styles, no rendering
 ```
@@ -42,6 +44,16 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 - From `--detail-from` (17) on, only `--detail-radius` is rendered. The template's base layer uses `maxNativeZoom` = detail_from−1 to upscale outside that area.
 - Change both sides together.
 - Vector data stops at z14; tileserver-gl overzooms for z15–18.
+
+**Public site:**
+- `build_site()` reads `site.toml` and renders each style × the fonts of its category into `site/`.
+- It turns `streifen.html` into `site/index.html`, drops `compare.html`, and adds `.nojekyll`.
+- Publish `site/` as an orphan `gh-pages` branch (force-pushed, no history). Never commit tiles to `main`. The Pages limit is 1 GB.
+- `streifen.html` is styled with Tailwind v4, built locally into `vendor/streifen.css`, never from a CDN.
+  - The `dark:` variant is bound to `<html data-mode>`, which follows the page's light/dark switch.
+  - Classes set from JS are fine, because Tailwind scans the HTML source.
+  - Portrait screens get horizontal strips: `clip()` checks `matchMedia('(orientation: portrait)')`.
+- The "Über" dialog holds all attributions. Keep it complete; the user insisted on this.
 
 **Preview pages** (opened via file://):
 - Both pages filter by `category` (standard|nerd) and `mode` (light|dark), and pair styles via `family`.

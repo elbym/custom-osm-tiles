@@ -4,3 +4,5 @@ style/fonts/
 __pycache__/
 style/tiles.mbtiles
 style/style.json
+site/
+node_modules/

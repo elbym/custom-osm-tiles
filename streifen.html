@@ -1,53 +1,77 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-mode="light">
 <head>
 <meta charset="utf-8">
-<title>Stile in Streifen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kartenstile im Vergleich</title>
+<meta name="description" content="Selbst gerenderte OpenStreetMap-Kartenstile für Leaflet im Vergleich: eine Karte, ein Streifen pro Stil.">
 <link rel="stylesheet" href="leaflet/leaflet.css">
-<style>
-  html, body { margin: 0; height: 100%; font: 14px system-ui, sans-serif; }
-  #map { position: absolute; inset: 0; background: #888; }
-  #titles { position: absolute; inset: 0 0 auto 0; z-index: 1000; display: flex; pointer-events: none; }
-  #titles div { flex: 1; padding: .3rem .5rem; background: rgb(255 255 255 / .85); border-left: 1px solid #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #titles div.none { color: #777; font-style: italic; }
-  #bar { position: absolute; top: 2.2rem; left: .5rem; z-index: 1000; display: flex; gap: .5rem; align-items: center;
-         background: rgb(255 255 255 / .9); padding: .3rem .4rem; border-radius: 4px; box-shadow: 0 1px 4px rgb(0 0 0 / .3); }
-  .seg { display: inline-flex; border: 1px solid #888; border-radius: 4px; overflow: hidden; }
-  .seg button { border: 0; padding: .2rem .6rem; background: #fff; font: inherit; cursor: pointer; }
-  .seg button + button { border-left: 1px solid #888; }
-  .seg button[aria-pressed="true"] { background: #333; color: #fff; }
-  select { font: inherit; padding: .1rem; }
-  /* Sprechblasen-Marker (Standard-Stile, angelehnt an Heroicons "chat-bubble-bottom-center"): Spitze unten mittig auf der Position */
-  .bubble { display: flex; flex-direction: column; align-items: center; font: 600 14px/1.2 system-ui, sans-serif; }
-  .bubble .box { background: var(--bg); color: var(--fg); border: 2px solid var(--c1); border-radius: 8px; padding: 6px 10px; white-space: nowrap; box-shadow: 0 2px 6px rgb(0 0 0 / .3); }
-  .bubble svg { margin-top: -2px; overflow: visible; }
-  /* Terminal-Marker (Nerd-Stile): Kästchen mit Prompt und (statischem) Block-Cursor, Stiel und Punkt auf der Position */
-  .term { display: flex; flex-direction: column; align-items: center; font: 600 13px/1 ui-monospace, "JetBrains Mono", "Fira Code", monospace; }
-  .term .box { background: var(--bg); color: var(--fg); border: 1.5px solid var(--c1); border-radius: 4px; padding: 5px 8px; white-space: nowrap; box-shadow: 0 2px 6px rgb(0 0 0 / .45); }
-  .term .p { color: var(--c2); }
-  .term .cur { display: inline-block; width: .6em; height: 1.05em; margin-left: .35em; background: var(--c1); vertical-align: -2px; }
-  .term .stem { width: 2px; height: 12px; background: var(--c1); }
-  .term .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); box-shadow: 0 0 0 3px var(--bg); }
-</style>
+<link rel="stylesheet" href="streifen.css">
 </head>
-<body>
-<div id="map"></div>
-<div id="titles"></div>
-<div id="bar">
-  <span class="seg" id="cat"><button value="standard">Standard</button><button value="nerd">Nerd</button></span>
-  <span class="seg" id="mode"><button value="light">Hell</button><button value="dark">Dunkel</button></span>
-  <select id="font" title="Schrift für alle Streifen"></select>
+<body class="h-dvh overflow-hidden bg-neutral-400 font-sans text-sm text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100">
+
+<div id="map" class="absolute inset-0 bg-neutral-400 dark:bg-neutral-800"></div>
+
+<!-- Stilnamen: Querformat oben je Streifen, Hochformat links je (waagerechtem) Streifen -->
+<div id="titles" class="pointer-events-none absolute inset-0 z-[1000] flex landscape:flex-row portrait:flex-col"></div>
+
+<!-- Bedienleiste: Desktop/Querformat oben links unter den Titeln, Hochformat unten über die ganze Breite -->
+<div id="bar" class="absolute z-[1001] flex flex-wrap items-center gap-2 rounded-lg bg-white/90 p-2 shadow-lg backdrop-blur
+  dark:bg-neutral-900/90 landscape:top-10 landscape:left-2 portrait:inset-x-2 portrait:bottom-[max(.5rem,env(safe-area-inset-bottom))] portrait:justify-center">
+  <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="cat" role="group" aria-label="Gruppe">
+    <button value="standard" class="px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Standard</button>
+    <button value="nerd" class="border-l border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Nerd</button>
+  </span>
+  <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="mode" role="group" aria-label="Modus">
+    <button value="light" class="px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Hell</button>
+    <button value="dark" class="border-l border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Dunkel</button>
+  </span>
+  <label class="inline-flex items-center gap-1"><span class="sr-only">Schrift</span>
+    <select id="font" class="rounded-md border border-neutral-400 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-800"></select>
+  </label>
+  <button id="about-open" class="rounded-md border border-neutral-400 px-3 py-1 dark:border-neutral-600">Über</button>
 </div>
+
+<!-- Über / Namensnennung -->
+<dialog id="about" class="m-auto max-h-[85dvh] w-[min(42rem,92vw)] rounded-xl bg-white p-0 text-neutral-900 shadow-2xl backdrop:bg-black/50 dark:bg-neutral-900 dark:text-neutral-100">
+  <div class="space-y-4 p-5 leading-relaxed">
+    <div class="flex items-start justify-between gap-4">
+      <h1 class="text-lg font-semibold">Kartenstile im Vergleich</h1>
+      <button id="about-close" class="rounded-md border border-neutral-400 px-2 py-0.5 dark:border-neutral-600" aria-label="Schließen">✕</button>
+    </div>
+    <p>Eine Karte, ein Streifen pro Stil. Die Kacheln sind vorab gerendert und liegen statisch auf dieser Seite; es gibt keine Anfragen an Kartendienste oder CDNs. Erzeugt mit <a class="underline" href="https://github.com/elbym/custom-osm-tiles">custom-osm-tiles</a> (MIT).</p>
+    <section>
+      <h2 class="font-semibold">Kartendaten</h2>
+      <p>© <a class="underline" href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>, Open Database License (ODbL). Vektorschema © <a class="underline" href="https://openmaptiles.org/">OpenMapTiles</a> (CC BY 4.0), erzeugt mit Planetiler; gerendert mit tileserver-gl.</p>
+    </section>
+    <section>
+      <h2 class="font-semibold">Stile</h2>
+      <p>Alle Stile bauen auf <a class="underline" href="https://github.com/openmaptiles/osm-bright-gl-style">OSM Bright</a> auf (© OpenMapTiles, BSD-3-Clause, Design CC BY 4.0). Nachbauten übernehmen nur Farbwerte ihrer Vorbilder:</p>
+      <ul id="about-styles" class="mt-1 list-disc pl-5"></ul>
+    </section>
+    <section>
+      <h2 class="font-semibold">Schriften</h2>
+      <p>Fira Sans, Inter, Literata, Overpass, Public Sans, Fira Code, JetBrains Mono, Maple Mono, Victor Mono: SIL Open Font License 1.1. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
+    </section>
+    <section>
+      <h2 class="font-semibold">Software auf dieser Seite</h2>
+      <p><a class="underline" href="https://leafletjs.com/">Leaflet</a> (BSD-2-Clause, © Volodymyr Agafonkin, CloudMade), CSS mit <a class="underline" href="https://tailwindcss.com/">Tailwind CSS</a> (MIT). Marker angelehnt an Heroicons (MIT).</p>
+    </section>
+  </div>
+</dialog>
+
 <script src="variants.js"></script>
 <script src="leaflet/leaflet.js"></script>
 <script>
 // Eine Karte, ein Streifen pro Stil-Familie der gewählten Gruppe (?cat=standard|nerd) im gewählten Modus
 // (?mode=light|dark), alle in derselben Schrift (?font=…). Jeder Stil ist eine Kachelebene in einem eigenen
-// Pane, das per clip-path auf seinen Streifen beschnitten wird. Familien ohne diesen Modus bleiben leer.
+// Pane, das per clip-path auf seinen Streifen beschnitten wird. Querformat: senkrechte Streifen,
+// Hochformat: waagerechte. Familien ohne diesen Modus bleiben leer.
 const q = new URLSearchParams(location.search);
 const all = Object.entries(CONFIGS);
 const cat = q.get('cat') === 'nerd' ? 'nerd' : 'standard';
 const mode = q.get('mode') === 'dark' ? 'dark' : 'light';
+document.documentElement.dataset.mode = mode;
 const inSet = c => c.category === cat && c.mode === mode;
 const fonts = [...new Set(all.filter(([, c]) => inSet(c)).map(([, c]) => c.font))].sort();
 const font = fonts.includes(q.get('font')) ? q.get('font') : fonts[0];
@@ -69,7 +93,8 @@ const c0 = (strips.find(([, v]) => v)?.[1] || all[0])[1];
 const map = L.map('map', {
   minZoom: c0.zmin, maxZoom: c0.zmax, maxBounds: c0.bounds, maxBoundsViscosity: 1, zoomControl: false
 }).setView([c0.lat, c0.lon], Math.min(c0.zmax, c0.detail_from - 1));
-L.control.zoom({ position: 'bottomleft' }).addTo(map);
+if (c0.zmax > c0.zmin) L.control.zoom({ position: 'bottomright' }).addTo(map);
+map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
 map.attributionControl.addAttribution('© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>, © OpenMapTiles');
 
 const panes = strips.map(([, v], i) => {
@@ -84,62 +109,68 @@ const panes = strips.map(([, v], i) => {
   if (c.attribution) map.attributionControl.addAttribution(c.attribution);
   return pane;
 });
-// Marker im Stil des mittleren Streifens (dort liegt er beim Öffnen); Nerd-Stile: Terminal-Marker
+// Marker im Stil des mittleren Streifens (dort liegt er beim Öffnen)
 const mid = strips[Math.floor(strips.length / 2)][1] || strips.find(([, v]) => v)[1];
 L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker), title: mid?.[1].marker?.label }).addTo(map);
 
 // Streifen-Zuschnitt: Panes liegen im verschobenen mapPane, daher dessen Position abziehen
+const portrait = matchMedia('(orientation: portrait)');
 function clip() {
   const size = map.getSize(), pos = L.DomUtil.getPosition(map.getPane('mapPane')), n = panes.length;
   panes.forEach((pane, i) => {
-    const x0 = size.x * i / n - pos.x, x1 = size.x * (i + 1) / n - pos.x, y0 = -pos.y, y1 = size.y - pos.y;
+    let x0 = 0, x1 = size.x, y0 = 0, y1 = size.y;
+    if (portrait.matches) { y0 = size.y * i / n; y1 = size.y * (i + 1) / n; }
+    else { x0 = size.x * i / n; x1 = size.x * (i + 1) / n; }
+    x0 -= pos.x; x1 -= pos.x; y0 -= pos.y; y1 -= pos.y;
     pane.style.clipPath = `polygon(${x0}px ${y0}px, ${x1}px ${y0}px, ${x1}px ${y1}px, ${x0}px ${y1}px)`;
   });
 }
 map.on('move zoom viewreset resize', clip);
+portrait.addEventListener('change', () => { map.invalidateSize(); clip(); });
 clip();
 
-// Kopfzeile: Stilname je Streifen, bzw. Hinweis, wenn die Familie diesen Modus nicht hat
+// Stilnamen je Streifen bzw. Hinweis, wenn die Familie diesen Modus/diese Schrift nicht hat
 const head = document.getElementById('titles');
 for (const [fam, v] of strips) {
   const cell = head.appendChild(document.createElement('div'));
-  if (v) cell.textContent = TITLES[v[0]].split(' · ')[0];
+  cell.className = 'flex-1 min-w-0 min-h-0 landscape:border-l portrait:border-t border-black/30 first:border-0 dark:border-white/30';
+  const tag = cell.appendChild(document.createElement('span'));
+  tag.className = 'inline-block max-w-full truncate bg-white/85 px-2 py-1 font-medium dark:bg-neutral-900/85 landscape:w-full portrait:rounded-br-md';
+  if (v) tag.textContent = TITLES[v[0]].split(' · ')[0];
   else {
     const hasMode = all.some(([, c]) => inSet(c) && c.family === fam);
-    cell.textContent = hasMode ? `${fam}: nicht in ${font} gerendert` : `${fam}: nur ${mode === 'dark' ? 'hell' : 'dunkel'}`;
-    cell.className = 'none';
+    tag.textContent = hasMode ? `${fam}: nicht in ${font} gerendert` : `${fam}: nur ${mode === 'dark' ? 'hell' : 'dunkel'}`;
+    tag.classList.add('italic', 'text-neutral-500');
   }
 }
 
-
+// Über-Dialog: Vorbilder der Stile aus deren Namensnennung
+const about = document.getElementById('about');
+document.getElementById('about-open').onclick = () => about.showModal();
+document.getElementById('about-close').onclick = () => about.close();
+about.addEventListener('click', e => { if (e.target === about) about.close(); });
+const credits = [...new Set(all.map(([, c]) => c.attribution).filter(Boolean))].sort();
+document.getElementById('about-styles').innerHTML = '';
+for (const t of credits) document.getElementById('about-styles').appendChild(document.createElement('li')).textContent = t;
 
 // Marker laut Stil: "bubble" (Standard-Stile), "terminal" (Nerd-Stile) oder der Leaflet-Standard
 function markerIcon(m) {
+  const el = document.createElement('div');
   if (m?.type === 'bubble') {
-    const el = document.createElement('div');
     el.className = 'bubble';
     for (const [k, v] of Object.entries({ c1: m.color, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
     el.innerHTML = '<span class="box"></span><svg width="16" height="10" viewBox="0 0 16 10">' +
       '<path d="M0 0 L8 9 L16 0 Z" fill="var(--bg)"/><path d="M0 0 L8 9 L16 0" fill="none" stroke="var(--c1)" stroke-width="2" stroke-linejoin="round"/></svg>';
     el.querySelector('.box').textContent = m.label;  // Text, kein HTML
-    document.body.appendChild(el); const w = el.offsetWidth, h = el.offsetHeight; el.remove();
-    return L.divIcon({ className: '', html: el, iconSize: [w, h], iconAnchor: [w / 2, h - 1] });
-  }
-  if (m?.type !== 'terminal') return new L.Icon.Default();
-  const el = document.createElement('div');
-  el.className = 'term';
-  for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
-  el.innerHTML = '<span class="box"><span class="p">~/</span><span class="t"></span><span class="cur"></span></span><span class="stem"></span><span class="dot"></span>';
-  el.querySelector('.t').textContent = m.label;  // Text, kein HTML
-  // Größe messen, damit der Punkt (unten Mitte) genau auf der Position liegt
+  } else if (m?.type === 'terminal') {
+    el.className = 'term';
+    for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
+    el.innerHTML = '<span class="box"><span class="p">~/</span><span class="t"></span><span class="cur"></span></span><span class="stem"></span><span class="dot"></span>';
+    el.querySelector('.t').textContent = m.label;  // Text, kein HTML
+  } else return new L.Icon.Default();
+  // Größe messen, damit die Spitze (unten Mitte) genau auf der Position liegt
   document.body.appendChild(el); const w = el.offsetWidth, h = el.offsetHeight; el.remove();
-  return L.divIcon({ className: '', html: el, iconSize: [w, h], iconAnchor: [w / 2, h - 4] });
-}
-// In compare.html (iframe): Ausschnitt mit der anderen Karte synchron halten
-if (parent !== window) {
-  let syncing = false;  // setView ohne Animation feuert moveend sofort: nicht zurückschicken
-  map.on('moveend', () => { if (!syncing) parent.postMessage({ center: map.getCenter(), zoom: map.getZoom() }, '*'); });
-  addEventListener('message', e => { syncing = true; map.setView(e.data.center, e.data.zoom, { animate: false }); syncing = false; });
+  return L.divIcon({ className: '', html: el, iconSize: [w, h], iconAnchor: [w / 2, h - (m.type === 'terminal' ? 4 : 1)] });
 }
 </script>
 </body>
