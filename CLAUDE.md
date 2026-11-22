@@ -53,6 +53,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - The `dark:` variant is bound to `<html data-mode>`, which follows the page's light/dark switch.
   - Classes set from JS are fine, because Tailwind scans the HTML source.
   - Portrait screens get horizontal strips: `clip()` checks `matchMedia('(orientation: portrait)')`.
+  - On small screens (custom variant `compact:` in `src/streifen.css` = portrait or height ≤ 32rem) the options bar is collapsed to a "☰ Optionen" button (top right in portrait, because the attribution sits at the bottom). It toggles `data-open` on `#bar`; tapping the map or Esc closes it.
 - The "Über" dialog holds all attributions. Keep it complete; the user insisted on this.
 
 **Preview pages** (opened via file://):
@@ -79,7 +80,15 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - The label is set via `textContent`, never as HTML.
   - `streifen.html` carries a copy of `markerIcon()` and its CSS, and uses the middle strip's marker. Keep both copies in sync.
 - `--reindex` rewrites every `out/*/index.html` from `template.html` and the current style metadata (category, mode, family, attribution, marker) without rendering. Use it after template or marker changes.
-- Nerd styles show green areas (`park`, `landcover-*`, `landuse-cemetery`, `landcover-wood`) in the theme's signature colour instead of green (Tokyo Night magenta2 pink, Dracula/Alucard purple, Catppuccin peach, Nightfox/Dayfox cyan, Solarized yellow), mixed with the background: dark 20 % (wood 28 %), light 25 % (wood 35 %). Exception: in solarized-dark the RGB mix with the teal base turned green, so it uses an OKLCH dark gold (#4b3b13 / #5b4717). This was a user request; Tokyo Night uses `magenta2`.
+- Nerd styles show green areas (`park`, `landcover-*`, `landuse-cemetery`, `landcover-wood`) in the theme's signature colour instead of green (Tokyo Night magenta2 pink, Dracula/Alucard purple, Catppuccin Latte peach, Nightfox/Dayfox cyan, Solarized yellow), mixed with the background: dark 20 % (wood 28 %), light 25 % (wood 35 %). This was a user request; Tokyo Night uses `magenta2`. Exceptions: catppuccin-mocha uses Catppuccin green `#a6e3a1` (18 %, wood 26 %) as part of its pastel character; in solarized-dark the RGB mix with the teal base turned green, so it uses an OKLCH dark gold (#4b3b13), mixed again 45 % (wood 60 %) with base03 so the petrol ground dominates.
+- Dark nerd styles each have their own character (user request, because they all looked alike); every colour is still a palette colour or a mix of two. Each file says its character in the comment above `[paint."background"]`.
+  - Neon glow (blurred casing in the accent colour) only on `dracula`, `tokyonight-night` and `cyberpunk`.
+  - `catppuccin-mocha`: pastel, no glow, surfaces stepped crust < mantle < base < surface, roads lavender/mauve/peach, water sapphire.
+  - `solarized-dark`: flat, no glow, roads only in base tones, yellow/orange just for trunk/primary and motorway.
+  - `nightfox`: muted navy, no glow, water deep blue, orange motorway the only warm accent.
+  - `dracula`: colourful: secondary/tertiary orange, paths green, minor roads comment, water cyan 55 %.
+  - `tokyonight-night`: blue neon for trunk/primary, magenta2 motorway, water blue0.
+  - Road ref and major-name labels use the same colours as their road lines.
 - Nerd styles end with a `# >>> Akzent-Beschriftung … # <<<` block. It hides the white shield sprite (`icon-image = ""`, because sprite PNGs cannot be recoloured) and colours road refs by class with a `match` expression: motorway / trunk+primary / rest, using the theme's accent colours. Major road names get the primary accent too. Keep the block at the end of the file so it wins.
 - POI layers: a low `rank` means important, so `poi_r1` holds the most important places and `poi_r20` the least. Hide `poi_r20`, not `poi_r1`.
 - Styles and their user-chosen names:

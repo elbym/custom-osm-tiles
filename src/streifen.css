@@ -5,6 +5,12 @@
 /* "dark:" folgt dem Hell/Dunkel-Schalter der Seite (data-mode am <html>), nicht der Systemeinstellung */
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
+/* "compact:" kleine Bildschirme (Hochformat oder niedrige Höhe, z. B. Handy quer): Optionen zugeklappt */
+@custom-variant compact {
+  @media (orientation: portrait) { @slot; }
+  @media (max-height: 32rem) { @slot; }
+}
+
 /* Sprechblasen-Marker (Standard-Stile, angelehnt an Heroicons "chat-bubble-bottom-center"): Spitze unten mittig auf der Position */
 .bubble { display: flex; flex-direction: column; align-items: center; font: 600 14px/1.2 system-ui, sans-serif; }
 .bubble .box { background: var(--bg); color: var(--fg); border: 2px solid var(--c1); border-radius: 8px; padding: 6px 10px; white-space: nowrap; box-shadow: 0 2px 6px rgb(0 0 0 / .3); }

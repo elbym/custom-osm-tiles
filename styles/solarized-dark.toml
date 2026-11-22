@@ -11,28 +11,29 @@ text_scale = 1.15
 attribution = "Farben nach Solarized (MIT)"
 hide = ["poi_r20", "road_oneway*"]
 
-# Neon (dunkle Nerd-Stile): Haupt-/Fernstraßen und Autobahn fast in voller Akzentfarbe, ihre Ränder
-# in derselben Farbe weichgezeichnet (line-blur) als Leuchtschein; Wasser leuchtender. Markiert mit "# Neon".
+# Charakter: flach und nüchtern, kein Leuchtschein. Straßen nur über die Grundtöne base02 < base01 < base00
+# abgestuft; Gelb und Orange bleiben Fernstraße und Autobahn vorbehalten.
 [paint."background"]
 background-color = "#002b36"
 [paint."landuse-*"]
 fill-color = "#002832"
 fill-opacity = 1
-# Grünflächen in der Signaturfarbe des Themes: Gelb (#b58900), als dunkles Gold in OKLCH
-# (RGB-Mischung mit dem blaugrünen Grund ergäbe Grün)
+# Grünflächen in Solarized-Yellow (#b58900): ein RGB-Mix mit dem Petrol-Grund wird grün, daher ein dunkles
+# OKLCH-Gold (#4b3b13), hier zu 45 % (Wald 60 %) mit dem Grund gemischt, damit das Petrol den Streifen bestimmt
 [paint."park"]
-fill-color = "#4b3b13"
+fill-color = "#223226"
 [paint."landcover-*"]
-fill-color = "#4b3b13"
+fill-color = "#223226"
 fill-opacity = 1
 [paint."landcover-wood"]
-fill-color = "#5b4717"
+fill-color = "#2d3521"
 [paint."landuse-cemetery"]
-fill-color = "#4b3b13"
+fill-color = "#223226"
 
+# Wasser in Solarized-Blue (#268bd2), 35 % mit dem Grund gemischt; Flüsse 45 %
 [paint."water*"]
-fill-color = "#135b84"   # Neon
-line-color = "#176594"
+fill-color = "#0d4d6d"
+line-color = "#11567c"
 
 [paint."building*"]
 fill-color = "#073642"
@@ -40,41 +41,29 @@ fill-outline-color = "#274c56"
 
 # Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
 [paint."*-minor*"]
-line-color = "#405d66"
-[paint."*-service-track"]
-line-color = "#405d66"
-[paint."*-link"]
-line-color = "#405d66"
-[paint."*-secondary-tertiary*"]
-line-color = "#4c666e"
-[paint."*-primary*"]
-line-color = "#a38005"   # Neon
-[paint."*-trunk*"]
-line-color = "#a38005"   # Neon
-[paint."*-motorway*"]
-line-color = "#c14918"   # Neon
-[paint."*-casing"]
-line-color = "#001a20"
-[paint."*-secondary-tertiary*-casing"]
-line-color = "#001a20"
-[paint."*-primary*-casing"]
-line-color = "#b58900"   # Neon-Leuchtschein
-line-blur = 3
-line-opacity = 0.55
-[paint."*-trunk*-casing"]
-line-color = "#b58900"   # Neon-Leuchtschein
-line-blur = 3
-line-opacity = 0.55
-[paint."*-motorway*-casing"]
-line-color = "#cb4b16"   # Neon-Leuchtschein
-line-blur = 4
-line-opacity = 0.6
-[paint."highway-area"]             # Fußgängerzonen, Plätze
-fill-color = "#274c56"
-fill-outline-color = "#274c56"
-[paint."aeroway-*"]
-fill-color = "#274c56"
 line-color = "#274c56"
+[paint."*-service-track"]
+line-color = "#274c56"
+[paint."*-link"]
+line-color = "#274c56"
+[paint."*-secondary-tertiary*"]
+line-color = "#586e75"
+[paint."*-primary*"]
+line-color = "#b58900"
+[paint."*-trunk*"]
+line-color = "#b58900"
+[paint."*-motorway*"]
+line-color = "#cb4b16"
+[paint."*-casing"]
+line-color = "#002b36"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#002b36"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#073642"
+fill-outline-color = "#073642"
+[paint."aeroway-*"]
+fill-color = "#073642"
+line-color = "#073642"
 [paint."*-path"]
 line-color = "#586e75"
 [paint."*railway*"]

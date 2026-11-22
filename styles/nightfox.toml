@@ -11,8 +11,8 @@ text_scale = 1.15
 attribution = "Farben nach Nightfox (MIT)"
 hide = ["poi_r20", "road_oneway*"]
 
-# Neon (dunkle Nerd-Stile): Haupt-/Fernstraßen und Autobahn fast in voller Akzentfarbe, ihre Ränder
-# in derselben Farbe weichgezeichnet (line-blur) als Leuchtschein; Wasser leuchtender. Markiert mit "# Neon".
+# Charakter: gedämpftes, kühles Marineblau ohne Leuchtschein. Orange (Autobahn) ist der einzige warme Akzent,
+# Cyan bleibt den Grünflächen und der Wasserbeschriftung vorbehalten.
 [paint."background"]
 background-color = "#192330"
 [paint."landuse-*"]
@@ -29,9 +29,10 @@ fill-color = "#2e535d"
 [paint."landuse-cemetery"]
 fill-color = "#284550"
 
+# Wasser tief in Nightfox-Blue (#719cd6), 30 % mit dem Grund gemischt; Flüsse 40 %
 [paint."water*"]
-fill-color = "#3e7880"   # Neon
-line-color = "#45898f"
+fill-color = "#334762"
+line-color = "#3c5372"
 
 [paint."building*"]
 fill-color = "#212e3f"
@@ -39,35 +40,23 @@ fill-outline-color = "#29394f"
 
 # Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
 [paint."*-minor*"]
-line-color = "#39506d"
+line-color = "#29394f"
 [paint."*-service-track"]
-line-color = "#39506d"
+line-color = "#29394f"
 [paint."*-link"]
-line-color = "#39506d"
+line-color = "#29394f"
 [paint."*-secondary-tertiary*"]
-line-color = "#556a84"
+line-color = "#3c5372"
 [paint."*-primary*"]
-line-color = "#6890c5"   # Neon
+line-color = "#719cd6"
 [paint."*-trunk*"]
-line-color = "#6890c5"   # Neon
+line-color = "#719cd6"
 [paint."*-motorway*"]
-line-color = "#e99c5f"   # Neon
+line-color = "#f4a261"
 [paint."*-casing"]
-line-color = "#0d1219"
+line-color = "#131a24"
 [paint."*-secondary-tertiary*-casing"]
-line-color = "#0d1219"
-[paint."*-primary*-casing"]
-line-color = "#719cd6"   # Neon-Leuchtschein
-line-blur = 3
-line-opacity = 0.55
-[paint."*-trunk*-casing"]
-line-color = "#719cd6"   # Neon-Leuchtschein
-line-blur = 3
-line-opacity = 0.55
-[paint."*-motorway*-casing"]
-line-color = "#f4a261"   # Neon-Leuchtschein
-line-blur = 4
-line-opacity = 0.6
+line-color = "#131a24"
 [paint."highway-area"]             # Fußgängerzonen, Plätze
 fill-color = "#29394f"
 fill-outline-color = "#29394f"

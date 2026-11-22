@@ -11,8 +11,10 @@ text_scale = 1.15
 attribution = "Farben nach Dracula (MIT)"
 hide = ["poi_r20", "road_oneway*"]
 
-# Neon (dunkle Nerd-Stile): Haupt-/Fernstraßen und Autobahn fast in voller Akzentfarbe, ihre Ränder
-# in derselben Farbe weichgezeichnet (line-blur) als Leuchtschein; Wasser leuchtender. Markiert mit "# Neon".
+# Neon (Dracula, Tokyo Night, Cyberpunk): Haupt-/Fernstraßen und Autobahn fast in voller Akzentfarbe, ihre Ränder
+# in derselben Farbe weichgezeichnet (line-blur) als Leuchtschein. Markiert mit "# Neon".
+# Charakter: viele kräftige Farben nebeneinander. Autobahn Pink, Haupt-/Fernstraße Lila, Land-/Kreisstraße
+# Orange (75 % Mix), Fußwege Grün (50 % Mix), Wasser Cyan; Nebenstraßen direkt in Comment (#6272a4).
 [paint."background"]
 background-color = "#282a36"
 [paint."landuse-*"]
@@ -29,9 +31,10 @@ fill-color = "#52476d"
 [paint."landuse-cemetery"]
 fill-color = "#463f5d"
 
+# Wasser in Dracula-Cyan (#8be9fd), 55 % mit dem Grund gemischt; Flüsse 65 %
 [paint."water*"]
-fill-color = "#5a8a9a"   # Neon
-line-color = "#639dad"
+fill-color = "#5e93a3"
+line-color = "#68a6b7"
 
 [paint."building*"]
 fill-color = "#363848"
@@ -39,13 +42,13 @@ fill-outline-color = "#44475a"
 
 # Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
 [paint."*-minor*"]
-line-color = "#535c7f"
+line-color = "#6272a4"
 [paint."*-service-track"]
-line-color = "#535c7f"
+line-color = "#6272a4"
 [paint."*-link"]
-line-color = "#535c7f"
+line-color = "#6272a4"
 [paint."*-secondary-tertiary*"]
-line-color = "#5a6792"
+line-color = "#c9945e"
 [paint."*-primary*"]
 line-color = "#ae88e6"   # Neon
 [paint."*-trunk*"]
@@ -75,9 +78,9 @@ fill-outline-color = "#44475a"
 fill-color = "#44475a"
 line-color = "#44475a"
 [paint."*-path"]
-line-color = "#6272a4"
+line-color = "#3c9258"
 [paint."*railway*"]
-line-color = "#6272a4"
+line-color = "#44475a"
 [paint."road_area_pier"]
 fill-color = "#282a36"
 [paint."road_pier"]
@@ -105,12 +108,12 @@ text-halo-color = "#282a36"
 
 # >>> Akzent-Beschriftung
 # Straßennummern ohne weißes Schild (Sprite-Bild, nicht umfärbbar), stattdessen in den Akzentfarben des Themes:
-# Autobahn #ff79c6, Bundes-/Hauptstraße #bd93f9, Land-/Kreisstraße #8be9fd. Hauptstraßennamen ebenfalls #bd93f9.
+# Autobahn #ff79c6, Bundes-/Hauptstraße #bd93f9, Land-/Kreisstraße #ffb86c. Hauptstraßennamen ebenfalls #bd93f9.
 [layout."*shield*"]
 icon-image = ""
 text-size = 12
 [paint."*shield*"]
-text-color = ["match", ["get", "class"], "motorway", "#ff79c6", ["trunk", "primary"], "#bd93f9", "#8be9fd"]
+text-color = ["match", ["get", "class"], "motorway", "#ff79c6", ["trunk", "primary"], "#bd93f9", "#ffb86c"]
 text-halo-color = "#282a36"
 text-halo-width = 1.5
 [paint."highway-name-major"]
