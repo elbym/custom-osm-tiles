@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Karte</title>
+<link rel="stylesheet" href="leaflet/leaflet.css">
+<style>html, body { margin: 0; } #map { height: 100dvh; }</style>
+</head>
+<body>
+<div id="map"></div>
+<script src="leaflet/leaflet.js"></script>
+<script>
+const c = /*CONFIG*/{};
+const map = L.map('map', {
+  minZoom: c.zmin, maxZoom: c.zmax,
+  maxBounds: c.bounds, maxBoundsViscosity: 1
+}).setView([c.lat, c.lon], Math.min(c.zmax, c.detail_from - 1));
+const url = c.retina ? 'tiles/{z}/{x}/{y}{r}.png' : 'tiles/{z}/{x}/{y}.png';
+// Übersicht: über detail_from-1 hinaus hochskaliert, damit außerhalb des Detailbereichs nichts leer bleibt
+L.tileLayer(url, {
+  maxNativeZoom: Math.min(c.zmax, c.detail_from - 1), bounds: c.bounds,
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>, © OpenMapTiles'
+}).addTo(map);
+// Detail: echte Kacheln ab detail_from, nur um den Marker
+if (c.zmax >= c.detail_from) L.tileLayer(url, { minZoom: c.detail_from, bounds: c.detail }).addTo(map);
+L.marker([c.lat, c.lon]).addTo(map);
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+data/
+out/
+style/fonts/Noto Sans */
+__pycache__/
+style/tiles.mbtiles
