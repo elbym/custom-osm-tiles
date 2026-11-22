@@ -1,5 +1,11 @@
 # tiles
 
+> Ich mag Map Tiles, ich mag Styles, ich mag Webseiten. 
+> Eigene Maptiles mit Leaflet auf der Webseite einbinden. 
+> Tiles für den gewünschten Bereich om gewünschten Stil erstellen,
+> auf der Webseite integrieren. Fertig. 
+> Ohne eigenen Abschnitt im Datenschutz. 
+
 Statische Kartenkacheln (PNG mit 24-Farben-Palette, wahlweise WebP) für Leaflet, nur für einen kleinen Bereich um einen Marker, selbst gehostet. Die Website braucht damit keine Anfragen an Kartendienste; auch Leaflet liegt lokal.
 
 ## Vorschau
