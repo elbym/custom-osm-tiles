@@ -2,6 +2,23 @@
 
 Statische Kartenkacheln (PNG mit 24-Farben-Palette, wahlweise WebP) für Leaflet, nur für einen kleinen Bereich um einen Marker, selbst gehostet. Die Website braucht damit keine Anfragen an Kartendienste; auch Leaflet liegt lokal.
 
+## Vorschau
+
+Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bielefeld auf Zoom 12. Erzeugt mit `./make-tiles.py --readme-previews` (je Stil ein 512×512-Bild ohne Marker nach `docs/previews/`).
+
+| | Hell | Dunkel |
+|---|---|---|
+| **Clear**<br><sub>Standard</sub> | <a href="docs/previews/clear.png"><img src="docs/previews/clear.png" width="256" alt="Clear"></a><br>Clear | <a href="docs/previews/clear-dark.png"><img src="docs/previews/clear-dark.png" width="256" alt="Clear Dark"></a><br>Clear Dark |
+| **Cupertino**<br><sub>Standard</sub> | <a href="docs/previews/cupertino.png"><img src="docs/previews/cupertino.png" width="256" alt="Cupertino"></a><br>Cupertino | <a href="docs/previews/cupertino-dark.png"><img src="docs/previews/cupertino-dark.png" width="256" alt="Cupertino Dark"></a><br>Cupertino Dark |
+| **North**<br><sub>Standard</sub> | <a href="docs/previews/north.png"><img src="docs/previews/north.png" width="256" alt="North"></a><br>North | <a href="docs/previews/north-dark.png"><img src="docs/previews/north-dark.png" width="256" alt="North Dark"></a><br>North Dark |
+| **OSM**<br><sub>Standard</sub> | <a href="docs/previews/osm-light.png"><img src="docs/previews/osm-light.png" width="256" alt="OSM light"></a><br>OSM light | <a href="docs/previews/osm-dark.png"><img src="docs/previews/osm-dark.png" width="256" alt="OSM dark"></a><br>OSM dark |
+| **Wiki**<br><sub>Standard</sub> | <a href="docs/previews/wiki.png"><img src="docs/previews/wiki.png" width="256" alt="Wiki"></a><br>Wiki | <a href="docs/previews/wiki-dark.png"><img src="docs/previews/wiki-dark.png" width="256" alt="Wiki Dark"></a><br>Wiki Dark |
+| **Catppuccin**<br><sub>Nerd</sub> | <a href="docs/previews/catppuccin-latte.png"><img src="docs/previews/catppuccin-latte.png" width="256" alt="Catppuccin Latte"></a><br>Catppuccin Latte | <a href="docs/previews/catppuccin-mocha.png"><img src="docs/previews/catppuccin-mocha.png" width="256" alt="Catppuccin Mocha"></a><br>Catppuccin Mocha |
+| **Dracula**<br><sub>Nerd</sub> | <a href="docs/previews/dracula-light.png"><img src="docs/previews/dracula-light.png" width="256" alt="Alucard"></a><br>Alucard | <a href="docs/previews/dracula.png"><img src="docs/previews/dracula.png" width="256" alt="Dracula"></a><br>Dracula |
+| **Nightfox**<br><sub>Nerd</sub> | <a href="docs/previews/dayfox.png"><img src="docs/previews/dayfox.png" width="256" alt="Dayfox"></a><br>Dayfox | <a href="docs/previews/nightfox.png"><img src="docs/previews/nightfox.png" width="256" alt="Nightfox"></a><br>Nightfox |
+| **Solarized**<br><sub>Nerd</sub> | <a href="docs/previews/solarized-light.png"><img src="docs/previews/solarized-light.png" width="256" alt="Solarized Light"></a><br>Solarized Light | <a href="docs/previews/solarized-dark.png"><img src="docs/previews/solarized-dark.png" width="256" alt="Solarized Dark"></a><br>Solarized Dark |
+| **Tokyo Night**<br><sub>Nerd</sub> | <a href="docs/previews/tokyonight-day.png"><img src="docs/previews/tokyonight-day.png" width="256" alt="Tokyo Night Day"></a><br>Tokyo Night Day | <a href="docs/previews/tokyonight-night.png"><img src="docs/previews/tokyonight-night.png" width="256" alt="Tokyo Night"></a><br>Tokyo Night |
+
 ## Einrichtung
 
 ```sh
@@ -32,6 +49,8 @@ Außerdem nötig: podman und pngquant (`sudo dnf install pngquant`). Beim ersten
 | `--area` | Geofabrik-Region, muss den Bereich enthalten (https://download.geofabrik.de) | `detmold-regbez` |
 | `--label` | Text im Marker (Sprechblase bzw. Terminal `~/<label>`) | `hier` |
 | `--out` | Zielordner | `out/<stilname>` |
+
+Nach Änderungen an Stilen die README-Bilder neu erzeugen: `./make-tiles.py --readme-previews` (gut 30 Sekunden).
 
 Nach Änderungen an `template.html`, am Marker oder am Label reicht `./make-tiles.py --reindex [--label …]`: Das schreibt die `index.html` aller Varianten neu, ohne Kacheln zu rendern.
 

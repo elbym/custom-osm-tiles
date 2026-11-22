@@ -33,7 +33,7 @@ line-color = "#aeb6d6"
 
 [paint."building*"]
 fill-color = "#ded4ca"
-fill-outline-color = "#aab0ad"
+fill-outline-color = "#c9c6be"   # dezente Kontur (60 % Fläche, 40 % #aab0ad)
 
 # Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
 [paint."*-minor*"]

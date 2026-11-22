@@ -8,6 +8,7 @@ Beispiel:
 """
 import argparse, fnmatch, os, re, io, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.request, zipfile
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -179,23 +180,17 @@ def reindex(outdir, label=None):
     write_previews(outdir)
 
 
-def render(a, style_file, out, mb, font=None):
-    zmin, zmax = map(int, a.zoom.split("-"))
-    vw, vh = map(int, a.viewport.split("x"))
-    b = bbox(a.lat, a.lon, a.radius)
-    # ponytail: high zooms only near the marker; Leaflet upscales z(detail_from-1) outside
-    d = bbox(a.lat, a.lon, min(a.radius, a.detail_radius))
-    style, title, attribution, font = build_style(style_file, font)
-    built = DATA / f"style-{out.name}.json"
+@contextmanager
+def tileserver(style, tag, mb):
+    """tileserver-gl mit diesem Stil starten; liefert die Basis-URL, stoppt den Container danach."""
+    built = DATA / f"style-{tag}.json"
     built.write_text(json.dumps(style, ensure_ascii=False))
-
     name = f"tiles-{PORT}"
     run("podman", "run", "-d", "--rm", "--name", name, "-p", f"127.0.0.1:{PORT}:8080",
         "-v", f"{ROOT / 'style'}:/data:Z", "-v", f"{mb}:/data/tiles.mbtiles:ro,Z",
         "-v", f"{built}:/data/style.json:ro,Z",
         TILESERVER, "--config", "/data/config.json")
     try:
-        base = f"http://127.0.0.1:{PORT}/styles/map"
         for _ in range(300):  # bis 60 s; Start dauert meist < 1 s
             try:
                 fetch(f"http://127.0.0.1:{PORT}/health")
@@ -204,7 +199,34 @@ def render(a, style_file, out, mb, font=None):
                 time.sleep(0.2)
         else:
             sys.exit("tileserver-gl startet nicht: podman logs " + name)
+        yield f"http://127.0.0.1:{PORT}/styles/map"
+    finally:
+        subprocess.run(["podman", "stop", name], capture_output=True)
 
+
+def readme_previews(a, mb):
+    """Je Stil ein 512×512-Bild auf Zoom 12 ohne Marker nach docs/previews/<stil>.png (für die README)."""
+    dest = ROOT / "docs" / "previews"
+    dest.mkdir(parents=True, exist_ok=True)
+    for st in sorted((ROOT / "styles").glob("*.toml")):
+        meta = tomllib.loads(st.read_text())
+        style = build_style(st, meta.get("preview_font", meta.get("font")))[0]
+        with tileserver(style, f"readme-{st.stem}", mb) as base:
+            data = fetch(f"{base}/static/{a.lon},{a.lat},12/512x512.png")
+        data = subprocess.run(["pngquant", str(a.colors), "--nofs", "--strip", "--speed", "1", "-"],
+                              input=data, capture_output=True, check=True).stdout
+        (dest / f"{st.stem}.png").write_bytes(data)
+        print(f"{st.stem}: {len(data) / 1e3:.0f} kB", flush=True)
+
+
+def render(a, style_file, out, mb, font=None):
+    zmin, zmax = map(int, a.zoom.split("-"))
+    vw, vh = map(int, a.viewport.split("x"))
+    b = bbox(a.lat, a.lon, a.radius)
+    # ponytail: high zooms only near the marker; Leaflet upscales z(detail_from-1) outside
+    d = bbox(a.lat, a.lon, min(a.radius, a.detail_radius))
+    style, title, attribution, font = build_style(style_file, font)
+    with tileserver(style, out.name, mb) as base:
         shutil.rmtree(out / "tiles", ignore_errors=True)
         jobs = [(z, x, y, sfx) for z in range(zmin, zmax + 1)
                 for x, y in (tiles_for(d, z, 0, 0) if z >= a.detail_from else tiles_for(b, z, vw, vh))
@@ -228,8 +250,6 @@ def render(a, style_file, out, mb, font=None):
         with ThreadPoolExecutor(WORKERS) as pool:
             list(pool.map(get, jobs))
         count = len(jobs)
-    finally:
-        subprocess.run(["podman", "stop", name], capture_output=True)
 
     shutil.copytree(ROOT / "vendor" / "leaflet", out / "leaflet", dirs_exist_ok=True)
     page = (ROOT / "template.html").read_text()
@@ -270,6 +290,8 @@ def main():
     p.add_argument("--missing", action="store_true", help="mit --all: vorhandene Varianten überspringen")
     p.add_argument("--out", help="Standard: out/<stilname>")
     p.add_argument("--reindex", action="store_true", help="nur index.html aller Varianten in out/ neu schreiben")
+    p.add_argument("--readme-previews", action="store_true",
+                   help="je Stil ein 512×512-Bild (Zoom 12, ohne Marker) nach docs/previews/ für die README")
     a = p.parse_args()
     if a.reindex:
         return reindex(ROOT / "out", a.label)
@@ -280,6 +302,8 @@ def main():
     mb = ensure_mbtiles(a.area)
     ensure_noto()
     ensure_glyphs()
+    if a.readme_previews:
+        return readme_previews(a, mb)
     if not a.all:
         st = Path(a.style or ROOT / "styles" / "clear.toml")
         render(a, st, Path(a.out) if a.out else ROOT / "out" / st.stem, mb, a.font)
