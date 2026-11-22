@@ -11,27 +11,28 @@ text_scale = 1.15
 attribution = "Farben nach Catppuccin (MIT)"
 hide = ["poi_r20", "road_oneway*"]
 
-# Neon (dunkle Nerd-Stile): Haupt-/Fernstraßen und Autobahn fast in voller Akzentfarbe, ihre Ränder
-# in derselben Farbe weichgezeichnet (line-blur) als Leuchtschein; Wasser leuchtender. Markiert mit "# Neon".
+# Charakter: weiche Pastelltöne bei niedrigem Kontrast, kein Leuchtschein. Flächen über die Stufen der
+# Palette gestaffelt (crust < mantle < base < surface0/1/2), Straßen in Lavender/Mauve/Peach.
 [paint."background"]
 background-color = "#1e1e2e"
 [paint."landuse-*"]
-fill-color = "#1b1b2a"
+fill-color = "#181825"
 fill-opacity = 1
-# Grünflächen in der Signaturfarbe des Themes: Peach (#fab387), mit dem Grund gemischt
+# Grünflächen in Catppuccin-Green (#a6e3a1, pastell), mit dem Grund gemischt: 18 %, Wald 26 %
 [paint."park"]
-fill-color = "#4a3c40"
+fill-color = "#364143"
 [paint."landcover-*"]
-fill-color = "#4a3c40"
+fill-color = "#364143"
 fill-opacity = 1
 [paint."landcover-wood"]
-fill-color = "#5c4847"
+fill-color = "#41514c"
 [paint."landuse-cemetery"]
-fill-color = "#4a3c40"
+fill-color = "#364143"
 
+# Wasser in Sapphire (#74c7ec), 40 % mit dem Grund gemischt; Flüsse 50 %
 [paint."water*"]
-fill-color = "#547d8c"   # Neon
-line-color = "#5e909f"
+fill-color = "#40627a"
+line-color = "#49728d"
 
 [paint."building*"]
 fill-color = "#313244"
@@ -39,45 +40,33 @@ fill-outline-color = "#45475a"
 
 # Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
 [paint."*-minor*"]
-line-color = "#585b70"
+line-color = "#45475a"
 [paint."*-service-track"]
-line-color = "#585b70"
+line-color = "#45475a"
 [paint."*-link"]
-line-color = "#585b70"
+line-color = "#45475a"
 [paint."*-secondary-tertiary*"]
-line-color = "#62667b"
+line-color = "#7176a0"
 [paint."*-primary*"]
-line-color = "#ba98e3"   # Neon
+line-color = "#cba6f7"
 [paint."*-trunk*"]
-line-color = "#ba98e3"   # Neon
+line-color = "#cba6f7"
 [paint."*-motorway*"]
-line-color = "#efac83"   # Neon
+line-color = "#fab387"
 [paint."*-casing"]
 line-color = "#11111b"
 [paint."*-secondary-tertiary*-casing"]
 line-color = "#11111b"
-[paint."*-primary*-casing"]
-line-color = "#cba6f7"   # Neon-Leuchtschein
-line-blur = 3
-line-opacity = 0.55
-[paint."*-trunk*-casing"]
-line-color = "#cba6f7"   # Neon-Leuchtschein
-line-blur = 3
-line-opacity = 0.55
-[paint."*-motorway*-casing"]
-line-color = "#fab387"   # Neon-Leuchtschein
-line-blur = 4
-line-opacity = 0.6
 [paint."highway-area"]             # Fußgängerzonen, Plätze
-fill-color = "#45475a"
-fill-outline-color = "#45475a"
+fill-color = "#313244"
+fill-outline-color = "#313244"
 [paint."aeroway-*"]
-fill-color = "#45475a"
-line-color = "#45475a"
+fill-color = "#313244"
+line-color = "#313244"
 [paint."*-path"]
-line-color = "#6c7086"
+line-color = "#585b70"
 [paint."*railway*"]
-line-color = "#7f849c"
+line-color = "#6c7086"
 [paint."road_area_pier"]
 fill-color = "#1e1e2e"
 [paint."road_pier"]
@@ -105,12 +94,12 @@ text-halo-color = "#1e1e2e"
 
 # >>> Akzent-Beschriftung
 # Straßennummern ohne weißes Schild (Sprite-Bild, nicht umfärbbar), stattdessen in den Akzentfarben des Themes:
-# Autobahn #fab387, Bundes-/Hauptstraße #cba6f7, Land-/Kreisstraße #94e2d5. Hauptstraßennamen ebenfalls #cba6f7.
+# Autobahn #fab387, Bundes-/Hauptstraße #cba6f7, Land-/Kreisstraße #b4befe. Hauptstraßennamen ebenfalls #cba6f7.
 [layout."*shield*"]
 icon-image = ""
 text-size = 12
 [paint."*shield*"]
-text-color = ["match", ["get", "class"], "motorway", "#fab387", ["trunk", "primary"], "#cba6f7", "#94e2d5"]
+text-color = ["match", ["get", "class"], "motorway", "#fab387", ["trunk", "primary"], "#cba6f7", "#b4befe"]
 text-halo-color = "#1e1e2e"
 text-halo-width = 1.5
 [paint."highway-name-major"]
