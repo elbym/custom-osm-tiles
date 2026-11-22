@@ -1,4 +1,4 @@
-# tiles
+# Eigene Styles für Tiles mit Leaflet JS
 
 > Ich mag Map Tiles, ich mag Styles, ich mag Webseiten. 
 > Eigene Maptiles mit Leaflet auf der Webseite einbinden. 
