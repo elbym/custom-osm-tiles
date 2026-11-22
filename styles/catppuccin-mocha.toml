@@ -1,0 +1,91 @@
+# Catppuccin Mocha: Kartenstil nach dem Editor-Theme Catppuccin (https://catppuccin.com, MIT).
+# Farben aus der Palette des Themes; dunkel.
+title = "Catppuccin Mocha"
+font = "Fira Sans"
+fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
+text_scale = 1.15
+attribution = "Farben nach Catppuccin (MIT)"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#1e1e2e"
+[paint."landuse-*"]
+fill-color = "#1b1b2a"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#394545"
+[paint."landcover-*"]
+fill-color = "#394545"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#44554e"
+[paint."landuse-cemetery"]
+fill-color = "#394545"
+
+[paint."water*"]
+fill-color = "#3c5970"
+line-color = "#3c5970"
+
+[paint."building*"]
+fill-color = "#313244"
+fill-outline-color = "#45475a"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#585b70"
+[paint."*-service-track"]
+line-color = "#585b70"
+[paint."*-link"]
+line-color = "#585b70"
+[paint."*-secondary-tertiary*"]
+line-color = "#62667b"
+[paint."*-primary*"]
+line-color = "#968a75"
+[paint."*-trunk*"]
+line-color = "#968a75"
+[paint."*-motorway*"]
+line-color = "#b8866c"
+[paint."*-casing"]
+line-color = "#11111b"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#11111b"
+[paint."*-primary*-casing"]
+line-color = "#11111b"
+[paint."*-trunk*-casing"]
+line-color = "#11111b"
+[paint."*-motorway*-casing"]
+line-color = "#11111b"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#45475a"
+fill-outline-color = "#45475a"
+[paint."aeroway-*"]
+fill-color = "#45475a"
+line-color = "#45475a"
+[paint."*-path"]
+line-color = "#6c7086"
+[paint."*railway*"]
+line-color = "#7f849c"
+[paint."road_area_pier"]
+fill-color = "#1e1e2e"
+[paint."road_pier"]
+line-color = "#1e1e2e"
+
+[paint."*label*"]
+text-color = "#cdd6f4"
+text-halo-color = "#1e1e2e"
+[paint."label_*"]
+text-color = "#cdd6f4"
+text-halo-color = "#1e1e2e"
+[paint."highway-name-*"]
+text-color = "#bac2de"
+text-halo-color = "#1e1e2e"
+[paint."poi_*"]
+text-color = "#a6adc8"
+text-halo-color = "#1e1e2e"
+[paint."poi_transit"]
+text-color = "#89b4fa"
+[paint."water*label"]
+text-color = "#74c7ec"
+[paint."airport"]
+text-color = "#a6adc8"
+text-halo-color = "#1e1e2e"

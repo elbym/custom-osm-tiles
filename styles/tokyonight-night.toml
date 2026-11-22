@@ -1,0 +1,91 @@
+# Tokyo Night: Kartenstil nach dem Editor-Theme Tokyo Night (https://github.com/folke/tokyonight.nvim, Apache-2.0).
+# Farben aus der Palette des Themes; dunkel.
+title = "Tokyo Night"
+font = "JetBrains Mono"
+fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
+text_scale = 1.15
+attribution = "Farben nach Tokyo Night (Apache-2.0)"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#1a1b26"
+[paint."landuse-*"]
+fill-color = "#181822"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#343f34"
+[paint."landcover-*"]
+fill-color = "#343f34"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#3f4d39"
+[paint."landuse-cemetery"]
+fill-color = "#343f34"
+
+[paint."water*"]
+fill-color = "#3c4a6f"
+line-color = "#3c4a6f"
+
+[paint."building*"]
+fill-color = "#292e42"
+fill-outline-color = "#414868"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#545c7e"
+[paint."*-service-track"]
+line-color = "#545c7e"
+[paint."*-link"]
+line-color = "#545c7e"
+[paint."*-secondary-tertiary*"]
+line-color = "#555e84"
+[paint."*-primary*"]
+line-color = "#876c4a"
+[paint."*-trunk*"]
+line-color = "#876c4a"
+[paint."*-motorway*"]
+line-color = "#8b74b8"
+[paint."*-casing"]
+line-color = "#0c0e14"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#0c0e14"
+[paint."*-primary*-casing"]
+line-color = "#0c0e14"
+[paint."*-trunk*-casing"]
+line-color = "#0c0e14"
+[paint."*-motorway*-casing"]
+line-color = "#0c0e14"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#414868"
+fill-outline-color = "#414868"
+[paint."aeroway-*"]
+fill-color = "#414868"
+line-color = "#414868"
+[paint."*-path"]
+line-color = "#565f89"
+[paint."*railway*"]
+line-color = "#737aa2"
+[paint."road_area_pier"]
+fill-color = "#1a1b26"
+[paint."road_pier"]
+line-color = "#1a1b26"
+
+[paint."*label*"]
+text-color = "#c0caf5"
+text-halo-color = "#1a1b26"
+[paint."label_*"]
+text-color = "#c0caf5"
+text-halo-color = "#1a1b26"
+[paint."highway-name-*"]
+text-color = "#a9b1d6"
+text-halo-color = "#1a1b26"
+[paint."poi_*"]
+text-color = "#737aa2"
+text-halo-color = "#1a1b26"
+[paint."poi_transit"]
+text-color = "#7dcfff"
+[paint."water*label"]
+text-color = "#7aa2f7"
+[paint."airport"]
+text-color = "#737aa2"
+text-halo-color = "#1a1b26"

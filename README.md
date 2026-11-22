@@ -35,6 +35,13 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 | `north.toml` | **North**: Farben nach der Palette von Hydda (BSD-3) |
 | `osm-light.toml` | **OSM light**: OSM-Standardkarte (Mapnik/openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
 | `wiki.toml` | **Wiki**: Wikimedia Maps („osm-intl“, Farben aus github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
+| `dayfox.toml`, `nightfox.toml` | **Dayfox** / **Nightfox**: Farben des Editor-Themes Nightfox (MIT), hell / dunkel |
+| `catppuccin-latte.toml`, `catppuccin-mocha.toml` | **Catppuccin Latte** / **Mocha**: Farben von Catppuccin (MIT), hell / dunkel |
+| `dracula.toml` | **Dracula**: Farben des Dracula-Themes (MIT), dunkel |
+| `solarized-light.toml`, `solarized-dark.toml` | **Solarized Light** / **Dark**: Farben von Solarized (MIT) |
+| `tokyonight-day.toml`, `tokyonight-night.toml` | **Tokyo Night Day** / **Tokyo Night**: Farben von tokyonight.nvim (Apache-2.0) |
+
+Die Editor-Theme-Stile ordnen jeder Palette dieselben Kartenrollen zu (Grund, Gebäude, Wasser, Grün, drei Straßenstufen, Schrift) und werden mit `fonts = ["sans", "serif", "mono"]` zusätzlich mit Monoschriften gerendert.
 
 Die Stile sind eigene Umsetzungen. Von den Vorbildern sind nur Farbwerte übernommen, keine Stildateien. Beim Stil Wiki verlangt die Lizenz (CC BY 3.0) eine Namensnennung; sie steht in `attribution` und erscheint auf der Karte.
 
@@ -73,6 +80,7 @@ Welche Schnitte aus welcher Datei entstehen, steht in `style/fonts.toml`. Jede T
 Regular = { file = "literata/Literata-VF.ttf", wght = 400, opsz = 12 }
 Bold    = { file = "literata/Literata-VF.ttf", wght = 700, opsz = 12 }
 Italic  = { file = "literata/Literata-Italic-VF.ttf", wght = 400, opsz = 12 }
+group   = "serif"  # sans | serif | mono; ein Stil wählt mit fonts = [...] die Gruppen für --all
 scale   = 1.05     # optional: Größenfaktor
 streets = "450"    # optional: eigener Schnitt für Straßennamen (muss oben als Schnitt stehen)
 ```
@@ -84,6 +92,7 @@ Ohne Achsenwerte wird die Datei unverändert übernommen. Mit Achsenwerten wird 
 | Atkinson Hyperlegible Next, Fira Sans, Inter, Overpass, Public Sans | serifenlos | OFL |
 | Literata, Newsreader | Serifen | OFL |
 | TeX Gyre Schola | Serifen | GUST Font License |
+| Fira Code, JetBrains Mono, Maple Mono, Victor Mono | Mono (nur für Stile mit `fonts = [..., "mono"]`) | OFL |
 
 Noto Sans ist keine eigene Variante, sondern nur Ersatz für Zeichen, die einer Schrift fehlen (z. B. Kyrillisch). `make-tiles.py` lädt sie beim ersten Lauf fertig herunter. Mit `--font "<Name>"` lässt sich eine einzelne Schrift rendern, zusammen mit `--all` in allen Stilen.
 

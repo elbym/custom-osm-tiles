@@ -76,9 +76,9 @@ def font_config():
     return tomllib.loads((ROOT / "style" / "fonts.toml").read_text())
 
 
-def fonts():
-    """Schriften für --all (Noto Sans ist nur Ersatzschrift und steht nicht in fonts.toml)."""
-    return sorted(font_config())
+def fonts(groups=("sans", "serif")):
+    """Schriften der Gruppen für --all (Noto Sans ist nur Ersatzschrift und steht nicht in fonts.toml)."""
+    return sorted(f for f, cfg in font_config().items() if cfg.get("group", "sans") in groups)
 
 
 def ensure_glyphs():
@@ -219,7 +219,7 @@ def main():
     p.add_argument("--retina", action="store_true", help="zusätzlich @2x rendern")
     p.add_argument("--style", help="Standard: styles/clear.toml; mit --all: nur dieser Stil")
     p.add_argument("--font", help="Schrift statt der des Stils; mit --all: nur diese Schrift")
-    p.add_argument("--all", action="store_true", help="jeder Stil × jede Schrift nach out/<stil>-<schrift>")
+    p.add_argument("--all", action="store_true", help="jeder Stil × seine Schriftgruppen nach out/<stil>-<schrift>")
     p.add_argument("--out", help="Standard: out/<stilname>")
     a = p.parse_args()
     zmin, zmax = map(int, a.zoom.split("-"))
@@ -234,7 +234,8 @@ def main():
         render(a, st, Path(a.out) if a.out else ROOT / "out" / st.stem, mb, a.font)
         return
     for st in [Path(a.style)] if a.style else sorted((ROOT / "styles").glob("*.toml")):
-        for font in [a.font] if a.font else fonts():
+        groups = tomllib.loads(st.read_text()).get("fonts", ["sans", "serif"])
+        for font in [a.font] if a.font else fonts(groups):
             slug = font.lower().replace(" ", "-")
             render(a, st, ROOT / "out" / f"{st.stem}-{slug}", mb, font)
 

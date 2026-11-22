@@ -1,0 +1,91 @@
+# Dracula: Kartenstil nach dem Editor-Theme Dracula (https://draculatheme.com, MIT).
+# Farben aus der Palette des Themes; dunkel.
+title = "Dracula"
+font = "Fira Sans"
+fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
+text_scale = 1.15
+attribution = "Farben nach Dracula (MIT)"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#282a36"
+[paint."landuse-*"]
+fill-color = "#242631"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#305444"
+[paint."landcover-*"]
+fill-color = "#305444"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#336449"
+[paint."landuse-cemetery"]
+fill-color = "#305444"
+
+[paint."water*"]
+fill-color = "#4b6d7c"
+line-color = "#4b6d7c"
+
+[paint."building*"]
+fill-color = "#363848"
+fill-outline-color = "#44475a"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#535c7f"
+[paint."*-service-track"]
+line-color = "#535c7f"
+[paint."*-link"]
+line-color = "#535c7f"
+[paint."*-secondary-tertiary*"]
+line-color = "#5a6792"
+[paint."*-primary*"]
+line-color = "#7a64a1"
+[paint."*-trunk*"]
+line-color = "#7a64a1"
+[paint."*-motorway*"]
+line-color = "#be619b"
+[paint."*-casing"]
+line-color = "#191a21"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#191a21"
+[paint."*-primary*-casing"]
+line-color = "#191a21"
+[paint."*-trunk*-casing"]
+line-color = "#191a21"
+[paint."*-motorway*-casing"]
+line-color = "#191a21"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#44475a"
+fill-outline-color = "#44475a"
+[paint."aeroway-*"]
+fill-color = "#44475a"
+line-color = "#44475a"
+[paint."*-path"]
+line-color = "#6272a4"
+[paint."*railway*"]
+line-color = "#6272a4"
+[paint."road_area_pier"]
+fill-color = "#282a36"
+[paint."road_pier"]
+line-color = "#282a36"
+
+[paint."*label*"]
+text-color = "#f8f8f2"
+text-halo-color = "#282a36"
+[paint."label_*"]
+text-color = "#f8f8f2"
+text-halo-color = "#282a36"
+[paint."highway-name-*"]
+text-color = "#e2e2dc"
+text-halo-color = "#282a36"
+[paint."poi_*"]
+text-color = "#bfbfb8"
+text-halo-color = "#282a36"
+[paint."poi_transit"]
+text-color = "#8be9fd"
+[paint."water*label"]
+text-color = "#8be9fd"
+[paint."airport"]
+text-color = "#bfbfb8"
+text-halo-color = "#282a36"

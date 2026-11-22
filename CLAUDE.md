@@ -41,7 +41,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   Do all customisation in `styles/*.toml`, not in `base.json`.
 - TOML keys:
   - `title` is the window/tab title; the font name is appended automatically.
-  - `font` replaces "Noto Sans" in every `text-font`. Noto stays in the stack as fallback. `--all` ignores it and loops over `fonts()`, which are the tables in `style/fonts.toml`. Noto Sans is deliberately not there: it is fallback only, because the user dislikes it as a label font. `--font` overrides it, and with `--all` it limits the loop to that one font.
+  - `font` replaces "Noto Sans" in every `text-font`. Noto stays in the stack as fallback. `--all` ignores it and loops over `fonts(groups)`, which are the tables in `style/fonts.toml` whose `group` is in the style's `fonts` list (default `["sans", "serif"]`; the editor themes add `"mono"`). Noto Sans is deliberately not there: it is fallback only, because the user dislikes it as a label font. `--font` overrides it, and with `--all` it limits the loop to that one font.
   - `text_scale` scales all `text-size` values except the `*shield*` layers. It is multiplied by `scale` from the font's table in `style/fonts.toml`. That table can also set `streets` = a face suffix (e.g. `"450"`) used for the `highway-name*` layers instead of Regular. `brotli` is not installed, so take new fonts as TTF/OTF from upstream (google/fonts, CTAN), not WOFF2.
   - `hide` is a list of layer-id globs to hide.
   - `[paint."glob"]` / `[layout."glob"]` set properties on matching layer ids. They apply in file order, so the last match wins. Only properties whose prefix fits the layer type are applied, which makes broad globs like `water*` safe.
@@ -50,6 +50,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - `cupertino` ("Cupertino") only borrows the overall look of Apple Maps: own colours, no Apple assets, and no "Apple" in the public attribution.
   - `north` ("North") recreates Hydda's palette.
   - `osm-light` ("OSM light") is a lighter, decluttered take on the osm.org standard map.
+  - `dayfox`/`nightfox`, `catppuccin-latte`/`catppuccin-mocha`, `dracula` and `solarized-*` (MIT), plus `tokyonight-*` (Apache-2.0), use editor-theme palettes. They all share one role mapping (bg, buildings, water, green, road tiers, text). Dark variants need the `highway-area` and `aeroway-*` overrides, otherwise OSM Bright's light grey pedestrian areas glare. They also need lighter minor roads (surface2) to stand out from buildings.
   - `wiki` ("Wiki") recreates Wikimedia Maps. Its colours come from wikimedia/osm-bright.tm2, whose design is CC BY 3.0, so its `attribution` must stay.
 - POI layers: a low `rank` means important, so `poi_r1` holds the most important places and `poi_r20` the least. Hide `poi_r20`, not `poi_r1`.
 - For the recreations, only colour values were taken from the originals, never their style files. That is what the user asked for, to avoid licence problems, and each recreation names its inspiration in `attribution`.

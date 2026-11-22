@@ -1,0 +1,91 @@
+# Nightfox: Kartenstil nach dem Editor-Theme Nightfox (https://github.com/EdenEast/nightfox.nvim, MIT).
+# Farben aus der Palette des Themes; dunkel.
+title = "Nightfox"
+font = "Fira Sans"
+fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
+text_scale = 1.15
+attribution = "Farben nach Nightfox (MIT)"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#192330"
+[paint."landuse-*"]
+fill-color = "#161e2a"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#2e4045"
+[paint."landcover-*"]
+fill-color = "#2e4045"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#364b4e"
+[paint."landuse-cemetery"]
+fill-color = "#2e4045"
+
+[paint."water*"]
+fill-color = "#384d6a"
+line-color = "#384d6a"
+
+[paint."building*"]
+fill-color = "#212e3f"
+fill-outline-color = "#29394f"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#39506d"
+[paint."*-service-track"]
+line-color = "#39506d"
+[paint."*-link"]
+line-color = "#39506d"
+[paint."*-secondary-tertiary*"]
+line-color = "#556a84"
+[paint."*-primary*"]
+line-color = "#847955"
+[paint."*-trunk*"]
+line-color = "#847955"
+[paint."*-motorway*"]
+line-color = "#b27c52"
+[paint."*-casing"]
+line-color = "#0d1219"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#0d1219"
+[paint."*-primary*-casing"]
+line-color = "#0d1219"
+[paint."*-trunk*-casing"]
+line-color = "#0d1219"
+[paint."*-motorway*-casing"]
+line-color = "#0d1219"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#29394f"
+fill-outline-color = "#29394f"
+[paint."aeroway-*"]
+fill-color = "#29394f"
+line-color = "#29394f"
+[paint."*-path"]
+line-color = "#71839b"
+[paint."*railway*"]
+line-color = "#738091"
+[paint."road_area_pier"]
+fill-color = "#192330"
+[paint."road_pier"]
+line-color = "#192330"
+
+[paint."*label*"]
+text-color = "#cdcecf"
+text-halo-color = "#192330"
+[paint."label_*"]
+text-color = "#cdcecf"
+text-halo-color = "#192330"
+[paint."highway-name-*"]
+text-color = "#aeafb0"
+text-halo-color = "#192330"
+[paint."poi_*"]
+text-color = "#aeafb0"
+text-halo-color = "#192330"
+[paint."poi_transit"]
+text-color = "#63cdcf"
+[paint."water*label"]
+text-color = "#719cd6"
+[paint."airport"]
+text-color = "#aeafb0"
+text-halo-color = "#192330"

@@ -1,0 +1,91 @@
+# Solarized Light: Kartenstil nach dem Editor-Theme Solarized (https://ethanschoonover.com/solarized, MIT).
+# Farben aus der Palette des Themes; hell.
+title = "Solarized Light"
+font = "JetBrains Mono"
+fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
+text_scale = 1.15
+attribution = "Farben nach Solarized (MIT)"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#fdf6e3"
+[paint."landuse-*"]
+fill-color = "#eee8d5"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#dfdfaa"
+[paint."landcover-*"]
+fill-color = "#dfdfaa"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#d3d594"
+[paint."landuse-cemetery"]
+fill-color = "#dfdfaa"
+
+[paint."water*"]
+fill-color = "#b2d1dd"
+line-color = "#b2d1dd"
+
+[paint."building*"]
+fill-color = "#f2ecd9"
+fill-outline-color = "#93a1a1"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#ffffff"
+[paint."*-link"]
+line-color = "#ffffff"
+[paint."*-secondary-tertiary*"]
+line-color = "#ffffff"
+[paint."*-primary*"]
+line-color = "#e4d094"
+[paint."*-trunk*"]
+line-color = "#e4d094"
+[paint."*-motorway*"]
+line-color = "#e6a987"
+[paint."*-casing"]
+line-color = "#93a1a1"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#93a1a1"
+[paint."*-primary*-casing"]
+line-color = "#c7a439"
+[paint."*-trunk*-casing"]
+line-color = "#c7a439"
+[paint."*-motorway*-casing"]
+line-color = "#d26535"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#ffffff"
+fill-outline-color = "#ffffff"
+[paint."aeroway-*"]
+fill-color = "#ffffff"
+line-color = "#ffffff"
+[paint."*-path"]
+line-color = "#93a1a1"
+[paint."*railway*"]
+line-color = "#839496"
+[paint."road_area_pier"]
+fill-color = "#fdf6e3"
+[paint."road_pier"]
+line-color = "#fdf6e3"
+
+[paint."*label*"]
+text-color = "#586e75"
+text-halo-color = "#ffffff"
+[paint."label_*"]
+text-color = "#586e75"
+text-halo-color = "#ffffff"
+[paint."highway-name-*"]
+text-color = "#657b83"
+text-halo-color = "#ffffff"
+[paint."poi_*"]
+text-color = "#657b83"
+text-halo-color = "#ffffff"
+[paint."poi_transit"]
+text-color = "#2aa198"
+[paint."water*label"]
+text-color = "#268bd2"
+[paint."airport"]
+text-color = "#657b83"
+text-halo-color = "#ffffff"
