@@ -13,11 +13,11 @@ pip install -r requirements.txt && cargo install build_pbf_glyphs   # once; podm
 ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --font Inter --retina --out out/kunde-xy
 ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # preview set: each style in its preview_font -> out/<style>-<font> (~2 min)
 ./make-tiles.py --all --all-fonts --missing ...           # full matrix: each style × every font of its groups (slow)
-./make-tiles.py --all --style styles/wiki.toml ...     # one style, all its fonts;  --font X: one font, all styles
+./make-tiles.py --all --style styles/wiki.toml ...     # one style (preview_font; add --all-fonts for all);  --font X: one font for all styles, ignoring groups
 ./make-tiles.py --reindex [--label "Firma"]            # rewrite all out/*/index.html from template + styles, no rendering
 ```
 
-There are no tests. To check a rendering change, re-render and look at a tile near the marker. For the Bielefeld default that is `out/<variant>/tiles/16/34321/21641.webp` (z18: `18/137286/86565`). `magick` turns WebP into PNG contact sheets. Check the preview pages with headless Chromium, because the Chrome extension is usually not connected:
+There are no tests. To check a rendering change, re-render and look at a tile near the marker. For the Bielefeld default that is `out/<variant>/tiles/16/34321/21641.png`, or `.webp` with `--format webp` (z18: `18/137286/86565`). `magick` builds contact sheets. Check the preview pages with headless Chromium, because the Chrome extension is usually not connected:
 `chromium-browser --headless=new --allow-file-access-from-files --virtual-time-budget=8000 --window-size=1800,900 --screenshot=… "file://…/out/streifen.html?cat=nerd&mode=dark"`
 
 ## How it fits together
@@ -29,7 +29,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 3. `build_style()` merges `styles/<name>.toml` into `style/base.json` and writes `data/style-<out>.json`.
 4. `render()` starts tileserver-gl on **127.0.0.1:8089**, because 8080 is taken by ddev on this machine.
    - Mounts: `style/` as `/data`, the mbtiles as `/data/tiles.mbtiles`, the built style over `/data/style.json`. `style/config.json` holds the font and sprite paths and the renderer pools.
-   - It fetches the needed `{z}/{x}/{y}[@2x].webp` with `WORKERS = 4` parallel requests, then stops the container.
+   - It fetches the needed `{z}/{x}/{y}[@2x].png|webp` with `WORKERS = 4` parallel requests, then stops the container.
    - Measured for 198 z16 retina tiles: 1 worker 8.5 s, 4 workers 2.6 s, 8 or more about 3.4 s, because rendering and WebP encoding already use several cores. Container start is about 0.7 s, so one container per variant is fine.
    - Format: by default each tile is fetched as PNG and piped through `pngquant <colors> --nofs --strip` (`--colors`, default 24). Measured: 24 colours match WebP's error (about 0.9 %) at about 8 % less size, and ImageMagick quantising is 3–4× slower. `--format webp` keeps the old path. The extension is stored as `ext` in the config, and `template.html`/`streifen.html` build tile URLs from it.
    - Finally it fills `template.html` into `out/<name>/index.html` by replacing the `/*CONFIG*/{}` placeholder with JSON. The config includes `style`, `font`, `category`, `mode`, `family` and `attribution`.
@@ -55,16 +55,16 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - `category`, `mode` and `family` drive the preview pages.
   - `preview_font` is the only font `--all` renders, unless `--all-fonts` is given: Fira Sans for standard styles and Maple Mono for nerd styles, at the user's request, to keep preview renders fast.
   - `font` is the default font. It replaces "Noto Sans" in every `text-font`, and Noto stays in the stack as fallback.
-  - `fonts` lists the font groups that `--all` renders. The default is `["sans", "serif"]`; the editor themes add `"mono"`.
+  - `fonts` lists the font groups that `--all --all-fonts` renders. The default is `["sans", "serif"]`; the editor themes add `"mono"`. A single run with `--font`, or `--all --font X`, ignores the groups.
   - `text_scale` scales `text-size`, except the `*shield*` layers.
   - `hide` is a list of layer-id globs to hide.
   - `[paint."glob"]` / `[layout."glob"]` set properties on matching layer ids. They apply in file order, so the last match wins. Only properties whose prefix fits the layer type are applied, which makes broad globs like `water*` safe.
 - Marker: the `[marker]` table in a style is written into the config as `marker` (+ `label` from `--label`, default "hier").
-  - `template.html`'s `markerIcon()` draws `type = "terminal"` as an `L.divIcon` (box `~/<label>` + static block cursor, no blinking (user request), + stem + dot, anchored on the dot). Anything else falls back to `L.Icon.Default`.
+  - `template.html`'s `markerIcon()` draws `type = "terminal"` as an `L.divIcon` (box `~/<label>` + static block cursor, no blinking (user request), + stem + dot, anchored on the dot). `type = "bubble"` (all standard styles) is a speech bubble modelled on Heroicons "chat-bubble-bottom-center": rounded box with the label, plus a centred SVG tail at the bottom whose tip is the anchor. Its colours `color`/`bg`/`fg` follow the style's accent and mode. Anything else falls back to `L.Icon.Default`.
   - The label is set via `textContent`, never as HTML.
   - `streifen.html` carries a copy of `markerIcon()` and its CSS, and uses the middle strip's marker. Keep both copies in sync.
 - `--reindex` rewrites every `out/*/index.html` from `template.html` and the current style metadata (category, mode, family, attribution, marker) without rendering. Use it after template or marker changes.
-- Nerd styles show green areas (`park`, `landcover-*`, `landuse-cemetery`, `landcover-wood`) in the theme's pink/magenta instead of green, mixed with the background: dark 20 % (wood 28 %), light 25 % (wood 35 %). This was a user request; Tokyo Night uses `magenta2`.
+- Nerd styles show green areas (`park`, `landcover-*`, `landuse-cemetery`, `landcover-wood`) in the theme's signature colour instead of green (Tokyo Night magenta2 pink, Dracula/Alucard purple, Catppuccin peach, Nightfox/Dayfox cyan, Solarized yellow), mixed with the background: dark 20 % (wood 28 %), light 25 % (wood 35 %). Exception: in solarized-dark the RGB mix with the teal base turned green, so it uses an OKLCH dark gold (#4b3b13 / #5b4717). This was a user request; Tokyo Night uses `magenta2`.
 - Nerd styles end with a `# >>> Akzent-Beschriftung … # <<<` block. It hides the white shield sprite (`icon-image = ""`, because sprite PNGs cannot be recoloured) and colours road refs by class with a `match` expression: motorway / trunk+primary / rest, using the theme's accent colours. Major road names get the primary accent too. Keep the block at the end of the file so it wins.
 - POI layers: a low `rank` means important, so `poi_r1` holds the most important places and `poi_r20` the least. Hide `poi_r20`, not `poi_r1`.
 - Styles and their user-chosen names:
@@ -85,7 +85,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 ## Fonts
 
 - Only the sources plus licences (`fonts-src/<font>/`) are in git. `style/fonts/` is gitignored and built by `ensure_glyphs()` from the face specs in `style/fonts.toml`.
-- `style/fonts.toml`: each table is one font (one variant per style under `--all`).
+- `style/fonts.toml`: each table is one font (one variant per style under `--all --all-fonts`).
   - Faces are `Regular`/`Bold`/`Italic` = `{ file, <axis> = value }`. Faces with axes are cut from variable fonts with `fontTools.varLib.instancer`; the rest are copied.
   - Optional keys: `group` (sans|serif|mono), `scale` (multiplies `text_scale`), and `streets` (a face suffix used for the `highway-name*` layers).
 - The temp file is named `<Font> <Face>.ttf`, because `build_pbf_glyphs` names output folders after the file stem.

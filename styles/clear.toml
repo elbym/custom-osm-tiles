@@ -85,3 +85,12 @@ text-color = "#4f5760"
 text-color = "#1f5f99"
 [paint."water*label"]
 text-color = "#2a6496"
+
+# >>> Marker
+# Sprechblasen-Marker (angelehnt an Heroicons "chat-bubble-bottom-center"): Label in der Blase, Spitze unten mittig auf der Position
+[marker]
+type = "bubble"     # leaflet | bubble | terminal
+color = "#d9a440"     # Rahmen und Spitze
+bg = "#ffffff"         # Blase
+fg = "#1a1e22"         # Schrift
+# <<< Marker

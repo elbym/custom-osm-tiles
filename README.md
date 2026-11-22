@@ -30,7 +30,7 @@ Außerdem nötig: podman und pngquant (`sudo dnf install pngquant`). Beim ersten
 | `--format` | `png` (Palette über pngquant) oder `webp` | `png` |
 | `--colors` | Farben je PNG-Kachel | 24 |
 | `--area` | Geofabrik-Region, muss den Bereich enthalten (https://download.geofabrik.de) | `detmold-regbez` |
-| `--label` | Text im Terminal-Marker der Nerd-Stile (`~/<label>`) | `hier` |
+| `--label` | Text im Marker (Sprechblase bzw. Terminal `~/<label>`) | `hier` |
 | `--out` | Zielordner | `out/<stilname>` |
 
 Nach Änderungen an `template.html`, am Marker oder am Label reicht `./make-tiles.py --reindex [--label …]`: Das schreibt die `index.html` aller Varianten neu, ohne Kacheln zu rendern.
@@ -64,7 +64,7 @@ mode = "light"               # light | dark
 family = "North"             # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Overpass"            # Standardschrift
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
-fonts = ["sans", "serif"]    # Schriftgruppen für --all (Standard); Nerd-Stile zusätzlich "mono"
+fonts = ["sans", "serif"]    # Schriftgruppen für --all-fonts (Standard); Nerd-Stile zusätzlich "mono"
 text_scale = 1.15            # Faktor für alle Beschriftungen
 attribution = "Stil inspiriert von …"
 hide = ["poi_r20"]           # Ebenen ausblenden (poi_r1 = wichtigste Orte, poi_r20 = unwichtigste)
@@ -90,9 +90,11 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 
 Die Stile sind eigene Umsetzungen: Von den Vorbildern sind nur Farbwerte übernommen, keine Stildateien. Jeder Nachbau nennt sein Vorbild in `attribution`; bei Wiki verlangt die Lizenz das.
 
+Die Standard-Stile haben einen **Sprechblasen-Marker** (angelehnt an das Heroicons-Icon „chat-bubble-bottom-center“): das Label in einer abgerundeten Blase, deren Spitze unten mittig auf die Position zeigt. Bei hellen Stilen weiß, bei dunklen im Grundton, Rahmen jeweils in der Akzentfarbe des Stils (Abschnitt `[marker]`, `type = "bubble"`).
+
 Die Nerd-Stile haben statt des Leaflet-Markers einen **Terminal-Marker**: ein Kästchen `~/<label>` mit Block-Cursor (nicht blinkend) in den Akzentfarben, darunter Stiel und Punkt auf der Position (Abschnitt `[marker]` in der Stil-Datei: `type = "terminal"`, `color`, `color2`, `bg`, `fg`). Der Text nutzt die Monoschrift des Betrachters (`ui-monospace`).
 
-Grünflächen (Parks, Wiesen, Wald) erscheinen in den Nerd-Stilen in der Pink- bzw. Magenta-Farbe des Themes, mit dem Grund gemischt (Tokyo Night: Neon-Pink, Dracula/Catppuccin/Nightfox: Pink, Solarized: Magenta).
+Grünflächen (Parks, Wiesen, Wald) erscheinen in den Nerd-Stilen in der Signaturfarbe des Themes, mit dem Grund gemischt: Tokyo Night Neon-Pink, Dracula/Alucard Lila, Catppuccin Peach, Nightfox/Dayfox Cyan, Solarized Gold (bei Solarized Dark in OKLCH bestimmt, weil die Mischung mit dem blaugrünen Grund sonst Grün ergäbe).
 
 In den Nerd-Stilen erscheinen Straßennummern (A, B, L, K) ohne weißes Schild, dafür in den Akzentfarben des Themes, je nach Straßenart (Block „Akzent-Beschriftung“ am Ende der Datei).
 
@@ -119,9 +121,11 @@ Ohne Achsenwerte wird die Datei unverändert übernommen, mit Achsenwerten wird 
 | Fira Sans, Inter, Overpass, Public Sans | sans | OFL |
 | Literata | serif | OFL |
 | TeX Gyre Schola | serif | GUST Font License |
-| Fira Code, JetBrains Mono, Maple Mono, Victor Mono | mono (nur Nerd-Stile) | OFL |
+| Fira Code, JetBrains Mono, Maple Mono, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
 
 Noto Sans ist keine eigene Variante, sondern nur Ersatz für Zeichen, die einer Schrift fehlen (z. B. Kyrillisch).
+
+Mit `--font` lässt sich jede Schrift mit jedem Stil kombinieren, auch eine Monoschrift mit einem Standard-Stil. Die Gruppen und `preview_font` legen nur fest, was `--all` bzw. `--all-fonts` automatisch rendert.
 
 ## Bildformat
 

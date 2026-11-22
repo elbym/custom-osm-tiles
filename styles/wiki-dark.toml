@@ -93,3 +93,12 @@ text-color = "#a0c9f1"
 [paint."airport"]
 text-color = "#c7aa9b"
 text-halo-color = "#2c170b"
+
+# >>> Marker
+# Sprechblasen-Marker (angelehnt an Heroicons "chat-bubble-bottom-center"): Label in der Blase, Spitze unten mittig auf der Position
+[marker]
+type = "bubble"     # leaflet | bubble | terminal
+color = "#e19966"     # Rahmen und Spitze
+bg = "#2c170b"         # Blase
+fg = "#fde2d3"         # Schrift
+# <<< Marker

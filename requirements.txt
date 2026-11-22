@@ -3,4 +3,5 @@ fonttools>=4.50          # feste Schnitte aus variablen Schriften erzeugen
 
 # Außerdem nötig, nicht über pip installierbar:
 #   podman                        Container für Planetiler und tileserver-gl
+#   pngquant                      PNG-Kacheln auf eine Farbpalette reduzieren (Standardformat): sudo dnf install pngquant
 #   build_pbf_glyphs (Rust)       Schriften -> Karten-Glyphen: cargo install build_pbf_glyphs
