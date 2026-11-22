@@ -5,6 +5,7 @@ category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
 mode = "light"          # light | dark
 family = "Catppuccin"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Fira Sans"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15
 attribution = "Farben nach Catppuccin (MIT)"
@@ -15,15 +16,16 @@ background-color = "#eff1f5"
 [paint."landuse-*"]
 fill-color = "#e6e9ef"
 fill-opacity = 1
+# Grünflächen in der Signaturfarbe des Themes: Peach (#fe640b), mit dem Grund gemischt
 [paint."park"]
-fill-color = "#c3ddc2"
+fill-color = "#f3ceba"
 [paint."landcover-*"]
-fill-color = "#c3ddc2"
+fill-color = "#f3ceba"
 fill-opacity = 1
 [paint."landcover-wood"]
-fill-color = "#b2d5ae"
+fill-color = "#f4c0a3"
 [paint."landuse-cemetery"]
-fill-color = "#c3ddc2"
+fill-color = "#f3ceba"
 
 [paint."water*"]
 fill-color = "#a7d4df"

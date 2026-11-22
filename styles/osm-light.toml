@@ -6,6 +6,7 @@ category = "standard"      # standard | nerd (Gruppe in der Vorschau)
 mode = "light"          # light | dark
 family = "OSM"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Public Sans"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
 text_scale = 1.15
 attribution = "Stil inspiriert von openstreetmap-carto"
 hide = ["poi_r20", "road_oneway*"]

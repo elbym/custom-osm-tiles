@@ -5,6 +5,7 @@ category = "standard"      # standard | nerd (Gruppe in der Vorschau)
 mode = "dark"          # light | dark
 family = "Clear"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Overpass"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
 # fonts: Standard (sans, serif)
 text_scale = 1.15
 attribution = ""

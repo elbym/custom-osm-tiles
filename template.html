@@ -7,15 +7,13 @@
 <link rel="stylesheet" href="leaflet/leaflet.css">
 <style>
 html, body { margin: 0; } #map { height: 100dvh; }
-/* Terminal-Marker (Nerd-Stile): Kästchen mit Prompt und Block-Cursor, Stiel und Punkt auf der Position */
+/* Terminal-Marker (Nerd-Stile): Kästchen mit Prompt und (statischem) Block-Cursor, Stiel und Punkt auf der Position */
 .term { display: flex; flex-direction: column; align-items: center; font: 600 13px/1 ui-monospace, "JetBrains Mono", "Fira Code", monospace; }
 .term .box { background: var(--bg); color: var(--fg); border: 1.5px solid var(--c1); border-radius: 4px; padding: 5px 8px; white-space: nowrap; box-shadow: 0 2px 6px rgb(0 0 0 / .45); }
 .term .p { color: var(--c2); }
-.term .cur { display: inline-block; width: .6em; height: 1.05em; margin-left: .35em; background: var(--c1); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+.term .cur { display: inline-block; width: .6em; height: 1.05em; margin-left: .35em; background: var(--c1); vertical-align: -2px; }
 .term .stem { width: 2px; height: 12px; background: var(--c1); }
 .term .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); box-shadow: 0 0 0 3px var(--bg); }
-@keyframes blink { 50% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .term .cur { animation: none; } }
 </style>
 </head>
 <body>
@@ -27,7 +25,8 @@ const map = L.map('map', {
   minZoom: c.zmin, maxZoom: c.zmax,
   maxBounds: c.bounds, maxBoundsViscosity: 1
 }).setView([c.lat, c.lon], Math.min(c.zmax, c.detail_from - 1));
-const url = c.retina ? 'tiles/{z}/{x}/{y}{r}.webp' : 'tiles/{z}/{x}/{y}.webp';
+const ext = c.ext || 'webp';
+const url = c.retina ? `tiles/{z}/{x}/{y}{r}.${ext}` : `tiles/{z}/{x}/{y}.${ext}`;
 // Übersicht: über detail_from-1 hinaus hochskaliert, damit außerhalb des Detailbereichs nichts leer bleibt
 L.tileLayer(url, {
   maxNativeZoom: Math.min(c.zmax, c.detail_from - 1), bounds: c.bounds,

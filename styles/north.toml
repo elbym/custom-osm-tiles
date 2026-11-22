@@ -5,6 +5,7 @@ category = "standard"      # standard | nerd (Gruppe in der Vorschau)
 mode = "light"          # light | dark
 family = "North"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Overpass"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
 text_scale = 1.15
 attribution = "Stil inspiriert von Hydda"
 hide = ["poi_r20"]   # rank: klein = wichtig; nur die unwichtigsten ausblenden

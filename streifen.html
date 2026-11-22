@@ -17,15 +17,13 @@
   .seg button + button { border-left: 1px solid #888; }
   .seg button[aria-pressed="true"] { background: #333; color: #fff; }
   select { font: inherit; padding: .1rem; }
-  /* Terminal-Marker (Nerd-Stile): Kästchen mit Prompt und Block-Cursor, Stiel und Punkt auf der Position */
+  /* Terminal-Marker (Nerd-Stile): Kästchen mit Prompt und (statischem) Block-Cursor, Stiel und Punkt auf der Position */
   .term { display: flex; flex-direction: column; align-items: center; font: 600 13px/1 ui-monospace, "JetBrains Mono", "Fira Code", monospace; }
   .term .box { background: var(--bg); color: var(--fg); border: 1.5px solid var(--c1); border-radius: 4px; padding: 5px 8px; white-space: nowrap; box-shadow: 0 2px 6px rgb(0 0 0 / .45); }
   .term .p { color: var(--c2); }
-  .term .cur { display: inline-block; width: .6em; height: 1.05em; margin-left: .35em; background: var(--c1); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+  .term .cur { display: inline-block; width: .6em; height: 1.05em; margin-left: .35em; background: var(--c1); vertical-align: -2px; }
   .term .stem { width: 2px; height: 12px; background: var(--c1); }
   .term .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); box-shadow: 0 0 0 3px var(--bg); }
-  @keyframes blink { 50% { opacity: 0; } }
-  @media (prefers-reduced-motion: reduce) { .term .cur { animation: none; } }
 </style>
 </head>
 <body>
@@ -75,7 +73,8 @@ const panes = strips.map(([, v], i) => {
   pane.style.zIndex = 200 + i;
   if (!v) return pane;
   const [name, c] = v;
-  const url = name + (c.retina ? '/tiles/{z}/{x}/{y}{r}.webp' : '/tiles/{z}/{x}/{y}.webp');
+  const ext = c.ext || 'webp';
+  const url = name + (c.retina ? `/tiles/{z}/{x}/{y}{r}.${ext}` : `/tiles/{z}/{x}/{y}.${ext}`);
   L.tileLayer(url, { pane: 'strip' + i, maxNativeZoom: Math.min(c.zmax, c.detail_from - 1), bounds: c.bounds }).addTo(map);
   if (c.zmax >= c.detail_from) L.tileLayer(url, { pane: 'strip' + i, minZoom: c.detail_from, bounds: c.detail }).addTo(map);
   if (c.attribution) map.attributionControl.addAttribution(c.attribution);

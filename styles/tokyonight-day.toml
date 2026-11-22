@@ -5,6 +5,7 @@ category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
 mode = "light"          # light | dark
 family = "Tokyo Night"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "JetBrains Mono"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15
 attribution = "Farben nach Tokyo Night (Apache-2.0)"
@@ -15,15 +16,16 @@ background-color = "#e1e2e7"
 [paint."landuse-*"]
 fill-color = "#d0d5e3"
 fill-opacity = 1
+# Grünflächen in der Signaturfarbe des Themes: Neon-Pink (#d20065), mit dem Grund gemischt
 [paint."park"]
-fill-color = "#bfc7bc"
+fill-color = "#ddaac6"
 [paint."landcover-*"]
-fill-color = "#bfc7bc"
+fill-color = "#ddaac6"
 fill-opacity = 1
 [paint."landcover-wood"]
-fill-color = "#b1bcaa"
+fill-color = "#dc93ba"
 [paint."landuse-cemetery"]
-fill-color = "#bfc7bc"
+fill-color = "#ddaac6"
 
 [paint."water*"]
 fill-color = "#a2bfe8"

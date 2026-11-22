@@ -210,11 +210,19 @@ def render(a, style_file, out, mb, font=None):
                 for x, y in (tiles_for(d, z, 0, 0) if z >= a.detail_from else tiles_for(b, z, vw, vh))
                 for sfx in (["", "@2x"] if a.retina else [""])]
 
+        ext = "webp" if a.format == "webp" else "png"
+        if ext == "png" and not shutil.which("pngquant"):
+            sys.exit("pngquant fehlt (für --format png): sudo dnf install pngquant, oder --format webp")
+
         def get(job):
             z, x, y, sfx = job
-            f = out / "tiles" / str(z) / str(x) / f"{y}{sfx}.webp"
+            f = out / "tiles" / str(z) / str(x) / f"{y}{sfx}.{ext}"
             f.parent.mkdir(parents=True, exist_ok=True)
-            f.write_bytes(fetch(f"{base}/{z}/{x}/{y}{sfx}.webp"))
+            data = fetch(f"{base}/{z}/{x}/{y}{sfx}.{ext}")
+            if ext == "png":  # Palette mit wenigen Farben, ohne Dithering (gemessen: kleiner als WebP, gleiche Qualität)
+                data = subprocess.run(["pngquant", str(a.colors), "--nofs", "--strip", "--speed", "1", "-"],
+                                      input=data, capture_output=True, check=True).stdout
+            f.write_bytes(data)
 
         # tileserver-gl rendert parallel (Renderer-Pools in style/config.json); so viele Anfragen gleichzeitig
         with ThreadPoolExecutor(WORKERS) as pool:
@@ -228,7 +236,7 @@ def render(a, style_file, out, mb, font=None):
     cfg = dict(lat=a.lat, lon=a.lon, zmin=zmin, zmax=zmax, retina=a.retina,
                detail_from=a.detail_from, bounds=[[b[0], b[1]], [b[2], b[3]]],
                detail=[[d[0], d[1]], [d[2], d[3]]], attribution=attribution,
-               style=Path(style_file).stem, font=font)
+               style=Path(style_file).stem, font=font, ext=ext)
     meta = tomllib.loads(Path(style_file).read_text())  # Gliederung der Vorschau
     cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
                family=meta.get("family", meta.get("title", Path(style_file).stem)),
@@ -236,7 +244,7 @@ def render(a, style_file, out, mb, font=None):
     page = page.replace("<title>Karte</title>", f"<title>{title}</title>")
     (out / "index.html").write_text(page.replace("/*CONFIG*/{}", json.dumps(cfg, ensure_ascii=False)))
     write_previews(out.parent)
-    size = sum(f.stat().st_size for f in (out / "tiles").rglob("*.webp"))
+    size = sum(f.stat().st_size for f in (out / "tiles").rglob(f"*.{ext}"))
     print(f"{count} Kacheln, {size / 1e6:.1f} MB -> {out}")
 
 
@@ -251,10 +259,14 @@ def main():
     p.add_argument("--viewport", default="2560x1440", help="größte Kartengröße in px")
     p.add_argument("--area", default="detmold-regbez", help="Geofabrik-Name")
     p.add_argument("--retina", action="store_true", help="zusätzlich @2x rendern")
+    p.add_argument("--format", choices=["png", "webp"], default="png",
+                   help="png = Palette über pngquant (Standard, kleinste Dateien), webp = direkt vom tileserver")
+    p.add_argument("--colors", type=int, default=24, help="Farben je PNG-Kachel (pngquant), Standard 24")
     p.add_argument("--label", help="Text im Terminal-Marker der Nerd-Stile (~/<label>), Standard: hier")
     p.add_argument("--style", help="Standard: styles/clear.toml; mit --all: nur dieser Stil")
     p.add_argument("--font", help="Schrift statt der des Stils; mit --all: nur diese Schrift")
-    p.add_argument("--all", action="store_true", help="jeder Stil × seine Schriftgruppen nach out/<stil>-<schrift>")
+    p.add_argument("--all", action="store_true", help="jeder Stil in seiner preview_font nach out/<stil>-<schrift>")
+    p.add_argument("--all-fonts", action="store_true", help="mit --all: jede Schrift der Gruppen des Stils statt nur preview_font")
     p.add_argument("--missing", action="store_true", help="mit --all: vorhandene Varianten überspringen")
     p.add_argument("--out", help="Standard: out/<stilname>")
     p.add_argument("--reindex", action="store_true", help="nur index.html aller Varianten in out/ neu schreiben")
@@ -273,8 +285,14 @@ def main():
         render(a, st, Path(a.out) if a.out else ROOT / "out" / st.stem, mb, a.font)
         return
     for st in [Path(a.style)] if a.style else sorted((ROOT / "styles").glob("*.toml")):
-        groups = tomllib.loads(st.read_text()).get("fonts", ["sans", "serif"])
-        for font in [a.font] if a.font else fonts(groups):
+        meta = tomllib.loads(st.read_text())
+        if a.font:
+            todo = [a.font]
+        elif a.all_fonts:  # volle Matrix: jede Schrift der Gruppen des Stils
+            todo = fonts(meta.get("fonts", ["sans", "serif"]))
+        else:              # Vorschau: nur die Vorschau-Schrift des Stils
+            todo = [meta.get("preview_font", meta.get("font", "Fira Sans"))]
+        for font in todo:
             out = ROOT / "out" / f"{st.stem}-{font.lower().replace(' ', '-')}"
             if a.missing and (out / "index.html").exists():
                 continue

@@ -5,6 +5,7 @@ category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
 mode = "dark"          # light | dark
 family = "Nightfox"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Fira Sans"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15
 attribution = "Farben nach Nightfox (MIT)"
@@ -15,15 +16,16 @@ background-color = "#192330"
 [paint."landuse-*"]
 fill-color = "#161e2a"
 fill-opacity = 1
+# Grünflächen in der Signaturfarbe des Themes: Cyan (#63cdcf), mit dem Grund gemischt
 [paint."park"]
-fill-color = "#2e4045"
+fill-color = "#284550"
 [paint."landcover-*"]
-fill-color = "#2e4045"
+fill-color = "#284550"
 fill-opacity = 1
 [paint."landcover-wood"]
-fill-color = "#364b4e"
+fill-color = "#2e535d"
 [paint."landuse-cemetery"]
-fill-color = "#2e4045"
+fill-color = "#284550"
 
 [paint."water*"]
 fill-color = "#384d6a"

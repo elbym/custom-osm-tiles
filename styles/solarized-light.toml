@@ -5,6 +5,7 @@ category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
 mode = "light"          # light | dark
 family = "Solarized"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "JetBrains Mono"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15
 attribution = "Farben nach Solarized (MIT)"
@@ -15,15 +16,16 @@ background-color = "#fdf6e3"
 [paint."landuse-*"]
 fill-color = "#eee8d5"
 fill-opacity = 1
+# Grünflächen in der Signaturfarbe des Themes: Gelb (#b58900), mit dem Grund gemischt
 [paint."park"]
-fill-color = "#dfdfaa"
+fill-color = "#ebdbaa"
 [paint."landcover-*"]
-fill-color = "#dfdfaa"
+fill-color = "#ebdbaa"
 fill-opacity = 1
 [paint."landcover-wood"]
-fill-color = "#d3d594"
+fill-color = "#e4d094"
 [paint."landuse-cemetery"]
-fill-color = "#dfdfaa"
+fill-color = "#ebdbaa"
 
 [paint."water*"]
 fill-color = "#b2d1dd"

@@ -1,6 +1,6 @@
 # tiles
 
-Statische Kartenkacheln (WebP) für Leaflet, nur für einen kleinen Bereich um einen Marker, selbst gehostet. Die Website braucht damit keine Anfragen an Kartendienste; auch Leaflet liegt lokal.
+Statische Kartenkacheln (PNG mit 24-Farben-Palette, wahlweise WebP) für Leaflet, nur für einen kleinen Bereich um einen Marker, selbst gehostet. Die Website braucht damit keine Anfragen an Kartendienste; auch Leaflet liegt lokal.
 
 ## Einrichtung
 
@@ -9,7 +9,7 @@ pip install -r requirements.txt     # fontTools
 cargo install build_pbf_glyphs      # Rust-Programm, wandelt Schriften in Karten-Glyphen um
 ```
 
-Außerdem nötig: podman. Beim ersten Lauf lädt das Skript die OSM-Daten der Region und die Ersatzschrift Noto Sans und erzeugt die Glyphen. Das dauert einmalig einige Minuten.
+Außerdem nötig: podman und pngquant (`sudo dnf install pngquant`). Beim ersten Lauf lädt das Skript die OSM-Daten der Region und die Ersatzschrift Noto Sans und erzeugt die Glyphen. Das dauert einmalig einige Minuten.
 
 ## Karte für eine Website
 
@@ -27,6 +27,8 @@ Außerdem nötig: podman. Beim ersten Lauf lädt das Skript die OSM-Daten der Re
 | `--detail-from`, `--detail-radius` | ab dieser Stufe nur dieser Bereich in km | 17, 1 |
 | `--viewport` | größte Kartengröße in px, damit niedrige Zoomstufen sie füllen | `2560x1440` |
 | `--retina` | zusätzlich @2x-Kacheln für hochauflösende Bildschirme | aus |
+| `--format` | `png` (Palette über pngquant) oder `webp` | `png` |
+| `--colors` | Farben je PNG-Kachel | 24 |
 | `--area` | Geofabrik-Region, muss den Bereich enthalten (https://download.geofabrik.de) | `detmold-regbez` |
 | `--label` | Text im Terminal-Marker der Nerd-Stile (`~/<label>`) | `hier` |
 | `--out` | Zielordner | `out/<stilname>` |
@@ -38,12 +40,13 @@ Das Ergebnis in `out/kunde-xy/` (`tiles/`, `leaflet/`, `index.html`) einfach neb
 ## Varianten vergleichen
 
 ```sh
-./make-tiles.py --all --missing --zoom 16-16 --radius 1.5 --retina   # jeder Stil × seine Schriften -> out/<stil>-<schrift>
+./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina             # jeder Stil in seiner Vorschau-Schrift -> out/<stil>-<schrift>
+./make-tiles.py --all --all-fonts --missing ...                     # volle Matrix: jeder Stil × alle Schriften seiner Gruppen
 ./make-tiles.py --all --style styles/wiki.toml ...                  # nur ein Stil
-./make-tiles.py --all --font "Inter" ...                            # nur eine Schrift
+./make-tiles.py --all --font "Inter" ...                            # alle Stile in einer bestimmten Schrift
 ```
 
-`--missing` überspringt schon gerenderte Varianten; ohne `--missing` wird alles neu gerendert (z. B. nach einer Farbänderung). Eine Variante dauert auf Zoom 16 mit Retina etwa 5 Sekunden.
+Für die Vorschau nutzt jeder Stil seine `preview_font` (Standard-Stile Fira Sans, Nerd-Stile Maple Mono); 20 Varianten dauern so gut 2 Minuten. `--missing` überspringt schon gerenderte Varianten.
 
 - `out/streifen.html`: eine durchgehende Karte, senkrecht geteilt in einen Streifen pro Stil, alle in derselben Schrift.
 - `out/compare.html`: vier Varianten im 2×2-Raster mit synchronem Ausschnitt, jedes Fenster mit eigener Auswahl.
@@ -60,6 +63,7 @@ category = "standard"        # standard | nerd   (Gruppe in der Vorschau)
 mode = "light"               # light | dark
 family = "North"             # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Overpass"            # Standardschrift
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
 fonts = ["sans", "serif"]    # Schriftgruppen für --all (Standard); Nerd-Stile zusätzlich "mono"
 text_scale = 1.15            # Faktor für alle Beschriftungen
 attribution = "Stil inspiriert von …"
@@ -86,7 +90,9 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 
 Die Stile sind eigene Umsetzungen: Von den Vorbildern sind nur Farbwerte übernommen, keine Stildateien. Jeder Nachbau nennt sein Vorbild in `attribution`; bei Wiki verlangt die Lizenz das.
 
-Die Nerd-Stile haben statt des Leaflet-Markers einen **Terminal-Marker**: ein Kästchen `~/<label>` mit blinkendem Block-Cursor in den Akzentfarben, darunter Stiel und Punkt auf der Position (Abschnitt `[marker]` in der Stil-Datei: `type = "terminal"`, `color`, `color2`, `bg`, `fg`). Bei „reduzierter Bewegung“ blinkt der Cursor nicht. Der Text nutzt die Monoschrift des Betrachters (`ui-monospace`).
+Die Nerd-Stile haben statt des Leaflet-Markers einen **Terminal-Marker**: ein Kästchen `~/<label>` mit Block-Cursor (nicht blinkend) in den Akzentfarben, darunter Stiel und Punkt auf der Position (Abschnitt `[marker]` in der Stil-Datei: `type = "terminal"`, `color`, `color2`, `bg`, `fg`). Der Text nutzt die Monoschrift des Betrachters (`ui-monospace`).
+
+Grünflächen (Parks, Wiesen, Wald) erscheinen in den Nerd-Stilen in der Pink- bzw. Magenta-Farbe des Themes, mit dem Grund gemischt (Tokyo Night: Neon-Pink, Dracula/Catppuccin/Nightfox: Pink, Solarized: Magenta).
 
 In den Nerd-Stilen erscheinen Straßennummern (A, B, L, K) ohne weißes Schild, dafür in den Akzentfarben des Themes, je nach Straßenart (Block „Akzent-Beschriftung“ am Ende der Datei).
 
@@ -117,10 +123,23 @@ Ohne Achsenwerte wird die Datei unverändert übernommen, mit Achsenwerten wird 
 
 Noto Sans ist keine eigene Variante, sondern nur Ersatz für Zeichen, die einer Schrift fehlen (z. B. Kyrillisch).
 
+## Bildformat
+
+Gemessen an 81 Kacheln (Zoom 16, Retina, Stil Clear): PNG mit 24-Farben-Palette über pngquant ist so genau wie WebP, aber etwa 8 % kleiner.
+
+| Format | Größe | Abweichung vom Original |
+|---|---|---|
+| WebP | 3,91 MB | 0,91 % |
+| PNG, pngquant 32 Farben | 3,94 MB | 0,74 % |
+| **PNG, pngquant 24 Farben** (Standard) | **3,58 MB** | 0,90 % |
+| PNG, pngquant 16 Farben | 3,20 MB | 1,03 % |
+
+Ohne Dithering (`--nofs`), sonst werden die Dateien größer und die Flächen unruhig.
+
 ## Ablauf
 
 1. **Planetiler** (Podman) baut aus dem Geofabrik-Extrakt einmalig `data/<area>.mbtiles` (OpenMapTiles-Schema). Zum Aktualisieren die Datei löschen.
-2. **tileserver-gl** (Podman) rendert den Stil zu WebP; das Skript fragt nur die nötigen Kacheln ab, vier gleichzeitig.
+2. **tileserver-gl** (Podman) rendert den Stil; das Skript fragt nur die nötigen Kacheln ab, vier gleichzeitig, und reduziert sie mit pngquant auf eine Farbpalette.
 3. Der Container wird danach gestoppt. Das Ergebnis ist rein statisch.
 
 Namensnennung auf der Karte: © OpenStreetMap-Mitwirkende (ODbL), © OpenMapTiles, dazu das `attribution` des Stils.

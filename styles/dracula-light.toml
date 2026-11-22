@@ -5,6 +5,7 @@ category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
 mode = "light"          # light | dark
 family = "Dracula"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Fira Sans"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15
 attribution = "Farben nach Dracula (Alucard) (MIT)"
@@ -15,15 +16,16 @@ background-color = "#fffbeb"
 [paint."landuse-*"]
 fill-color = "#f3f0e8"
 fill-opacity = 1
+# Grünflächen in der Signaturfarbe des Themes: Lila (#644ac9), mit dem Grund gemischt
 [paint."park"]
-fill-color = "#c4d8b3"
+fill-color = "#d8cfe2"
 [paint."landcover-*"]
-fill-color = "#c4d8b3"
+fill-color = "#d8cfe2"
 fill-opacity = 1
 [paint."landcover-wood"]
-fill-color = "#adcb9c"
+fill-color = "#c9bddf"
 [paint."landuse-cemetery"]
-fill-color = "#c4d8b3"
+fill-color = "#d8cfe2"
 
 [paint."water*"]
 fill-color = "#a7c8cd"
