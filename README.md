@@ -84,7 +84,7 @@ Beide Seiten haben die Schalter **Standard | Nerd** und **Hell | Dunkel**. Stile
 ./make-tiles.py --site [--missing]     # Einstellungen aus site.toml -> site/
 ```
 
-`site.toml` legt Ort (Berlin, Brandenburger Tor), Label, Zoom (16), Bereich (3,6 km, damit sich der linke Streifen bei 1920 px Fensterbreite durch alle Stile bis nach rechts schieben lässt), Retina (aus, sonst über dem 1-GB-Limit von Pages) und die Schriften je Gruppe fest (Standard: Fira Sans, Inter, Literata, Overpass, Public Sans; Nerd: die vier Monoschriften). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
+`site.toml` legt Ort (Berlin, Brandenburger Tor), Label, Zoom (16), Bereich (3,6 km, damit sich der linke Streifen bei 1920 px Fensterbreite durch alle Stile bis nach rechts schieben lässt), Retina (aus, sonst über dem 1-GB-Limit von Pages) und die Schriften je Gruppe fest (Standard: Fira Sans und Public Sans; Nerd: JetBrains Mono und Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
 
 Die Streifen-Seite nutzt Tailwind CSS, lokal gebaut (kein CDN): `npm install && npm run css` erzeugt `vendor/streifen.css` aus `src/streifen.css`. Im Querformat sind die Streifen senkrecht, im Hochformat (Handy) waagerecht. Der Dialog „Über“ nennt alle Quellen und Lizenzen.
 
@@ -97,10 +97,12 @@ title = "North"              # Fenstertitel, die Schrift wird angehängt
 category = "standard"        # standard | nerd   (Gruppe in der Vorschau)
 mode = "light"               # light | dark
 family = "North"             # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+order = 50                   # Reihenfolge in der Streifen-Ansicht (höher = weiter rechts), dann alphabetisch
 font = "Overpass"            # Standardschrift
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
 fonts = ["sans", "serif"]    # Schriftgruppen für --all-fonts (Standard); Nerd-Stile zusätzlich "mono"
 text_scale = 1.15            # Faktor für alle Beschriftungen
+language = "de"              # Beschriftungssprache (name:de, sonst Originalname); Standard de
 attribution = "Stil inspiriert von …"
 hide = ["poi_r20"]           # Ebenen ausblenden (poi_r1 = wichtigste Orte, poi_r20 = unwichtigste)
 
@@ -122,6 +124,7 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 | **Alucard** / **Dracula** | Nerd | Dracula, helle Variante nach der offiziellen Alucard-Palette (MIT) |
 | **Solarized Light** / **Dark** | Nerd | Solarized (MIT) |
 | **Tokyo Night Day** / **Night** | Nerd | tokyonight.nvim (Apache-2.0) |
+| **Cyberpunk Day** / **Neon Cyberpunk** | Nerd | maptoposter „neon_cyberpunk“ (MIT); helle Variante eigener Entwurf |
 
 Die Stile sind eigene Umsetzungen: Von den Vorbildern sind nur Farbwerte übernommen, keine Stildateien. Jeder Nachbau nennt sein Vorbild in `attribution`; bei Wiki verlangt die Lizenz das.
 

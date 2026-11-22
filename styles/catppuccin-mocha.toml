@@ -11,6 +11,8 @@ text_scale = 1.15
 attribution = "Farben nach Catppuccin (MIT)"
 hide = ["poi_r20", "road_oneway*"]
 
+# Neon (dunkle Nerd-Stile): Haupt-/Fernstraßen und Autobahn fast in voller Akzentfarbe, ihre Ränder
+# in derselben Farbe weichgezeichnet (line-blur) als Leuchtschein; Wasser leuchtender. Markiert mit "# Neon".
 [paint."background"]
 background-color = "#1e1e2e"
 [paint."landuse-*"]
@@ -28,8 +30,8 @@ fill-color = "#5c4847"
 fill-color = "#4a3c40"
 
 [paint."water*"]
-fill-color = "#3c5970"
-line-color = "#3c5970"
+fill-color = "#547d8c"   # Neon
+line-color = "#5e909f"
 
 [paint."building*"]
 fill-color = "#313244"
@@ -45,21 +47,27 @@ line-color = "#585b70"
 [paint."*-secondary-tertiary*"]
 line-color = "#62667b"
 [paint."*-primary*"]
-line-color = "#968a75"
+line-color = "#ba98e3"   # Neon
 [paint."*-trunk*"]
-line-color = "#968a75"
+line-color = "#ba98e3"   # Neon
 [paint."*-motorway*"]
-line-color = "#b8866c"
+line-color = "#efac83"   # Neon
 [paint."*-casing"]
 line-color = "#11111b"
 [paint."*-secondary-tertiary*-casing"]
 line-color = "#11111b"
 [paint."*-primary*-casing"]
-line-color = "#11111b"
+line-color = "#cba6f7"   # Neon-Leuchtschein
+line-blur = 3
+line-opacity = 0.55
 [paint."*-trunk*-casing"]
-line-color = "#11111b"
+line-color = "#cba6f7"   # Neon-Leuchtschein
+line-blur = 3
+line-opacity = 0.55
 [paint."*-motorway*-casing"]
-line-color = "#11111b"
+line-color = "#fab387"   # Neon-Leuchtschein
+line-blur = 4
+line-opacity = 0.6
 [paint."highway-area"]             # Fußgängerzonen, Plätze
 fill-color = "#45475a"
 fill-outline-color = "#45475a"

@@ -1,0 +1,116 @@
+# Cyberpunk Day: helles Gegenstück zu Neon Cyberpunk (eigener Entwurf; die Vorlage maptoposter hat keine helle
+# Variante). Gleiche Farbtöne Magenta/Cyan, aber dunkler und gesättigt für hellen Grund; kein Leuchtschein
+# (wirkt auf Weiß verwaschen), stattdessen klare Kanten.
+title = "Cyberpunk Day"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"          # light | dark
+family = "Neon Cyberpunk"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+order = 99             # Reihenfolge der Streifen: höher = weiter rechts (Standard 50)
+font = "Maple Mono"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
+fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all-fonts
+text_scale = 1.15
+attribution = "Farben nach maptoposter Neon Cyberpunk (MIT), helle Variante"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#f4f4fa"
+[paint."landuse-*"]
+fill-color = "#efeff7"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#fbb6ee"                 # Pink
+[paint."landcover-*"]
+fill-color = "#fbb6ee"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#f79be6"
+[paint."landuse-cemetery"]
+fill-color = "#fbb6ee"
+
+[paint."water*"]
+fill-color = "#cff4f8"                 # helles Eiscyan
+line-color = "#8fe3ec"
+
+[paint."building*"]
+fill-color = "#e6e6f2"
+fill-outline-color = "#d3d0ea"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#ffffff"
+[paint."*-link"]
+line-color = "#ffffff"
+[paint."*-secondary-tertiary*"]
+line-color = "#ffffff"
+[paint."*-primary*"]
+line-color = "#00a5b5"                 # tiefes Cyan
+[paint."*-trunk*"]
+line-color = "#00a5b5"
+[paint."*-motorway*"]
+line-color = "#d000c8"                 # sattes Magenta
+[paint."*-casing"]
+line-color = "#8cc7cf"                 # Petrol, hell
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#4fa3ad"
+[paint."*-primary*-casing"]
+line-color = "#00737f"
+[paint."*-trunk*-casing"]
+line-color = "#00737f"
+[paint."*-motorway*-casing"]
+line-color = "#8a0085"
+[paint."highway-area"]                 # Fußgängerzonen, Plätze
+fill-color = "#ffffff"
+fill-outline-color = "#ffffff"
+[paint."aeroway-*"]
+fill-color = "#ffffff"
+line-color = "#ffffff"
+[paint."*-path"]
+line-color = "#4fa3ad"
+[paint."*railway*"]
+line-color = "#9a96b8"
+[paint."road_area_pier"]
+fill-color = "#f4f4fa"
+[paint."road_pier"]
+line-color = "#f4f4fa"
+
+[paint."*label*"]
+text-color = "#0d0d1a"                 # Grundfarbe der Nachtversion
+text-halo-color = "#ffffff"
+[paint."label_*"]
+text-color = "#0d0d1a"
+text-halo-color = "#ffffff"
+[paint."highway-name-*"]
+text-color = "#2b2b45"
+text-halo-color = "#ffffff"
+[paint."highway-name-major"]
+text-color = "#a3009d"                 # Hauptstraßennamen in Magenta
+[paint."poi_*"]
+text-color = "#4a4a68"
+text-halo-color = "#ffffff"
+[paint."poi_transit"]
+text-color = "#00737f"
+[paint."water*label"]
+text-color = "#00737f"
+[paint."airport"]
+text-color = "#4a4a68"
+text-halo-color = "#ffffff"
+
+# Straßennummern ohne weißes Schild: Autobahn Magenta, Bundes-/Hauptstraße Cyan, sonst Petrol
+[layout."*shield*"]
+icon-image = ""
+text-size = 12
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#a3009d", ["trunk", "primary"], "#00737f", "#4f6f80"]
+text-halo-color = "#ffffff"
+text-halo-width = 1.5
+
+# Terminal-Marker: weiß hinterlegt, Magenta-Rahmen, Cyan-Prompt
+[marker]
+type = "terminal"
+color = "#d000c8"
+color2 = "#00a5b5"
+bg = "#ffffff"
+fg = "#0d0d1a"

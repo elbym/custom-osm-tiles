@@ -111,11 +111,20 @@ def build_style(toml_path, font=None):
     t = tomllib.loads(Path(toml_path).read_text())
     s = json.loads((ROOT / "style" / "base.json").read_text())
     font = font or t.get("font", "Noto Sans")
+    # Beschriftungssprache: OSM Bright bevorzugt name_en; stattdessen name:<language> (Standard de), sonst Originalname
+    lang_key = f"name:{t.get('language', 'de')}"
+
+    def localize(expr):
+        if expr == ["get", "name_en"]:
+            return ["get", lang_key]
+        return [localize(e) for e in expr] if isinstance(expr, list) else expr
     fcfg = font_config().get(font, {})
     scale = t.get("text_scale", 1) * fcfg.get("scale", 1)
     r = lambda v: round(v * scale * 2) / 2
     for l in s["layers"]:
         lay = l.setdefault("layout", {})
+        if "text-field" in lay:
+            lay["text-field"] = localize(lay["text-field"])
         if "text-font" in lay:  # Basis nutzt "Noto Sans X"; Noto bleibt Ersatz für fehlende Zeichen
             lay["text-font"] = [f.replace("Noto Sans", font) for f in lay["text-font"]] + \
                 ([] if font == "Noto Sans" else lay["text-font"])
@@ -177,6 +186,7 @@ def reindex(outdir, label=None):
         meta = tomllib.loads(st.read_text())
         cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
                    family=meta.get("family", meta.get("title", st.stem)), attribution=meta.get("attribution", ""),
+                   order=meta.get("order", 50),
                    marker=dict(meta.get("marker", {"type": "leaflet"}),
                                label=label or cfg.get("marker", {}).get("label", "hier")),
                    title=f"{meta.get('title', st.stem)} · {cfg['font']}")
@@ -289,7 +299,7 @@ def render(a, style_file, out, mb, font=None, standalone=True):
                style=Path(style_file).stem, font=font, ext=ext)
     meta = tomllib.loads(Path(style_file).read_text())  # Gliederung der Vorschau
     cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
-               family=meta.get("family", meta.get("title", Path(style_file).stem)),
+               family=meta.get("family", meta.get("title", Path(style_file).stem)), order=meta.get("order", 50),
                marker=dict(meta.get("marker", {"type": "leaflet"}), label=a.label or "hier"), title=title)
     (out / "config.json").write_text(json.dumps(cfg, ensure_ascii=False))  # liest write_previews()
     if standalone:  # eigenständige Kartenseite; für die Vorschau-Seite (--site) nicht nötig

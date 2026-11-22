@@ -51,7 +51,7 @@
     </section>
     <section>
       <h2 class="font-semibold">Schriften</h2>
-      <p>Fira Sans, Inter, Literata, Overpass, Public Sans, Fira Code, JetBrains Mono, Maple Mono, Victor Mono: SIL Open Font License 1.1. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
+      <p>Fira Sans, Public Sans, JetBrains Mono, Maple Mono: SIL Open Font License 1.1. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
     </section>
     <section>
       <h2 class="font-semibold">Software auf dieser Seite</h2>
@@ -75,7 +75,10 @@ document.documentElement.dataset.mode = mode;
 const inSet = c => c.category === cat && c.mode === mode;
 const fonts = [...new Set(all.filter(([, c]) => inSet(c)).map(([, c]) => c.font))].sort();
 const font = fonts.includes(q.get('font')) ? q.get('font') : fonts[0];
-const families = [...new Set(all.filter(([, c]) => c.category === cat).map(([, c]) => c.family))].sort();
+// Reihenfolge der Streifen: order aus der Stil-Datei (Standard 50, höher = weiter rechts), dann alphabetisch
+const orderOf = fam => Math.min(...all.filter(([, c]) => c.family === fam).map(([, c]) => c.order ?? 50));
+const families = [...new Set(all.filter(([, c]) => c.category === cat).map(([, c]) => c.family))]
+  .sort((a, b) => orderOf(a) - orderOf(b) || a.localeCompare(b));
 const strips = families.map(fam => [fam, all.find(([, c]) => inSet(c) && c.family === fam && c.font === font)]);
 
 const go = (key, val) => { q.set(key, val); location.search = q; };

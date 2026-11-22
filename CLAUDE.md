@@ -66,10 +66,11 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 - `style/base.json` is OpenFreeMap's OSM Bright, kept close to upstream. The only changes: the source is `mbtiles://{osm}`, the `ne2_shaded` raster layer is removed, and glyphs and the sprite (`ofm*`) are local. Do all customisation in `styles/*.toml`.
 - TOML keys:
   - `title` is the window title; the font name is appended.
-  - `category`, `mode` and `family` drive the preview pages.
+  - `category`, `mode` and `family` drive the preview pages. `order` (default 50; higher = further right, then alphabetical) sorts the strips. Both cyberpunk styles use 99, so they sit in the rightmost column, as the user asked.
   - `preview_font` is the only font `--all` renders, unless `--all-fonts` is given: Fira Sans for standard styles and Maple Mono for nerd styles, at the user's request, to keep preview renders fast.
   - `font` is the default font. It replaces "Noto Sans" in every `text-font`, and Noto stays in the stack as fallback.
   - `fonts` lists the font groups that `--all --all-fonts` renders. The default is `["sans", "serif"]`; the editor themes add `"mono"`. A single run with `--font`, or `--all --font X`, ignores the groups.
+  - `language` (default `de`): `build_style()` swaps OSM Bright's `["get", "name_en"]` in every `text-field` for `name:<language>`, so the label falls back to the local `name`. Upstream prefers English, which showed "Federal Chancellery" etc. in Berlin.
   - `text_scale` scales `text-size`, except the `*shield*` layers.
   - `hide` is a list of layer-id globs to hide.
   - `[paint."glob"]` / `[layout."glob"]` set properties on matching layer ids. They apply in file order, so the last match wins. Only properties whose prefix fits the layer type are applied, which makes broad globs like `water*` safe.
@@ -89,6 +90,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
     - `osm-light`: a lighter, decluttered osm.org standard map.
     - `wiki`: Wikimedia Maps colours from wikimedia/osm-bright.tm2. The design is CC BY 3.0, so this attribution must stay, in `wiki-dark` too.
   - **Standard dark:** `clear-dark`, `cupertino-dark`, `north-dark`, `osm-dark`, `wiki-dark`.
+  - **Nerd, not editor themes:** `cyberpunk` ("Neon Cyberpunk", colours 1:1 from maptoposter `neon_cyberpunk.json`, MIT, neon glow on roads) and `cyberpunk-day` (own light counterpart: same hues darkened, no glow).
   - **Nerd** (editor-theme palettes): `dayfox`/`nightfox`, `catppuccin-latte`/`-mocha`, `dracula-light` ("Alucard", the official Dracula light palette) / `dracula`, `solarized-light`/`-dark` (all MIT), and `tokyonight-day`/`-night` (Apache-2.0).
 - For the recreations, only colour values were taken from the originals, never their style files. That is what the user asked for, to avoid licence problems, and each recreation names its inspiration in `attribution`.
 - Dark and editor-theme styles share one role mapping: bg, landuse, buildings, water, green, three road tiers, text.
