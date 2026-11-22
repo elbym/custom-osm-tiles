@@ -5,7 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Karte</title>
 <link rel="stylesheet" href="leaflet/leaflet.css">
-<style>html, body { margin: 0; } #map { height: 100dvh; }</style>
+<style>
+html, body { margin: 0; } #map { height: 100dvh; }
+/* Terminal-Marker (Nerd-Stile): Kästchen mit Prompt und Block-Cursor, Stiel und Punkt auf der Position */
+.term { display: flex; flex-direction: column; align-items: center; font: 600 13px/1 ui-monospace, "JetBrains Mono", "Fira Code", monospace; }
+.term .box { background: var(--bg); color: var(--fg); border: 1.5px solid var(--c1); border-radius: 4px; padding: 5px 8px; white-space: nowrap; box-shadow: 0 2px 6px rgb(0 0 0 / .45); }
+.term .p { color: var(--c2); }
+.term .cur { display: inline-block; width: .6em; height: 1.05em; margin-left: .35em; background: var(--c1); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+.term .stem { width: 2px; height: 12px; background: var(--c1); }
+.term .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); box-shadow: 0 0 0 3px var(--bg); }
+@keyframes blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .term .cur { animation: none; } }
+</style>
 </head>
 <body>
 <div id="map"></div>
@@ -24,7 +35,20 @@ L.tileLayer(url, {
 }).addTo(map);
 // Detail: echte Kacheln ab detail_from, nur um den Marker
 if (c.zmax >= c.detail_from) L.tileLayer(url, { minZoom: c.detail_from, bounds: c.detail }).addTo(map);
-L.marker([c.lat, c.lon]).addTo(map);
+L.marker([c.lat, c.lon], { icon: markerIcon(c.marker), title: c.marker?.label }).addTo(map);
+
+// Marker laut Stil: "terminal" (Nerd-Stile) oder der Leaflet-Standard
+function markerIcon(m) {
+  if (m?.type !== 'terminal') return new L.Icon.Default();
+  const el = document.createElement('div');
+  el.className = 'term';
+  for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
+  el.innerHTML = '<span class="box"><span class="p">~/</span><span class="t"></span><span class="cur"></span></span><span class="stem"></span><span class="dot"></span>';
+  el.querySelector('.t').textContent = m.label;  // Text, kein HTML
+  // Größe messen, damit der Punkt (unten Mitte) genau auf der Position liegt
+  document.body.appendChild(el); const w = el.offsetWidth, h = el.offsetHeight; el.remove();
+  return L.divIcon({ className: '', html: el, iconSize: [w, h], iconAnchor: [w / 2, h - 4] });
+}
 // In compare.html (iframe): Ausschnitt mit der anderen Karte synchron halten
 if (parent !== window) {
   let syncing = false;  // setView ohne Animation feuert moveend sofort: nicht zurückschicken

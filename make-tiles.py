@@ -156,6 +156,29 @@ def write_previews(outdir):
         f"const CONFIGS = {json.dumps(configs, ensure_ascii=False)};\n")
 
 
+def reindex(outdir, label=None):
+    """index.html aller Varianten aus template.html + aktuellen Stil-Dateien neu schreiben (ohne Rendern)."""
+    page = (ROOT / "template.html").read_text()
+    for d in sorted(outdir.iterdir()):
+        f = d / "index.html"
+        if not f.exists():
+            continue
+        old = f.read_text()
+        cfg = json.loads(re.search(r"const c = (\{.*\});", old)[1])
+        st = ROOT / "styles" / f"{cfg['style']}.toml"
+        if not st.exists():
+            continue
+        meta = tomllib.loads(st.read_text())
+        cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
+                   family=meta.get("family", meta.get("title", st.stem)), attribution=meta.get("attribution", ""),
+                   marker=dict(meta.get("marker", {"type": "leaflet"}),
+                               label=label or cfg.get("marker", {}).get("label", "hier")))
+        title = f"{meta.get('title', st.stem)} · {cfg['font']}"
+        f.write_text(page.replace("<title>Karte</title>", f"<title>{title}</title>")
+                         .replace("/*CONFIG*/{}", json.dumps(cfg, ensure_ascii=False)))
+    write_previews(outdir)
+
+
 def render(a, style_file, out, mb, font=None):
     zmin, zmax = map(int, a.zoom.split("-"))
     vw, vh = map(int, a.viewport.split("x"))
@@ -208,7 +231,8 @@ def render(a, style_file, out, mb, font=None):
                style=Path(style_file).stem, font=font)
     meta = tomllib.loads(Path(style_file).read_text())  # Gliederung der Vorschau
     cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
-               family=meta.get("family", meta.get("title", Path(style_file).stem)))
+               family=meta.get("family", meta.get("title", Path(style_file).stem)),
+               marker=dict(meta.get("marker", {"type": "leaflet"}), label=a.label or "hier"))
     page = page.replace("<title>Karte</title>", f"<title>{title}</title>")
     (out / "index.html").write_text(page.replace("/*CONFIG*/{}", json.dumps(cfg, ensure_ascii=False)))
     write_previews(out.parent)
@@ -227,12 +251,16 @@ def main():
     p.add_argument("--viewport", default="2560x1440", help="größte Kartengröße in px")
     p.add_argument("--area", default="detmold-regbez", help="Geofabrik-Name")
     p.add_argument("--retina", action="store_true", help="zusätzlich @2x rendern")
+    p.add_argument("--label", help="Text im Terminal-Marker der Nerd-Stile (~/<label>), Standard: hier")
     p.add_argument("--style", help="Standard: styles/clear.toml; mit --all: nur dieser Stil")
     p.add_argument("--font", help="Schrift statt der des Stils; mit --all: nur diese Schrift")
     p.add_argument("--all", action="store_true", help="jeder Stil × seine Schriftgruppen nach out/<stil>-<schrift>")
     p.add_argument("--missing", action="store_true", help="mit --all: vorhandene Varianten überspringen")
     p.add_argument("--out", help="Standard: out/<stilname>")
+    p.add_argument("--reindex", action="store_true", help="nur index.html aller Varianten in out/ neu schreiben")
     a = p.parse_args()
+    if a.reindex:
+        return reindex(ROOT / "out", a.label)
     zmin, zmax = map(int, a.zoom.split("-"))
     if not (0 <= zmin <= zmax <= 20):
         sys.exit("--zoom ungültig")

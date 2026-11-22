@@ -1,0 +1,118 @@
+# Alucard: helle Variante von Dracula, nach der offiziellen Alucard-Palette
+# (https://draculatheme.com/spec, MIT). Gleiche Rollen wie dracula.toml: Hauptstraßen lila, Autobahn weinrot, Wasser cyan.
+title = "Alucard"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"          # light | dark
+family = "Dracula"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "Fira Sans"
+fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
+text_scale = 1.15
+attribution = "Farben nach Dracula (Alucard) (MIT)"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#fffbeb"
+[paint."landuse-*"]
+fill-color = "#f3f0e8"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#c4d8b3"
+[paint."landcover-*"]
+fill-color = "#c4d8b3"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#adcb9c"
+[paint."landuse-cemetery"]
+fill-color = "#c4d8b3"
+
+[paint."water*"]
+fill-color = "#a7c8cd"
+line-color = "#a7c8cd"
+
+[paint."building*"]
+fill-color = "#ebe9e5"
+fill-outline-color = "#cfcfde"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#ffffff"
+[paint."*-link"]
+line-color = "#ffffff"
+[paint."*-secondary-tertiary*"]
+line-color = "#ffffff"
+[paint."*-primary*"]
+line-color = "#c9bddf"
+[paint."*-trunk*"]
+line-color = "#c9bddf"
+[paint."*-motorway*"]
+line-color = "#d693a4"
+[paint."*-casing"]
+line-color = "#cfcfde"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#99958d"
+[paint."*-primary*-casing"]
+line-color = "#8b76d2"
+[paint."*-trunk*-casing"]
+line-color = "#8b76d2"
+[paint."*-motorway*-casing"]
+line-color = "#b13765"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#ffffff"
+fill-outline-color = "#ffffff"
+[paint."aeroway-*"]
+fill-color = "#ffffff"
+line-color = "#ffffff"
+[paint."*-path"]
+line-color = "#99958d"
+[paint."*railway*"]
+line-color = "#6c664b"
+[paint."road_area_pier"]
+fill-color = "#fffbeb"
+[paint."road_pier"]
+line-color = "#fffbeb"
+
+[paint."*label*"]
+text-color = "#1f1f1f"
+text-halo-color = "#ffffff"
+[paint."label_*"]
+text-color = "#1f1f1f"
+text-halo-color = "#ffffff"
+[paint."highway-name-*"]
+text-color = "#464235"
+text-halo-color = "#ffffff"
+[paint."poi_*"]
+text-color = "#6c664b"
+text-halo-color = "#ffffff"
+[paint."poi_transit"]
+text-color = "#036a96"
+[paint."water*label"]
+text-color = "#036a96"
+[paint."airport"]
+text-color = "#6c664b"
+text-halo-color = "#ffffff"
+
+# >>> Akzent-Beschriftung
+# Straßennummern ohne weißes Schild (Sprite-Bild, nicht umfärbbar), stattdessen in den Akzentfarben des Themes:
+# Autobahn #a3144d, Bundes-/Hauptstraße #644ac9, Land-/Kreisstraße #036a96. Hauptstraßennamen ebenfalls #644ac9.
+[layout."*shield*"]
+icon-image = ""
+text-size = 12
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#a3144d", ["trunk", "primary"], "#644ac9", "#036a96"]
+text-halo-color = "#fffbeb"
+text-halo-width = 1.5
+[paint."highway-name-major"]
+text-color = "#644ac9"
+# <<< Akzent-Beschriftung
+
+# >>> Marker
+# Terminal-Marker: Kästchen "~/<--label>" mit blinkendem Block-Cursor, Stiel und Punkt auf der Position
+[marker]
+type = "terminal"   # leaflet | terminal
+color = "#a3144d"      # Rahmen, Cursor, Stiel
+color2 = "#644ac9"     # Prompt ~/
+bg = "#fffbeb"
+fg = "#1f1f1f"
+# <<< Marker

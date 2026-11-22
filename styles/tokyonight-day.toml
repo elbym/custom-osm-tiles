@@ -92,3 +92,27 @@ text-color = "#2e7de9"
 [paint."airport"]
 text-color = "#68709a"
 text-halo-color = "#ffffff"
+
+# >>> Akzent-Beschriftung
+# Straßennummern ohne weißes Schild (Sprite-Bild, nicht umfärbbar), stattdessen in den Akzentfarben des Themes:
+# Autobahn #b15c00, Bundes-/Hauptstraße #9854f1, Land-/Kreisstraße #007197. Hauptstraßennamen ebenfalls #9854f1.
+[layout."*shield*"]
+icon-image = ""
+text-size = 12
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#b15c00", ["trunk", "primary"], "#9854f1", "#007197"]
+text-halo-color = "#e1e2e7"
+text-halo-width = 1.5
+[paint."highway-name-major"]
+text-color = "#9854f1"
+# <<< Akzent-Beschriftung
+
+# >>> Marker
+# Terminal-Marker: Kästchen "~/<--label>" mit blinkendem Block-Cursor, Stiel und Punkt auf der Position
+[marker]
+type = "terminal"   # leaflet | terminal
+color = "#9854f1"      # Rahmen, Cursor, Stiel
+color2 = "#2e7de9"     # Prompt ~/
+bg = "#e1e2e7"
+fg = "#3760bf"
+# <<< Marker

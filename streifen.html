@@ -17,6 +17,15 @@
   .seg button + button { border-left: 1px solid #888; }
   .seg button[aria-pressed="true"] { background: #333; color: #fff; }
   select { font: inherit; padding: .1rem; }
+  /* Terminal-Marker (Nerd-Stile): Kästchen mit Prompt und Block-Cursor, Stiel und Punkt auf der Position */
+  .term { display: flex; flex-direction: column; align-items: center; font: 600 13px/1 ui-monospace, "JetBrains Mono", "Fira Code", monospace; }
+  .term .box { background: var(--bg); color: var(--fg); border: 1.5px solid var(--c1); border-radius: 4px; padding: 5px 8px; white-space: nowrap; box-shadow: 0 2px 6px rgb(0 0 0 / .45); }
+  .term .p { color: var(--c2); }
+  .term .cur { display: inline-block; width: .6em; height: 1.05em; margin-left: .35em; background: var(--c1); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+  .term .stem { width: 2px; height: 12px; background: var(--c1); }
+  .term .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); box-shadow: 0 0 0 3px var(--bg); }
+  @keyframes blink { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .term .cur { animation: none; } }
 </style>
 </head>
 <body>
@@ -72,7 +81,9 @@ const panes = strips.map(([, v], i) => {
   if (c.attribution) map.attributionControl.addAttribution(c.attribution);
   return pane;
 });
-L.marker([c0.lat, c0.lon]).addTo(map);
+// Marker im Stil des mittleren Streifens (dort liegt er beim Öffnen); Nerd-Stile: Terminal-Marker
+const mid = strips[Math.floor(strips.length / 2)][1] || strips.find(([, v]) => v)[1];
+L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker), title: mid?.[1].marker?.label }).addTo(map);
 
 // Streifen-Zuschnitt: Panes liegen im verschobenen mapPane, daher dessen Position abziehen
 function clip() {
@@ -95,6 +106,27 @@ for (const [fam, v] of strips) {
     cell.textContent = hasMode ? `${fam}: nicht in ${font} gerendert` : `${fam}: nur ${mode === 'dark' ? 'hell' : 'dunkel'}`;
     cell.className = 'none';
   }
+}
+
+
+
+// Marker laut Stil: "terminal" (Nerd-Stile) oder der Leaflet-Standard
+function markerIcon(m) {
+  if (m?.type !== 'terminal') return new L.Icon.Default();
+  const el = document.createElement('div');
+  el.className = 'term';
+  for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
+  el.innerHTML = '<span class="box"><span class="p">~/</span><span class="t"></span><span class="cur"></span></span><span class="stem"></span><span class="dot"></span>';
+  el.querySelector('.t').textContent = m.label;  // Text, kein HTML
+  // Größe messen, damit der Punkt (unten Mitte) genau auf der Position liegt
+  document.body.appendChild(el); const w = el.offsetWidth, h = el.offsetHeight; el.remove();
+  return L.divIcon({ className: '', html: el, iconSize: [w, h], iconAnchor: [w / 2, h - 4] });
+}
+// In compare.html (iframe): Ausschnitt mit der anderen Karte synchron halten
+if (parent !== window) {
+  let syncing = false;  // setView ohne Animation feuert moveend sofort: nicht zurückschicken
+  map.on('moveend', () => { if (!syncing) parent.postMessage({ center: map.getCenter(), zoom: map.getZoom() }, '*'); });
+  addEventListener('message', e => { syncing = true; map.setView(e.data.center, e.data.zoom, { animate: false }); syncing = false; });
 }
 </script>
 </body>
