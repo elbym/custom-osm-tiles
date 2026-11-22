@@ -2,6 +2,7 @@
 """Statische Leaflet-Kacheln für einen kleinen Bereich rendern.
 
 Beispiel:
+  ./make-tiles.py                     # Bielefeld -> out/test
   ./make-tiles.py --lat 52.115 --lon 8.67 --radius 5 --out out/kunde-xy
 """
 import argparse, io, json, math, shutil, subprocess, sys, time, urllib.request, zipfile
@@ -71,8 +72,8 @@ def fetch(url):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--lat", type=float, required=True)
-    p.add_argument("--lon", type=float, required=True)
+    p.add_argument("--lat", type=float, default=52.0211, help="Standard: Bielefeld")
+    p.add_argument("--lon", type=float, default=8.5347)
     p.add_argument("--radius", type=float, default=5, help="km um den Marker")
     p.add_argument("--zoom", default="10-18", help="z. B. 10-14")
     p.add_argument("--detail-from", type=int, default=17, help="ab dieser Stufe nur --detail-radius")
@@ -80,7 +81,7 @@ def main():
     p.add_argument("--viewport", default="2560x1440", help="größte Kartengröße in px")
     p.add_argument("--area", default="detmold-regbez", help="Geofabrik-Name")
     p.add_argument("--retina", action="store_true", help="zusätzlich @2x rendern")
-    p.add_argument("--out", required=True)
+    p.add_argument("--out", default="out/test")
     a = p.parse_args()
     zmin, zmax = map(int, a.zoom.split("-"))
     vw, vh = map(int, a.viewport.split("x"))

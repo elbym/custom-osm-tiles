@@ -3,6 +3,7 @@
 Statische Rasterkacheln für Leaflet, nur für einen kleinen Bereich um einen Marker, selbst gehostet.
 
 ```sh
+./make-tiles.py   # Standard: Bielefeld, 5 km, z10-18 -> out/test
 ./make-tiles.py --lat 52.115 --lon 8.67 --radius 5 --zoom 10-18 --out out/kunde-xy
 # ab z17 nur 1 km um den Marker: --detail-from 17 --detail-radius 1
 # optional: --retina (@2x), --area <geofabrik-name>, --viewport 2560x1440 (größte Kartengröße, damit niedrige Zoomstufen sie füllen)

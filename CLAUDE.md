@@ -7,12 +7,13 @@ Pre-renders static Leaflet raster tiles for a small area around one marker, per 
 ## Commands
 
 ```sh
-# full run (podman required, not docker); test area = Herford
-./make-tiles.py --lat 52.115 --lon 8.67 --radius 5 --out out/test
+# full run (podman required, not docker); defaults = Bielefeld, 5 km, z10-18 -> out/test
+./make-tiles.py
+./make-tiles.py --lat 52.115 --lon 8.67 --out out/kunde-xy   # other project
 # preview: open out/<name>/index.html directly via file://
 ```
 
-There are no tests. To check a rendering change, re-run into `out/test` (`rm -rf out/test` first) and look at a PNG near the marker, e.g. `out/test/tiles/16/34345/21613.png` and `out/test/tiles/18/137385/86453.png` for the Herford test point.
+There are no tests. To check a rendering change, re-run into `out/test` (`rm -rf out/test` first) and look at a PNG near the marker, e.g. `out/test/tiles/16/34321/21641.png` and `out/test/tiles/18/137286/86565.png` for the Bielefeld default.
 
 ## How it fits together
 
