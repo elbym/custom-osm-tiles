@@ -73,12 +73,11 @@ Regular = { file = "tex-gyre-heros/texgyreheros-regular.otf" }
 Bold    = { file = "tex-gyre-heros/texgyreheros-bold.otf" }
 Italic  = { file = "tex-gyre-heros/texgyreheros-italic.otf" }
 
-["TeX Gyre Adventor"]   # geometrisch und breit (Avant-Garde-Nachbau), für Bluecron
+["Space Grotesk"]   # keine Kursive: Italic = Regular; für Bluecron
 group = "sans"
-Regular = { file = "tex-gyre-adventor/texgyreadventor-regular.otf" }
-Bold    = { file = "tex-gyre-adventor/texgyreadventor-bold.otf" }
-Italic  = { file = "tex-gyre-adventor/texgyreadventor-italic.otf" }
-
+Regular = { file = "space-grotesk/SpaceGrotesk-VF.ttf", wght = 400 }
+Bold    = { file = "space-grotesk/SpaceGrotesk-VF.ttf", wght = 700 }
+Italic  = { file = "space-grotesk/SpaceGrotesk-VF.ttf", wght = 400 }
 # Monoschriften (für die Editor-Themes)
 ["Fira Code"]   # keine Kursive: Italic = Regular
 group = "mono"
