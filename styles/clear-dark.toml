@@ -27,8 +27,8 @@ fill-color = "#2f4345"
 fill-color = "#26393e"
 
 [paint."water*"]
-fill-color = "#374d62"
-line-color = "#374d62"
+fill-color = "#164d7e"
+line-color = "#164d7e"
 
 [paint."building*"]
 fill-color = "#202f3f"
