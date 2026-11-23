@@ -371,10 +371,15 @@ def build_site(a):
     for st in sorted((ROOT / "styles").glob("*.toml")):
         meta = tomllib.loads(st.read_text())
         cat = meta.get("category", "standard")
-        # Schriften der Gruppe, dazu für Gruppen in pixel = [...] eine 8-Bit-Variante (Schalter "8 Bit" in der Vorschau)
+        # Schriften der Gruppe, dazu für Gruppen in pixel = [...] eine 8-Bit-Variante (Schalter "8 Bit") und für
+        # Gruppen in streets = [...] eine Nur-Straßen-Variante (Schalter "Straßen") in der ersten Schrift
         site_fonts = [meta["site_font"]] if "site_font" in meta else cfg["fonts"][cat]  # z. B. Phosphor: VT323
-        for font, s.pixel in [(f, False) for f in site_fonts] + ([("VT323", True)] if cat in cfg.get("pixel", []) else []):
-            out = site / f"{st.stem}-{font.lower().replace(' ', '-')}{'-8bit' if s.pixel else ''}"
+        variants = [(f, False, False) for f in site_fonts]
+        variants += [("VT323", True, False)] if cat in cfg.get("pixel", []) else []
+        variants += [(site_fonts[0], False, True)] if cat in cfg.get("streets", []) else []
+        for font, s.pixel, s.streets_only in variants:
+            suffix = "-8bit" if s.pixel else "-streets" if s.streets_only else ""
+            out = site / f"{st.stem}-{font.lower().replace(' ', '-')}{suffix}"
             wanted.add(out)
             done = out / "config.json"
             keep = a.missing and done.exists()

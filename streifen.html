@@ -43,6 +43,8 @@
   </span>
   <!-- 8-Bit-Variante (?px=1), nur sichtbar, wenn die Gruppe welche hat (site.toml: pixel) -->
   <button id="px" class="hidden rounded-md border border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">8 Bit</button>
+  <!-- Nur Straßen, Wasser und Ortsnamen (?st=1), nur sichtbar, wenn die Gruppe welche hat (site.toml: streets) -->
+  <button id="st" title="Nur Straßennetz, Wasser und Ortsnamen" class="hidden rounded-md border border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Straßen</button>
   <!-- Stile ein-/ausblenden: Häkchen setzen, beim Zuklappen wird neu geladen (?aus=Familie,…) -->
   <details id="pick" class="relative">
     <summary class="cursor-pointer list-none rounded-md border border-neutral-400 px-3 py-1 dark:border-neutral-600">Stile <span id="pick-count"></span></summary>
@@ -141,7 +143,8 @@ const mode = ['light', 'dark'].includes(q.get('mode')) ? q.get('mode') : dark.ma
 dark.addEventListener('change', () => { if (!q.has('mode')) location.reload(); });
 document.documentElement.dataset.mode = mode;
 const hasPx = all.some(([, c]) => c.category === cat && c.pixel), px = hasPx && q.get('px') === '1';
-const inSet = c => c.category === cat && c.mode === mode && !!c.pixel === px;
+const hasSt = all.some(([, c]) => c.category === cat && c.streets), st = hasSt && !px && q.get('st') === '1';
+const inSet = c => c.category === cat && c.mode === mode && !!c.pixel === px && !!c.streets === st;
 // 8 Bit: hochgezoomte Kacheln ohne Glättung
 if (px) document.head.appendChild(document.createElement('style')).textContent = '.leaflet-tile { image-rendering: pixelated; }';
 const fonts = [...new Set(all.filter(([, c]) => inSet(c)).map(([, c]) => c.font))].sort();
@@ -166,7 +169,10 @@ for (const [id, val] of [['cat', cat], ['mode', mode]]) {
 }
 const pxb = document.getElementById('px');
 pxb.classList.toggle('hidden', !hasPx); pxb.setAttribute('aria-pressed', px);
-pxb.onclick = () => { q.delete('font'); if (px) { q.delete('px'); location.search = q; } else go('px', '1'); };
+pxb.onclick = () => { q.delete('font'); q.delete('st'); if (px) { q.delete('px'); location.search = q; } else go('px', '1'); };
+const stb = document.getElementById('st');  // Nur-Straßen-Variante (?st=1), schließt 8 Bit aus
+stb.classList.toggle('hidden', !hasSt); stb.setAttribute('aria-pressed', st);
+stb.onclick = () => { q.delete('font'); q.delete('px'); if (st) { q.delete('st'); location.search = q; } else go('st', '1'); };
 
 // Stil-Auswahl: Änderungen sammeln, beim Zuklappen anwenden
 const pick = document.getElementById('pick'), list = document.getElementById('pick-list');

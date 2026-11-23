@@ -155,6 +155,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 - Fonts: group `pixel` in `fonts.toml`. The default is VT323 (`a.font` set in `main()`); Press Start 2P and Silkscreen are kept as options at the user's request. Rejected after a preview: Pixelify Sans (the user disliked it), Jersey 10, Micro 5, DotGothic16. The pixel group gets bold POI strokes.
 - `config.json` carries `pixel`, and `template.html` then sets `image-rendering: pixelated` on the tiles.
 - Public preview: `site.toml` `pixel = ["nerd"]` makes `build_site()` render each nerd style a second time in VT323 with `--pixel` (`site/<style>-vt323-8bit`, about 0.8 MB each with @2x). `streifen.html` shows an "8 Bit" button (`?px=1`) only for categories that have pixel variants, and `inSet()` keeps them apart from the normal variants. The Über dialog lists VT323.
+- Streets-only on the public preview: `site.toml` `streets = [...]` makes `build_site()` render each style of those categories again with `--streets-only` in its first site font (`site/<style>-<font>-streets`). `streifen.html` shows a "Straßen" button (`?st=1`) for categories that have them; it and "8 Bit" exclude each other (no 8-bit streets variant), and `inSet()` keeps them apart via `config.streets`.
 
 ## Streets only
 
