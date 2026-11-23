@@ -356,6 +356,7 @@ def build_site(a):
     s.detail_from, s.detail_radius = 99, cfg["radius"]  # kein Detailbereich
     site = ROOT / "site"
     site.mkdir(exist_ok=True)
+    wanted = set()
     for st in sorted((ROOT / "styles").glob("*.toml")):
         meta = tomllib.loads(st.read_text())
         cat = meta.get("category", "standard")
@@ -363,11 +364,15 @@ def build_site(a):
         site_fonts = [meta["site_font"]] if "site_font" in meta else cfg["fonts"][cat]  # z. B. Phosphor: VT323
         for font, s.pixel in [(f, False) for f in site_fonts] + ([("VT323", True)] if cat in cfg.get("pixel", []) else []):
             out = site / f"{st.stem}-{font.lower().replace(' ', '-')}{'-8bit' if s.pixel else ''}"
+            wanted.add(out)
             done = out / "config.json"
             keep = a.missing and done.exists()
             if keep and json.loads(done.read_text()).get("retina") == s.retina:
                 continue
             render(s, st, out, mb, font, standalone=False, keep=keep)  # keep: nur fehlende Kacheln (z. B. @2x)
+    for old in site.glob("*/config.json"):              # Varianten aus früheren site.toml-Ständen (andere Schrift/Ort)
+        if old.parent not in wanted:
+            shutil.rmtree(old.parent)
     write_previews(site)
     (site / "compare.html").unlink(missing_ok=True)       # veröffentlicht wird nur die Streifen-Ansicht
     shutil.move(site / "streifen.html", site / "index.html")
