@@ -106,10 +106,16 @@ def ensure_glyphs():
         run(tool, tmp, str(dest))
 
 
-def build_style(toml_path, font=None, center=None, pixel=False):
+# --streets-only: nur Straßennetz, Wasser und Ortsnamen (Poster-Look wie maptoposter); Straßennamen, Schilder,
+# Bahn, Gebäude, Landnutzung und POIs fallen weg. DROP gewinnt vor KEEP.
+STREETS_KEEP = ["background", "water", "water-intermittent", "waterway-*", "highway-*", "bridge-*", "tunnel-*", "label_*"]
+STREETS_DROP = ["highway-name-*", "highway-shield-*", "highway-area", "*railway*", "waterway_*label"]
+
+
+def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
     """styles/<name>.toml + style/base.json (OSM Bright) -> fertiger Stil, Titel, Namensnennung.
     center (lat, lon): Mittelpunkt für das Koordinatengitter (graticule = true im Stil).
-    pixel: 8-Bit-Modus, Pixelschriften dann nur in ganzen Rasterschritten."""
+    pixel: 8-Bit-Modus, Pixelschriften dann nur in ganzen Rasterschritten. streets: siehe STREETS_KEEP."""
     t = tomllib.loads(Path(toml_path).read_text())
     s = json.loads((ROOT / "style" / "base.json").read_text())
     font = font or t.get("font", "Noto Sans")
@@ -154,6 +160,9 @@ def build_style(toml_path, font=None, center=None, pixel=False):
                 if fnmatch.fnmatch(l["id"], glob):
                     l.setdefault(kind, {}).update(
                         {k: v for k, v in props.items() if k.startswith(prefixes) or k == "visibility"})
+        if streets and (any(fnmatch.fnmatch(l["id"], g) for g in STREETS_DROP)
+                        or not any(fnmatch.fnmatch(l["id"], g) for g in STREETS_KEEP)):
+            lay["visibility"] = "none"
         if pixel and "grid" in fcfg and "text-halo-color" in l.get("paint", {}):  # 8 Bit: Rand hält Raster von Schrift fern
             l["paint"]["text-halo-width"] = PIXEL_HALO
     # POI-Symbole: Phosphor im Kreis, Stärke nach Schriftgruppe, Farben aus dem Stil
@@ -499,7 +508,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     b = bbox(a.lat, a.lon, a.radius)
     # ponytail: high zooms only near the marker; Leaflet upscales z(detail_from-1) outside
     d = bbox(a.lat, a.lon, min(a.radius, a.detail_radius))
-    style, title, attribution, font = build_style(style_file, font, (a.lat, a.lon), a.pixel)
+    style, title, attribution, font = build_style(style_file, font, (a.lat, a.lon), a.pixel, a.streets_only)
     with tileserver(style, out.name, mb) as base:
         if not keep:  # keep: vorhandene Kacheln behalten (z. B. nur @2x ergänzen)
             shutil.rmtree(out / "tiles", ignore_errors=True)
@@ -543,7 +552,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     cfg = dict(lat=a.lat, lon=a.lon, zmin=zmin, zmax=zmax, retina=a.retina,
                detail_from=a.detail_from, bounds=[[b[0], b[1]], [b[2], b[3]]],
                detail=[[d[0], d[1]], [d[2], d[3]]], attribution=attribution,
-               style=Path(style_file).stem, font=font, ext=ext, pixel=a.pixel)
+               style=Path(style_file).stem, font=font, ext=ext, pixel=a.pixel, streets=a.streets_only)
     meta = tomllib.loads(Path(style_file).read_text())  # Gliederung der Vorschau
     cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
                family=meta.get("family", meta.get("title", Path(style_file).stem)), order=meta.get("order", 50),
@@ -573,6 +582,8 @@ def main():
                    help="png = Palette über pngquant (Standard, kleinste Dateien), webp = direkt vom tileserver")
     p.add_argument("--pixel", action="store_true",
                    help="8-Bit-Look: jede Kachel aus der gröberen Elternkachel, Pixel ohne Glättung verdoppelt; Schrift VT323")
+    p.add_argument("--streets-only", action="store_true",
+                   help="nur Straßennetz, Wasser und Ortsnamen (Poster-Look); mit --all: Ausgabe out/<stil>-<schrift>-streets")
     p.add_argument("--colors", type=int, default=32, help="Farben je PNG-Kachel (pngquant), Standard 32")
     p.add_argument("--label", help="Text im Terminal-Marker der Nerd-Stile (~/<label>), Standard: hier")
     p.add_argument("--style", help="Standard: styles/clear.toml; mit --all: nur dieser Stil")
@@ -622,7 +633,7 @@ def main():
         else:              # Vorschau: nur die Vorschau-Schrift des Stils
             todo = [meta.get("preview_font", meta.get("font", "Fira Sans"))]
         for font in todo:
-            out = ROOT / "out" / f"{st.stem}-{font.lower().replace(' ', '-')}"
+            out = ROOT / "out" / f"{st.stem}-{font.lower().replace(' ', '-')}{'-streets' if a.streets_only else ''}"
             if a.missing and (out / "index.html").exists():
                 continue
             render(a, st, out, mb, font)

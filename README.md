@@ -63,6 +63,7 @@ Außerdem nötig: podman, pngquant und Inkscape (`sudo dnf install pngquant inks
 | `--format` | `png` (Palette über pngquant) oder `webp` | `png` |
 | `--colors` | Farben je PNG-Kachel | 32 |
 | `--pixel` | 8-Bit-Look für jeden Stil (siehe [8-Bit-Modus](#8-bit-modus)), Schrift VT323 | aus |
+| `--streets-only` | nur Straßennetz, Wasser und Ortsnamen (Poster-Look); mit `--all` nach `out/<stil>-<schrift>-streets` | aus |
 | `--area` | Geofabrik-Region, muss den Bereich enthalten (https://download.geofabrik.de) | `detmold-regbez` |
 | `--label` | Text im Marker (Sprechblase bzw. Terminal `~/<label>`) | `hier` |
 | `--out` | Zielordner | `out/<stilname>` |
