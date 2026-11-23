@@ -73,6 +73,7 @@ line-color = "#a08664"
 [paint."*railway*"]
 line-color = "#6f5e4b"
 
+# Ortsnamen im Ton des Grundes, POIs in der Markerfarbe (#8f4e2a, gemischt bis Kontrast 4,5:1)
 [paint."label_*"]
 text-color = "#3b2f22"
 text-halo-color = "#f8f2e2"
@@ -80,7 +81,7 @@ text-halo-color = "#f8f2e2"
 text-color = "#4f4030"
 text-halo-color = "#f8f2e2"
 [paint."poi_*"]
-text-color = "#6b5843"
+text-color = "#8f4e2a"
 text-halo-color = "#f8f2e2"
 [paint."poi_transit"]
 text-color = "#7a3b2e"

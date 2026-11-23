@@ -74,24 +74,25 @@ fill-color = "#101e2d"
 [paint."road_pier"]
 line-color = "#101e2d"
 
+# Ortsnamen im Ton des Grundes, POIs in der Markerfarbe (#d9a440, gemischt bis Kontrast 4,5:1)
 [paint."*label*"]
-text-color = "#d9eafd"
+text-color = "#daeafc"
 text-halo-color = "#101e2d"
 [paint."label_*"]
-text-color = "#d9eafd"
+text-color = "#daeafc"
 text-halo-color = "#101e2d"
 [paint."highway-name-*"]
 text-color = "#bdd0e4"
 text-halo-color = "#101e2d"
 [paint."poi_*"]
-text-color = "#a1b3c7"
+text-color = "#d9a440"
 text-halo-color = "#101e2d"
 [paint."poi_transit"]
 text-color = "#7dbdfd"
 [paint."water*label"]
 text-color = "#a4c9eb"
 [paint."airport"]
-text-color = "#a1b3c7"
+text-color = "#d9a440"
 text-halo-color = "#101e2d"
 
 # >>> Marker

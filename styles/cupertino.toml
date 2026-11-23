@@ -67,14 +67,15 @@ line-color = "#cfc8bc"
 [paint."*railway*"]
 line-color = "#c2bdb5"
 
+# Ortsnamen im Ton des Grundes, POIs in der Markerfarbe (#e3a83a, gemischt bis Kontrast 4,5:1)
 [paint."label_*"]
-text-color = "#2b2b2b"
+text-color = "#332a16"
 text-halo-color = "#ffffff"
 [paint."highway-name-*"]
 text-color = "#5a5a5a"
 text-halo-color = "#ffffff"
 [paint."poi_*"]
-text-color = "#6b6b6b"
+text-color = "#8b6928"
 [paint."water*label"]
 text-color = "#3f86c0"
 
