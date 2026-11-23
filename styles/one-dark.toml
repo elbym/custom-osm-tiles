@@ -1,0 +1,125 @@
+# One Dark: Kartenstil nach dem Editor-Theme One Dark aus Atom (https://github.com/atom/atom/tree/master/packages/one-dark-syntax, MIT).
+# Farben aus der Palette des Themes; dunkel.
+title = "One Dark"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "One"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "JetBrains Mono"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
+fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
+text_scale = 1.15
+attribution = "Farben nach Atom One Dark (MIT)"
+hide = ["poi_r20", "road_oneway*"]
+
+# Charakter: Regenbogen. Die Straßenhierarchie läuft durch die sieben Syntaxfarben des Themes:
+# Autobahn Rot, Bundesstraße Orange, Hauptstraße Gelb, Land-/Kreisstraße Grün, Nebenstraße Cyan, Zufahrt/Feldweg Blau,
+# Fußweg Violett (die unteren drei mit dem Grund gemischt, damit das Netz nicht flimmert). Kein Leuchtschein.
+[paint."background"]
+background-color = "#282c34"
+[paint."landuse-*"]
+fill-color = "#2c313c"
+fill-opacity = 1
+# Regenbogen: Wohn-, Gewerbe- und Industrieflächen sowie Häuser bekommen je nach OSM-ID eine der sieben Syntaxfarben
+# (ID / 10 modulo 7; die letzte Ziffer der ID ist der OSM-Typ). Flächen 22 %, Häuser 45 % mit dem Grund gemischt.
+# Wiese/Park Grün, Wald Violett, Wasser Blau.
+[paint."landuse-residential"]
+fill-color = ["match", ["%", ["floor", ["/", ["to-number", ["id"], 0], 10]], 7], 0, "#503a42", 1, "#4d443f", 2, "#524d44", 3, "#414d43", 4, "#324a53", 5, "#35495d", 6, "#4b3d59", "#503a42"]
+[paint."landuse-commercial"]
+fill-color = ["match", ["%", ["floor", ["/", ["to-number", ["id"], 0], 10]], 7], 0, "#503a42", 1, "#4d443f", 2, "#524d44", 3, "#414d43", 4, "#324a53", 5, "#35495d", 6, "#4b3d59", "#503a42"]
+[paint."landuse-industrial"]
+fill-color = ["match", ["%", ["floor", ["/", ["to-number", ["id"], 0], 10]], 7], 0, "#503a42", 1, "#4d443f", 2, "#524d44", 3, "#414d43", 4, "#324a53", 5, "#35495d", 6, "#4b3d59", "#503a42"]
+[paint."park"]
+fill-color = "#414d43"
+[paint."landcover-*"]
+fill-color = "#414d43"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#574367"
+[paint."landuse-cemetery"]
+fill-color = "#414d43"
+
+# Wasser in One-Blau (#61afef), 35 % mit dem Grund gemischt; Flüsse 45 %
+[paint."water*"]
+fill-color = "#3c5a75"
+line-color = "#426788"
+
+[paint."building*"]
+fill-color = ["match", ["%", ["floor", ["/", ["to-number", ["id"], 0], 10]], 7], 0, "#7b4951", 1, "#745e4a", 2, "#7d6f54", 3, "#5a7053", 4, "#3d6a74", 5, "#426788", 6, "#6f4e80", "#7b4951"]
+fill-outline-color = "#4b5263"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]                 # OSM Bright fasst minor/service/track in einem Layer zusammen
+line-color = ["match", ["get", "class"], "minor", "#4a949e", "#4a7ba4"]
+[paint."*-link"]
+line-color = "#4a949e"
+[paint."*-service-track"]
+line-color = "#4a7ba4"
+[paint."*-secondary-tertiary*"]
+line-color = "#98c379"
+[paint."*-primary*"]
+line-color = "#e5c07b"
+[paint."*-trunk*"]
+line-color = "#d19a66"
+[paint."*-motorway*"]
+line-color = "#e06c75"
+[paint."*-casing"]
+line-color = "#21252b"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#3e4451"
+fill-outline-color = "#3e4451"
+[paint."aeroway-*"]
+fill-color = "#3e4451"
+line-color = "#3e4451"
+[paint."*-path"]
+line-color = "#8f5da2"
+[paint."*railway*"]
+line-color = "#5c6370"
+[paint."road_area_pier"]
+fill-color = "#282c34"
+[paint."road_pier"]
+line-color = "#282c34"
+
+# Orts- und POI-Namen in der Akzentfarbe des Markers (#61afef)
+[paint."*label*"]
+text-color = "#61afef"
+text-halo-color = "#282c34"
+[paint."label_*"]
+text-color = "#61afef"
+text-halo-color = "#282c34"
+[paint."highway-name-*"]
+text-color = "#abb2bf"
+text-halo-color = "#282c34"
+[paint."poi_*"]
+text-color = "#5492c6"
+text-halo-color = "#282c34"
+[paint."poi_transit"]
+text-color = "#56b6c2"
+[paint."water*label"]
+text-color = "#61afef"
+[paint."airport"]
+text-color = "#5492c6"
+text-halo-color = "#282c34"
+
+# >>> Akzent-Beschriftung
+# Straßennummern ohne weißes Schild (Sprite-Bild, nicht umfärbbar), stattdessen in den Farben ihrer Straßenlinie:
+# Autobahn #e06c75, Bundesstraße #d19a66, Hauptstraße #e5c07b, sonst #98c379. Hauptstraßennamen #e5c07b.
+[layout."*shield*"]
+icon-image = ""
+text-size = 12
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#e06c75", "trunk", "#d19a66", "primary", "#e5c07b", "#98c379"]
+text-halo-color = "#282c34"
+text-halo-width = 1.5
+[paint."highway-name-major"]
+text-color = "#e5c07b"
+# <<< Akzent-Beschriftung
+
+# >>> Marker
+# Terminal-Marker: Kästchen "~/<--label>" mit Block-Cursor, Stiel und Punkt auf der Position
+[marker]
+type = "terminal"   # leaflet | terminal
+color = "#61afef"      # Rahmen, Cursor, Stiel
+color2 = "#98c379"     # Prompt ~/
+bg = "#282c34"
+fg = "#abb2bf"
+# <<< Marker

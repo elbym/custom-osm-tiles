@@ -26,6 +26,7 @@ Gilt für den eigenen Code und die eigenen Stil-Dateien dieses Repositorys.
 Ausgenommen und unter ihren eigenen Lizenzen:
 - Schriften in fonts-src/ (SIL Open Font License bzw. GUST Font License, Lizenzdatei je Ordner)
 - vendor/leaflet/ (BSD-2-Clause, © Volodymyr Agafonkin, CloudMade)
+- vendor/phosphor/ (Phosphor Icons, MIT, © Phosphor Icons; Lizenzdatei im Ordner)
 - style/base.json (OSM Bright, © OpenMapTiles, BSD-3-Clause / Design CC BY 4.0) und die
   Sprites ofm* (OpenFreeMap)
 - styles/wiki*.toml übernehmen das Design von Wikimedia Maps (© Mapbox, Wikimedia Foundation,

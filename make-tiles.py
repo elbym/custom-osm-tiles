@@ -146,7 +146,65 @@ def build_style(toml_path, font=None):
                 if fnmatch.fnmatch(l["id"], glob):
                     l.setdefault(kind, {}).update(
                         {k: v for k, v in props.items() if k.startswith(prefixes) or k == "visibility"})
+    # POI-Symbole: Phosphor im Kreis, Stärke nach Schriftgruppe, Farben aus dem Stil
+    p, accent = t["paint"], t.get("marker", {}).get("color", "#888888")
+    weight = {"mono": "bold", "serif": "light"}.get(fcfg.get("group"), "regular")
+    s["sprite"] = poi_sprite(weight, p["background"]["background-color"], accent, p["poi_*"]["text-color"],
+                             t.get("mode") == "dark")
     return s, f"{t.get('title', Path(toml_path).stem)} · {font}", t.get("attribution", ""), font
+
+
+STROKE = {"light": 12, "regular": 16, "bold": 24}  # Phosphor-Strichstärken im 256er-Raster
+
+
+def poi_sprite(weight, bg, accent, glyph, dark):
+    """Sprite wie style/ofm(@2x), aber die POI-Bilder aus style/icons.toml neu: Phosphor-Symbol in der POI-Farbe
+    auf einem Kreis in dezentem Akzent (dunkel 22 %, hell 16 % Akzent über dem Grund), Ring 45 %.
+    Liegt in style/sprites/ (gitignored, im Container unter /data); je Kombination nur einmal erzeugt."""
+    hexrgb = lambda h: [int(h[i:i + 2], 16) for i in (1, 3, 5)]
+    mix = lambda t: "#%02x%02x%02x" % tuple(round(b + (a - b) * t) for b, a in zip(hexrgb(bg), hexrgb(accent)))
+    disc, ring = mix(0.22 if dark else 0.16), mix(0.45)
+    name = f"sprites/{weight}-{bg[1:]}-{accent[1:]}-{glyph[1:]}"
+    icons = tomllib.loads((ROOT / "style" / "icons.toml").read_text())
+    for sfx in ("", "@2x"):
+        out = ROOT / "style" / f"{name}{sfx}.png"
+        if out.exists():
+            continue
+        out.parent.mkdir(exist_ok=True)
+        src = ROOT / "style" / f"ofm{sfx}"
+        idx = json.loads(src.with_suffix(".json").read_text())
+        w, h = map(int, subprocess.run(["magick", "identify", "-format", "%w %h", f"{src}.png"],
+                                       capture_output=True, text=True, check=True).stdout.split())
+        px = bytearray(subprocess.run(["magick", f"{src}.png", "RGBA:-"], capture_output=True, check=True).stdout)
+        svg = []
+        for key, r in idx.items():
+            icon = icons.get(key.removesuffix("_11"))
+            if not icon:
+                continue
+            for y in range(r["y"], r["y"] + r["height"]):  # altes Bild ausradieren
+                px[(y * w + r["x"]) * 4:(y * w + r["x"] + r["width"]) * 4] = bytes(r["width"] * 4)
+            d, pr = r["width"], r["pixelRatio"]
+            f = ROOT / "vendor" / "phosphor" / weight / f"{icon}.svg"
+            if not f.exists():  # eigene Ergänzung: Linien, Strichstärke je Phosphor-Stärke
+                f = ROOT / "vendor" / "phosphor-extra" / f"{icon}.svg"
+            body = re.sub(r"^<svg[^>]*>|</svg>\s*$", "", f.read_text()).replace(
+                'stroke-width="16"', f'stroke-width="{STROKE[weight]}" color="{glyph}"')
+            g = d * 0.62  # Symbolgröße relativ zum Kreis
+            svg.append(f'<circle cx="{r["x"] + d / 2}" cy="{r["y"] + d / 2}" r="{d / 2 - pr / 2}" fill="{disc}" '
+                       f'stroke="{ring}" stroke-width="{pr}"/>'
+                       f'<g transform="translate({r["x"] + (d - g) / 2},{r["y"] + (d - g) / 2}) scale({g / 256})" '
+                       f'fill="{glyph}">{body}</g>')
+        base, over = out.with_suffix(".base.png"), out.with_suffix(".svg")
+        subprocess.run(["magick", "-size", f"{w}x{h}", "-depth", "8", "RGBA:-", str(base)], input=bytes(px), check=True)
+        over.write_text(f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}">{"".join(svg)}</svg>')
+        over_png = out.with_suffix(".over.png")
+        subprocess.run(["inkscape", "--export-type=png", f"--export-filename={over_png}", str(over)],
+                       capture_output=True, check=True)
+        subprocess.run(["magick", str(base), str(over_png), "-composite", str(out)], check=True)
+        for f in (base, over, over_png):
+            f.unlink()
+        shutil.copy(src.with_suffix(".json"), out.with_suffix(".json"))
+    return name
 
 
 def write_page(out, cfg):

@@ -6,6 +6,8 @@
 > auf der Webseite integrieren. Fertig. 
 > Ohne eigenen Abschnitt im Datenschutz. 
 
+**Du brauchst eine einfache Karte, die zur Typografie deiner Webseite passt?** Im einfachsten Fall wählst du einen Stil und eine Schrift, gibst Koordinaten an und bekommst eine fertige Slippy Map für deine Webseite oder App. Im schlimmsten Fall kannst du dich nicht entscheiden und vergleichst Stile und Schriften nebeneinander ([Varianten vergleichen](#varianten-vergleichen), [Live-Vorschau](https://elbym.github.io/custom-osm-tiles/)).
+
 Statische Kartenkacheln (PNG mit 32-Farben-Palette, wahlweise WebP) für Leaflet, nur für einen kleinen Bereich um einen Marker, selbst gehostet. Die Website braucht damit keine Anfragen an Kartendienste; auch Leaflet liegt lokal.
 
 ## Vorschau
@@ -25,6 +27,7 @@ Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bi
 | **Catppuccin**<br><sub>Nerd</sub> | <a href="docs/previews/catppuccin-latte.png"><img src="docs/previews/catppuccin-latte.png" width="256" alt="Catppuccin Latte"></a><br>Catppuccin Latte | <a href="docs/previews/catppuccin-mocha.png"><img src="docs/previews/catppuccin-mocha.png" width="256" alt="Catppuccin Mocha"></a><br>Catppuccin Mocha |
 | **Dracula**<br><sub>Nerd</sub> | <a href="docs/previews/dracula-light.png"><img src="docs/previews/dracula-light.png" width="256" alt="Alucard"></a><br>Alucard | <a href="docs/previews/dracula.png"><img src="docs/previews/dracula.png" width="256" alt="Dracula"></a><br>Dracula |
 | **Everforest**<br><sub>Nerd</sub> | <a href="docs/previews/everforest-light.png"><img src="docs/previews/everforest-light.png" width="256" alt="Everforest Light"></a><br>Everforest Light | <a href="docs/previews/everforest-dark.png"><img src="docs/previews/everforest-dark.png" width="256" alt="Everforest Dark"></a><br>Everforest Dark |
+| **One**<br><sub>Nerd</sub> | <a href="docs/previews/one-light.png"><img src="docs/previews/one-light.png" width="256" alt="One Light"></a><br>One Light | <a href="docs/previews/one-dark.png"><img src="docs/previews/one-dark.png" width="256" alt="One Dark"></a><br>One Dark |
 | **Gruvbox**<br><sub>Nerd</sub> | <a href="docs/previews/gruvbox-light.png"><img src="docs/previews/gruvbox-light.png" width="256" alt="Gruvbox Light"></a><br>Gruvbox Light | <a href="docs/previews/gruvbox-dark.png"><img src="docs/previews/gruvbox-dark.png" width="256" alt="Gruvbox Dark"></a><br>Gruvbox Dark |
 | **Nightfox**<br><sub>Nerd</sub> | <a href="docs/previews/dayfox.png"><img src="docs/previews/dayfox.png" width="256" alt="Dayfox"></a><br>Dayfox | <a href="docs/previews/nightfox.png"><img src="docs/previews/nightfox.png" width="256" alt="Nightfox"></a><br>Nightfox |
 | **Solarized**<br><sub>Nerd</sub> | <a href="docs/previews/solarized-light.png"><img src="docs/previews/solarized-light.png" width="256" alt="Solarized Light"></a><br>Solarized Light | <a href="docs/previews/solarized-dark.png"><img src="docs/previews/solarized-dark.png" width="256" alt="Solarized Dark"></a><br>Solarized Dark |
@@ -37,7 +40,7 @@ pip install -r requirements.txt     # fontTools
 cargo install build_pbf_glyphs      # Rust-Programm, wandelt Schriften in Karten-Glyphen um
 ```
 
-Außerdem nötig: podman und pngquant (`sudo dnf install pngquant`). Beim ersten Lauf lädt das Skript die OSM-Daten der Region und die Ersatzschrift Noto Sans und erzeugt die Glyphen. Das dauert einmalig einige Minuten.
+Außerdem nötig: podman, pngquant und Inkscape (`sudo dnf install pngquant inkscape`). Beim ersten Lauf lädt das Skript die OSM-Daten der Region und die Ersatzschrift Noto Sans und erzeugt die Glyphen. Das dauert einmalig einige Minuten.
 
 ## Karte für eine Website
 
@@ -131,6 +134,7 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 | **Catppuccin Latte** / **Mocha** | Nerd | Catppuccin (MIT) |
 | **Alucard** / **Dracula** | Nerd | Dracula, helle Variante nach der offiziellen Alucard-Palette (MIT) |
 | **Everforest Light** / **Dark** | Nerd | Everforest (MIT) |
+| **One Light** / **Dark** | Nerd | Atom One (MIT); Regenbogen: Straßenhierarchie durch die sieben Syntaxfarben |
 | **Gruvbox Light** / **Dark** | Nerd | Gruvbox (MIT) |
 | **Solarized Light** / **Dark** | Nerd | Solarized (MIT) |
 | **Tokyo Night Day** / **Night** | Nerd | tokyonight.nvim (Apache-2.0) |
@@ -142,7 +146,9 @@ Die Standard-Stile haben einen **Sprechblasen-Marker** (angelehnt an das Heroico
 
 Die Nerd-Stile haben statt des Leaflet-Markers einen **Terminal-Marker**: ein Kästchen `~/<label>` mit Block-Cursor (nicht blinkend) in den Akzentfarben, darunter Stiel und Punkt auf der Position (Abschnitt `[marker]` in der Stil-Datei: `type = "terminal"`, `color`, `color2`, `bg`, `fg`). Der Text nutzt die Monoschrift des Betrachters (`ui-monospace`).
 
-Grünflächen (Parks, Wiesen, Wald) erscheinen in den Nerd-Stilen in der Signaturfarbe des Themes, mit dem Grund gemischt: Tokyo Night Neon-Pink, Dracula/Alucard Lila, Catppuccin Peach, Nightfox/Dayfox Cyan, Solarized Gold (bei Solarized Dark in OKLCH bestimmt, weil die Mischung mit dem blaugrünen Grund sonst Grün ergäbe), Gruvbox Orange. Everforest bleibt grün, weil Grün dort die Signaturfarbe ist.
+POI-Symbole sind [Phosphor Icons](https://phosphoricons.com/) (MIT) im Kreis: Kreis in einer dezenten Variante der Akzentfarbe des Stils, Symbol in seiner POI-Farbe. Die Strichstärke folgt der Schrift (Mono fett, Serif leicht, sonst normal). Zuordnung in `style/icons.toml`. Motive, die Phosphor fehlen (Riesenrad, Hubschrauber, Obelisk, Rutsche, Vulkan, Elefant, Amphore, Staudamm), sind im Phosphor-Stil nachgezeichnet (`vendor/phosphor-extra/`).
+
+Grünflächen (Parks, Wiesen, Wald) erscheinen in den Nerd-Stilen in der Signaturfarbe des Themes, mit dem Grund gemischt: Tokyo Night Neon-Pink, Dracula/Alucard Lila, Catppuccin Peach, Nightfox/Dayfox Cyan, Solarized Gold (bei Solarized Dark in OKLCH bestimmt, weil die Mischung mit dem blaugrünen Grund sonst Grün ergäbe), Gruvbox Orange. One (Regenbogen) zeigt Wald violett, Wiesen grün und Häuser je nach OSM-ID in einer der sieben Farben. Everforest bleibt grün, weil Grün dort die Signaturfarbe ist.
 
 In den Nerd-Stilen erscheinen Straßennummern (A, B, L, K) ohne weißes Schild, dafür in den Akzentfarben des Themes, je nach Straßenart (Block „Akzent-Beschriftung“ am Ende der Datei).
 
@@ -220,4 +226,4 @@ Ab z14 enthalten alle drei praktisch das volle OSM-Detail; Unterschiede gibt es 
 
 ## Lizenz
 
-Eigener Code und eigene Stile: MIT (siehe `LICENSE`). Schriften, Leaflet, OSM Bright und das Wiki-Design stehen unter ihren eigenen Lizenzen, Details in `LICENSE`.
+Eigener Code und eigene Stile: MIT (siehe `LICENSE`). Schriften, Leaflet, Phosphor Icons, OSM Bright und das Wiki-Design stehen unter ihren eigenen Lizenzen, Details in `LICENSE`.

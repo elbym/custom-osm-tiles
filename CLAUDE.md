@@ -7,7 +7,7 @@ Pre-renders static Leaflet tiles (palette PNG via pngquant by default, or WebP) 
 ## Commands
 
 ```sh
-pip install -r requirements.txt && cargo install build_pbf_glyphs oxipng   # once; podman (not docker) and pngquant must be installed
+pip install -r requirements.txt && cargo install build_pbf_glyphs oxipng   # once; podman (not docker) pngquant and inkscape must be installed
 
 ./make-tiles.py                                        # defaults: styles/clear.toml, Bielefeld, 5 km, z10-18 -> out/clear
 ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --font Inter --retina --out out/kunde-xy
@@ -72,6 +72,13 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 
 ## Styles
 
+- POI icons: `build_style()` points `sprite` at `poi_sprite(weight, bg, accent, glyph, dark)`, a copy of `style/ofm(@2x)` in `style/sprites/`. That folder is gitignored, mounted as `/data` in the container, and cached per combination.
+  - Every image listed in `style/icons.toml` (OSM Bright sprite name without `_11` → Phosphor icon, vendored in `vendor/phosphor/<weight>/`, MIT) is erased and redrawn as one SVG, rendered by a single Inkscape call.
+  - Drawing: circle in the marker accent mixed over the background (dark 22 %, light 16 %), ring 45 %, glyph 62 % of the circle in the style's `poi_*` text colour.
+  - Motifs Phosphor lacks are drawn by us in `vendor/phosphor-extra/` (8 icons). They are line art with `stroke-width="16"`, which `poi_sprite()` replaces per weight via `STROKE` (light 12, regular 16, bold 24). Already requested upstream: helicopter #909, playground #577 (phosphor-icons/homepage). Phosphor does not accept icon contributions, only requests.
+  - Weight follows the font group: mono → bold, serif → light, else regular.
+  - Shapes, shields and patterns stay from ofm.
+  - User request (2026-11-23): Phosphor instead of the white OSM Bright discs, still in a circle, the circle a subtle variant of the accent. Sprite PNGs cannot be recoloured by paint properties (not SDF).
 - `style/base.json` is OpenFreeMap's OSM Bright, kept close to upstream. The only changes: the source is `mbtiles://{osm}`, the `ne2_shaded` raster layer is removed, and glyphs and the sprite (`ofm*`) are local. Do all customisation in `styles/*.toml`.
 - TOML keys:
   - `title` is the window title; the font name is appended.
@@ -88,7 +95,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - The label is set via `textContent`, never as HTML.
   - `streifen.html` carries a copy of `markerIcon()` and its CSS, and uses the middle strip's marker. Keep both copies in sync.
 - `--reindex` rewrites every `out/*/index.html` from `template.html` and the current style metadata (category, mode, family, attribution, marker) without rendering. Use it after template or marker changes.
-- Nerd styles show green areas (`park`, `landcover-*`, `landuse-cemetery`, `landcover-wood`) in the theme's signature colour instead of green (Tokyo Night magenta2 pink, Dracula/Alucard purple, Catppuccin Latte peach, Nightfox/Dayfox cyan, Solarized yellow, Gruvbox orange), mixed with the background: dark 20 % (wood 28 %), light 25 % (wood 35 %). This was a user request; Tokyo Night uses `magenta2`. Exceptions: Everforest stays green (Everforest green is its signature colour). catppuccin-mocha uses Catppuccin green `#a6e3a1` (18 %, wood 26 %) as part of its pastel character; in solarized-dark the RGB mix with the teal base turned green, so it uses an OKLCH dark gold (#4b3b13), mixed again 45 % (wood 60 %) with base03 so the petrol ground dominates.
+- Nerd styles show green areas (`park`, `landcover-*`, `landuse-cemetery`, `landcover-wood`) in the theme's signature colour instead of green (Tokyo Night magenta2 pink, Dracula/Alucard purple, Catppuccin Latte peach, Nightfox/Dayfox cyan, Solarized yellow, Gruvbox orange; One: wood purple, grass green, see one-dark below), mixed with the background: dark 20 % (wood 28 %), light 25 % (wood 35 %). This was a user request; Tokyo Night uses `magenta2`. Exceptions: Everforest stays green (Everforest green is its signature colour). catppuccin-mocha uses Catppuccin green `#a6e3a1` (18 %, wood 26 %) as part of its pastel character; in solarized-dark the RGB mix with the teal base turned green, so it uses an OKLCH dark gold (#4b3b13), mixed again 45 % (wood 60 %) with base03 so the petrol ground dominates.
 - Dark nerd styles each have their own character (user request, because they all looked alike); every colour is still a palette colour or a mix of two. Each file says its character in the comment above `[paint."background"]`.
   - Neon glow (blurred casing in the accent colour) only on `dracula`, `tokyonight-night` and `cyberpunk`.
   - `catppuccin-mocha`: pastel, no glow, surfaces stepped crust < mantle < base < surface, roads lavender/mauve/peach, water sapphire.
@@ -96,6 +103,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - `nightfox`: muted navy, no glow, water deep blue, orange motorway the only warm accent.
   - `dracula`: colourful: secondary/tertiary orange, paths green, minor roads comment, water cyan 55 %.
   - `gruvbox-dark`: warm retro, no glow, brown-grey bg steps, roads bg3/fg4, yellow primary, orange motorway, muted blue water.
+  - `one-dark`/`one-light` ("rainbow", user request): road hierarchy runs through the 7 syntax colours, motorway red > trunk orange > primary yellow > secondary/tertiary green > minor cyan > service/track blue (a `match` on `class`, because OSM Bright's `highway-minor` holds minor+service+track) > path violet; the lower three are mixed with the background. No glow. Buildings (45 %) and residential/commercial/industrial landuse (22 %) get one of the 7 colours by OSM id (`["%", ["floor", ["/", ["id"], 10]], 7]`; the last id digit is the OSM type). Feature ids exist in our Planetiler mbtiles; at z12 merged landuse looks mostly one colour, so the rainbow shows from z13 (buildings). Grass/park/cemetery green, wood violet, water blue.
   - `everforest-dark`: soft and low-contrast, no glow, green-grey ground, grey/cream roads, yellow primary, orange only motorway.
   - `tokyonight-night`: blue neon for trunk/primary, magenta2 motorway, water blue0.
   - Road ref and major-name labels use the same colours as their road lines.
@@ -115,7 +123,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
     - `wiki`: Wikimedia Maps colours from wikimedia/osm-bright.tm2. The design is CC BY 3.0, so this attribution must stay, in `wiki-dark` too.
   - **Standard dark:** `clear-dark`, `cupertino-dark`, `north-dark`, `osm-dark`, `wiki-dark`, `americana-dark`, `papier-dark`, `protomaps-dark`.
   - **Nerd, not editor themes:** `cyberpunk` ("Neon Cyberpunk", colours 1:1 from maptoposter `neon_cyberpunk.json`, MIT, neon glow on roads) and `cyberpunk-day` (own light counterpart: same hues darkened, no glow).
-  - **Nerd** (editor-theme palettes): `dayfox`/`nightfox`, `catppuccin-latte`/`-mocha`, `dracula-light` ("Alucard", the official Dracula light palette) / `dracula`, `solarized-light`/`-dark`, `gruvbox-light`/`-dark`, `everforest-light`/`-dark` (all MIT), and `tokyonight-day`/`-night` (Apache-2.0).
+  - **Nerd** (editor-theme palettes): `dayfox`/`nightfox`, `catppuccin-latte`/`-mocha`, `dracula-light` ("Alucard", the official Dracula light palette) / `dracula`, `solarized-light`/`-dark`, `gruvbox-light`/`-dark`, `everforest-light`/`-dark`, `one-light`/`-dark` (Atom One) (all MIT), and `tokyonight-day`/`-night` (Apache-2.0).
 - For the recreations, only colour values were taken from the originals, never their style files. That is what the user asked for, to avoid licence problems, and each recreation names its inspiration in `attribution`.
 - Dark and editor-theme styles share one role mapping: bg, landuse, buildings, water, green, three road tiers, text.
   - The `*-dark` standard styles were derived in OKLCH, not by inversion (inversion makes white roads darker than the ground). The light background's hue becomes a dark neutral ramp, and accents are relit.
