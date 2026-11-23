@@ -199,6 +199,25 @@ Ohne Dithering (`--nofs`), sonst werden die Dateien größer und die Flächen un
 
 Namensnennung auf der Karte: © OpenStreetMap-Mitwirkende (ODbL), © OpenMapTiles, dazu das `attribution` des Stils.
 
+### Warum OpenMapTiles?
+
+Das Schema legt fest, welche Layer und Felder die Kacheln haben und was bei welchem Zoom wegfällt oder vereinfacht wird (Generalisierung). Planetiler bringt es fertig mit, und der Basis-Stil OSM Bright ist dafür gebaut; alle Stile hier sind nur Farb- und Schrift-Overrides darauf. Der Preis ist die Namensnennung (CC BY 4.0).
+
+Geprüfte Alternativen (Stand 11/2026, aus dem Gedächtnis zusammengefasst):
+
+| | OpenMapTiles | Shortbread (Geofabrik) | Protomaps Basemap |
+|---|---|---|---|
+| Grundidee | ausführlich, für jeden Stil | schlank, stabil, bewusst einfach | Kartendesign Teil des Schemas |
+| Max. Zoom der Daten | 14 | 14 | 15 |
+| Steuerung je Zoom | feste Schwellen je `class` + `rank` (1 = wichtig) für POIs/Orte | feste Schwellen je Layer, kaum Rangfolge | jedes Objekt trägt ein berechnetes `min_zoom` |
+| POIs | ab ~z12, nach Wichtigkeit gestaffelt | im Wesentlichen erst ab z14 | nach Art und Größe gestaffelt |
+| Flächen | klein zusammengefasst, vereinfacht | weniger zusammengefasst | niedrige Zooms aus globalen Landbedeckungsdaten |
+| Gebäude | ab z13 | z14 | bis z15 |
+| Kachelgröße | am größten | am kleinsten | mittel |
+| Lizenz Schema | CC BY 4.0 | CC0 | BSD, Design CC0 |
+
+Ab z14 enthalten alle drei praktisch das volle OSM-Detail; Unterschiede gibt es nur bei z10–13. Ein Wechsel würde `style/base.json` und alle Stile betreffen (Layer-Namen ändern sich) und hier nichts Sichtbares verbessern, nur „© OpenMapTiles“ sparen. `rank` nutzen wir, um unwichtige POIs auszublenden (`poi_r20`).
+
 ## Lizenz
 
 Eigener Code und eigene Stile: MIT (siehe `LICENSE`). Schriften, Leaflet, OSM Bright und das Wiki-Design stehen unter ihren eigenen Lizenzen, Details in `LICENSE`.

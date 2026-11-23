@@ -64,6 +64,12 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 - `compare.html` is a 2×2 grid of iframes. Switching mode swaps each pick for its family counterpart in the same font.
 - Map sync uses `postMessage`, because file:// iframes are cross-origin: `template.html` posts on `moveend` when framed, and `compare.html` forwards the message to the other frames.
 
+**Schema choice:** OpenMapTiles was kept on purpose (comparison table in README, "Warum OpenMapTiles?").
+- Shortbread (Geofabrik, CC0): leaner, POIs mostly only from z14, little ranking.
+- Protomaps Basemap (BSD/CC0): a per-feature `min_zoom`, data up to z15.
+- From z14 on, all three carry full OSM detail. They only differ at z10–13.
+- Switching would mean rewriting `style/base.json` and every style's layer globs, only to drop the "© OpenMapTiles" credit. The user decided not to switch (2026-11-23). We rely on OMT's `rank` (e.g. hiding `poi_r20`).
+
 ## Styles
 
 - `style/base.json` is OpenFreeMap's OSM Bright, kept close to upstream. The only changes: the source is `mbtiles://{osm}`, the `ne2_shaded` raster layer is removed, and glyphs and the sprite (`ofm*`) are local. Do all customisation in `styles/*.toml`.
