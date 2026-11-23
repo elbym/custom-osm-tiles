@@ -22,17 +22,30 @@
 <div id="bar" class="group absolute z-[1001] flex items-start gap-2 rounded-lg bg-white/90 p-2 shadow-lg backdrop-blur dark:bg-neutral-900/90
   flex-col cols:top-10 cols:left-2 rows:right-2 rows:top-[max(.5rem,env(safe-area-inset-top))] rows:items-end
   max-w-[calc(100%-1rem)] compact:p-1.5">
+  <!-- Immer sichtbar: Stile einzeln durchschalten (‹ ›, "Alle" zurück zu den Streifen). compact: dazu Hell/Dunkel
+       neben "Optionen" (oben rechts), die große Gruppe in der Leiste entfällt -->
+  <div class="flex items-center gap-2">
+  <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="solo" role="group" aria-label="Stile einzeln">
+    <button value="-1" title="Vorheriger Stil" aria-label="Vorheriger Stil" class="px-2.5 py-1">‹</button>
+    <button value="0" title="Alle Stile als Streifen" class="border-x border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Alle</button>
+    <button value="1" title="Nächster Stil" aria-label="Nächster Stil" class="px-2.5 py-1">›</button>
+  </span>
   <button id="bar-toggle" aria-expanded="false" aria-controls="bar-items"
     class="hidden max-w-full items-center gap-2 rounded-md border border-neutral-400 px-3 py-1 dark:border-neutral-600 compact:inline-flex">
     <span aria-hidden="true" class="w-3 text-center group-data-open:hidden">☰</span><span aria-hidden="true" class="hidden w-3 text-center group-data-open:inline">✕</span>
     <span>Optionen</span>
   </button>
+  <span class="hidden overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600 compact:inline-flex" id="mode-c" role="group" aria-label="Modus">
+    <button value="light" title="Hell" aria-label="Hell" class="px-2.5 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">☀&#xFE0E;</button>
+    <button value="dark" title="Dunkel" aria-label="Dunkel" class="border-l border-neutral-400 px-2.5 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">☾&#xFE0E;</button>
+  </span>
+  </div>
   <div id="bar-items" class="flex flex-wrap items-center gap-2 rows:justify-end compact:hidden compact:group-data-open:flex">
   <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="cat" role="group" aria-label="Gruppe">
     <button value="standard" class="px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Standard</button>
     <button value="nerd" class="border-l border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Nerd</button>
   </span>
-  <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="mode" role="group" aria-label="Modus">
+  <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600 compact:hidden" id="mode" role="group" aria-label="Modus">
     <button value="light" class="px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Hell</button>
     <button value="dark" class="border-l border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Dunkel</button>
   </span>
@@ -109,9 +122,9 @@ const strips = shown.map(fam => [fam, all.find(([, c]) => inSet(c) && c.family =
 
 const go = (key, val) => { q.set(key, val); location.search = q; };
 for (const [id, val] of [['cat', cat], ['mode', mode]]) {
-  for (const b of document.querySelectorAll(`#${id} button`)) {
+  for (const b of document.querySelectorAll(`#${id} button, #${id}-c button`)) {
     b.setAttribute('aria-pressed', b.value === val);
-    b.onclick = () => { if (id === 'cat') q.delete('aus'); go(id, b.value); };  // aus= gilt je Gruppe
+    b.onclick = () => { if (id === 'cat') { q.delete('aus'); q.delete('solo'); } go(id, b.value); };  // aus= gilt je Gruppe
   }
 }
 const sel = document.getElementById('font');
@@ -152,6 +165,7 @@ map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>')
 map.attributionControl.addAttribution('© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>, © <a href="https://openmaptiles.org/">OpenMapTiles</a> | <a href="#about">Über</a>');
 // Vorbilder der Stile (Hydda, Wikimedia CC BY 3.0, Editor-Themes …) stehen nur im Über-Dialog, die Kartenecke bleibt kurz
 
+const layers = strips.map(() => []);
 const panes = strips.map(([, v], i) => {
   const pane = map.createPane('strip' + i);
   pane.style.zIndex = 200 + i;
@@ -159,13 +173,34 @@ const panes = strips.map(([, v], i) => {
   const [name, c] = v;
   const ext = c.ext || 'webp';
   const url = name + (c.retina ? `/tiles/{z}/{x}/{y}{r}.${ext}` : `/tiles/{z}/{x}/{y}.${ext}`);
-  L.tileLayer(url, { pane: 'strip' + i, maxNativeZoom: Math.min(c.zmax, c.detail_from - 1), bounds: c.bounds }).addTo(map);
-  if (c.zmax >= c.detail_from) L.tileLayer(url, { pane: 'strip' + i, minZoom: c.detail_from, bounds: c.detail }).addTo(map);
+  layers[i].push(L.tileLayer(url, { pane: 'strip' + i, maxNativeZoom: Math.min(c.zmax, c.detail_from - 1), bounds: c.bounds }));
+  if (c.zmax >= c.detail_from) layers[i].push(L.tileLayer(url, { pane: 'strip' + i, minZoom: c.detail_from, bounds: c.detail }));
   return pane;
 });
 // Marker im Stil des mittleren Streifens (dort liegt er beim Öffnen)
 const mid = strips[Math.floor(strips.length / 2)][1] || strips.find(([, v]) => v)[1];
-L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker), title: mid?.[1].marker?.label }).addTo(map);
+const marker = L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker), title: mid?.[1].marker?.label }).addTo(map);
+
+// Einzelansicht (?solo=Familie): nur ein Stil bildschirmfüllend, ‹ › schalten ohne Neuladen weiter, "Alle" zurück.
+// Ausgeblendete Streifen verlieren ihre Kachelebenen, damit nur der sichtbare Stil lädt.
+const rendered = strips.flatMap(([, v], i) => v ? [i] : []);
+let solo = strips.findIndex(([fam, v]) => v && fam === q.get('solo'));
+const visible = i => solo < 0 || i === solo;
+function showSolo() {
+  layers.forEach((ls, i) => ls.forEach(l => visible(i) ? l.addTo(map) : l.remove()));
+  [...document.getElementById('titles').children].forEach((cell, i) => cell.hidden = !visible(i));
+  const m = (strips[solo]?.[1] || mid)?.[1].marker;
+  marker.setIcon(markerIcon(m)); marker.options.title = m?.label;
+  for (const b of document.querySelectorAll('#solo button')) if (b.value === '0') b.setAttribute('aria-pressed', solo < 0);
+  if (solo < 0) q.delete('solo'); else q.set('solo', strips[solo][0]);
+  history.replaceState(null, '', '?' + q);
+  clip();
+}
+for (const b of document.querySelectorAll('#solo button')) b.onclick = () => {
+  const d = +b.value, k = rendered.indexOf(solo), n = rendered.length;
+  solo = !d ? -1 : rendered[k < 0 ? (d > 0 ? 0 : n - 1) : (k + d + n) % n];
+  showSolo();
+};
 
 // Teilung (?split=cols|rows): ohne Angabe nach Ausrichtung (Hochformat waagerecht). data-split am <html>
 // steuert die Tailwind-Varianten cols:/rows:, clip() die Streifen. Umschalten ohne Neuladen.
@@ -184,8 +219,10 @@ for (const b of document.querySelectorAll('#split button')) b.onclick = () => {
 
 // Streifen-Zuschnitt: Panes liegen im verschobenen mapPane, daher dessen Position abziehen
 function clip() {
-  const size = map.getSize(), pos = L.DomUtil.getPosition(map.getPane('mapPane')), n = panes.length;
-  panes.forEach((pane, i) => {
+  const size = map.getSize(), pos = L.DomUtil.getPosition(map.getPane('mapPane'));
+  const n = solo < 0 ? panes.length : 1;
+  panes.forEach((pane, j) => {
+    const i = solo < 0 ? j : 0;
     let x0 = 0, x1 = size.x, y0 = 0, y1 = size.y;
     if (split === 'rows') { y0 = size.y * i / n; y1 = size.y * (i + 1) / n; }
     else { x0 = size.x * i / n; x1 = size.x * (i + 1) / n; }
@@ -195,7 +232,6 @@ function clip() {
 }
 map.on('move zoom viewreset resize', clip);
 portrait.addEventListener('change', () => { if (!q.get('split')) setSplit(); map.invalidateSize(); clip(); });
-clip();
 
 // Stilnamen je Streifen bzw. Hinweis, wenn die Familie diesen Modus/diese Schrift nicht hat
 const head = document.getElementById('titles');
@@ -211,6 +247,8 @@ for (const [fam, v] of strips) {
     tag.classList.add('italic', 'text-neutral-500');
   }
 }
+
+showSolo();
 
 // Über-Dialog: Vorbilder der Stile aus deren Namensnennung
 const about = document.getElementById('about');

@@ -56,6 +56,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - Full screen on iPhone: `#map` and `#titles` are `fixed h-lvh` (behind Safari's bars, `viewport-fit=cover`); `.leaflet-bottom` is lifted by `100lvh - 100dvh + safe-area` so zoom and attribution stay visible.
   - On small screens (custom variant `compact:` in `src/streifen.css` = portrait or height ≤ 32rem) the options bar is collapsed to a "☰ Optionen" button (top right in portrait, because the attribution sits at the bottom). It toggles `data-open` on `#bar`; tapping the map or Esc closes it.
 - The "Stile" dropdown (`<details id="pick">`) lists the families of the current category as checkboxes. Unchecked ones go into `?aus=Fam1,Fam2`, applied (page reload) when the dropdown closes; at least one strip always stays, and switching category clears `aus`.
+- Single view (`?solo=Family`, user request 2026-11-23): the always-visible group "‹ Alle ›" at the top of `#bar` shows one style full-screen and steps through the rendered families without reloading. Hidden strips get their tile layers removed, and the marker takes the shown style. On compact screens a small ☀/☾ group (`#mode-c`) sits next to "Optionen" and replaces the `#mode` group in the collapsed bar.
 - The "Über" dialog holds all attributions. Keep it complete; the user insisted on this.
 
 **Preview pages** (opened via file://):
