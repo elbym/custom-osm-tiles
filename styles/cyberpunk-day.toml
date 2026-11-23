@@ -1,6 +1,7 @@
 # Cyberpunk Day: helles Gegenstück zu Neon Cyberpunk (eigener Entwurf; die Vorlage maptoposter hat keine helle
-# Variante). Gleiche Farbtöne Magenta/Cyan, aber dunkler und gesättigt für hellen Grund; kein Leuchtschein
-# (wirkt auf Weiß verwaschen), stattdessen klare Kanten.
+# Variante). "Synthwave bei Tag": reine Neonfarben Magenta/Cyan, Straßen mit farbigem, weichgezeichnetem
+# Schein statt dunkler Kante, Nebenstraßen als schwach leuchtende Cyan-Drähte. Der Grund ist leicht lavendel
+# getönt, weil ein Schein auf reinem Weiß verpufft. Orts- und Hauptstraßennamen mit leuchtender Kontur.
 title = "Cyberpunk Day"
 category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
 mode = "light"          # light | dark
@@ -14,9 +15,9 @@ attribution = "Farben nach maptoposter Neon Cyberpunk (MIT), helle Variante"
 hide = ["poi_r20", "road_oneway*"]
 
 [paint."background"]
-background-color = "#f4f4fa"
+background-color = "#eee8fa"           # Lavendel getönt (3)
 [paint."landuse-*"]
-fill-color = "#efeff7"
+fill-color = "#e9e2f7"
 fill-opacity = 1
 [paint."park"]
 fill-color = "#fbb6ee"                 # Pink
@@ -29,12 +30,12 @@ fill-color = "#f79be6"
 fill-color = "#fbb6ee"
 
 [paint."water*"]
-fill-color = "#cff4f8"                 # helles Eiscyan
-line-color = "#8fe3ec"
+fill-color = "#9ef3ff"                 # Neon-Cyan (6)
+line-color = "#5eeaff"
 
 [paint."building*"]
-fill-color = "#e6e6f2"
-fill-outline-color = "#d3d0ea"
+fill-color = "#e3dcf4"
+fill-outline-color = "#d4caee"
 
 # Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
 [paint."*-minor*"]
@@ -46,21 +47,32 @@ line-color = "#ffffff"
 [paint."*-secondary-tertiary*"]
 line-color = "#ffffff"
 [paint."*-primary*"]
-line-color = "#00a5b5"                 # tiefes Cyan
+line-color = "#00e5ff"                 # reines Neon-Cyan (1)
 [paint."*-trunk*"]
-line-color = "#00a5b5"
+line-color = "#00e5ff"
 [paint."*-motorway*"]
-line-color = "#d000c8"                 # sattes Magenta
+line-color = "#ff00e6"                 # reines Neon-Magenta (1)
+# Ränder als Leuchtschein in der Straßenfarbe (2); Nebenstraßen als schwach leuchtende Cyan-Drähte (5)
 [paint."*-casing"]
-line-color = "#8cc7cf"                 # Petrol, hell
+line-color = "#00e5ff"
+line-blur = 1.5
+line-opacity = 0.4
 [paint."*-secondary-tertiary*-casing"]
-line-color = "#4fa3ad"
+line-color = "#00e5ff"
+line-blur = 2.5
+line-opacity = 0.5
 [paint."*-primary*-casing"]
-line-color = "#00737f"
+line-color = "#00e5ff"
+line-blur = 4
+line-opacity = 0.55
 [paint."*-trunk*-casing"]
-line-color = "#00737f"
+line-color = "#00e5ff"
+line-blur = 4
+line-opacity = 0.55
 [paint."*-motorway*-casing"]
-line-color = "#8a0085"
+line-color = "#ff00e6"
+line-blur = 5
+line-opacity = 0.6
 [paint."highway-area"]                 # Fußgängerzonen, Plätze
 fill-color = "#ffffff"
 fill-outline-color = "#ffffff"
@@ -68,26 +80,32 @@ fill-outline-color = "#ffffff"
 fill-color = "#ffffff"
 line-color = "#ffffff"
 [paint."*-path"]
-line-color = "#4fa3ad"
+line-color = "#00c8e0"
 [paint."*railway*"]
-line-color = "#9a96b8"
+line-color = "#9a8fc4"
 [paint."road_area_pier"]
-fill-color = "#f4f4fa"
+fill-color = "#eee8fa"
 [paint."road_pier"]
-line-color = "#f4f4fa"
+line-color = "#eee8fa"
 
-# Orts- und POI-Namen in der Akzentfarbe des Markers (#d000c8, mit Text/Grund gemischt für Kontrast)
+# Orts- und POI-Namen in der Akzentfarbe des Markers (#d000c8, mit Text/Grund gemischt für Kontrast).
+# Leuchtende Kontur (4) nur für Orts- und Hauptstraßennamen; kleine Straßennamen bleiben ohne Schein lesbar.
 [paint."*label*"]
-text-color = "#d000c8"                 # Grundfarbe der Nachtversion
-text-halo-color = "#ffffff"
-[paint."label_*"]
 text-color = "#d000c8"
 text-halo-color = "#ffffff"
+[paint."label_*"]
+text-color = "#b000a8"
+text-halo-color = "rgba(0, 229, 255, 0.55)"  # Cyan-Schein
+text-halo-width = 2.5
+text-halo-blur = 1.5
 [paint."highway-name-*"]
 text-color = "#2b2b45"
 text-halo-color = "#ffffff"
 [paint."highway-name-major"]
 text-color = "#a3009d"                 # Hauptstraßennamen in Magenta
+text-halo-color = "rgba(255, 0, 230, 0.4)"   # Pink-Schein
+text-halo-width = 2
+text-halo-blur = 1.5
 [paint."poi_*"]
 text-color = "#8c058b"
 text-halo-color = "#ffffff"
