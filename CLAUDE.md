@@ -93,6 +93,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - `everforest-dark`: soft and low-contrast, no glow, green-grey ground, grey/cream roads, yellow primary, orange only motorway.
   - `tokyonight-night`: blue neon for trunk/primary, magenta2 motorway, water blue0.
   - Road ref and major-name labels use the same colours as their road lines.
+- Nerd styles colour place and POI labels (`*label*`, `label_*`, `poi_*`, `airport`) in their marker `color` (user request, like cyberpunk's cyan). Where needed it is mixed with the marker `fg` until contrast ≥ 3.5:1 (large text). POIs: dark styles mix 22 % toward the background, light styles 35 % toward `fg`. Each block is marked with a comment.
 - Nerd styles end with a `# >>> Akzent-Beschriftung … # <<<` block. It hides the white shield sprite (`icon-image = ""`, because sprite PNGs cannot be recoloured) and colours road refs by class with a `match` expression: motorway / trunk+primary / rest, using the theme's accent colours. Major road names get the primary accent too. Keep the block at the end of the file so it wins.
 - POI layers: a low `rank` means important, so `poi_r1` holds the most important places and `poi_r20` the least. Hide `poi_r20`, not `poi_r1`.
 - Styles and their user-chosen names:

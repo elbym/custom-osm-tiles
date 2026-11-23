@@ -75,24 +75,25 @@ fill-color = "#f6f2ee"
 [paint."road_pier"]
 line-color = "#f6f2ee"
 
+# Orts- und POI-Namen in der Akzentfarbe des Markers (#2848a9, mit Text/Grund gemischt für Kontrast)
 [paint."*label*"]
-text-color = "#3d2b5a"
+text-color = "#2848a9"
 text-halo-color = "#ffffff"
 [paint."label_*"]
-text-color = "#3d2b5a"
+text-color = "#2848a9"
 text-halo-color = "#ffffff"
 [paint."highway-name-*"]
 text-color = "#643f61"
 text-halo-color = "#ffffff"
 [paint."poi_*"]
-text-color = "#643f61"
+text-color = "#2f3e8d"
 text-halo-color = "#ffffff"
 [paint."poi_transit"]
 text-color = "#287980"
 [paint."water*label"]
 text-color = "#2848a9"
 [paint."airport"]
-text-color = "#643f61"
+text-color = "#2f3e8d"
 text-halo-color = "#ffffff"
 
 # >>> Akzent-Beschriftung
