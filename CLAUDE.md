@@ -11,10 +11,10 @@ pip install -r requirements.txt && cargo install build_pbf_glyphs oxipng   # onc
 
 ./make-tiles.py                                        # defaults: styles/clear.toml, Bielefeld, 5 km, z10-18 -> out/clear
 ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --font Inter --retina --out out/kunde-xy
-./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # preview set: each style in its preview_font -> out/<style>-<font> (~2 min)
+./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # preview set: each style in its preview_font -> out/<style>-<font> (~4 min for 34 styles)
 ./make-tiles.py --all --all-fonts --missing ...           # full matrix: each style × every font of its groups (slow)
 ./make-tiles.py --all --style styles/wiki.toml ...     # one style (preview_font; add --all-fonts for all);  --font X: one font for all styles, ignoring groups
-./make-tiles.py --site [--missing]                     # public preview per site.toml (Bielefeld/Sparrenburg, z16, no retina) -> site/ for GitHub Pages
+./make-tiles.py --site [--missing]                     # public preview per site.toml (Bielefeld/Sparrenburg, z16, retina, 8-bit for nerd; ~520 MB) -> site/ for GitHub Pages
 npm install && npm run css                             # rebuild vendor/streifen.css (Tailwind v4) after changing streifen.html classes
 ./make-tiles.py --readme-previews                      # docs/previews/<style>.png: 512×512, z12, no marker (README gallery, ~30 s)
 ./make-tiles.py --reindex [--label "Firma"]            # rewrite all out/*/index.html from template + styles, no rendering
@@ -135,7 +135,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
     - `wiki`: Wikimedia Maps colours from wikimedia/osm-bright.tm2. The design is CC BY 3.0, so this attribution must stay, in `wiki-dark` too.
   - **Standard dark:** `clear-dark`, `cupertino-dark`, `north-dark`, `osm-dark`, `wiki-dark`, `americana-dark`, `papier-dark`, `protomaps-dark`.
   - **Nerd, own design:** `phosphor` (green P1 CRT: 8 green steps on near-black, glow on major roads and place labels) and `bernstein` (amber P3 CRT, same steps mapped to amber; it plays the "light" role in family "Phosphor" although the image is dark). The user first had a continuous-paper printout as the light variant, then replaced it with amber. Both use VT323 (`site_font` makes the public preview render them in VT323 instead of the category font; `streifen.html` then falls back to a family's own font). Order 98. User request 2026-11-23.
-  - **Nerd, not editor themes:** `cyberpunk` ("Neon Cyberpunk", colours 1:1 from maptoposter `neon_cyberpunk.json`, MIT, neon glow on roads) and `cyberpunk-day` (own light counterpart: same hues darkened, no glow).
+  - **Nerd, not editor themes:** `cyberpunk` ("Neon Cyberpunk", colours 1:1 from maptoposter `neon_cyberpunk.json`, MIT, neon glow on roads) and `cyberpunk-day` (own light counterpart, "Warnfarben", user request 2026-11-23: neon needs a dark ground, so the light variant works through saturation and hard contrast: hazard-yellow ground, cream buildings, pink green areas, cyan water, cyan trunk/primary, pink motorway, white minor roads, black ink casings, no glow; terminal marker black on yellow). cosmicsarthak-neon-theme was checked as inspiration and rejected: its light themes are Solarized Light, and its licence file is missing.
   - **Nerd** (editor-theme palettes): `dayfox`/`nightfox`, `catppuccin-latte`/`-mocha`, `dracula-light` ("Alucard", the official Dracula light palette) / `dracula`, `solarized-light`/`-dark`, `gruvbox-light`/`-dark`, `everforest-light`/`-dark`, `one-light`/`-dark` (Atom One) (all MIT), and `tokyonight-day`/`-night` (Apache-2.0).
 - For the recreations, only colour values were taken from the originals, never their style files. That is what the user asked for, to avoid licence problems, and each recreation names its inspiration in `attribution`.
 - Dark and editor-theme styles share one role mapping: bg, landuse, buildings, water, green, three road tiers, text.
