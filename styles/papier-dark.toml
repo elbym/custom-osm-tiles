@@ -9,6 +9,7 @@ mode = "dark"          # light | dark
 family = "Papier"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Literata"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Literata"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 text_scale = 1.15
 hide = ["poi_r20", "road_oneway*"]
 

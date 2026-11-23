@@ -93,7 +93,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
     - It draws scanlines and a vignette whose centre glows in the marker colour (`--glow`).
     - It goes into config. `template.html` adds `ov-crt` to `#map` (`::after`, z 650: above tiles and marker, below controls). `streifen.html` creates one fixed `.ov-crt` div per strip, clipped in `clip()` in viewport coordinates.
     - The CSS exists twice (`template.html`, `src/streifen.css`); keep both in sync.
-  - `site_font` overrides the font `--site` renders for this style.
+  - `site_font` overrides the font `--site` renders for this style (all families have one since 2026-11-23, first version of the user's per-style font choice; Catppuccin keeps the nerd default Maple Mono). New site fonts must be added to the Über dialog's font list in `streifen.html`.
   - `category`, `mode` and `family` drive the preview pages. `order` (default 50; higher = further right, then alphabetical) sorts the strips. Both cyberpunk styles use 99, so they sit in the rightmost column, as the user asked.
   - `preview_font` is the only font `--all` renders, unless `--all-fonts` is given: Fira Sans for standard styles and Maple Mono for nerd styles, at the user's request, to keep preview renders fast.
   - `font` is the default font. It replaces "Noto Sans" in every `text-font`, and Noto stays in the stack as fallback.

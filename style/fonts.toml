@@ -49,6 +49,36 @@ Regular = { file = "tex-gyre-schola/texgyreschola-regular.otf" }
 Bold    = { file = "tex-gyre-schola/texgyreschola-bold.otf" }
 Italic  = { file = "tex-gyre-schola/texgyreschola-italic.otf" }
 
+["Atkinson Hyperlegible Next"]   # auf Lesbarkeit gebaut (Braille Institute)
+group = "sans"
+Regular = { file = "atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-VF.ttf", wght = 400 }
+Bold    = { file = "atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-VF.ttf", wght = 700 }
+Italic  = { file = "atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-Italic-VF.ttf", wght = 400 }
+
+[DINish]   # freie DIN-1451-Nachbildung (Verkehrsschilder)
+group = "sans"
+Regular = { file = "dinish/DINish-Regular.ttf" }
+Bold    = { file = "dinish/DINish-Bold.ttf" }
+Italic  = { file = "dinish/DINish-Italic.ttf" }
+
+[Figtree]
+group = "sans"
+Regular = { file = "figtree/Figtree-VF.ttf", wght = 400 }
+Bold    = { file = "figtree/Figtree-VF.ttf", wght = 700 }
+Italic  = { file = "figtree/Figtree-Italic-VF.ttf", wght = 400 }
+
+["Libertinus Sans"]   # Libertinus = Nachfolger von Linux Libertine (Wikipedia-Logo)
+group = "sans"
+Regular = { file = "libertinus-sans/LibertinusSans-Regular.ttf" }
+Bold    = { file = "libertinus-sans/LibertinusSans-Bold.ttf" }
+Italic  = { file = "libertinus-sans/LibertinusSans-Italic.ttf" }
+
+[Fraunces]   # weich (SOFT 50), ohne Schnörkel (WONK 0), optische Größe 12
+group = "serif"
+Regular = { file = "fraunces/Fraunces-VF.ttf", wght = 400, opsz = 12, SOFT = 50, WONK = 0 }
+Bold    = { file = "fraunces/Fraunces-VF.ttf", wght = 700, opsz = 12, SOFT = 50, WONK = 0 }
+Italic  = { file = "fraunces/Fraunces-Italic-VF.ttf", wght = 400, opsz = 12, SOFT = 50, WONK = 0 }
+
 # Monoschriften (für die Editor-Themes)
 ["Fira Code"]   # keine Kursive: Italic = Regular
 group = "mono"
@@ -73,6 +103,42 @@ group = "mono"
 Regular = { file = "victor-mono/VictorMono-VF.ttf", wght = 400 }
 Bold    = { file = "victor-mono/VictorMono-VF.ttf", wght = 700 }
 Italic  = { file = "victor-mono/VictorMono-Italic-VF.ttf", wght = 400 }
+
+["Cascadia Code"]
+group = "mono"
+Regular = { file = "cascadia-code/CascadiaCode-VF.ttf", wght = 400 }
+Bold    = { file = "cascadia-code/CascadiaCode-VF.ttf", wght = 700 }
+Italic  = { file = "cascadia-code/CascadiaCode-Italic-VF.ttf", wght = 400 }
+
+["Geist Mono"]
+group = "mono"
+Regular = { file = "geist-mono/GeistMono-VF.ttf", wght = 400 }
+Bold    = { file = "geist-mono/GeistMono-VF.ttf", wght = 700 }
+Italic  = { file = "geist-mono/GeistMono-Italic-VF.ttf", wght = 400 }
+
+[Hack]   # MIT + Bitstream-Vera-Lizenz (DejaVu Sans Mono)
+group = "mono"
+Regular = { file = "hack/Hack-Regular.ttf" }
+Bold    = { file = "hack/Hack-Bold.ttf" }
+Italic  = { file = "hack/Hack-Italic.ttf" }
+
+["IBM Plex Mono"]
+group = "mono"
+Regular = { file = "ibm-plex-mono/IBMPlexMono-Regular.ttf" }
+Bold    = { file = "ibm-plex-mono/IBMPlexMono-Bold.ttf" }
+Italic  = { file = "ibm-plex-mono/IBMPlexMono-Italic.ttf" }
+
+[Recursive]   # Mono, Casual (weich), alle Achsen fest
+group = "mono"
+Regular = { file = "recursive/Recursive-VF.ttf", MONO = 1, CASL = 1, wght = 400, slnt = 0, CRSV = 0.5 }
+Bold    = { file = "recursive/Recursive-VF.ttf", MONO = 1, CASL = 1, wght = 700, slnt = 0, CRSV = 0.5 }
+Italic  = { file = "recursive/Recursive-VF.ttf", MONO = 1, CASL = 1, wght = 400, slnt = -15, CRSV = 1 }
+
+["Source Code Pro"]
+group = "mono"
+Regular = { file = "source-code-pro/SourceCodePro-VF.ttf", wght = 400 }
+Bold    = { file = "source-code-pro/SourceCodePro-VF.ttf", wght = 700 }
+Italic  = { file = "source-code-pro/SourceCodePro-Italic-VF.ttf", wght = 400 }
 
 ["Press Start 2P"]   # 8-Bit-Option (--pixel --font "Press Start 2P"): Arcade-Klassiker, breit
 grid = 8           # Geviert in px, wenn 1 Schriftpixel = 1 Bildpixel (Raster 125 von 1000 Einheiten)

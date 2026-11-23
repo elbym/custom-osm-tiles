@@ -6,6 +6,7 @@ mode = "light"          # light | dark
 family = "North"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Overpass"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "DINish"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 text_scale = 1.15
 attribution = "Stil inspiriert von Hydda"
 hide = ["poi_r20"]   # rank: klein = wichtig; nur die unwichtigsten ausblenden

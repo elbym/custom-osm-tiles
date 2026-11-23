@@ -6,6 +6,7 @@ mode = "dark"          # light | dark
 family = "OSM"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Public Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Atkinson Hyperlegible Next"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 # fonts: Standard (sans, serif)
 text_scale = 1.15
 attribution = "Stil inspiriert von openstreetmap-carto"

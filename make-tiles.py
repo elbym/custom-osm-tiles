@@ -91,7 +91,7 @@ def ensure_glyphs():
             if isinstance(spec, dict) and not (dest / f"{font} {face}").exists()]
     if not todo:
         return
-    tool = shutil.which("build_pbf_glyphs") or sys.exit(
+    tool = shutil.which("build_pbf_glyphs") or shutil.which(str(Path.home() / ".cargo/bin/build_pbf_glyphs")) or sys.exit(
         "build_pbf_glyphs fehlt: cargo install build_pbf_glyphs (siehe requirements.txt)")
     with tempfile.TemporaryDirectory() as tmp:
         for font, face, spec in todo:

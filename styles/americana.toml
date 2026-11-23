@@ -8,6 +8,7 @@ mode = "light"          # light | dark
 family = "Americana"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Public Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Overpass"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 text_scale = 1.15
 attribution = "Farben nach OSM Americana (CC0)"
 hide = ["poi_r20", "road_oneway*"]

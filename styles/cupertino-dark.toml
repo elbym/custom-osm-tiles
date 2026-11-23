@@ -6,6 +6,7 @@ mode = "dark"          # light | dark
 family = "Cupertino"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Inter"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Public Sans"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 # fonts: Standard (sans, serif)
 text_scale = 1.15
 attribution = ""

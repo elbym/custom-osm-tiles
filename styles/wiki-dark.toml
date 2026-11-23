@@ -6,6 +6,7 @@ mode = "dark"          # light | dark
 family = "Wiki"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Public Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Libertinus Sans"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 # fonts: Standard (sans, serif)
 text_scale = 1.15
 attribution = "Kartendesign nach Wikimedia Maps (© Mapbox, Wikimedia Foundation, CC BY 3.0)"

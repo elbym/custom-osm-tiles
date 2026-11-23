@@ -11,6 +11,7 @@ mode = "light"          # light | dark
 family = "Clear"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Overpass"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Fira Sans"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 text_scale = 1.15
 hide = ["poi_r20", "road_oneway*"]
 

@@ -7,6 +7,7 @@ mode = "light"          # light | dark
 family = "Protomaps"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Inter"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Figtree"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 text_scale = 1.15
 attribution = "Farben nach Protomaps Basemaps (CC0)"
 hide = ["poi_r20", "road_oneway*"]
