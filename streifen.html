@@ -115,7 +115,7 @@
     </section>
     <section>
       <h2 class="font-semibold">Schriften</h2>
-      <p>Fira Sans, Maple Mono, VT323 (8 Bit): SIL Open Font License 1.1. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
+      <p>Fira Sans, Maple Mono, VT323 (8 Bit, Phosphor, Endlospapier): SIL Open Font License 1.1. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
     </section>
     <section>
       <h2 class="font-semibold">Software auf dieser Seite</h2>
@@ -153,7 +153,9 @@ const families = [...new Set(all.filter(([, c]) => c.category === cat).map(([, c
 // Ausgeblendete Familien (?aus=…); mindestens ein Streifen bleibt
 const off = new Set((q.get('aus') || '').split(',').filter(Boolean));
 const shown = families.filter(f => !off.has(f)).length ? families.filter(f => !off.has(f)) : families;
-const strips = shown.map(fam => [fam, all.find(([, c]) => inSet(c) && c.family === fam && c.font === font)]);
+// Familie in der gewählten Schrift, sonst in ihrer eigenen (site_font, z. B. Phosphor in VT323)
+const strips = shown.map(fam => [fam, all.find(([, c]) => inSet(c) && c.family === fam && c.font === font)
+  || all.find(([, c]) => inSet(c) && c.family === fam)]);
 
 const go = (key, val) => { q.set(key, val); location.search = q; };
 for (const [id, val] of [['cat', cat], ['mode', mode]]) {
@@ -220,6 +222,9 @@ const panes = strips.map(([, v], i) => {
   if (c.zmax >= c.detail_from) layers[i].push(L.tileLayer(url, { pane: 'strip' + i, minZoom: c.detail_from, bounds: c.detail }));
   return pane;
 });
+// Ebene je Streifen für overlay im Stil (Phosphor: crt, Endlospapier: paper), zugeschnitten in clip()
+const overlays = strips.map(([, v]) => v?.[1].overlay ? document.body.insertBefore(
+  Object.assign(document.createElement('div'), { className: 'ov-' + v[1].overlay }), document.getElementById('titles')) : null);
 // Marker im Stil des mittleren Streifens (dort liegt er beim Öffnen)
 const mid = strips[Math.floor(strips.length / 2)][1] || strips.find(([, v]) => v)[1];
 const marker = L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker), title: mid?.[1].marker?.label }).addTo(map);
@@ -341,6 +346,8 @@ function clip() {
     let x0 = 0, x1 = size.x, y0 = 0, y1 = size.y;
     if (split === 'rows') { y0 = size.y * a; y1 = size.y * b; }
     else { x0 = size.x * a; x1 = size.x * b; }
+    const ov = overlays[j];  // feste Ebene: Bildschirmkoordinaten, ohne mapPane-Versatz
+    if (ov) { ov.hidden = !visible(j); ov.style.clipPath = `polygon(${x0}px ${y0}px, ${x1}px ${y0}px, ${x1}px ${y1}px, ${x0}px ${y1}px)`; }
     x0 -= pos.x; x1 -= pos.x; y0 -= pos.y; y1 -= pos.y;
     pane.style.clipPath = `polygon(${x0}px ${y0}px, ${x1}px ${y0}px, ${x1}px ${y1}px, ${x0}px ${y1}px)`;
   });

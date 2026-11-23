@@ -7,7 +7,8 @@
 #
 # Weitere Einstellungen:
 #   group   = "sans" | "serif" | "mono" | "pixel" (8-Bit, nur mit --pixel)   Schriftgruppe; ein Stil wählt per fonts = [...] die Gruppen für --all
-#   scale   = 1.05   Größenfaktor (gleicht unterschiedlich große Schriftbilder aus; pixel: halbiert, --pixel verdoppelt)
+#   scale   = 1.05   Größenfaktor (gleicht unterschiedlich große Schriftbilder aus)
+#   grid    = 12.5   Pixelschrift: Schriftgrößen werden auf Vielfache davon gerundet (passt genau ins Pixelraster)
 #   streets = "450"  Schnitt für Straßennamen statt Regular (muss oben als Schnitt stehen)
 #
 # Noto Sans fehlt hier absichtlich: sie ist nur Ersatzschrift und wird fertig geladen.
@@ -74,21 +75,22 @@ Bold    = { file = "victor-mono/VictorMono-VF.ttf", wght = 700 }
 Italic  = { file = "victor-mono/VictorMono-Italic-VF.ttf", wght = 400 }
 
 ["Press Start 2P"]   # 8-Bit-Option (--pixel --font "Press Start 2P"): Arcade-Klassiker, breit
-scale = 0.49
+grid = 8           # Geviert in px, wenn 1 Schriftpixel = 1 Bildpixel (Raster 125 von 1000 Einheiten)
 group = "pixel"
 Regular = { file = "press-start-2p/PressStart2P-Regular.ttf" }
 Bold    = { file = "press-start-2p/PressStart2P-Regular.ttf" }
 Italic  = { file = "press-start-2p/PressStart2P-Regular.ttf" }
 
 ["Silkscreen"]   # 8-Bit-Option: nur Versalien
-scale = 0.7
+grid = 8
 group = "pixel"
 Regular = { file = "silkscreen/Silkscreen-Regular.ttf" }
 Bold    = { file = "silkscreen/Silkscreen-Bold.ttf" }
 Italic  = { file = "silkscreen/Silkscreen-Regular.ttf" }
 
 ["VT323"]   # Standard für --pixel: Terminalschrift (DEC VT320), schmal und gut lesbar
-scale = 0.88
+grid = 12.5        # Raster 80 von 1000 Einheiten
+scale = 1.3        # kleines Schriftbild; nur ohne --pixel (dann ~18,75 px, halbe Rasterschritte)
 group = "pixel"
 Regular = { file = "vt323/VT323-Regular.ttf" }
 Bold    = { file = "vt323/VT323-Regular.ttf" }

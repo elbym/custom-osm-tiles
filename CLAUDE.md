@@ -88,6 +88,11 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 - `style/base.json` is OpenFreeMap's OSM Bright, kept close to upstream. The only changes: the source is `mbtiles://{osm}`, the `ne2_shaded` raster layer is removed, and glyphs and the sprite (`ofm*`) are local. Do all customisation in `styles/*.toml`.
 - TOML keys:
   - `title` is the window title; the font name is appended.
+  - `overlay` (`"crt"` | `"paper"`) is a CSS layer in the browser, never in the tiles, so scanlines stay sharp under Leaflet zoom.
+    - crt: scanlines and vignette. paper: green bars, tractor holes and perforation (multiply).
+    - It goes into config. `template.html` adds `ov-<name>` to `#map` (`::after`, z 650: above tiles and marker, below controls). `streifen.html` creates one fixed `.ov-*` div per strip, clipped in `clip()` in viewport coordinates.
+    - The CSS exists twice (`template.html`, `src/streifen.css`); keep both in sync.
+  - `site_font` overrides the font `--site` renders for this style.
   - `category`, `mode` and `family` drive the preview pages. `order` (default 50; higher = further right, then alphabetical) sorts the strips. Both cyberpunk styles use 99, so they sit in the rightmost column, as the user asked.
   - `preview_font` is the only font `--all` renders, unless `--all-fonts` is given: Fira Sans for standard styles and Maple Mono for nerd styles, at the user's request, to keep preview renders fast.
   - `font` is the default font. It replaces "Noto Sans" in every `text-font`, and Noto stays in the stack as fallback.
@@ -128,6 +133,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
     - `protomaps-light`/`-dark`: Protomaps Basemaps flavours (design CC0).
     - `wiki`: Wikimedia Maps colours from wikimedia/osm-bright.tm2. The design is CC BY 3.0, so this attribution must stay, in `wiki-dark` too.
   - **Standard dark:** `clear-dark`, `cupertino-dark`, `north-dark`, `osm-dark`, `wiki-dark`, `americana-dark`, `papier-dark`, `protomaps-dark`.
+  - **Nerd, own design:** `phosphor` (green P1 CRT: 8 green steps on near-black, glow on major roads and place labels) and `endlospapier` (its light counterpart, family "Phosphor": dot-matrix ink on continuous form paper). Both use VT323 (`site_font` makes the public preview render them in VT323 instead of the category font; `streifen.html` then falls back to a family's own font). Order 98. User request 2026-11-23.
   - **Nerd, not editor themes:** `cyberpunk` ("Neon Cyberpunk", colours 1:1 from maptoposter `neon_cyberpunk.json`, MIT, neon glow on roads) and `cyberpunk-day` (own light counterpart: same hues darkened, no glow).
   - **Nerd** (editor-theme palettes): `dayfox`/`nightfox`, `catppuccin-latte`/`-mocha`, `dracula-light` ("Alucard", the official Dracula light palette) / `dracula`, `solarized-light`/`-dark`, `gruvbox-light`/`-dark`, `everforest-light`/`-dark`, `one-light`/`-dark` (Atom One) (all MIT), and `tokyonight-day`/`-night` (Apache-2.0).
 - For the recreations, only colour values were taken from the originals, never their style files. That is what the user asked for, to avoid licence problems, and each recreation names its inspiration in `attribution`.
@@ -138,11 +144,22 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 
 ## 8-bit mode
 
-- `--pixel` (user request 2026-11-23, tried on Dracula first; must work for every style). For each tile, `render()` fetches the z-1 parent tile (`parent()`, an lru_cache cleared per render, because the URL on port 8089 is the same for every style). `pixelate()` crops the 128 px quadrant with magick and upscales it with `-filter point` ×2 (×4 for @2x), then pngquant runs as usual.
+- `--pixel` (user request 2026-11-23, tried on Dracula first; must work for every style). For each tile, `render()` fetches the z-1 parent tile (`parent()`, an lru_cache cleared per render, because the URL on port 8089 is the same for every style). `lowres()` writes its 128 px quadrant, the real 8-bit pixels; pngquant is not used.
+- Second pass `dither_tiles()` (needs numpy and Pillow, imported lazily): one 16-colour palette per style from `pixel_palette()`.
+  - Candidates are the hex colours of the style TOML, weighted by nearest pixels. Up to six text colours are fixed so text is never dithered; the rest are filled farthest-point × log(weight).
+  - Then Bayer 4×4 (`BAYER_SPREAD` 40) on the 128 px image, nearest upscale ×2 (@2x ×4), written as indexed PNGs; oxipng runs afterwards.
+  - The user chose 16 colours + 4×4 after previews. 8 colours lost too much (houses vs ground); 8×8 looked the same as 4×4.
+- Pixel fonts have `grid` in `fonts.toml` (em px at 1 font pixel = 1 image pixel: VT323 12.5, Press Start 2P/Silkscreen 8). `on_grid()` snaps every symbol `text-size` to multiples (interpolate → step per integer zoom), halo blur is 0, and line-placed labels use viewport rotation alignment, so they are horizontal (user wanted text "genau ins Pixelraster").
 - Side effects: the style is evaluated one zoom coarser, so there are fewer small labels, and icons look doubled. The terminal/bubble marker is still plain HTML.
-- Fonts: group `pixel` in `fonts.toml`, with `scale` ≈ 0.5·upm/capHeight so they look normal after doubling. The default is VT323 (`a.font` set in `main()`); Press Start 2P and Silkscreen are kept as options at the user's request. Rejected after a preview: Pixelify Sans (the user disliked it), Jersey 10, Micro 5, DotGothic16. The pixel group gets bold POI strokes.
+- Fonts: group `pixel` in `fonts.toml`. The default is VT323 (`a.font` set in `main()`); Press Start 2P and Silkscreen are kept as options at the user's request. Rejected after a preview: Pixelify Sans (the user disliked it), Jersey 10, Micro 5, DotGothic16. The pixel group gets bold POI strokes.
 - `config.json` carries `pixel`, and `template.html` then sets `image-rendering: pixelated` on the tiles.
-- Public preview: `site.toml` `pixel = ["nerd"]` makes `build_site()` render each nerd style a second time in VT323 with `--pixel` (`site/<style>-vt323-8bit`, about 1.3 MB each). `streifen.html` shows an "8 Bit" button (`?px=1`) only for categories that have pixel variants, and `inSet()` keeps them apart from the normal variants. The Über dialog lists VT323.
+- Public preview: `site.toml` `pixel = ["nerd"]` makes `build_site()` render each nerd style a second time in VT323 with `--pixel` (`site/<style>-vt323-8bit`, about 0.8 MB each with @2x). `streifen.html` shows an "8 Bit" button (`?px=1`) only for categories that have pixel variants, and `inSet()` keeps them apart from the normal variants. The Über dialog lists VT323.
+
+## Graticule (parked)
+
+- `graticule = true` in a style TOML adds a lat/lon grid baked into the tiles (`graticule()`, `GRID`): dashed lines in the marker accent below all labels, plus decimal degree labels (`52.016°N`) along the lines with the lowest priority.
+- Spacing goes per Leaflet zoom from 0.1° down to 0.001°. Styles use z-1, because tileserver-gl draws 256 px tiles one zoom lower.
+- No style enables it yet: the user parked the idea on 2026-11-23 after a Dracula preview. A coordinate readout in `template.html` was dropped for now.
 
 ## Fonts
 

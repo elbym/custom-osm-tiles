@@ -106,8 +106,10 @@ def ensure_glyphs():
         run(tool, tmp, str(dest))
 
 
-def build_style(toml_path, font=None):
-    """styles/<name>.toml + style/base.json (OSM Bright) -> fertiger Stil, Titel, Namensnennung."""
+def build_style(toml_path, font=None, center=None, pixel=False):
+    """styles/<name>.toml + style/base.json (OSM Bright) -> fertiger Stil, Titel, Namensnennung.
+    center (lat, lon): Mittelpunkt für das Koordinatengitter (graticule = true im Stil).
+    pixel: 8-Bit-Modus, Pixelschriften dann nur in ganzen Rasterschritten."""
     t = tomllib.loads(Path(toml_path).read_text())
     s = json.loads((ROOT / "style" / "base.json").read_text())
     font = font or t.get("font", "Noto Sans")
@@ -119,7 +121,8 @@ def build_style(toml_path, font=None):
             return ["get", lang_key]
         return [localize(e) for e in expr] if isinstance(expr, list) else expr
     fcfg = font_config().get(font, {})
-    scale = t.get("text_scale", 1) * fcfg.get("scale", 1)
+    # Pixelschrift im 8-Bit-Modus: ohne scale, sonst sprängen zu viele Größen auf den doppelten Rasterschritt
+    scale = t.get("text_scale", 1) * (1 if pixel and "grid" in fcfg else fcfg.get("scale", 1))
     r = lambda v: round(v * scale * 2) / 2
     for l in s["layers"]:
         lay = l.setdefault("layout", {})
@@ -137,6 +140,11 @@ def build_style(toml_path, font=None):
             elif size[0] == "interpolate":
                 for i in range(4, len(size), 2):
                     size[i] = r(size[i])
+        if "grid" in fcfg and l["type"] == "symbol":  # Pixelschrift: Größen aufs Raster, Halo ohne Weichzeichnung
+            lay["text-size"] = on_grid(lay.get("text-size", 16), fcfg["grid"], 1 if pixel else 2)
+            l.setdefault("paint", {})["text-halo-blur"] = 0
+            if lay.get("symbol-placement", "point") != "point":  # Straßennamen waagerecht: schräg passt nie ins Raster
+                lay["text-rotation-alignment"] = lay["text-pitch-alignment"] = "viewport"
         if any(fnmatch.fnmatch(l["id"], g) for g in t.get("hide", [])):
             lay["visibility"] = "none"
         # [paint."muster"] / [layout."muster"]: nur Eigenschaften, die zum Ebenentyp passen
@@ -151,7 +159,67 @@ def build_style(toml_path, font=None):
     weight = {"mono": "bold", "pixel": "bold", "serif": "light"}.get(fcfg.get("group"), "regular")
     s["sprite"] = poi_sprite(weight, p["background"]["background-color"], accent, p["poi_*"]["text-color"],
                              t.get("mode") == "dark")
+    if t.get("graticule") and center:
+        graticule(s, center, accent, p["background"]["background-color"], font)
     return s, f"{t.get('title', Path(toml_path).stem)} · {font}", t.get("attribution", ""), font
+
+
+def on_grid(size, grid, sub=1):
+    """text-size auf ganze Vielfache des Pixelrasters einer Pixelschrift (grid = Geviert in px bei 1 Schriftpixel
+    = 1 Bildpixel). Zoomabhängige Größen werden je ganzer Stufe ausgewertet und als step-Ausdruck geschrieben,
+    damit auch zwischen den Stützstellen kein Zwischenwert entsteht. sub = 2 (außerhalb von --pixel): auch halbe
+    Schritte (VT323 18,75 px), die Kacheln sind dann ohnehin geglättet; kleiner als ein ganzer Schritt nie."""
+    snap = lambda v: max(grid, round(v * sub / grid) * grid / sub)
+    if isinstance(size, (int, float)):
+        return snap(size)
+    curve, stops = size[1], list(zip(size[3::2], size[4::2]))
+    base = curve[1] if curve[0] == "exponential" else 1
+    def at(z):
+        if z <= stops[0][0]:
+            return stops[0][1]
+        for (z0, v0), (z1, v1) in zip(stops, stops[1:]):
+            if z <= z1:
+                f = (z - z0) / (z1 - z0) if base == 1 else (base ** (z - z0) - 1) / (base ** (z1 - z0) - 1)
+                return v0 + (v1 - v0) * f
+        return stops[-1][1]
+    out = ["step", ["zoom"], snap(at(0))]
+    for z in range(1, 23):
+        if snap(at(z)) != snap(at(z - 1)):
+            out += [z, snap(at(z))]
+    return out if len(out) > 3 else out[2]
+
+
+# Koordinatengitter: (Abstand in Grad, Nachkommastellen, Leaflet-Zoom von, bis); um den Mittelpunkt je 150 Linien.
+# tileserver-gl zeichnet 256er-Kacheln eine Stufe tiefer (MapLibre rechnet in 512er-Kacheln), daher z - 1 im Stil.
+GRID = [(0.1, 1, 0, 12), (0.02, 2, 12, 14), (0.01, 2, 14, 16), (0.002, 3, 16, 18), (0.001, 3, 18, 24)]
+
+
+def graticule(s, center, color, bg, font):
+    """Längen-/Breitengrade als GeoJSON-Linien direkt im Stil (Nerd-Stile, graticule = true): gestrichelt in der
+    Akzentfarbe, unter der Beschriftung; Gradzahlen dezimal an den Linien entlang, nachrangig zu Karten-Namen."""
+    feats = []
+    for k, (d, nd, _, _) in enumerate(GRID):
+        lat0, lon0 = round(center[0] / d) * d, round(center[1] / d) * d
+        for i in range(-150, 151):
+            la, lo = round(lat0 + i * d, 6), round(lon0 + i * d, 6)
+            if -85 < la < 85:
+                feats.append({"type": "Feature", "properties": {"k": k, "t": f"{abs(la):.{nd}f}°{'N' if la >= 0 else 'S'}"},
+                              "geometry": {"type": "LineString", "coordinates": [[lon0 - 150 * d, la], [lon0 + 150 * d, la]]}})
+            feats.append({"type": "Feature", "properties": {"k": k, "t": f"{abs(lo):.{nd}f}°{'E' if lo >= 0 else 'W'}"},
+                          "geometry": {"type": "LineString", "coordinates": [[lo, max(-85, lat0 - 150 * d)], [lo, min(85, lat0 + 150 * d)]]}})
+    s["sources"]["grid"] = {"type": "geojson", "data": {"type": "FeatureCollection", "features": feats}}
+    lines, labels = [], []
+    for k, (_, _, z0, z1) in enumerate(GRID):
+        flt, rng = ["==", ["get", "k"], k], {"minzoom": max(0, z0 - 1), "maxzoom": z1 - 1}
+        lines.append({"id": f"grid-{k}", "type": "line", "source": "grid", "filter": flt, **rng,
+                      "paint": {"line-color": color, "line-opacity": 0.6, "line-width": 1, "line-dasharray": [3, 3]}})
+        labels.append({"id": f"grid-label-{k}", "type": "symbol", "source": "grid", "filter": flt, **rng,
+                       "layout": {"symbol-placement": "line", "symbol-spacing": 350, "text-field": ["get", "t"],
+                                  "text-font": [f"{font} Regular", "Noto Sans Regular"], "text-size": 10},
+                       "paint": {"text-color": color, "text-opacity": 0.75, "text-halo-color": bg, "text-halo-width": 1.5}})
+    first_symbol = next(i for i, l in enumerate(s["layers"]) if l["type"] == "symbol")
+    s["layers"][first_symbol:first_symbol] = lines   # Linien unter alle Beschriftungen und Symbole
+    s["layers"] += labels                            # zuletzt = geringster Vorrang, Ortsnamen gewinnen
 
 
 STROKE = {"light": 12, "regular": 16, "bold": 24}  # Phosphor-Strichstärken im 256er-Raster
@@ -244,7 +312,7 @@ def reindex(outdir, label=None):
         meta = tomllib.loads(st.read_text())
         cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
                    family=meta.get("family", meta.get("title", st.stem)), attribution=meta.get("attribution", ""),
-                   order=meta.get("order", 50),
+                   order=meta.get("order", 50), overlay=meta.get("overlay"),
                    marker=dict(meta.get("marker", {"type": "leaflet"}),
                                label=label or cfg.get("marker", {}).get("label", "hier")),
                    title=f"{meta.get('title', st.stem)} · {cfg['font']}")
@@ -292,7 +360,8 @@ def build_site(a):
         meta = tomllib.loads(st.read_text())
         cat = meta.get("category", "standard")
         # Schriften der Gruppe, dazu für Gruppen in pixel = [...] eine 8-Bit-Variante (Schalter "8 Bit" in der Vorschau)
-        for font, s.pixel in [(f, False) for f in cfg["fonts"][cat]] + ([("VT323", True)] if cat in cfg.get("pixel", []) else []):
+        site_fonts = [meta["site_font"]] if "site_font" in meta else cfg["fonts"][cat]  # z. B. Phosphor: VT323
+        for font, s.pixel in [(f, False) for f in site_fonts] + ([("VT323", True)] if cat in cfg.get("pixel", []) else []):
             out = site / f"{st.stem}-{font.lower().replace(' ', '-')}{'-8bit' if s.pixel else ''}"
             done = out / "config.json"
             keep = a.missing and done.exists()
@@ -330,13 +399,62 @@ def parent(url):
     return fetch(url)
 
 
-def pixelate(data, qx, qy, factor):
-    """--pixel: Viertel (qx, qy) der 256er-Elternkachel ohne Glättung vergrößern (128 px -> 256 bzw. @2x 512).
-    Die Elternkachel ist im Stil eine Stufe gröber gezeichnet, Striche und Schrift sind also schon halb so groß
-    und werden durch die Verdopplung wieder normal groß, nur eben aus 2×2-Blöcken."""
-    return subprocess.run(["magick", "png:-", "-crop", f"128x128+{qx * 128}+{qy * 128}", "+repage",
-                           "-filter", "point", "-resize", f"{factor * 100}%", "png:-"],
-                          input=data, capture_output=True, check=True).stdout
+def lowres(data, qx, qy):
+    """--pixel: Viertel (qx, qy) der 256er-Elternkachel = die 128×128 echten 8-Bit-Pixel der Kachel. Die Elternkachel
+    ist im Stil eine Stufe gröber gezeichnet, Striche und Schrift sind also halb so groß; dither_tiles() verdoppelt."""
+    from PIL import Image
+    im = Image.open(io.BytesIO(data)).convert("RGB").crop((qx * 128, qy * 128, qx * 128 + 128, qy * 128 + 128))
+    buf = io.BytesIO()
+    im.save(buf, "PNG")
+    return buf.getvalue()
+
+
+PIXEL_COLORS = 16   # --pixel: Farben je Stil (eine Palette für alle Kacheln)
+BAYER_SPREAD = 40   # Stärke des Musters (RGB-Einheiten); höher = mehr Raster, auch auf reinen Flächen
+
+
+def pixel_palette(px, toml_path, n=PIXEL_COLORS):
+    """Palette aus den Farben der Stil-Datei: jede Hex-Farbe gewichtet mit der Zahl der Pixel, die ihr am nächsten
+    liegen. Erst die bis zu sechs häufigsten Textfarben (Schrift wird nie gerastert), dann die häufigste Farbe, dann
+    jeweils die mit dem größten Abstand × log(Gewicht)."""
+    import numpy as np
+    src = Path(toml_path).read_text()
+    cand = sorted(set(re.findall(r'"(#[0-9a-fA-F]{6})"', src)))
+    texts = set(re.findall(r'text-color\s*=\s*"(#[0-9a-fA-F]{6})"', src))
+    cv = np.array([[int(h[i:i + 2], 16) for i in (1, 3, 5)] for h in cand], float)
+    u, c = np.unique(px, axis=0, return_counts=True)
+    w = np.bincount((((u[:, None].astype(float) - cv[None]) ** 2).sum(-1)).argmin(1), weights=c, minlength=len(cv))
+    order = np.argsort(-w)
+    pal = [cv[i] for i in order if cand[i] in texts and w[i] > 0][:6]
+    pal.insert(0, cv[order[0]])
+    ok = w > 0
+    while len(pal) < min(n, ok.sum()):
+        d = np.min([((cv - q) ** 2).sum(1) for q in pal], axis=0) ** .5
+        pal.append(cv[np.where(ok, d * np.log1p(w), -1).argmax()])
+    return np.array(pal)
+
+
+def dither_tiles(files, toml_path, retina):
+    """--pixel, zweiter Durchgang: eine Palette für alle Kacheln, dann Bayer-4×4-Dithering auf den 128er-Pixeln
+    (Muster deckungsgleich über Kachelgrenzen, 128 ist durch 4 teilbar) und ohne Glättung auf 256 (@2x 512) px."""
+    import numpy as np
+    from PIL import Image
+    sample = np.concatenate([np.asarray(Image.open(f).convert("RGB"))[::2, ::2].reshape(-1, 3) for f in files])
+    pal = pixel_palette(sample, toml_path)
+    bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]])
+    shift = np.tile((bayer + .5) / 16 - .5, (32, 32))[..., None] * BAYER_SPREAD
+    flat = [int(v) for v in pal.flatten()] + [0] * (768 - pal.size)
+    out = []
+    for f in files:
+        a = np.asarray(Image.open(f).convert("RGB"), float) + shift
+        im = Image.fromarray((((a[..., None, :] - pal) ** 2).sum(-1)).argmin(-1).astype(np.uint8), "P")
+        im.putpalette(flat)
+        if retina:
+            out.append(f.with_name(f.stem + "@2x.png"))
+            im.resize((512, 512), Image.NEAREST).save(out[-1])
+        im.resize((256, 256), Image.NEAREST).save(f)
+        out.append(f)
+    return out
 
 
 def readme_previews(a, mb):
@@ -345,7 +463,7 @@ def readme_previews(a, mb):
     dest.mkdir(parents=True, exist_ok=True)
     for st in sorted((ROOT / "styles").glob("*.toml")):
         meta = tomllib.loads(st.read_text())
-        style = build_style(st, meta.get("preview_font", meta.get("font")))[0]
+        style = build_style(st, meta.get("preview_font", meta.get("font")), (a.lat, a.lon))[0]
         with tileserver(style, f"readme-{st.stem}", mb) as base:
             data = fetch(f"{base}/static/{a.lon},{a.lat},12/512x512.png")
         data = quantize(data, a.colors)
@@ -362,7 +480,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     b = bbox(a.lat, a.lon, a.radius)
     # ponytail: high zooms only near the marker; Leaflet upscales z(detail_from-1) outside
     d = bbox(a.lat, a.lon, min(a.radius, a.detail_radius))
-    style, title, attribution, font = build_style(style_file, font)
+    style, title, attribution, font = build_style(style_file, font, (a.lat, a.lon), a.pixel)
     with tileserver(style, out.name, mb) as base:
         if not keep:  # keep: vorhandene Kacheln behalten (z. B. nur @2x ergänzen)
             shutil.rmtree(out / "tiles", ignore_errors=True)
@@ -383,8 +501,11 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
             if keep and f.exists():
                 return None
             f.parent.mkdir(parents=True, exist_ok=True)
-            if a.pixel:  # 8-Bit: Elternkachel (eine Stufe gröber) holen, Viertel ausschneiden, Pixel verdoppeln
-                data = pixelate(parent(f"{base}/{z - 1}/{x // 2}/{y // 2}.png"), x % 2, y % 2, 4 if sfx else 2)
+            if a.pixel:  # 8-Bit: Viertel der Elternkachel; Palette, Muster und @2x erst in dither_tiles()
+                if sfx:
+                    return None
+                f.write_bytes(lowres(parent(f"{base}/{z - 1}/{x // 2}/{y // 2}.png"), x % 2, y % 2))
+                return f
             else:
                 data = fetch(f"{base}/{z}/{x}/{y}{sfx}.{ext}")
             if ext == "png":  # Palette mit wenigen Farben, ohne Dithering (gemessen: kleiner als WebP, gleiche Qualität)
@@ -396,6 +517,8 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
         with ThreadPoolExecutor(WORKERS) as pool:
             written = [f for f in pool.map(get, jobs) if f]
         count = len(jobs)
+    if a.pixel:
+        written = dither_tiles(written, style_file, a.retina)
     optimize(written)  # nach dem Stoppen des Containers
 
     cfg = dict(lat=a.lat, lon=a.lon, zmin=zmin, zmax=zmax, retina=a.retina,
@@ -405,6 +528,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     meta = tomllib.loads(Path(style_file).read_text())  # Gliederung der Vorschau
     cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
                family=meta.get("family", meta.get("title", Path(style_file).stem)), order=meta.get("order", 50),
+               overlay=meta.get("overlay"),
                marker=dict(meta.get("marker", {"type": "leaflet"}), label=a.label or "hier"), title=title)
     (out / "config.json").write_text(json.dumps(cfg, ensure_ascii=False))  # liest write_previews()
     if standalone:  # eigenständige Kartenseite; für die Vorschau-Seite (--site) nicht nötig

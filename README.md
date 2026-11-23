@@ -32,6 +32,8 @@ Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bi
 | **Nightfox**<br><sub>Nerd</sub> | <a href="docs/previews/dayfox.png"><img src="docs/previews/dayfox.png" width="256" alt="Dayfox"></a><br>Dayfox | <a href="docs/previews/nightfox.png"><img src="docs/previews/nightfox.png" width="256" alt="Nightfox"></a><br>Nightfox |
 | **Solarized**<br><sub>Nerd</sub> | <a href="docs/previews/solarized-light.png"><img src="docs/previews/solarized-light.png" width="256" alt="Solarized Light"></a><br>Solarized Light | <a href="docs/previews/solarized-dark.png"><img src="docs/previews/solarized-dark.png" width="256" alt="Solarized Dark"></a><br>Solarized Dark |
 | **Tokyo Night**<br><sub>Nerd</sub> | <a href="docs/previews/tokyonight-day.png"><img src="docs/previews/tokyonight-day.png" width="256" alt="Tokyo Night Day"></a><br>Tokyo Night Day | <a href="docs/previews/tokyonight-night.png"><img src="docs/previews/tokyonight-night.png" width="256" alt="Tokyo Night"></a><br>Tokyo Night |
+| **Phosphor**<br><sub>Nerd</sub> | <a href="docs/previews/endlospapier.png"><img src="docs/previews/endlospapier.png" width="256" alt="Endlospapier"></a><br>Endlospapier | <a href="docs/previews/phosphor.png"><img src="docs/previews/phosphor.png" width="256" alt="Phosphor"></a><br>Phosphor |
+| **Neon Cyberpunk**<br><sub>Nerd</sub> | <a href="docs/previews/cyberpunk-day.png"><img src="docs/previews/cyberpunk-day.png" width="256" alt="Cyberpunk Day"></a><br>Cyberpunk Day | <a href="docs/previews/cyberpunk.png"><img src="docs/previews/cyberpunk.png" width="256" alt="Neon Cyberpunk"></a><br>Neon Cyberpunk |
 
 ## Einrichtung
 
@@ -139,6 +141,7 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 | **Gruvbox Light** / **Dark** | Nerd | Gruvbox (MIT) |
 | **Solarized Light** / **Dark** | Nerd | Solarized (MIT) |
 | **Tokyo Night Day** / **Night** | Nerd | tokyonight.nvim (Apache-2.0) |
+| **Endlospapier** / **Phosphor** | Nerd | eigener Entwurf: grüner Röhrenmonitor (P1-Phosphor) mit Scanlines und Vignette; hell als Nadeldrucker-Ausdruck auf Tabellierpapier mit grünen Querstreifen und Lochrand. Schrift VT323; die Effekte sind eine CSS-Ebene im Browser (`overlay` im Stil) und fehlen daher in den Bildern oben |
 | **Cyberpunk Day** / **Neon Cyberpunk** | Nerd | maptoposter „neon_cyberpunk“ (MIT); helle Variante eigener Entwurf |
 
 Die Stile sind eigene Umsetzungen: Von den Vorbildern sind nur Farbwerte übernommen, keine Stildateien. Jeder Nachbau nennt sein Vorbild in `attribution`; bei Wiki verlangt die Lizenz das.
@@ -201,14 +204,18 @@ Ohne Dithering (`--nofs`), sonst werden die Dateien größer und die Flächen un
 
 ## 8-Bit-Modus
 
-`--pixel` lässt jeden Stil wie eine 8-Bit-Retrografik aussehen, die Kacheln bleiben PNGs mit 32 Farben:
+`--pixel` lässt jeden Stil wie eine 8-Bit-Retrografik aussehen: 16 Farben mit Bayer-Rastermuster, Schrift im Pixelraster.
 
 ```sh
 ./make-tiles.py --style styles/dracula.toml --pixel                           # Schrift VT323
 ./make-tiles.py --style styles/dracula.toml --pixel --font "Press Start 2P"   # oder "Silkscreen"
 ```
 
-Jede Kachel entsteht aus der Kachel eine Zoomstufe darüber: Deren passendes Viertel (128×128 px) wird ohne Glättung auf 256 px vergrößert, also aus 2×2-Pixelblöcken (@2x: 4×4). Weil die Karte so in halber Auflösung gezeichnet wird, bleiben Striche und Schrift lesbar; pngquant ohne Dithering sorgt danach für harte Farbkanten. Die Pixelschriften sind in `fonts.toml` per `scale` halbiert, damit sie nach dem Verdoppeln normal groß sind. Die Kartenseite zeigt hochgezoomte Kacheln ebenfalls ohne Glättung (`image-rendering: pixelated`).
+- **Pixel:** Jede Kachel entsteht aus der Kachel eine Zoomstufe darüber. Deren passendes Viertel (128×128 px) sind die echten 8-Bit-Pixel, die ohne Glättung auf 256 px vergrößert werden, also 2×2-Blöcke (@2x: 4×4). Weil die Karte so in halber Auflösung gezeichnet wird, bleiben Striche und Schrift lesbar.
+- **Farben:** eine Palette mit 16 Farben je Stil, für alle Kacheln gleich. Sie stammt aus den Farben der Stil-Datei. Die Textfarben sind fest dabei, den Rest füllen die Farben, die sich am stärksten unterscheiden. Zwischentöne werden mit einem Bayer-4×4-Muster gerastert, das über Kachelgrenzen hinweg deckungsgleich bleibt.
+- **Schrift:** Die Schriftgrößen werden auf das Pixelraster der Schrift gerundet (`grid` in `fonts.toml`, bei VT323 12,5 px), sodass ein Schriftpixel genau ein 8-Bit-Pixel ist. Straßennamen stehen waagerecht, weil schräge Schrift nie ins Raster passt.
+- **Anzeige:** Die Kartenseite zeigt hochgezoomte Kacheln ohne Glättung (`image-rendering: pixelated`).
+- **Voraussetzung:** numpy und Pillow (`requirements.txt`).
 
 | Schrift | Charakter |
 |---|---|

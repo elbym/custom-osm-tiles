@@ -1,0 +1,110 @@
+# Endlospapier: helles Gegenstück zu Phosphor, Ausdruck eines Nadeldruckers auf Tabellierpapier der 70er/80er.
+# Eigener Entwurf. Karte in grauer Farbbandtinte auf leicht gelblichem Papier, Flächen nur als blasse Graustufen;
+# die hellgrünen Querstreifen, der Lochrand und die Perforation kommen als CSS-Ebene (overlay = "paper").
+title = "Endlospapier"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"         # light | dark
+family = "Phosphor"    # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+order = 98
+font = "VT323"
+preview_font = "VT323"
+site_font = "VT323"    # öffentliche Vorschau in VT323 statt der Gruppenschrift (site.toml)
+fonts = ["mono"]
+text_scale = 1.15
+attribution = "Eigener Entwurf nach Tabellierpapier und Nadeldruckern"
+hide = ["poi_r20", "road_oneway*"]
+overlay = "paper"      # grüne Querstreifen, Lochrand und Perforation über der Karte
+
+# Tinte: i0 #2f3138 Schrift/Ränder · i1 #5b5d63 Linien · i2 #8c8d90 Nebenwege · Flächen #ecebe3 … #d9d9d1
+[paint."background"]
+background-color = "#f7f6ee"
+[paint."landuse-*"]
+fill-color = "#f2f1e9"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#ecebe3"
+[paint."landcover-*"]
+fill-color = "#ecebe3"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#e4e3db"
+[paint."landuse-cemetery"]
+fill-color = "#ecebe3"
+
+[paint."water*"]
+fill-color = "#e1e2df"
+line-color = "#8c8d90"
+
+[paint."building*"]
+fill-color = "#e2e1d9"
+fill-outline-color = "#8c8d90"
+
+# Straßen wie gedruckt: Papier als Füllung, Tinte als Rand; große Straßen grau gefüllt
+[paint."*-minor*"]
+line-color = "#fbfaf4"
+[paint."*-service-track"]
+line-color = "#fbfaf4"
+[paint."*-link"]
+line-color = "#d6d6d0"
+[paint."*-secondary-tertiary*"]
+line-color = "#fbfaf4"
+[paint."*-primary*"]
+line-color = "#d6d6d0"
+[paint."*-trunk*"]
+line-color = "#c4c4be"
+[paint."*-motorway*"]
+line-color = "#a9a9a5"
+[paint."*-casing"]
+line-color = "#5b5d63"
+[paint."*-motorway*-casing"]
+line-color = "#2f3138"
+[paint."highway-area"]                 # Fußgängerzonen, Plätze
+fill-color = "#f2f1e9"
+fill-outline-color = "#8c8d90"
+[paint."aeroway-*"]
+fill-color = "#e2e1d9"
+line-color = "#8c8d90"
+[paint."*-path"]
+line-color = "#8c8d90"
+[paint."*railway*"]
+line-color = "#5b5d63"
+[paint."road_area_pier"]
+fill-color = "#f7f6ee"
+[paint."road_pier"]
+line-color = "#f7f6ee"
+
+[paint."*label*"]
+text-color = "#2f3138"
+text-halo-color = "#f7f6ee"
+[paint."label_*"]
+text-color = "#2f3138"
+text-halo-color = "#f7f6ee"
+[paint."highway-name-*"]
+text-color = "#2f3138"
+text-halo-color = "#f7f6ee"
+[paint."poi_*"]
+text-color = "#4a4c52"
+text-halo-color = "#f7f6ee"
+[paint."water*label"]
+text-color = "#5b5d63"
+[paint."airport"]
+text-color = "#4a4c52"
+text-halo-color = "#f7f6ee"
+
+# >>> Akzent-Beschriftung: Straßennummern ohne weißes Schild, in Tinte
+[layout."*shield*"]
+icon-image = ""
+text-size = 12
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#2f3138", ["trunk", "primary"], "#3b3d44", "#5b5d63"]
+text-halo-color = "#f7f6ee"
+text-halo-width = 1.5
+# <<<
+
+# Terminal-Marker in Tinte, Prompt im Grün der Papierstreifen
+[marker]
+type = "terminal"
+color = "#2f3138"
+color2 = "#4f8a4f"
+bg = "#f7f6ee"
+fg = "#2f3138"
