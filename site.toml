@@ -9,6 +9,7 @@ radius = 1.2               # km um den Mittelpunkt; kleiner Ausschnitt rund um d
                            # ein viewport, siehe tiles_for(); größere Fenster sind dann nicht mehr verschiebbar)
 viewport = "1920x1920"     # größte Kartengröße; quadratisch, damit Hoch- und Querformat gefüllt sind
 retina = true              # @2x zusätzlich; bei 1,2 km Radius ca. 350–400 MB (Pages-Limit 1 GB)
+pixel = ["nerd"]           # diese Gruppen zusätzlich im 8-Bit-Modus (--pixel, Schrift VT323), Schalter "8 Bit"
 
 [fonts]                    # Schriften je Stil-Gruppe (category)
 standard = ["Fira Sans"]  # eine Schrift je Gruppe (= preview_font der Stile), halbiert die Renderzeit

@@ -131,6 +131,14 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - Dark styles need the `highway-area` and `aeroway-*` overrides, otherwise OSM Bright's light grey pedestrian areas glare. They also need lighter minor roads to stand out from buildings.
   - The generator scripts were one-offs and are not in the repo. The TOMLs are now the source of truth; edit them by hand.
 
+## 8-bit mode
+
+- `--pixel` (user request 2026-11-23, tried on Dracula first; must work for every style). For each tile, `render()` fetches the z-1 parent tile (`parent()`, an lru_cache cleared per render, because the URL on port 8089 is the same for every style). `pixelate()` crops the 128 px quadrant with magick and upscales it with `-filter point` ×2 (×4 for @2x), then pngquant runs as usual.
+- Side effects: the style is evaluated one zoom coarser, so there are fewer small labels, and icons look doubled. The terminal/bubble marker is still plain HTML.
+- Fonts: group `pixel` in `fonts.toml`, with `scale` ≈ 0.5·upm/capHeight so they look normal after doubling. The default is VT323 (`a.font` set in `main()`); Press Start 2P and Silkscreen are kept as options at the user's request. Rejected after a preview: Pixelify Sans (the user disliked it), Jersey 10, Micro 5, DotGothic16. The pixel group gets bold POI strokes.
+- `config.json` carries `pixel`, and `template.html` then sets `image-rendering: pixelated` on the tiles.
+- Public preview: `site.toml` `pixel = ["nerd"]` makes `build_site()` render each nerd style a second time in VT323 with `--pixel` (`site/<style>-vt323-8bit`, about 1.3 MB each). `streifen.html` shows an "8 Bit" button (`?px=1`) only for categories that have pixel variants, and `inSet()` keeps them apart from the normal variants. The Über dialog lists VT323.
+
 ## Fonts
 
 - Only the sources plus licences (`fonts-src/<font>/`) are in git. `style/fonts/` is gitignored and built by `ensure_glyphs()` from the face specs in `style/fonts.toml`.

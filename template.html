@@ -25,6 +25,8 @@ html, body { margin: 0; } #map { height: 100dvh; }
 <script src="leaflet/leaflet.js"></script>
 <script>
 const c = /*CONFIG*/{};
+// 8-Bit (--pixel): hochskalierte Kacheln (Leaflet-Zoom über die gerenderten Stufen) ohne Glättung zeigen
+if (c.pixel) document.head.appendChild(document.createElement('style')).textContent = '.leaflet-tile { image-rendering: pixelated; }';
 const map = L.map('map', {
   minZoom: c.zmin, maxZoom: c.zmax,
   maxBounds: c.bounds, maxBoundsViscosity: 1

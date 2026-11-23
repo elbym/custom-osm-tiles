@@ -6,7 +6,7 @@ Beispiel:
   ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --out out/kunde-xy
   ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # jeder Stil × jede Schrift zum Vergleichen
 """
-import argparse, fnmatch, os, re, io, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.request, zipfile
+import argparse, fnmatch, functools, os, re, io, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.request, zipfile
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
@@ -148,7 +148,7 @@ def build_style(toml_path, font=None):
                         {k: v for k, v in props.items() if k.startswith(prefixes) or k == "visibility"})
     # POI-Symbole: Phosphor im Kreis, Stärke nach Schriftgruppe, Farben aus dem Stil
     p, accent = t["paint"], t.get("marker", {}).get("color", "#888888")
-    weight = {"mono": "bold", "serif": "light"}.get(fcfg.get("group"), "regular")
+    weight = {"mono": "bold", "pixel": "bold", "serif": "light"}.get(fcfg.get("group"), "regular")
     s["sprite"] = poi_sprite(weight, p["background"]["background-color"], accent, p["poi_*"]["text-color"],
                              t.get("mode") == "dark")
     return s, f"{t.get('title', Path(toml_path).stem)} · {font}", t.get("attribution", ""), font
@@ -290,8 +290,10 @@ def build_site(a):
     site.mkdir(exist_ok=True)
     for st in sorted((ROOT / "styles").glob("*.toml")):
         meta = tomllib.loads(st.read_text())
-        for font in cfg["fonts"][meta.get("category", "standard")]:
-            out = site / f"{st.stem}-{font.lower().replace(' ', '-')}"
+        cat = meta.get("category", "standard")
+        # Schriften der Gruppe, dazu für Gruppen in pixel = [...] eine 8-Bit-Variante (Schalter "8 Bit" in der Vorschau)
+        for font, s.pixel in [(f, False) for f in cfg["fonts"][cat]] + ([("VT323", True)] if cat in cfg.get("pixel", []) else []):
+            out = site / f"{st.stem}-{font.lower().replace(' ', '-')}{'-8bit' if s.pixel else ''}"
             done = out / "config.json"
             keep = a.missing and done.exists()
             if keep and json.loads(done.read_text()).get("retina") == s.retina:
@@ -320,6 +322,21 @@ def optimize(files):
 
 
 OXIPNG = shutil.which("oxipng") or shutil.which(str(Path.home() / ".cargo/bin/oxipng"))
+
+
+@functools.lru_cache(maxsize=None)
+def parent(url):
+    """Elternkachel für --pixel; jede wird von vier Kindern (und @2x) gebraucht."""
+    return fetch(url)
+
+
+def pixelate(data, qx, qy, factor):
+    """--pixel: Viertel (qx, qy) der 256er-Elternkachel ohne Glättung vergrößern (128 px -> 256 bzw. @2x 512).
+    Die Elternkachel ist im Stil eine Stufe gröber gezeichnet, Striche und Schrift sind also schon halb so groß
+    und werden durch die Verdopplung wieder normal groß, nur eben aus 2×2-Blöcken."""
+    return subprocess.run(["magick", "png:-", "-crop", f"128x128+{qx * 128}+{qy * 128}", "+repage",
+                           "-filter", "point", "-resize", f"{factor * 100}%", "png:-"],
+                          input=data, capture_output=True, check=True).stdout
 
 
 def readme_previews(a, mb):
@@ -354,6 +371,9 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                 for sfx in (["", "@2x"] if a.retina else [""])]
 
         ext = "webp" if a.format == "webp" else "png"
+        parent.cache_clear()  # gleiche URL (Port 8089) für jeden Stil
+        if a.pixel and ext != "png":
+            sys.exit("--pixel nur mit PNG")
         if ext == "png" and not shutil.which("pngquant"):
             sys.exit("pngquant fehlt (für --format png): sudo dnf install pngquant, oder --format webp")
 
@@ -363,7 +383,10 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
             if keep and f.exists():
                 return None
             f.parent.mkdir(parents=True, exist_ok=True)
-            data = fetch(f"{base}/{z}/{x}/{y}{sfx}.{ext}")
+            if a.pixel:  # 8-Bit: Elternkachel (eine Stufe gröber) holen, Viertel ausschneiden, Pixel verdoppeln
+                data = pixelate(parent(f"{base}/{z - 1}/{x // 2}/{y // 2}.png"), x % 2, y % 2, 4 if sfx else 2)
+            else:
+                data = fetch(f"{base}/{z}/{x}/{y}{sfx}.{ext}")
             if ext == "png":  # Palette mit wenigen Farben, ohne Dithering (gemessen: kleiner als WebP, gleiche Qualität)
                 data = quantize(data, a.colors)
             f.write_bytes(data)
@@ -378,7 +401,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     cfg = dict(lat=a.lat, lon=a.lon, zmin=zmin, zmax=zmax, retina=a.retina,
                detail_from=a.detail_from, bounds=[[b[0], b[1]], [b[2], b[3]]],
                detail=[[d[0], d[1]], [d[2], d[3]]], attribution=attribution,
-               style=Path(style_file).stem, font=font, ext=ext)
+               style=Path(style_file).stem, font=font, ext=ext, pixel=a.pixel)
     meta = tomllib.loads(Path(style_file).read_text())  # Gliederung der Vorschau
     cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
                family=meta.get("family", meta.get("title", Path(style_file).stem)), order=meta.get("order", 50),
@@ -405,6 +428,8 @@ def main():
     p.add_argument("--retina", action="store_true", help="zusätzlich @2x rendern")
     p.add_argument("--format", choices=["png", "webp"], default="png",
                    help="png = Palette über pngquant (Standard, kleinste Dateien), webp = direkt vom tileserver")
+    p.add_argument("--pixel", action="store_true",
+                   help="8-Bit-Look: jede Kachel aus der gröberen Elternkachel, Pixel ohne Glättung verdoppelt; Schrift VT323")
     p.add_argument("--colors", type=int, default=32, help="Farben je PNG-Kachel (pngquant), Standard 32")
     p.add_argument("--label", help="Text im Terminal-Marker der Nerd-Stile (~/<label>), Standard: hier")
     p.add_argument("--style", help="Standard: styles/clear.toml; mit --all: nur dieser Stil")
@@ -418,6 +443,8 @@ def main():
     p.add_argument("--readme-previews", action="store_true",
                    help="je Stil ein 512×512-Bild (Zoom 12, ohne Marker) nach docs/previews/ für die README")
     a = p.parse_args()
+    if a.pixel and not a.font:
+        a.font = "VT323"  # 8-Bit-Schrift; Alternativen in fonts.toml: Press Start 2P, Silkscreen
     if a.reindex:
         for d in (ROOT / "out", ROOT / "site"):
             if d.exists():

@@ -52,6 +52,8 @@
   <label class="inline-flex items-center gap-1"><span class="sr-only">Schrift</span>
     <select id="font" class="rounded-md border border-neutral-400 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-800"></select>
   </label>
+  <!-- 8-Bit-Variante (?px=1), nur sichtbar, wenn die Gruppe welche hat (site.toml: pixel) -->
+  <button id="px" class="hidden rounded-md border border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">8 Bit</button>
   <!-- Stile ein-/ausblenden: Häkchen setzen, beim Zuklappen wird neu geladen (?aus=Familie,…) -->
   <details id="pick" class="relative">
     <summary class="cursor-pointer list-none rounded-md border border-neutral-400 px-3 py-1 dark:border-neutral-600">Stile <span id="pick-count"></span></summary>
@@ -84,7 +86,7 @@
     </section>
     <section>
       <h2 class="font-semibold">Schriften</h2>
-      <p>Fira Sans, Maple Mono: SIL Open Font License 1.1. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
+      <p>Fira Sans, Maple Mono, VT323 (8 Bit): SIL Open Font License 1.1. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
     </section>
     <section>
       <h2 class="font-semibold">Software auf dieser Seite</h2>
@@ -108,7 +110,10 @@ const dark = matchMedia('(prefers-color-scheme: dark)');
 const mode = ['light', 'dark'].includes(q.get('mode')) ? q.get('mode') : dark.matches ? 'dark' : 'light';
 dark.addEventListener('change', () => { if (!q.has('mode')) location.reload(); });
 document.documentElement.dataset.mode = mode;
-const inSet = c => c.category === cat && c.mode === mode;
+const hasPx = all.some(([, c]) => c.category === cat && c.pixel), px = hasPx && q.get('px') === '1';
+const inSet = c => c.category === cat && c.mode === mode && !!c.pixel === px;
+// 8 Bit: hochgezoomte Kacheln ohne Glättung
+if (px) document.head.appendChild(document.createElement('style')).textContent = '.leaflet-tile { image-rendering: pixelated; }';
 const fonts = [...new Set(all.filter(([, c]) => inSet(c)).map(([, c]) => c.font))].sort();
 const font = fonts.includes(q.get('font')) ? q.get('font') : fonts[0];
 // Reihenfolge der Streifen: order aus der Stil-Datei (Standard 50, höher = weiter rechts), dann alphabetisch
@@ -130,6 +135,9 @@ for (const [id, val] of [['cat', cat], ['mode', mode]]) {
 const sel = document.getElementById('font');
 sel.innerHTML = fonts.map(f => `<option${f === font ? ' selected' : ''}>${f}</option>`).join('');
 sel.onchange = () => go('font', sel.value);
+const pxb = document.getElementById('px');
+pxb.classList.toggle('hidden', !hasPx); pxb.setAttribute('aria-pressed', px);
+pxb.onclick = () => { q.delete('font'); if (px) { q.delete('px'); location.search = q; } else go('px', '1'); };
 
 // Stil-Auswahl: Änderungen sammeln, beim Zuklappen anwenden
 const pick = document.getElementById('pick'), list = document.getElementById('pick-list');

@@ -60,6 +60,7 @@ Außerdem nötig: podman, pngquant und Inkscape (`sudo dnf install pngquant inks
 | `--retina` | zusätzlich @2x-Kacheln für hochauflösende Bildschirme | aus |
 | `--format` | `png` (Palette über pngquant) oder `webp` | `png` |
 | `--colors` | Farben je PNG-Kachel | 32 |
+| `--pixel` | 8-Bit-Look für jeden Stil (siehe [8-Bit-Modus](#8-bit-modus)), Schrift VT323 | aus |
 | `--area` | Geofabrik-Region, muss den Bereich enthalten (https://download.geofabrik.de) | `detmold-regbez` |
 | `--label` | Text im Marker (Sprechblase bzw. Terminal `~/<label>`) | `hier` |
 | `--out` | Zielordner | `out/<stilname>` |
@@ -176,6 +177,7 @@ Ohne Achsenwerte wird die Datei unverändert übernommen, mit Achsenwerten wird 
 | Literata | serif | OFL |
 | TeX Gyre Schola | serif | GUST Font License |
 | Fira Code, JetBrains Mono, Maple Mono, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
+| VT323, Press Start 2P, Silkscreen | pixel (nur für `--pixel`) | OFL |
 
 Noto Sans ist keine eigene Variante, sondern nur Ersatz für Zeichen, die einer Schrift fehlen (z. B. Kyrillisch).
 
@@ -196,6 +198,25 @@ Gemessen an 80 Retina-Kacheln um die Sparrenburg (Zoom 16; Stile Clear, Papier, 
 oxipng kostet auf einer 2-Kern-VM etwa 0,2 s pro Kachel. Unter 16 Farben verlieren Symbole sichtbar Farbe. Zum Vergleich (ältere Messung, Stil Clear): WebP ist etwa so groß wie 32 Farben ohne oxipng, weicht aber mit 0,91 % stärker ab.
 
 Ohne Dithering (`--nofs`), sonst werden die Dateien größer und die Flächen unruhig.
+
+## 8-Bit-Modus
+
+`--pixel` lässt jeden Stil wie eine 8-Bit-Retrografik aussehen, die Kacheln bleiben PNGs mit 32 Farben:
+
+```sh
+./make-tiles.py --style styles/dracula.toml --pixel                           # Schrift VT323
+./make-tiles.py --style styles/dracula.toml --pixel --font "Press Start 2P"   # oder "Silkscreen"
+```
+
+Jede Kachel entsteht aus der Kachel eine Zoomstufe darüber: Deren passendes Viertel (128×128 px) wird ohne Glättung auf 256 px vergrößert, also aus 2×2-Pixelblöcken (@2x: 4×4). Weil die Karte so in halber Auflösung gezeichnet wird, bleiben Striche und Schrift lesbar; pngquant ohne Dithering sorgt danach für harte Farbkanten. Die Pixelschriften sind in `fonts.toml` per `scale` halbiert, damit sie nach dem Verdoppeln normal groß sind. Die Kartenseite zeigt hochgezoomte Kacheln ebenfalls ohne Glättung (`image-rendering: pixelated`).
+
+| Schrift | Charakter |
+|---|---|
+| **VT323** (Standard) | Terminalschrift (DEC VT320), schmal, gut lesbar |
+| Press Start 2P | Arcade-Klassiker, breit und fett, am deutlichsten „8 Bit“ |
+| Silkscreen | nur Versalien, sehr klar |
+
+Da die Karte eine Stufe gröber gezeichnet wird, zeigt sie etwas weniger kleine Straßennamen und POIs; die Symbole sind doppelt so groß.
 
 ## Ablauf
 
