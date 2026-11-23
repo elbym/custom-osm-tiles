@@ -88,9 +88,9 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 - `style/base.json` is OpenFreeMap's OSM Bright, kept close to upstream. The only changes: the source is `mbtiles://{osm}`, the `ne2_shaded` raster layer is removed, and glyphs and the sprite (`ofm*`) are local. Do all customisation in `styles/*.toml`.
 - TOML keys:
   - `title` is the window title; the font name is appended.
-  - `overlay` (`"crt"` | `"paper"`) is a CSS layer in the browser, never in the tiles, so scanlines stay sharp under Leaflet zoom.
-    - crt: scanlines and vignette. paper: green bars, tractor holes and perforation (multiply).
-    - It goes into config. `template.html` adds `ov-<name>` to `#map` (`::after`, z 650: above tiles and marker, below controls). `streifen.html` creates one fixed `.ov-*` div per strip, clipped in `clip()` in viewport coordinates.
+  - `overlay = "crt"` is a CSS layer in the browser, never in the tiles, so scanlines stay sharp under Leaflet zoom.
+    - It draws scanlines and a vignette whose centre glows in the marker colour (`--glow`).
+    - It goes into config. `template.html` adds `ov-crt` to `#map` (`::after`, z 650: above tiles and marker, below controls). `streifen.html` creates one fixed `.ov-crt` div per strip, clipped in `clip()` in viewport coordinates.
     - The CSS exists twice (`template.html`, `src/streifen.css`); keep both in sync.
   - `site_font` overrides the font `--site` renders for this style.
   - `category`, `mode` and `family` drive the preview pages. `order` (default 50; higher = further right, then alphabetical) sorts the strips. Both cyberpunk styles use 99, so they sit in the rightmost column, as the user asked.
@@ -133,7 +133,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
     - `protomaps-light`/`-dark`: Protomaps Basemaps flavours (design CC0).
     - `wiki`: Wikimedia Maps colours from wikimedia/osm-bright.tm2. The design is CC BY 3.0, so this attribution must stay, in `wiki-dark` too.
   - **Standard dark:** `clear-dark`, `cupertino-dark`, `north-dark`, `osm-dark`, `wiki-dark`, `americana-dark`, `papier-dark`, `protomaps-dark`.
-  - **Nerd, own design:** `phosphor` (green P1 CRT: 8 green steps on near-black, glow on major roads and place labels) and `endlospapier` (its light counterpart, family "Phosphor": dot-matrix ink on continuous form paper). Both use VT323 (`site_font` makes the public preview render them in VT323 instead of the category font; `streifen.html` then falls back to a family's own font). Order 98. User request 2026-11-23.
+  - **Nerd, own design:** `phosphor` (green P1 CRT: 8 green steps on near-black, glow on major roads and place labels) and `bernstein` (amber P3 CRT, same steps mapped to amber; it plays the "light" role in family "Phosphor" although the image is dark). The user first had a continuous-paper printout as the light variant, then replaced it with amber. Both use VT323 (`site_font` makes the public preview render them in VT323 instead of the category font; `streifen.html` then falls back to a family's own font). Order 98. User request 2026-11-23.
   - **Nerd, not editor themes:** `cyberpunk` ("Neon Cyberpunk", colours 1:1 from maptoposter `neon_cyberpunk.json`, MIT, neon glow on roads) and `cyberpunk-day` (own light counterpart: same hues darkened, no glow).
   - **Nerd** (editor-theme palettes): `dayfox`/`nightfox`, `catppuccin-latte`/`-mocha`, `dracula-light` ("Alucard", the official Dracula light palette) / `dracula`, `solarized-light`/`-dark`, `gruvbox-light`/`-dark`, `everforest-light`/`-dark`, `one-light`/`-dark` (Atom One) (all MIT), and `tokyonight-day`/`-night` (Apache-2.0).
 - For the recreations, only colour values were taken from the originals, never their style files. That is what the user asked for, to avoid licence problems, and each recreation names its inspiration in `attribution`.

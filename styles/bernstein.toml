@@ -1,0 +1,129 @@
+# Bernstein: Röhrenbildschirm mit P3-Phosphor (Bernstein/Amber, Terminals der 80er). Eigener Entwurf, helles
+# Gegenstück zu Phosphor (ein heller Röhrenmonitor existiert nicht; "hell" ist hier nur die Rolle in der Familie).
+# Gleiche Stufen wie Phosphor, alle Farben aus dem Grün ins Bernstein übertragen.
+# Scanlines und Vignette kommen nicht aus den Kacheln, sondern als CSS-Ebene im Browser (overlay = "crt").
+title = "Bernstein"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"         # light | dark (Rolle in der Familie, das Bild ist dunkel)
+family = "Phosphor"    # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten (dunkel: Phosphor)
+order = 98             # rechts, vor Neon Cyberpunk
+font = "VT323"         # Bildschirmschrift der DEC-Terminals
+preview_font = "VT323"
+site_font = "VT323"    # öffentliche Vorschau in VT323 statt der Gruppenschrift (site.toml)
+fonts = ["mono"]
+text_scale = 1.15
+attribution = "Eigener Entwurf nach Bernstein-Monitoren (P3-Phosphor)"
+hide = ["poi_r20", "road_oneway*"]
+overlay = "crt"        # Scanlines und Vignette über der Karte (template.html, Vorschau)
+
+# Stufen (Bernstein): g0 #0a0702 Grund · g1 #110c04 Flächen · g2 #1a1206 Grün · g3 #2a1c0a Gebäude/Wasser
+#         g4 #8a5a10 Nebenstraßen · g5 #c98a12 Straßen · g6 #f0a818 Hauptstraßen · g7 #ffcf5c Schrift
+[paint."background"]
+background-color = "#0a0702"
+[paint."landuse-*"]
+fill-color = "#110c04"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#1a1206"
+[paint."landcover-*"]
+fill-color = "#1a1206"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#20160a"
+[paint."landuse-cemetery"]
+fill-color = "#1a1206"
+
+[paint."water*"]
+fill-color = "#26190a"
+line-color = "#8a5a10"
+
+[paint."building*"]
+fill-color = "#1f1508"
+fill-outline-color = "#4a3210"
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#8a5a10"
+[paint."*-service-track"]
+line-color = "#5e3d0b"
+[paint."*-link"]
+line-color = "#c98a12"
+[paint."*-secondary-tertiary*"]
+line-color = "#c98a12"
+[paint."*-primary*"]
+line-color = "#f0a818"
+[paint."*-trunk*"]
+line-color = "#f0a818"
+[paint."*-motorway*"]
+line-color = "#ffcf5c"
+[paint."*-casing"]
+line-color = "#0a0702"
+# Nachleuchten: Ränder der großen Straßen bernsteinfarben und weichgezeichnet
+[paint."*-primary*-casing"]
+line-color = "#f0a818"
+line-blur = 3
+line-opacity = 0.35
+[paint."*-trunk*-casing"]
+line-color = "#f0a818"
+line-blur = 3
+line-opacity = 0.35
+[paint."*-motorway*-casing"]
+line-color = "#ffcf5c"
+line-blur = 4
+line-opacity = 0.45
+[paint."highway-area"]                 # Fußgängerzonen, Plätze
+fill-color = "#1f1508"
+fill-outline-color = "#1f1508"
+[paint."aeroway-*"]
+fill-color = "#1f1508"
+line-color = "#1f1508"
+[paint."*-path"]
+line-color = "#8a5a10"
+[paint."*railway*"]
+line-color = "#4a3210"
+[paint."road_area_pier"]
+fill-color = "#0a0702"
+[paint."road_pier"]
+line-color = "#0a0702"
+
+# Schrift: hell mit bernsteinfarbenem, weichem Halo = Nachleuchten
+[paint."*label*"]
+text-color = "#ffcf5c"
+text-halo-color = "#3d2808"
+text-halo-width = 2
+text-halo-blur = 2
+[paint."label_*"]
+text-color = "#ffcf5c"
+text-halo-color = "#3d2808"
+text-halo-width = 2
+text-halo-blur = 2
+[paint."highway-name-*"]
+text-color = "#f0a818"
+text-halo-color = "#0a0702"
+[paint."highway-name-major"]
+text-color = "#ffcf5c"
+[paint."poi_*"]
+text-color = "#f0a818"
+text-halo-color = "#0a0702"
+[paint."water*label"]
+text-color = "#c98a12"
+[paint."airport"]
+text-color = "#f0a818"
+text-halo-color = "#0a0702"
+
+# >>> Akzent-Beschriftung: Straßennummern ohne weißes Schild, nach Straßenklasse heller
+[layout."*shield*"]
+icon-image = ""
+text-size = 12
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#ffcf5c", ["trunk", "primary"], "#f0a818", "#c98a12"]
+text-halo-color = "#0a0702"
+text-halo-width = 1.5
+# <<<
+
+[marker]
+type = "terminal"
+color = "#f0a818"      # Rahmen, Cursor, Stiel
+color2 = "#8a5a10"     # Prompt ~/
+bg = "#0a0702"
+fg = "#ffcf5c"

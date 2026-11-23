@@ -4,7 +4,7 @@
 title = "Phosphor"
 category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
 mode = "dark"          # light | dark
-family = "Phosphor"    # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten (hell: Endlospapier)
+family = "Phosphor"    # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten (hell: Bernstein)
 order = 98             # rechts, vor Neon Cyberpunk
 font = "VT323"         # Bildschirmschrift der DEC-Terminals
 preview_font = "VT323"

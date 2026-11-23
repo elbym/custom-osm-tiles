@@ -115,7 +115,7 @@
     </section>
     <section>
       <h2 class="font-semibold">Schriften</h2>
-      <p>Fira Sans, Maple Mono, VT323 (8 Bit, Phosphor, Endlospapier): SIL Open Font License 1.1. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
+      <p>Fira Sans, Maple Mono, VT323 (8 Bit, Phosphor, Bernstein): SIL Open Font License 1.1. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
     </section>
     <section>
       <h2 class="font-semibold">Software auf dieser Seite</h2>
@@ -222,9 +222,13 @@ const panes = strips.map(([, v], i) => {
   if (c.zmax >= c.detail_from) layers[i].push(L.tileLayer(url, { pane: 'strip' + i, minZoom: c.detail_from, bounds: c.detail }));
   return pane;
 });
-// Ebene je Streifen für overlay im Stil (Phosphor: crt, Endlospapier: paper), zugeschnitten in clip()
-const overlays = strips.map(([, v]) => v?.[1].overlay ? document.body.insertBefore(
-  Object.assign(document.createElement('div'), { className: 'ov-' + v[1].overlay }), document.getElementById('titles')) : null);
+// Ebene je Streifen für overlay im Stil (Phosphor, Bernstein: crt), zugeschnitten in clip(), Glühen in der Markerfarbe
+const overlays = strips.map(([, v]) => {
+  if (!v?.[1].overlay) return null;
+  const el = Object.assign(document.createElement('div'), { className: 'ov-' + v[1].overlay });
+  el.style.setProperty('--glow', v[1].marker?.color);
+  return document.body.insertBefore(el, document.getElementById('titles'));
+});
 // Marker im Stil des mittleren Streifens (dort liegt er beim Öffnen)
 const mid = strips[Math.floor(strips.length / 2)][1] || strips.find(([, v]) => v)[1];
 const marker = L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker), title: mid?.[1].marker?.label }).addTo(map);

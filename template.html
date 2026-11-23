@@ -18,16 +18,10 @@ html, body { margin: 0; } #map { height: 100dvh; }
 .term .cur { display: inline-block; width: .6em; height: 1.05em; margin-left: .35em; background: var(--c1); vertical-align: -2px; }
 .term .stem { width: 2px; height: 12px; background: var(--c1); }
 /* overlay im Stil: über Kacheln und Marker, unter den Bedienelementen. Kopie in src/streifen.css (.ov-*), gleich halten.
-   crt (Phosphor): Scanlines und Vignette. paper (Endlospapier): grüne Querstreifen, Lochrand, Perforation. */
-.ov-crt::after, .ov-paper::after { content: ""; position: absolute; inset: 0; z-index: 650; pointer-events: none; }
-.ov-crt::after { background: repeating-linear-gradient(to bottom, rgb(0 0 0 / .3) 0 1px, transparent 1px 3px),
-    radial-gradient(ellipse at center, rgb(80 255 120 / .07), transparent 55%, rgb(0 0 0 / .6)); }
-.ov-paper::after { mix-blend-mode: multiply;
-  background: radial-gradient(circle at 11px 12px, #c9c9c2 0 4px, #8f8f88 4.5px, transparent 5.5px) left top / 22px 24px repeat-y,
-    radial-gradient(circle at 11px 12px, #c9c9c2 0 4px, #8f8f88 4.5px, transparent 5.5px) right top / 22px 24px repeat-y,
-    repeating-linear-gradient(to bottom, transparent 0 3px, #b9b9b2 3px 6px) 25px 0 / 1px 100% no-repeat,
-    repeating-linear-gradient(to bottom, transparent 0 3px, #b9b9b2 3px 6px) calc(100% - 25px) 0 / 1px 100% no-repeat,
-    repeating-linear-gradient(to bottom, rgb(150 205 150 / .35) 0 36px, transparent 36px 72px); }
+   crt (Phosphor, Bernstein): Scanlines und Vignette, Mitte leicht in der Markerfarbe (--glow) glühend. */
+.ov-crt::after { content: ""; position: absolute; inset: 0; z-index: 650; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgb(0 0 0 / .3) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, color-mix(in srgb, var(--glow, #50ff78) 8%, transparent), transparent 55%, rgb(0 0 0 / .6)); }
 .term .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); box-shadow: 0 0 0 3px var(--bg); }
 </style>
 </head>
@@ -37,7 +31,7 @@ html, body { margin: 0; } #map { height: 100dvh; }
 <script>
 const c = /*CONFIG*/{};
 // 8-Bit (--pixel): hochskalierte Kacheln (Leaflet-Zoom über die gerenderten Stufen) ohne Glättung zeigen
-if (c.overlay) document.getElementById('map').classList.add('ov-' + c.overlay);
+if (c.overlay) { const m = document.getElementById('map'); m.classList.add('ov-' + c.overlay); m.style.setProperty('--glow', c.marker?.color); }
 if (c.pixel) document.head.appendChild(document.createElement('style')).textContent = '.leaflet-tile { image-rendering: pixelated; }';
 const map = L.map('map', {
   minZoom: c.zmin, maxZoom: c.zmax,

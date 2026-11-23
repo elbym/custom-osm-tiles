@@ -42,14 +42,8 @@
 /* Leaflet-Namensnennung auf schmalen Bildschirmen nicht über die Bedienleiste legen */
 .leaflet-control-attribution { font-size: 10px; }
 
-/* overlay im Stil (Phosphor, Endlospapier): je Streifen eine feste Ebene über der Karte, zugeschnitten wie der
-   Streifen (clip() in streifen.html). Kopie der Regeln aus template.html, gleich halten. */
-.ov-crt, .ov-paper { position: fixed; inset: 0; pointer-events: none; }
-.ov-crt { background: repeating-linear-gradient(to bottom, rgb(0 0 0 / .3) 0 1px, transparent 1px 3px),
-    radial-gradient(ellipse at center, rgb(80 255 120 / .07), transparent 55%, rgb(0 0 0 / .6)); }
-.ov-paper { mix-blend-mode: multiply;
-  background: radial-gradient(circle at 11px 12px, #c9c9c2 0 4px, #8f8f88 4.5px, transparent 5.5px) left top / 22px 24px repeat-y,
-    radial-gradient(circle at 11px 12px, #c9c9c2 0 4px, #8f8f88 4.5px, transparent 5.5px) right top / 22px 24px repeat-y,
-    repeating-linear-gradient(to bottom, transparent 0 3px, #b9b9b2 3px 6px) 25px 0 / 1px 100% no-repeat,
-    repeating-linear-gradient(to bottom, transparent 0 3px, #b9b9b2 3px 6px) calc(100% - 25px) 0 / 1px 100% no-repeat,
-    repeating-linear-gradient(to bottom, rgb(150 205 150 / .35) 0 36px, transparent 36px 72px); }
+/* overlay im Stil (Phosphor, Bernstein): je Streifen eine feste Ebene über der Karte, zugeschnitten wie der
+   Streifen (clip() in streifen.html), --glow = Markerfarbe. Kopie der Regel aus template.html, gleich halten. */
+.ov-crt { position: fixed; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgb(0 0 0 / .3) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, color-mix(in srgb, var(--glow, #50ff78) 8%, transparent), transparent 55%, rgb(0 0 0 / .6)); }
