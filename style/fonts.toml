@@ -67,17 +67,17 @@ Regular = { file = "figtree/Figtree-VF.ttf", wght = 400 }
 Bold    = { file = "figtree/Figtree-VF.ttf", wght = 700 }
 Italic  = { file = "figtree/Figtree-Italic-VF.ttf", wght = 400 }
 
-["Libertinus Sans"]   # Libertinus = Nachfolger von Linux Libertine (Wikipedia-Logo)
+["TeX Gyre Heros"]   # Helvetica-Nachbau; Wikipedia (Vector) zeigt auf vielen Systemen Helvetica/Arial
 group = "sans"
-Regular = { file = "libertinus-sans/LibertinusSans-Regular.ttf" }
-Bold    = { file = "libertinus-sans/LibertinusSans-Bold.ttf" }
-Italic  = { file = "libertinus-sans/LibertinusSans-Italic.ttf" }
+Regular = { file = "tex-gyre-heros/texgyreheros-regular.otf" }
+Bold    = { file = "tex-gyre-heros/texgyreheros-bold.otf" }
+Italic  = { file = "tex-gyre-heros/texgyreheros-italic.otf" }
 
-[Fraunces]   # weich (SOFT 50), ohne Schnörkel (WONK 0), optische Größe 12
-group = "serif"
-Regular = { file = "fraunces/Fraunces-VF.ttf", wght = 400, opsz = 12, SOFT = 50, WONK = 0 }
-Bold    = { file = "fraunces/Fraunces-VF.ttf", wght = 700, opsz = 12, SOFT = 50, WONK = 0 }
-Italic  = { file = "fraunces/Fraunces-Italic-VF.ttf", wght = 400, opsz = 12, SOFT = 50, WONK = 0 }
+["TeX Gyre Adventor"]   # geometrisch und breit (Avant-Garde-Nachbau), für Bluecron
+group = "sans"
+Regular = { file = "tex-gyre-adventor/texgyreadventor-regular.otf" }
+Bold    = { file = "tex-gyre-adventor/texgyreadventor-bold.otf" }
+Italic  = { file = "tex-gyre-adventor/texgyreadventor-italic.otf" }
 
 # Monoschriften (für die Editor-Themes)
 ["Fira Code"]   # keine Kursive: Italic = Regular
