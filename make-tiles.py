@@ -154,6 +154,8 @@ def build_style(toml_path, font=None, center=None, pixel=False):
                 if fnmatch.fnmatch(l["id"], glob):
                     l.setdefault(kind, {}).update(
                         {k: v for k, v in props.items() if k.startswith(prefixes) or k == "visibility"})
+        if pixel and "grid" in fcfg and "text-halo-color" in l.get("paint", {}):  # 8 Bit: Rand hält Raster von Schrift fern
+            l["paint"]["text-halo-width"] = PIXEL_HALO
     # POI-Symbole: Phosphor im Kreis, Stärke nach Schriftgruppe, Farben aus dem Stil
     p, accent = t["paint"], t.get("marker", {}).get("color", "#888888")
     weight = {"mono": "bold", "pixel": "bold", "serif": "light"}.get(fcfg.get("group"), "regular")
@@ -415,28 +417,36 @@ def lowres(data, qx, qy):
 
 
 PIXEL_COLORS = 16   # --pixel: Farben je Stil (eine Palette für alle Kacheln)
+PIXEL_HALO = 2      # --pixel: Randbreite um Schrift (px im 128er-Raster, also 2 Schriftpixel)
+TEXT_MERGE = 24     # --pixel: Textfarben näher als das (RGB-Abstand) werden eine Palettenfarbe
+TEXT_SNAP = 40      # --pixel: Pixel so nah an einer Textfarbe werden ohne Raster abgebildet (Schrift bleibt glatt)
 BAYER_SPREAD = 40   # Stärke des Musters (RGB-Einheiten); höher = mehr Raster, auch auf reinen Flächen
 
 
 def pixel_palette(px, toml_path, n=PIXEL_COLORS):
     """Palette aus den Farben der Stil-Datei: jede Hex-Farbe gewichtet mit der Zahl der Pixel, die ihr am nächsten
-    liegen. Erst die bis zu sechs häufigsten Textfarben (Schrift wird nie gerastert), dann die häufigste Farbe, dann
-    jeweils die mit dem größten Abstand × log(Gewicht)."""
+    liegen. Erst die häufigste Farbe, dann alle Textfarben des Stils, auch ohne Gewicht (dünne, geglättete Schrift hat
+    kaum reine Pixel), fast gleiche zusammengefasst; dann jeweils die mit dem größten Abstand × log(Gewicht).
+    Gibt (Palette, Anzahl Textfarben hinter Index 0) zurück."""
     import numpy as np
     src = Path(toml_path).read_text()
     cand = sorted(set(re.findall(r'"(#[0-9a-fA-F]{6})"', src)))
-    texts = set(re.findall(r'text-color\s*=\s*"(#[0-9a-fA-F]{6})"', src))
+    texts = set(re.findall(r'#[0-9a-fA-F]{6}', " ".join(re.findall(r'text-color\s*=(.*)', src))))  # auch in match
     cv = np.array([[int(h[i:i + 2], 16) for i in (1, 3, 5)] for h in cand], float)
     u, c = np.unique(px, axis=0, return_counts=True)
     w = np.bincount((((u[:, None].astype(float) - cv[None]) ** 2).sum(-1)).argmin(1), weights=c, minlength=len(cv))
     order = np.argsort(-w)
-    pal = [cv[i] for i in order if cand[i] in texts and w[i] > 0][:6]
-    pal.insert(0, cv[order[0]])
+    pal = [cv[order[0]]]
+    for i in order:
+        if cand[i] in texts and min(((cv[i] - q) ** 2).sum() for q in pal) > TEXT_MERGE ** 2:
+            pal.append(cv[i])
+    pal = pal[:n // 2]  # ponytail: mehr als 7 Textfarben hat kein Stil; Rest bleibt für Flächen
+    k = len(pal) - 1
     ok = w > 0
-    while len(pal) < min(n, ok.sum()):
+    while len(pal) < min(n, ok.sum() + k):
         d = np.min([((cv - q) ** 2).sum(1) for q in pal], axis=0) ** .5
         pal.append(cv[np.where(ok, d * np.log1p(w), -1).argmax()])
-    return np.array(pal)
+    return np.array(pal), k
 
 
 def dither_tiles(files, toml_path, retina):
@@ -445,14 +455,18 @@ def dither_tiles(files, toml_path, retina):
     import numpy as np
     from PIL import Image
     sample = np.concatenate([np.asarray(Image.open(f).convert("RGB"))[::2, ::2].reshape(-1, 3) for f in files])
-    pal = pixel_palette(sample, toml_path)
+    pal, k = pixel_palette(sample, toml_path)
     bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]])
     shift = np.tile((bayer + .5) / 16 - .5, (32, 32))[..., None] * BAYER_SPREAD
     flat = [int(v) for v in pal.flatten()] + [0] * (768 - pal.size)
     out = []
     for f in files:
-        a = np.asarray(Image.open(f).convert("RGB"), float) + shift
-        im = Image.fromarray((((a[..., None, :] - pal) ** 2).sum(-1)).argmin(-1).astype(np.uint8), "P")
+        a = np.asarray(Image.open(f).convert("RGB"), float)
+        d = ((a[..., None, :] - pal) ** 2).sum(-1)
+        near = d.argmin(-1)
+        idx = (((a + shift)[..., None, :] - pal) ** 2).sum(-1).argmin(-1)
+        text = (near >= 1) & (near <= k) & (d.min(-1) < TEXT_SNAP ** 2)  # Schrift: nächste Farbe, kein Raster
+        im = Image.fromarray(np.where(text, near, idx).astype(np.uint8), "P")
         im.putpalette(flat)
         if retina:
             out.append(f.with_name(f.stem + "@2x.png"))
