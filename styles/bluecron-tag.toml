@@ -1,0 +1,97 @@
+# "Bluecron Tag" (Arbeitstitel): helles Gegenstück zu "Bluecron" bei Tageslicht.
+#   - Grund kühles Hellgrau-Blau
+#   - Gebäude weiß mit Cyan-Kante (Drahtgitter auf Papier)
+#   - Hauptstraßen tiefes Cyan, Nebenstraßen weiß mit feiner Cyan-Kontur, Autobahn Orange, kein Leuchtschein
+title = "Bluecron Tag"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "light"          # light | dark
+family = "Bluecron"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+order = 97
+font = "Space Grotesk"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
+site_font = "Space Grotesk"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+fonts = ["sans", "mono"]   # Schriftgruppen für --all-fonts
+text_scale = 1.1
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#e8eff3"
+[paint."landuse-*"]
+fill-color = "#e3ebf0"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#d6e6ea"
+[paint."landcover-*"]
+fill-color = "#d6e6ea"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-color = "#d6e6ea"
+
+[paint."water*"]
+fill-color = "#b8d6e2"
+line-color = "#1a8fb0"
+
+[paint."building*"]
+fill-color = "#f6fafc"
+fill-outline-color = "#a3d3e0"   # Kante zurückgenommen
+
+[paint."*-minor*"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#ffffff"
+[paint."*-link"]
+line-color = "#ffffff"
+[paint."*-secondary-tertiary*"]
+line-color = "#bfe8f4"
+[paint."*-primary*"]
+line-color = "#1aa6cc"
+[paint."*-trunk*"]
+line-color = "#1aa6cc"
+[paint."*-motorway*"]
+line-color = "#f08a24"
+[paint."*-casing"]
+line-color = "#a9cbd8"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#5fb8d0"
+[paint."*-primary*-casing"]
+line-color = "#0b6f8c"
+[paint."*-trunk*-casing"]
+line-color = "#0b6f8c"
+[paint."*-motorway*-casing"]
+line-color = "#b85a0a"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#f6fafc"
+fill-outline-color = "#a9cbd8"
+[paint."aeroway-*"]
+fill-color = "#dde7ec"
+line-color = "#dde7ec"
+[paint."*-path"]
+line-color = "#4fa6be"
+[paint."*railway*"]
+line-color = "#8aa2ad"
+[paint."road_area_pier"]
+fill-color = "#e8eff3"
+[paint."road_pier"]
+line-color = "#e8eff3"
+
+# Ortsnamen tiefes Blauschwarz, POIs in der Markerfarbe (#0a6f8a, Kontrast ≥ 4,5:1)
+[paint."label_*"]
+text-color = "#0b2530"
+text-halo-color = "#e8eff3"
+[paint."highway-name-*"]
+text-color = "#24505f"
+text-halo-color = "#f6fafc"
+[paint."poi_*"]
+text-color = "#0a6f8a"
+text-halo-color = "#e8eff3"
+[paint."water*label"]
+text-color = "#0b6f8c"
+
+# >>> Marker
+[marker]
+type = "terminal"   # leaflet | terminal
+color = "#0a6f8a"      # Rahmen, Cursor, Stiel
+color2 = "#c46a10"     # Prompt ~/
+bg = "#f6fafc"
+fg = "#0b2530"
+# <<< Marker

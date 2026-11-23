@@ -32,6 +32,7 @@ Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bi
 | **Nightfox**<br><sub>Nerd</sub> | <a href="docs/previews/dayfox.png"><img src="docs/previews/dayfox.png" width="256" alt="Dayfox"></a><br>Dayfox | <a href="docs/previews/nightfox.png"><img src="docs/previews/nightfox.png" width="256" alt="Nightfox"></a><br>Nightfox |
 | **Solarized**<br><sub>Nerd</sub> | <a href="docs/previews/solarized-light.png"><img src="docs/previews/solarized-light.png" width="256" alt="Solarized Light"></a><br>Solarized Light | <a href="docs/previews/solarized-dark.png"><img src="docs/previews/solarized-dark.png" width="256" alt="Solarized Dark"></a><br>Solarized Dark |
 | **Tokyo Night**<br><sub>Nerd</sub> | <a href="docs/previews/tokyonight-day.png"><img src="docs/previews/tokyonight-day.png" width="256" alt="Tokyo Night Day"></a><br>Tokyo Night Day | <a href="docs/previews/tokyonight-night.png"><img src="docs/previews/tokyonight-night.png" width="256" alt="Tokyo Night"></a><br>Tokyo Night |
+| **Bluecron**<br><sub>Nerd</sub> | <a href="docs/previews/bluecron-tag.png"><img src="docs/previews/bluecron-tag.png" width="256" alt="Bluecron Tag"></a><br>Bluecron Tag | <a href="docs/previews/bluecron.png"><img src="docs/previews/bluecron.png" width="256" alt="Bluecron"></a><br>Bluecron |
 | **Phosphor**<br><sub>Nerd</sub> | <a href="docs/previews/bernstein.png"><img src="docs/previews/bernstein.png" width="256" alt="Bernstein"></a><br>Bernstein | <a href="docs/previews/phosphor.png"><img src="docs/previews/phosphor.png" width="256" alt="Phosphor"></a><br>Phosphor |
 | **Neon Cyberpunk**<br><sub>Nerd</sub> | <a href="docs/previews/cyberpunk-day.png"><img src="docs/previews/cyberpunk-day.png" width="256" alt="Cyberpunk Day"></a><br>Cyberpunk Day | <a href="docs/previews/cyberpunk.png"><img src="docs/previews/cyberpunk.png" width="256" alt="Neon Cyberpunk"></a><br>Neon Cyberpunk |
 
@@ -142,6 +143,7 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 | **Gruvbox Light** / **Dark** | Nerd | Gruvbox (MIT) |
 | **Solarized Light** / **Dark** | Nerd | Solarized (MIT) |
 | **Tokyo Night Day** / **Night** | Nerd | tokyonight.nvim (Apache-2.0) |
+| **Bluecron Tag** / **Bluecron** | Nerd | eigener Entwurf (Arbeitstitel) im Look von Tron: fast schwarzer Grund, Gebäude als Drahtgitter mit Cyan-Kante, Hauptstraßen weißglühend mit Cyan-Leuchtschein, Autobahn Orange; hell als Drahtgitter auf Papier ohne Leuchten. Schrift Space Grotesk |
 | **Bernstein** / **Phosphor** | Nerd | eigener Entwurf: Röhrenmonitor in Grün (P1-Phosphor) bzw. Bernstein (P3), Scanlines und Vignette, Schrift VT323. Bernstein ist in der Familie die „helle“ Variante, obwohl das Bild dunkel ist. Die Röhren-Effekte sind eine CSS-Ebene im Browser (`overlay` im Stil) und fehlen daher in den Bildern oben |
 | **Cyberpunk Day** / **Neon Cyberpunk** | Nerd | maptoposter „neon_cyberpunk“ (MIT); helle Variante eigener Entwurf in Warnfarben: gelber Grund, Pink und Cyan, schwarze Konturen, ohne Leuchten |
 

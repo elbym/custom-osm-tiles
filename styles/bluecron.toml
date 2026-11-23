@@ -1,0 +1,112 @@
+# "Bluecron" (Arbeitstitel): eigener Stil im Look von Tron, dunkel.
+#   - Grund fast schwarz mit kaltem Blaustich
+#   - Gebäude als Drahtgitter: dunkles Glas mit leuchtender Cyan-Kante
+#   - Hauptstraßen weißglühender Kern mit cyanfarbenem Leuchtschein (Lichtrenner-Spur), Nebenstraßen dünnes Cyan
+#   - Autobahn Orange als einzige Gegenfarbe (die "andere Seite"), Wasser schwarz mit Cyan-Uferlinie
+#   - Unterschied zu Neon Cyberpunk: kein Pink, kein Violett im Grund, dafür Gebäudekanten
+title = "Bluecron"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Bluecron"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+order = 97
+font = "Space Grotesk"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
+site_font = "Space Grotesk"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+fonts = ["sans", "mono"]   # Schriftgruppen für --all-fonts
+text_scale = 1.1
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#04080c"
+[paint."landuse-*"]
+fill-color = "#060b10"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#071116"
+[paint."landcover-*"]
+fill-color = "#071116"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-color = "#071116"
+
+[paint."water*"]
+fill-color = "#01050a"
+line-color = "#1a9fc0"
+
+# Drahtgitter: Glasfläche, Kante in Cyan
+[paint."building*"]
+fill-color = "#08131b"
+fill-outline-color = "#15607a"   # Kante zurückgenommen (Straßen vorn)
+
+# Straßen: weißglühender Kern, Ränder als Leuchtschein (line-blur) in Cyan, Autobahn Orange
+[paint."*-minor*"]
+line-color = "#0d4a5c"
+[paint."*-service-track"]
+line-color = "#0a3846"
+[paint."*-link"]
+line-color = "#2bc4e8"
+[paint."*-secondary-tertiary*"]
+line-color = "#2bc4e8"
+[paint."*-primary*"]
+line-color = "#e6fbff"
+[paint."*-trunk*"]
+line-color = "#e6fbff"
+[paint."*-motorway*"]
+line-color = "#ffb066"
+[paint."*-casing"]
+line-color = "#04080c"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#2bc4e8"   # Leuchtschein
+line-blur = 2
+line-opacity = 0.35
+[paint."*-primary*-casing"]
+line-color = "#3fd8ff"   # Leuchtschein
+line-blur = 4
+line-opacity = 0.75
+[paint."*-trunk*-casing"]
+line-color = "#3fd8ff"   # Leuchtschein
+line-blur = 4
+line-opacity = 0.75
+[paint."*-motorway*-casing"]
+line-color = "#ff8a1f"   # Leuchtschein
+line-blur = 4
+line-opacity = 0.8
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#0a1820"
+fill-outline-color = "#1a6f88"
+[paint."aeroway-*"]
+fill-color = "#0a1218"
+line-color = "#0a1218"
+[paint."*-path"]
+line-color = "#1a7f99"
+[paint."*railway*"]
+line-color = "#3a5866"
+[paint."road_area_pier"]
+fill-color = "#04080c"
+[paint."road_pier"]
+line-color = "#04080c"
+
+# Ortsnamen weiß mit Cyan-Schein, Straßennamen helles Cyan, POIs in der Markerfarbe
+[paint."label_*"]
+text-color = "#eafcff"
+text-halo-color = "#0b5f78"
+text-halo-width = 2
+text-halo-blur = 2
+[paint."highway-name-*"]
+text-color = "#9fe8fa"
+text-halo-color = "#04080c"
+[paint."poi_*"]
+text-color = "#3fd8ff"
+text-halo-color = "#04080c"
+[paint."water*label"]
+text-color = "#2bc4e8"
+
+# >>> Marker
+# Terminal-Marker: Kästchen "~/<--label>" mit Block-Cursor, Stiel und Punkt auf der Position
+[marker]
+type = "terminal"   # leaflet | terminal
+color = "#3fd8ff"      # Rahmen, Cursor, Stiel
+color2 = "#ffb066"     # Prompt ~/
+bg = "#04080c"
+fg = "#eafcff"
+# <<< Marker
