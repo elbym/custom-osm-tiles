@@ -165,10 +165,24 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
         if streets and (any(fnmatch.fnmatch(l["id"], g) for g in STREETS_DROP)
                         or not any(fnmatch.fnmatch(l["id"], g) for g in STREETS_KEEP)):
             lay["visibility"] = "none"
+        if pixel:  # Stil wie auf der Zielzoomstufe auswerten, nur 1/pixel so groß gezeichnet (siehe zoom_shift)
+            dz = pixel.bit_length() - 1
+            for kind in ("paint", "layout"):
+                for k, v in l.get(kind, {}).items():
+                    if k != "text-size":
+                        l[kind][k] = zoom_shift(v, dz)
+            for k in ("line-width", "line-gap-width", "line-offset"):  # Breiten maßstäblich, Linien mindestens
+                if k in l.get("paint", {}):                              # PIXEL_MIN_LINE, sonst reißen sie im Raster
+                    l["paint"][k] = scale_out(l["paint"][k], 1 / pixel, PIXEL_MIN_LINE if k == "line-width" else 0)
+            for k in ("minzoom", "maxzoom"):
+                if k in l:
+                    l[k] = max(0, l[k] - dz)
+            # Straßenränder wären im groben Raster nur einen halben Pixel breit und zerfielen in Punkte; den Rand zieht
+            # der Umriss in dither_tiles(). Leuchtränder (line-blur) bleiben.
+            if l["id"].endswith("-casing") and l["type"] == "line" and not l.get("paint", {}).get("line-blur"):
+                lay["visibility"] = "none"
         if pixel and "grid" in fcfg and "text-halo-color" in l.get("paint", {}):  # 8 Bit: Rand hält Raster von Schrift fern
             l["paint"]["text-halo-width"] = PIXEL_HALO * 2 // pixel
-        if pixel == 4 and l["type"] == "symbol" and "minzoom" in l:
-            l["minzoom"] = max(0, l["minzoom"] - 2)
     # POI-Symbole: Phosphor im Kreis, Stärke nach Schriftgruppe, Farben aus dem Stil
     p, accent = t["paint"], t.get("marker", {}).get("color", "#888888")
     weight = {"mono": "bold", "pixel": "bold", "serif": "light"}.get(fcfg.get("group"), "regular")
@@ -177,6 +191,29 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
     if t.get("graticule") and center:
         graticule(s, center, accent, p["background"]["background-color"], font)
     return s, f"{t.get('title', Path(toml_path).stem)} · {font}", t.get("attribution", ""), font
+
+
+def zoom_shift(expr, dz):
+    """--pixel: zoomabhängige Ausdrücke dz Stufen früher. Die Vorfahrkachel wird dz Stufen gröber gerendert; so sieht
+    sie aus wie die Zielzoomstufe (sonst fehlen z. B. Füllungen der Nebenstraßen, Breite 0 unter z13,5)."""
+    if not isinstance(expr, list):
+        return expr
+    expr = [zoom_shift(e, dz) for e in expr]
+    if expr[:1] in (["interpolate"], ["interpolate-hcl"], ["interpolate-lab"]) and expr[2] == ["zoom"]:
+        expr[3::2] = [z - dz for z in expr[3::2]]
+    elif expr[:1] == ["step"] and expr[1] == ["zoom"]:
+        expr[3::2] = [z - dz for z in expr[3::2]]
+    return expr
+
+
+def scale_out(expr, k, least=0):
+    """Zahl oder Ausgaben eines interpolate/step-Ausdrucks mal k, aber mindestens least (0 bleibt 0: unsichtbar)."""
+    if isinstance(expr, (int, float)):
+        return max(expr * k, least) if expr else expr
+    if isinstance(expr, list) and expr[:1] in (["interpolate"], ["step"]):
+        first = 4 if expr[0] == "interpolate" else 2
+        return expr[:first] + [scale_out(v, k, least) if i % 2 == 0 else v for i, v in enumerate(expr[first:])]
+    return expr
 
 
 def on_grid(size, grid, sub=1):
@@ -439,6 +476,7 @@ def lowres(data, f, qx, qy):
     return buf.getvalue()
 
 
+PIXEL_MIN_LINE = 1.7  # --pixel: Mindestbreite von Linien in Rasterpixeln, sonst reißen sie im Raster ab
 PIXEL_COLORS = 16   # --pixel: Farben der Karte je Stil (eine Palette für alle Kacheln)
 LABEL_COLORS = 8    # --pixel: Farben der Beschriftungsebene (Schrift, Rand, Symbole), kommen zur Palette dazu
 OUTLINE_STEP = 24   # --pixel: Helligkeitssprung (0–255), ab dem ein Flächenpixel zum Umriss wird
@@ -556,14 +594,17 @@ def dither_tiles(files, toml_path, retina):
     near = lambda img, p: (((img[..., None, :].astype(float) - p) ** 2).sum(-1)).argmin(-1)
     out = []
     for f in files:
-        idx = (blocks(near(maps[f], pal)) == np.arange(len(pal))).sum(2).argmax(-1)
+        idx = (blocks(near(maps[f], pal)) == np.arange(len(pal))).sum(2).argmax(-1)  # je Block die häufigste Farbe
         # verirrte Einzelpixel: alle vier Nachbarn gleich und anders als das Pixel -> Nachbarfarbe
         p = np.pad(idx, 1, mode="edge")
         n4 = np.stack([p[:-2, 1:-1], p[2:, 1:-1], p[1:-1, :-2], p[1:-1, 2:]])
         idx = np.where((n4 == n4[0]).all(0) & (n4[0] != idx), n4[0], idx)
         p = np.pad(idx, 1, mode="edge")
         n4 = np.stack([p[:-2, 1:-1], p[2:, 1:-1], p[1:-1, :-2], p[1:-1, 2:]])
-        idx = np.where((lum[n4].max(0) - lum[idx] > OUTLINE_STEP) & area[idx], dark, idx)
+        # Umriss nur neben hellen Stellen aus mindestens zwei Pixeln, sonst bekommt jeder helle Fleck schwarze Nachbarn
+        twin = np.pad((n4 == idx).any(0), 1)
+        t4 = np.stack([twin[:-2, 1:-1], twin[2:, 1:-1], twin[1:-1, :-2], twin[1:-1, 2:]])
+        idx = np.where((np.where(t4, lum[n4], -1e9).max(0) - lum[idx] > OUTLINE_STEP) & area[idx], dark, idx)
         for i, c, mask in textures:
             idx = np.where((idx == i) & mask, c, idx)
         # Beschriftung: deckende Pixel auf die Beschriftungspalette, ins Raster rücken, je Block entscheiden
