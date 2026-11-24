@@ -149,6 +149,13 @@ Regular = { file = "fantasque-sans-mono/FantasqueSansMono-Regular.ttf" }
 Bold    = { file = "fantasque-sans-mono/FantasqueSansMono-Bold.ttf" }
 Italic  = { file = "fantasque-sans-mono/FantasqueSansMono-Italic.ttf" }
 
+["Departure Mono"]   # Pixelschrift mit Kleinbuchstaben (MIT), Raster 50 von 550 Einheiten
+grid = 11
+group = "pixel"
+Regular = { file = "departure-mono/DepartureMono-Regular.otf" }
+Bold    = { file = "departure-mono/DepartureMono-Regular.otf" }
+Italic  = { file = "departure-mono/DepartureMono-Regular.otf" }
+
 ["Press Start 2P"]   # 8-Bit-Option (--pixel --font "Press Start 2P"): Arcade-Klassiker, breit
 grid = 8           # Geviert in px, wenn 1 Schriftpixel = 1 Bildpixel (Raster 125 von 1000 Einheiten)
 group = "pixel"
