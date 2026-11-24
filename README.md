@@ -137,7 +137,7 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 | **OSM light** / OSM dark | Standard | Atkinson Hyperlegible Next | OSM-Standardkarte (openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
 | **Papier** | Standard | Literata | eigener Stil: warmes Cremeweiß, Sepia-Konturen, Olivgrün, wie eine gedruckte Karte; dunkel wie auf dunklem Karton |
 | **Protomaps Light** / **Dark** | Standard | Figtree | Protomaps Basemaps (Design CC0) |
-| **Wiki** / Dark | Standard | TeX Gyre Heros | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
+| **Wiki** / Dark | Standard | Work Sans | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
 | **Dayfox** / **Nightfox** | Nerd | Adwaita Mono | Editor-Theme Nightfox (MIT) |
 | **Catppuccin Latte** / **Mocha** | Nerd | Fantasque Sans Mono | Catppuccin (MIT) |
 | **Alucard** / **Dracula** | Nerd | Fira Code | Dracula, helle Variante nach der offiziellen Alucard-Palette (MIT) |
@@ -185,7 +185,7 @@ Ohne Achsenwerte wird die Datei unverändert übernommen, mit Achsenwerten wird 
 
 | Schrift | Gruppe | Lizenz |
 |---|---|---|
-| Atkinson Hyperlegible Next, DINish, Figtree, Fira Sans, Inter, Mozilla Text, Overpass, Public Sans | sans | OFL |
+| Atkinson Hyperlegible Next, DINish, Figtree, Fira Sans, Inter, Mozilla Text, Overpass, Public Sans, Work Sans | sans | OFL |
 | TeX Gyre Heros | sans | GUST Font License |
 | Literata | serif | OFL |
 | TeX Gyre Schola | serif | GUST Font License |

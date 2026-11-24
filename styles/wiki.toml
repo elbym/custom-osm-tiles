@@ -6,9 +6,9 @@ title = "Wiki"
 category = "standard"      # standard | nerd (Gruppe in der Vorschau)
 mode = "light"          # light | dark
 family = "Wiki"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
-font = "Public Sans"
+font = "Work Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
-site_font = "TeX Gyre Heros"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+site_font = "Work Sans"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 text_scale = 1.15
 attribution = "Kartendesign nach Wikimedia Maps (© Mapbox, Wikimedia Foundation, CC BY 3.0)"
 

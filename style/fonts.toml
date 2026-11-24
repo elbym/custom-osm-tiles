@@ -43,6 +43,12 @@ Regular = { file = "public-sans/PublicSans-VF.ttf", wght = 400 }
 Bold    = { file = "public-sans/PublicSans-VF.ttf", wght = 700 }
 Italic  = { file = "public-sans/PublicSans-Italic-VF.ttf", wght = 400 }
 
+["Work Sans"]
+group = "sans"
+Regular = { file = "work-sans/WorkSans-VF.ttf", wght = 400 }
+Bold    = { file = "work-sans/WorkSans-VF.ttf", wght = 700 }
+Italic  = { file = "work-sans/WorkSans-Italic-VF.ttf", wght = 400 }
+
 ["TeX Gyre Schola"]
 group = "serif"
 Regular = { file = "tex-gyre-schola/texgyreschola-regular.otf" }
