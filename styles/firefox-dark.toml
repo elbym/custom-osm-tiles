@@ -1,0 +1,101 @@
+# Firefox Dark: Standard-Stil mit den Farben der Firefox-Entwicklerwerkzeuge (Photon, wie "Firefox DevTools"
+# Dark in der Nerd-Gruppe), aber neutrale Beschriftung, Straßenschilder und Blasen-Marker; Schrift Fira Sans.
+title = "Firefox Dark"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Firefox"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "Fira Sans"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Fira Sans"   # Fira: ursprünglich für Mozilla entworfen
+text_scale = 1.15
+attribution = "Farben nach Firefox DevTools / Photon (MPL-2.0)"
+hide = ["poi_r20", "road_oneway*"]
+
+# Charakter: neutrales, kaum bläuliches Anthrazit (#232327 Inhalt, #18181a Seitenleiste) wie das Inspektor-Fenster,
+# pastellige Syntaxfarben als Akzente: Hauptstraßen highlight-blue, Land-/Kreisstraßen highlight-bluegrey,
+# Autobahn highlight-orange (Firefox-Orange), Grün highlight-green, Prompt highlight-red (Magenta). Kein Leuchtschein.
+[paint."background"]
+background-color = "#232327"
+[paint."landuse-*"]
+fill-color = "#1f1f23"
+fill-opacity = 1
+# Grünflächen in highlight-green (#86de74), 20 % mit dem Grund gemischt (Wald 28 %)
+[paint."park"]
+fill-color = "#374836"
+[paint."landcover-*"]
+fill-color = "#374836"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#3f573d"
+[paint."landuse-cemetery"]
+fill-color = "#374836"
+
+# Wasser in highlight-blue (#75bfff), 30 % mit dem Grund gemischt; Flüsse 40 %
+[paint."water*"]
+fill-color = "#3c5268"
+line-color = "#44617d"
+
+[paint."building*"]
+fill-color = "#2a2a2e"   # grey-80
+fill-outline-color = "#38383d"   # grey-70
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#4a4a4f"   # grey-60
+[paint."*-service-track"]
+line-color = "#4a4a4f"
+[paint."*-link"]
+line-color = "#4a4a4f"
+[paint."*-secondary-tertiary*"]
+line-color = "#5e88b0"   # highlight-bluegrey
+[paint."*-primary*"]
+line-color = "#75bfff"   # highlight-blue
+[paint."*-trunk*"]
+line-color = "#75bfff"
+[paint."*-motorway*"]
+line-color = "#d96629"   # highlight-orange
+[paint."*-casing"]
+line-color = "#18181a"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#18181a"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#38383d"
+fill-outline-color = "#38383d"
+[paint."aeroway-*"]
+fill-color = "#2a2a2e"
+line-color = "#2a2a2e"
+[paint."*-path"]
+line-color = "#737373"   # grey-50
+[paint."*railway*"]
+line-color = "#939395"   # grey-45
+[paint."road_area_pier"]
+fill-color = "#232327"
+[paint."road_pier"]
+line-color = "#232327"
+
+# Ortsnamen in Photon grey-30, Straßennamen grey-40, POIs und Wasser in der Markerfarbe (#75bfff)
+[paint."label_*"]
+text-color = "#d7d7db"
+text-halo-color = "#232327"
+[paint."highway-name-*"]
+text-color = "#b1b1b3"
+text-halo-color = "#232327"
+[paint."poi_*"]
+text-color = "#75bfff"
+text-halo-color = "#232327"
+[paint."poi_transit"]
+text-color = "#86de74"
+[paint."water*label"]
+text-color = "#75bfff"
+[paint."airport"]
+text-color = "#75bfff"
+text-halo-color = "#232327"
+
+# >>> Marker
+# Blasen-Marker: Label im abgerundeten Kasten, Stiel und Punkt auf der Position
+[marker]
+type = "bubble"     # leaflet | bubble | terminal
+color = "#75bfff"     # Rahmen, Stiel, Punkt
+bg = "#232327"         # Kasten
+fg = "#f9f9fa"         # Schrift
+# <<< Marker

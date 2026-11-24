@@ -1,0 +1,120 @@
+# Firefox DevTools Dunkel: Kartenstil nach dem dunklen Theme der Firefox-Entwicklerwerkzeuge
+# (devtools/client/themes/variables.css, Farben aus Photon, https://github.com/FirefoxUX/photon-colors, MPL-2.0).
+title = "Firefox DevTools Dark"
+category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+mode = "dark"          # light | dark
+family = "Firefox DevTools"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+font = "Fira Sans"
+preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
+site_font = "Fira Code"   # Fira: Mozillas Hausschrift der Photon-Zeit
+fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
+text_scale = 1.15
+attribution = "Farben nach Firefox DevTools / Photon (MPL-2.0)"
+hide = ["poi_r20", "road_oneway*"]
+
+# Charakter: neutrales, kaum bläuliches Anthrazit (#232327 Inhalt, #18181a Seitenleiste) wie das Inspektor-Fenster,
+# pastellige Syntaxfarben als Akzente: Hauptstraßen highlight-blue, Land-/Kreisstraßen highlight-bluegrey,
+# Autobahn highlight-orange (Firefox-Orange), Grün highlight-green, Prompt highlight-red (Magenta). Kein Leuchtschein.
+[paint."background"]
+background-color = "#232327"
+[paint."landuse-*"]
+fill-color = "#1f1f23"
+fill-opacity = 1
+# Grünflächen in highlight-green (#86de74), 20 % mit dem Grund gemischt (Wald 28 %)
+[paint."park"]
+fill-color = "#374836"
+[paint."landcover-*"]
+fill-color = "#374836"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#3f573d"
+[paint."landuse-cemetery"]
+fill-color = "#374836"
+
+# Wasser in highlight-blue (#75bfff), 30 % mit dem Grund gemischt; Flüsse 40 %
+[paint."water*"]
+fill-color = "#3c5268"
+line-color = "#44617d"
+
+[paint."building*"]
+fill-color = "#2a2a2e"   # grey-80
+fill-outline-color = "#38383d"   # grey-70
+
+# Straßen: Füllung zuerst, Ränder danach (später stehende Muster gewinnen)
+[paint."*-minor*"]
+line-color = "#4a4a4f"   # grey-60
+[paint."*-service-track"]
+line-color = "#4a4a4f"
+[paint."*-link"]
+line-color = "#4a4a4f"
+[paint."*-secondary-tertiary*"]
+line-color = "#5e88b0"   # highlight-bluegrey
+[paint."*-primary*"]
+line-color = "#75bfff"   # highlight-blue
+[paint."*-trunk*"]
+line-color = "#75bfff"
+[paint."*-motorway*"]
+line-color = "#d96629"   # highlight-orange
+[paint."*-casing"]
+line-color = "#18181a"
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#18181a"
+[paint."highway-area"]             # Fußgängerzonen, Plätze
+fill-color = "#38383d"
+fill-outline-color = "#38383d"
+[paint."aeroway-*"]
+fill-color = "#2a2a2e"
+line-color = "#2a2a2e"
+[paint."*-path"]
+line-color = "#737373"   # grey-50
+[paint."*railway*"]
+line-color = "#939395"   # grey-45
+[paint."road_area_pier"]
+fill-color = "#232327"
+[paint."road_pier"]
+line-color = "#232327"
+
+# Orts- und POI-Namen in der Akzentfarbe des Markers (#75bfff; POIs 22 % zum Grund gemischt)
+[paint."*label*"]
+text-color = "#75bfff"
+text-halo-color = "#232327"
+[paint."label_*"]
+text-color = "#75bfff"
+text-halo-color = "#232327"
+[paint."highway-name-*"]
+text-color = "#b1b1b3"   # body-color
+text-halo-color = "#232327"
+[paint."poi_*"]
+text-color = "#639dcf"
+text-halo-color = "#232327"
+[paint."poi_transit"]
+text-color = "#86de74"
+[paint."water*label"]
+text-color = "#75bfff"
+[paint."airport"]
+text-color = "#639dcf"
+text-halo-color = "#232327"
+
+# >>> Akzent-Beschriftung
+# Straßennummern ohne weißes Schild (Sprite-Bild, nicht umfärbbar), stattdessen in den Akzentfarben des Themes:
+# Autobahn #d96629, Bundes-/Hauptstraße #75bfff, Land-/Kreisstraße #5e88b0. Hauptstraßennamen ebenfalls #75bfff.
+[layout."*shield*"]
+icon-image = ""
+text-size = 12
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#d96629", ["trunk", "primary"], "#75bfff", "#5e88b0"]
+text-halo-color = "#232327"
+text-halo-width = 1.5
+[paint."highway-name-major"]
+text-color = "#75bfff"
+# <<< Akzent-Beschriftung
+
+# >>> Marker
+# Terminal-Marker: Kästchen "~/<--label>" mit Block-Cursor, Stiel und Punkt auf der Position
+[marker]
+type = "terminal"   # leaflet | terminal
+color = "#75bfff"      # Rahmen, Cursor, Stiel
+color2 = "#ff7de9"     # Prompt ~/ (highlight-red, Magenta)
+bg = "#232327"
+fg = "#d7d7db"
+# <<< Marker
