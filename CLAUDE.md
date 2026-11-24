@@ -163,7 +163,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 
 ## Streets only
 
-- `--streets-only` (user request 2026-11-23, inspired by maptoposter): `build_style()` hides every layer not in `STREETS_KEEP` (background, water, waterways, `highway-*`/`bridge-*`/`tunnel-*`, `label_*`), and `STREETS_DROP` wins (road names, shields, `highway-area`, railways). Applied after the TOML overrides, so it works with every style. `config.json` carries `streets`. Not in `--site` yet.
+- `--streets-only` (user request 2026-11-23, inspired by maptoposter): `build_style()` hides every layer not in `STREETS_KEEP` (background, water, waterways, `highway-*`/`bridge-*`/`tunnel-*`, `label_*`), and `STREETS_DROP` wins (road names, shields, `highway-area`, railways). Applied after the TOML overrides, so it works with every style. `config.json` carries `streets`. On the public preview via `site.toml` `streets` (see 8-bit mode above, "Straßen" button).
 - Planned next steps, only if the user likes the look: rendering z14 data shown downscaled for a whole-city view (OMT drops minor roads below z13, which couples to `tiles_for()`/`template.html`), no casings, and a poster overlay (gradient + city name) like `overlay = "crt"`.
 
 ## Graticule (parked)
