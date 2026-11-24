@@ -148,6 +148,10 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
             elif size[0] == "interpolate":
                 for i in range(4, len(size), 2):
                     size[i] = r(size[i])
+        if pixel == 4 and "grid" not in fcfg and l["type"] == "symbol" and "text-field" in lay:
+            # andere Schrift im 8-Bit-Modus: feste Größe in Rasterpixeln (sonst Kartengröße ×4); dither_tiles() rastert
+            lay["text-size"] = PIXEL_TEXT
+            l.setdefault("paint", {})["text-halo-blur"] = 0
         if "grid" in fcfg and l["type"] == "symbol":  # Pixelschrift: Größen aufs Raster, Halo ohne Weichzeichnung
             lay["text-size"] = fcfg["grid"] if pixel == 4 else on_grid(lay.get("text-size", 16), fcfg["grid"], 1 if pixel else 2)
             l.setdefault("paint", {})["text-halo-blur"] = 0
@@ -339,9 +343,10 @@ def write_previews(outdir):
         shutil.copy(ROOT / f, outdir / f)
     shutil.copy(ROOT / "vendor" / "streifen.css", outdir / "streifen.css")  # Tailwind, gebaut mit npm run css
     shutil.copytree(ROOT / "vendor" / "leaflet", outdir / "leaflet", dirs_exist_ok=True)
-    shutil.copy(SILKSCREEN, outdir / "silkscreen.ttf")  # 8-Bit-Marker
     names = sorted(d.name for d in outdir.iterdir() if (d / "config.json").exists())
     configs = {n: json.loads((outdir / n / "config.json").read_text()) for n in names}
+    for c in configs.values():  # Marker in der Schrift des Stils
+        c["font_url"] = marker_font(c.get("font", ""), outdir)
     titles = {n: c["title"] for n, c in configs.items()}
     (outdir / "variants.js").write_text(
         f"const VARIANTS = {json.dumps(names)};\n"
@@ -371,7 +376,7 @@ def reindex(outdir, label=None):
                    title=f"{meta.get('title', st.stem)} · {cfg['font']}")
         conf.write_text(json.dumps(cfg, ensure_ascii=False))
         if page.exists():
-            write_page(d, cfg)
+            write_page(d, dict(cfg, font_url=marker_font(cfg.get("font", ""), d)))
     write_previews(outdir)
 
 
@@ -453,7 +458,22 @@ def optimize(files):
         subprocess.run([OXIPNG, "-q", "-o", "2", "--strip", "safe", *files], check=True)
 
 
-SILKSCREEN = ROOT / "fonts-src" / "silkscreen" / "Silkscreen-Regular.ttf"  # Schrift des 8-Bit-Markers
+def marker_font(font, dest):
+    """Schriftdatei für den Marker nach dest/fonts/<schrift>/: die unveränderte Originaldatei (Fett, bei Pixelschriften
+    Normal; variable Schriften ganz) samt Lizenzdateien. Keine Teilmenge: das wäre nach der OFL eine veränderte Fassung,
+    und viele Schriften haben einen reservierten Namen. Gibt die URL relativ zu dest zurück."""
+    cfg = font_config().get(font)
+    if not cfg:
+        return None
+    src = ROOT / "fonts-src" / cfg["Regular" if cfg.get("group") == "pixel" else "Bold"]["file"]
+    d = dest / "fonts" / font.lower().replace(" ", "-")
+    d.mkdir(parents=True, exist_ok=True)
+    for f in [src] + [f for f in src.parent.iterdir() if re.match(r"(OFL|LICEN[CS]E|GUST)", f.name, re.I)]:
+        if not (d / f.name).exists():
+            shutil.copy(f, d / f.name)
+    return f"fonts/{d.name}/{src.name}"
+
+
 OXIPNG = shutil.which("oxipng") or shutil.which(str(Path.home() / ".cargo/bin/oxipng"))
 
 
@@ -463,6 +483,7 @@ def parent(url):
     return fetch(url)
 
 
+PIXEL_TEXT = int(os.environ.get("PIXEL_TEXT", 10))  # --pixel 4 mit normaler Schrift: Geviert in Rasterpixeln
 PIXEL_SS = 3  # --pixel: Vorfahrkachel in 3-facher Auflösung, je 3×3 = ein 8-Bit-Pixel (Schrift rastet ins Pixelraster)
 
 
@@ -742,9 +763,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     (out / "config.json").write_text(json.dumps(cfg, ensure_ascii=False))  # liest write_previews()
     if standalone:  # eigenständige Kartenseite; für die Vorschau-Seite (--site) nicht nötig
         shutil.copytree(ROOT / "vendor" / "leaflet", out / "leaflet", dirs_exist_ok=True)
-        if a.pixel:
-            shutil.copy(SILKSCREEN, out / "silkscreen.ttf")  # 8-Bit-Marker (OFL, Lizenz in fonts-src/silkscreen)
-        write_page(out, cfg)
+        write_page(out, dict(cfg, font_url=marker_font(font, out)))
     write_previews(out.parent)
     size = sum(f.stat().st_size for f in (out / "tiles").rglob(f"*.{ext}"))
     print(f"{count} Kacheln, {size / 1e6:.1f} MB -> {out}")

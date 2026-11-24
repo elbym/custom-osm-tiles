@@ -27,7 +27,6 @@ html, body { margin: 0; } #map { height: 100dvh; }
 .term .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); box-shadow: 0 0 0 3px var(--bg); }
 /* 8 Bit (--pixel): Terminal-Marker im Pixelraster, --u = ein 8-Bit-Pixel; Schrift Silkscreen (8 Schriftpixel Geviert),
    keine Rundungen, harter Schatten. Kopie in src/streifen.css, gleich halten. */
-@font-face { font-family: "Silkscreen"; src: url("silkscreen.ttf"); }
 .term.px { font: calc(var(--u) * 8)/calc(var(--u) * 6) Silkscreen, monospace; -webkit-font-smoothing: none; }
 .term.px .box { border: var(--u) solid var(--c1); border-radius: 0; padding: var(--u) calc(var(--u) * 2); box-shadow: var(--u) var(--u) 0 rgb(0 0 0 / .5); }
 .term.px .p svg { display: inline-block; width: calc(var(--u) * 12); height: calc(var(--u) * 5); vertical-align: baseline; }
@@ -57,7 +56,19 @@ L.tileLayer(url, {
 }).addTo(map);
 // Detail: echte Kacheln ab detail_from, nur um den Marker
 if (c.zmax >= c.detail_from) L.tileLayer(url, { minZoom: c.detail_from, bounds: c.detail }).addTo(map);
-const marker = L.marker([c.lat, c.lon], { icon: markerIcon(c.marker, c.pixel), title: c.marker?.label }).addTo(map);
+// Marker in der Schrift des Stils: Originaldatei aus fonts/ (marker_font() in make-tiles.py), erst bei Bedarf geladen.
+// Gewichtsbereich 100–900, damit der Browser die fette Datei nicht noch künstlich verfettet.
+const fontLoads = {};
+function loadFont(name, url) {
+  if (!name || !url) return Promise.resolve();
+  return fontLoads[name] ??= new FontFace(name, `url("${url}")`, { weight: '100 900' }).load()
+    .then(f => document.fonts.add(f)).catch(() => {});
+}
+const marker = L.marker([c.lat, c.lon], { icon: markerIcon(c.marker, c.pixel, c.font), title: c.marker?.label }).addTo(map);
+loadFont(c.font, c.font_url).then(() => {  // nach dem Laden neu messen
+  marker.setIcon(markerIcon(c.marker, c.pixel, c.font));
+  if (c.pixel) snapMarker(marker, c.pixel, Math.min(c.zmax, c.detail_from - 1));
+});
 if (c.pixel) { snapMarker(marker, c.pixel, Math.min(c.zmax, c.detail_from - 1)); map.on('zoomend', () => snapMarker(marker, c.pixel, Math.min(c.zmax, c.detail_from - 1))); }
 
 // 8 Bit: Marker so verschieben, dass seine Pixel auf den Kachelpixeln liegen (Raster = pixel * 2^Hochskalierung)
@@ -70,11 +81,12 @@ function snapMarker(mk, px, native) {
 }
 
 // Marker laut Stil: "bubble" (Standard-Stile), "terminal" (Nerd-Stile) oder der Leaflet-Standard; beide mit Stiel und Punkt
-function markerIcon(m, px) {
+function markerIcon(m, px, font) {
   const PX_PROMPT = '<svg viewBox="0 0 12 5" fill="currentColor" shape-rendering="crispEdges"><rect x="1" y="2" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="9" y="1" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/></svg>';  // 8 Bit: ~/ als Pixelgrafik (Silkscreen-Tilde sitzt zu hoch, / zu rund)
   if (m?.type === 'bubble') {
     const el = document.createElement('div');
     el.className = 'bubble';
+    if (font) el.style.fontFamily = `"${font}", system-ui, sans-serif`;
     for (const [k, v] of Object.entries({ c1: m.color, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
     el.innerHTML = '<span class="box"></span><span class="stem"></span><span class="dot"></span>';
     el.querySelector('.box').textContent = m.label;  // Text, kein HTML
@@ -84,6 +96,7 @@ function markerIcon(m, px) {
   if (m?.type !== 'terminal') return new L.Icon.Default();
   const el = document.createElement('div');
   el.className = px ? 'term px' : 'term';
+  if (font) el.style.fontFamily = `"${font}", ui-monospace, monospace`;
   for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg, u: px + 'px' })) el.style.setProperty('--' + k, v);
   el.innerHTML = '<span class="box"><span class="p">~/</span><span class="t"></span><span class="cur"></span></span><span class="stem"></span><span class="dot"></span>';
   el.querySelector('.t').textContent = m.label;  // Text, kein HTML

@@ -42,7 +42,6 @@
 .term .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); box-shadow: 0 0 0 3px var(--bg); }
 /* 8 Bit (--pixel): Terminal-Marker im Pixelraster, --u = ein 8-Bit-Pixel; Schrift Silkscreen (8 Schriftpixel Geviert),
    keine Rundungen, harter Schatten. Kopie in template.html, gleich halten. */
-@font-face { font-family: "Silkscreen"; src: url("silkscreen.ttf"); }
 .term.px { font: calc(var(--u) * 8)/calc(var(--u) * 6) Silkscreen, monospace; -webkit-font-smoothing: none; }
 .term.px .box { border: var(--u) solid var(--c1); border-radius: 0; padding: var(--u) calc(var(--u) * 2); box-shadow: var(--u) var(--u) 0 rgb(0 0 0 / .5); }
 .term.px .p svg { display: inline-block; width: calc(var(--u) * 12); height: calc(var(--u) * 5); vertical-align: baseline; }

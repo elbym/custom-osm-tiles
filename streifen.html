@@ -239,7 +239,21 @@ const overlays = strips.map(([, v]) => {
 const mid = strips[Math.floor(strips.length / 2)][1] || strips.find(([, v]) => v)[1];
 // 8 Bit: Marker im Pixelraster (u = Größe eines 8-Bit-Pixels), eingerastet auf die Kachelpixel
 const pxu = px ? (+c0.pixel === 1 || c0.pixel === true ? 2 : +c0.pixel) : 0;
-const marker = L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker, pxu), title: mid?.[1].marker?.label }).addTo(map);
+// Marker in der Schrift des Stils: Originaldatei aus fonts/ (marker_font() in make-tiles.py), erst bei Bedarf geladen.
+// Gewichtsbereich 100–900, damit der Browser die fette Datei nicht noch künstlich verfettet.
+const fontLoads = {};
+function loadFont(name, url) {
+  if (!name || !url) return Promise.resolve();
+  return fontLoads[name] ??= new FontFace(name, `url("${url}")`, { weight: '100 900' }).load()
+    .then(f => document.fonts.add(f)).catch(() => {});
+}
+function setMarker(cfg) {  // Marker im Stil cfg, nach dem Laden seiner Schrift neu gemessen
+  const draw = () => { marker.setIcon(markerIcon(cfg?.marker, pxu, cfg?.font)); marker.options.title = cfg?.marker?.label; snapMarker(); };
+  draw();
+  loadFont(cfg?.font, cfg?.font_url).then(() => { if (markerCfg === cfg) draw(); });
+}
+let markerCfg = mid?.[1];
+const marker = L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker, pxu, mid?.[1].font), title: mid?.[1].marker?.label }).addTo(map);
 function snapMarker() {  // Raster = pxu * 2^Hochskalierung über die gerenderte Stufe hinaus
   const el = marker.getElement()?.firstChild;
   if (!pxu || !el) return;
@@ -265,8 +279,8 @@ const visible = i => solo < 0 || i === solo || i === cmp;
 function showSolo() {
   layers.forEach((ls, i) => ls.forEach(l => visible(i) ? l.addTo(map) : l.remove()));
   [...document.getElementById('titles').children].forEach((cell, i) => cell.hidden = !visible(i));
-  const m = (strips[solo]?.[1] || mid)?.[1].marker;
-  marker.setIcon(markerIcon(m, pxu)); marker.options.title = m?.label; snapMarker();
+  markerCfg = (strips[solo]?.[1] || mid)?.[1];
+  setMarker(markerCfg);
   document.querySelector('#solo [data-step="0"]').setAttribute('aria-pressed', solo < 0);
   document.documentElement.toggleAttribute('data-solo', solo >= 0);
   document.getElementById('titles').hidden = cmp >= 0;
@@ -394,7 +408,12 @@ for (const [fam, v] of strips) {
   cell.className = 'flex-1 min-w-0 min-h-0 cols:pt-[env(safe-area-inset-top)] rows:first:pt-[env(safe-area-inset-top)] rows:pl-[env(safe-area-inset-left)] cols:first:pl-[env(safe-area-inset-left)] cols:border-l rows:border-t border-black/30 first:border-0 dark:border-white/30';
   const tag = cell.appendChild(document.createElement('span'));
   tag.className = 'inline-block max-w-full truncate bg-white/85 px-2 py-1 font-medium dark:bg-neutral-900/85 cols:w-full rows:rounded-br-md';
-  if (v) tag.textContent = TITLES[v[0]].split(' · ')[0];
+  if (v) {  // Name, darunter klein die Schrift der Kacheln
+    const f = document.createElement('span');
+    f.className = 'block truncate text-xs font-normal opacity-75';
+    f.textContent = v[1].font;
+    tag.replaceChildren(TITLES[v[0]].split(' · ')[0], f);
+  }
   else {
     const hasMode = all.some(([, c]) => inSet(c) && c.family === fam);
     tag.textContent = hasMode ? `${fam}: nicht in ${font} gerendert` : `${fam}: nur ${mode === 'dark' ? 'hell' : 'dunkel'}`;
@@ -417,16 +436,18 @@ document.getElementById('about-styles').innerHTML = '';
 for (const t of credits) document.getElementById('about-styles').appendChild(document.createElement('li')).textContent = t;
 
 // Marker laut Stil: "bubble" (Standard-Stile), "terminal" (Nerd-Stile) oder der Leaflet-Standard
-function markerIcon(m, px) {
+function markerIcon(m, px, font) {
   const PX_PROMPT = '<svg viewBox="0 0 12 5" fill="currentColor" shape-rendering="crispEdges"><rect x="1" y="2" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="9" y="1" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/></svg>';  // 8 Bit: ~/ als Pixelgrafik (Silkscreen-Tilde sitzt zu hoch, / zu rund)
   const el = document.createElement('div');
   if (m?.type === 'bubble') {
     el.className = 'bubble';
+    if (font) el.style.fontFamily = `"${font}", system-ui, sans-serif`;
     for (const [k, v] of Object.entries({ c1: m.color, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
     el.innerHTML = '<span class="box"></span><span class="stem"></span><span class="dot"></span>';
     el.querySelector('.box').textContent = m.label;  // Text, kein HTML
   } else if (m?.type === 'terminal') {
     el.className = px ? 'term px' : 'term';
+    if (font) el.style.fontFamily = `"${font}", ui-monospace, monospace`;
     for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg, u: px + 'px' })) el.style.setProperty('--' + k, v);
     el.innerHTML = '<span class="box"><span class="p">~/</span><span class="t"></span><span class="cur"></span></span><span class="stem"></span><span class="dot"></span>';
     el.querySelector('.t').textContent = m.label;  // Text, kein HTML
