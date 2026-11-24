@@ -125,27 +125,29 @@ line-color = "#e892a2"
 
 Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigenschaften gesetzt (`fill-*` auf Flächen, `line-*` auf Linien, `text-*`/`icon-*` auf Beschriftungen), daher sind breite Muster wie `water*` unbedenklich.
 
-| Stil | Gruppe | Vorbild |
-|---|---|---|
-| **OSM Americana** / Dark | Standard | Stil der OSM-US-Community (openstreetmap-americana, CC0); dunkle Variante eigene Ableitung |
-| **Clear** / Clear Dark | Standard | eigener Stil: kühl und reduziert, Farbe nur für Hauptstraßen (Standard) |
-| **Cupertino** / Dark | Standard | angelehnt an den Gesamteindruck von Apple Maps (eigene Farbwahl) |
-| **North** / Dark | Standard | Farben nach der Palette von Hydda (BSD-3) |
-| **OSM light** / OSM dark | Standard | OSM-Standardkarte (openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
-| **Papier** | Standard | eigener Stil: warmes Cremeweiß, Sepia-Konturen, Olivgrün, wie eine gedruckte Karte; dunkel wie auf dunklem Karton |
-| **Protomaps Light** / **Dark** | Standard | Protomaps Basemaps (Design CC0) |
-| **Wiki** / Dark | Standard | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
-| **Dayfox** / **Nightfox** | Nerd | Editor-Theme Nightfox (MIT) |
-| **Catppuccin Latte** / **Mocha** | Nerd | Catppuccin (MIT) |
-| **Alucard** / **Dracula** | Nerd | Dracula, helle Variante nach der offiziellen Alucard-Palette (MIT) |
-| **Everforest Light** / **Dark** | Nerd | Everforest (MIT) |
-| **One Light** / **Dark** | Nerd | Atom One (MIT); Regenbogen: Straßenhierarchie durch die sieben Syntaxfarben |
-| **Gruvbox Light** / **Dark** | Nerd | Gruvbox (MIT) |
-| **Solarized Light** / **Dark** | Nerd | Solarized (MIT) |
-| **Tokyo Night Day** / **Night** | Nerd | tokyonight.nvim (Apache-2.0) |
-| **Bluecron Tag** / **Bluecron** | Nerd | eigener Entwurf (Arbeitstitel) im Look von Tron: fast schwarzer Grund, Gebäude als Drahtgitter mit Cyan-Kante, Hauptstraßen weißglühend mit Cyan-Leuchtschein, Autobahn Orange; hell als Drahtgitter auf Papier ohne Leuchten. Schrift Mozilla Text |
-| **Bernstein** / **Phosphor** | Nerd | eigener Entwurf: Röhrenmonitor in Grün (P1-Phosphor) bzw. Bernstein (P3), Scanlines und Vignette, Schrift VT323. Bernstein ist in der Familie die „helle“ Variante, obwohl das Bild dunkel ist. Die Röhren-Effekte sind eine CSS-Ebene im Browser (`overlay` im Stil) und fehlen daher in den Bildern oben |
-| **Cyberpunk Day** / **Neon Cyberpunk** | Nerd | maptoposter „neon_cyberpunk“ (MIT); helle Variante eigener Entwurf in Warnfarben: gelber Grund, Pink und Cyan, schwarze Konturen, ohne Leuchten |
+| Stil | Gruppe | Schrift | Vorbild |
+|---|---|---|---|
+| **OSM Americana** / Dark | Standard | Overpass | Stil der OSM-US-Community (openstreetmap-americana, CC0); dunkle Variante eigene Ableitung |
+| **Clear** / Clear Dark | Standard | Fira Sans | eigener Stil: kühl und reduziert, Farbe nur für Hauptstraßen (Standard) |
+| **Cupertino** / Dark | Standard | Public Sans | angelehnt an den Gesamteindruck von Apple Maps (eigene Farbwahl) |
+| **North** / Dark | Standard | DINish | Farben nach der Palette von Hydda (BSD-3) |
+| **OSM light** / OSM dark | Standard | Atkinson Hyperlegible Next | OSM-Standardkarte (openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
+| **Papier** | Standard | Literata | eigener Stil: warmes Cremeweiß, Sepia-Konturen, Olivgrün, wie eine gedruckte Karte; dunkel wie auf dunklem Karton |
+| **Protomaps Light** / **Dark** | Standard | Figtree | Protomaps Basemaps (Design CC0) |
+| **Wiki** / Dark | Standard | TeX Gyre Heros | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
+| **Dayfox** / **Nightfox** | Nerd | Adwaita Mono | Editor-Theme Nightfox (MIT) |
+| **Catppuccin Latte** / **Mocha** | Nerd | Maple Mono | Catppuccin (MIT) |
+| **Alucard** / **Dracula** | Nerd | Fira Code | Dracula, helle Variante nach der offiziellen Alucard-Palette (MIT) |
+| **Everforest Light** / **Dark** | Nerd | Ubuntu Sans Mono | Everforest (MIT) |
+| **One Light** / **Dark** | Nerd | Hack | Atom One (MIT); Regenbogen: Straßenhierarchie durch die sieben Syntaxfarben |
+| **Gruvbox Light** / **Dark** | Nerd | IBM Plex Mono | Gruvbox (MIT) |
+| **Solarized Light** / **Dark** | Nerd | Source Code Pro | Solarized (MIT) |
+| **Tokyo Night Day** / **Night** | Nerd | JetBrains Mono | tokyonight.nvim (Apache-2.0) |
+| **Bluecron Tag** / **Bluecron** | Nerd | Mozilla Text | eigener Entwurf (Arbeitstitel) im Look von Tron: fast schwarzer Grund, Gebäude als Drahtgitter mit Cyan-Kante, Hauptstraßen weißglühend mit Cyan-Leuchtschein, Autobahn Orange; hell als Drahtgitter auf Papier ohne Leuchten. Schrift Mozilla Text |
+| **Bernstein** / **Phosphor** | Nerd | VT323 | eigener Entwurf: Röhrenmonitor in Grün (P1-Phosphor) bzw. Bernstein (P3), Scanlines und Vignette, Schrift VT323. Bernstein ist in der Familie die „helle“ Variante, obwohl das Bild dunkel ist. Die Röhren-Effekte sind eine CSS-Ebene im Browser (`overlay` im Stil) und fehlen daher in den Bildern oben |
+| **Cyberpunk Day** / **Neon Cyberpunk** | Nerd | Geist Mono | maptoposter „neon_cyberpunk“ (MIT); helle Variante eigener Entwurf in Warnfarben: gelber Grund, Pink und Cyan, schwarze Konturen, ohne Leuchten |
+
+Die Schrift ist die der öffentlichen Vorschau (`site_font` im Stil, sonst die Gruppenschrift aus `site.toml`); die 8-Bit-Varianten nutzen dort Silkscreen. Mit `--font` lässt sich jeder Stil in jeder Schrift aus `style/fonts.toml` rendern.
 
 Die Stile sind eigene Umsetzungen: Von den Vorbildern sind nur Farbwerte übernommen, keine Stildateien. Jeder Nachbau nennt sein Vorbild in `attribution`; bei Wiki verlangt die Lizenz das.
 
@@ -179,11 +181,14 @@ Ohne Achsenwerte wird die Datei unverändert übernommen, mit Achsenwerten wird 
 
 | Schrift | Gruppe | Lizenz |
 |---|---|---|
-| Fira Sans, Inter, Overpass, Public Sans | sans | OFL |
+| Atkinson Hyperlegible Next, DINish, Figtree, Fira Sans, Inter, Mozilla Text, Overpass, Public Sans | sans | OFL |
+| TeX Gyre Heros | sans | GUST Font License |
 | Literata | serif | OFL |
 | TeX Gyre Schola | serif | GUST Font License |
-| Fira Code, JetBrains Mono, Maple Mono, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
-| VT323, Press Start 2P, Silkscreen | pixel (nur für `--pixel`) | OFL |
+| Adwaita Mono, Fira Code, Geist Mono, IBM Plex Mono, JetBrains Mono, Maple Mono, Source Code Pro, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
+| Hack | mono (bei `--all-fonts` nur für Nerd-Stile) | MIT + Bitstream-Vera-Lizenz |
+| Ubuntu Sans Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | Ubuntu Font Licence 1.0 |
+| Press Start 2P, Silkscreen, VT323 | pixel (nur für `--pixel`) | OFL |
 
 Noto Sans ist keine eigene Variante, sondern nur Ersatz für Zeichen, die einer Schrift fehlen (z. B. Kyrillisch).
 

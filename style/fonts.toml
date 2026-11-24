@@ -79,6 +79,19 @@ group = "sans"
 Regular = { file = "mozilla-text/MozillaText-Medium.ttf" }
 Bold    = { file = "mozilla-text/MozillaText-Bold.ttf" }
 Italic  = { file = "mozilla-text/MozillaText-MediumItalic.ttf" }
+# Monoschriften (für die Editor-Themes)
+["Fira Code"]   # keine Kursive: Italic = Regular
+group = "mono"
+Regular = { file = "fira-code/FiraCode-VF.ttf", wght = 400 }
+Bold    = { file = "fira-code/FiraCode-VF.ttf", wght = 700 }
+Italic  = { file = "fira-code/FiraCode-VF.ttf", wght = 400 }
+
+["JetBrains Mono"]
+group = "mono"
+Regular = { file = "jetbrains-mono/JetBrainsMono-VF.ttf", wght = 400 }
+Bold    = { file = "jetbrains-mono/JetBrainsMono-VF.ttf", wght = 700 }
+Italic  = { file = "jetbrains-mono/JetBrainsMono-Italic-VF.ttf", wght = 400 }
+
 ["Maple Mono"]
 group = "mono"
 Regular = { file = "maple-mono/MapleMono-Regular.ttf" }
