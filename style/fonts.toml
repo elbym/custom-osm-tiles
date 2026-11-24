@@ -182,3 +182,9 @@ group = "blackletter"
 Regular = { file = "unifraktur-maguntia/UnifrakturMaguntia-Book.ttf" }
 Bold    = { file = "unifraktur-maguntia/UnifrakturMaguntia-Book.ttf" }
 Italic  = { file = "unifraktur-maguntia/UnifrakturMaguntia-Book.ttf" }
+
+[Kalam]   # lockere Handschrift (Anime), Indian Type Foundry, OFL; keine Kursive (Italic = Regular)
+group = "display"
+Regular = { file = "kalam/Kalam-Regular.ttf" }
+Bold    = { file = "kalam/Kalam-Bold.ttf" }
+Italic  = { file = "kalam/Kalam-Regular.ttf" }

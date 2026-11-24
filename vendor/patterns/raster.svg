@@ -1,0 +1,6 @@
+<!-- Rasterfolie (Manga-Screentone): Punktraster, 4 px Abstand, versetzte Reihen (32×32, currentColor) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<defs><circle id="d" r=".9" fill="currentColor"/></defs>
+<g id="r"><use href="#d" x="2" y="2"/><use href="#d" x="10" y="2"/><use href="#d" x="18" y="2"/><use href="#d" x="26" y="2"/><use href="#d" x="6" y="6"/><use href="#d" x="14" y="6"/><use href="#d" x="22" y="6"/><use href="#d" x="30" y="6"/></g>
+<use href="#r" y="8"/><use href="#r" y="16"/><use href="#r" y="24"/>
+</svg>

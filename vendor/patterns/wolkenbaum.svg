@@ -1,0 +1,4 @@
+<!-- Bäume als bauschige Wolkenbüschel (Anime): Kreisgruppen, Füllung FILL, Tuschekontur currentColor (32×32) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<g fill="FILL" stroke="currentColor" stroke-width="1"><circle cx="5" cy="8" r="3.5"/><circle cx="10" cy="6" r="4"/><circle cx="8.5" cy="10.5" r="3.5"/><circle cx="21" cy="24" r="3.5"/><circle cx="26" cy="22" r="4"/><circle cx="24.5" cy="26.5" r="3.5"/></g>
+</svg>

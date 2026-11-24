@@ -117,7 +117,7 @@
     </section>
     <section>
       <h2 class="font-semibold">Schriften</h2>
-      <p>Adwaita Mono, Atkinson Hyperlegible Next, DINish, Fantasque Sans Mono, Figtree, Fira Code, Fira Sans, IBM Plex Mono, IM Fell English (Kupferstich), Intel One Mono, JetBrains Mono, Literata, Maple Mono, Mozilla Text, Overpass, Public Sans, Silkscreen (8 Bit), Space Mono, UnifrakturMaguntia (Ortsnamen in Historisch und Kupferstich), VT323 (Phosphor, Bernstein), Work Sans: SIL Open Font License 1.1. Hack: MIT-Lizenz und Bitstream-Vera-Lizenz. Ubuntu Sans Mono: Ubuntu Font Licence 1.0. TeX Gyre Schola (Historisch): GUST Font License. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
+      <p>Adwaita Mono, Atkinson Hyperlegible Next, DINish, Fantasque Sans Mono, Figtree, Fira Code, Fira Sans, IBM Plex Mono, IM Fell English (Kupferstich), Intel One Mono, Kalam (Anime), JetBrains Mono, Literata, Maple Mono, Mozilla Text, Overpass, Public Sans, Silkscreen (8 Bit), Space Mono, UnifrakturMaguntia (Ortsnamen in Historisch und Kupferstich), VT323 (Phosphor, Bernstein), Work Sans: SIL Open Font License 1.1. Hack: MIT-Lizenz und Bitstream-Vera-Lizenz. Ubuntu Sans Mono: Ubuntu Font Licence 1.0. TeX Gyre Schola (Historisch): GUST Font License. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
     </section>
     <section>
       <h2 class="font-semibold">Software auf dieser Seite</h2>
@@ -440,9 +440,9 @@ function markerIcon(m, px, font) {
   const PX_PROMPT = '<svg viewBox="0 0 12 5" fill="currentColor" shape-rendering="crispEdges"><rect x="1" y="2" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="9" y="1" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/></svg>';  // 8 Bit: ~/ als Pixelgrafik (Silkscreen-Tilde sitzt zu hoch, / zu rund)
   const el = document.createElement('div');
   if (m?.type === 'bubble') {
-    el.className = 'bubble';
+    el.className = 'bubble' + (m.look ? ' ' + m.look : '');  // look: z. B. manga
     if (font) el.style.fontFamily = `"${font}", system-ui, sans-serif`;
-    for (const [k, v] of Object.entries({ c1: m.color, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
+    for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
     el.innerHTML = '<span class="box"></span><span class="stem"></span><span class="dot"></span>';
     el.querySelector('.box').textContent = m.label;  // Text, kein HTML
   } else if (m?.type === 'terminal') {

@@ -1,0 +1,7 @@
+<!-- Grasbüschel im Manga-Stil (Anime): schnell geschwungene Halme, Tuschestrich currentColor, zwei Büschel versetzt (32×32) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+<path d="M4 12c.4-2 .2-3.6-1-5.2M6 12c0-2.6.6-4.6 2-6.2M8 12c.6-1.6 1.6-2.6 3-3.2M5.4 12c-.2-1.4-.8-2.4-1.8-3"/>
+<path d="M20 28c.4-2 .2-3.6-1-5.2M22 28c0-2.6.6-4.6 2-6.2M24 28c.6-1.6 1.6-2.6 3-3.2M21.4 28c-.2-1.4-.8-2.4-1.8-3"/>
+</g>
+</svg>

@@ -1,0 +1,119 @@
+# "Anime Nacht": dunkles Gegenstück zu Anime, Dämmerung in Tiefblau und Violett (Nutzerwunsch 2026-11-24).
+#   - gleiche Bausteine wie Anime (Cel-Shading, Tuschekonturen, Wolkenbäume, Glanzlinien, Manga-Sprechblase)
+#   - Gebäude violett mit warm leuchtenden Fenstern, Straßen in kühlem Grau, Hauptstraßen warm wie Straßenlaternen
+title = "Anime Nacht"
+category = "standard"
+mode = "dark"
+family = "Anime"
+font = "Kalam"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Kalam"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+text_scale = 1.4
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#1d1f3f"
+[paint."landuse-*"]
+fill-color = "#212447"
+fill-opacity = 1
+[paint."landuse-residential"]
+fill-color = "#23264a"
+[paint."landuse-cemetery"]
+fill-color = "#23404f"
+[paint."park"]
+fill-pattern = "park"
+fill-color = "#244a55"
+[paint."landcover-*"]
+fill-color = "#22424f"
+fill-opacity = 1
+[paint."landcover-grass*"]
+fill-pattern = "gras"
+[paint."landcover-wood"]
+fill-pattern = "wald"
+[paint."landuse-commercial"]
+fill-pattern = "raster"
+[paint."landuse-industrial"]
+fill-pattern = "raster"
+
+[paint."water*"]
+fill-color = "#2b3f8f"
+line-color = "#3d56b0"
+
+# Cel-Shading: Schlagschatten fast schwarz, Dachfläche violett mit leuchtenden Fenstern
+[paint."building"]
+fill-color = "#121229"
+[paint."building-top"]
+fill-opacity = 1   # OSM Bright blendet das Dach erst ab z16 ein, sonst scheint der Schatten durch
+fill-pattern = "fenster"
+fill-outline-color = ["interpolate", ["linear"], ["zoom"], 14, "#2e2f55", 16, "#0d0c1d"]
+fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 16, ["literal", [-3, -3]]]
+
+[paint."*-minor*"]
+line-color = "#4a4c7a"
+[paint."*-service-track"]
+line-color = "#3e406a"
+[paint."*-link"]
+line-color = "#4a4c7a"
+[paint."*-secondary-tertiary*"]
+line-color = "#6a6a9a"
+[paint."*-primary*"]
+line-color = "#ffb05e"
+[paint."*-trunk*"]
+line-color = "#ffb05e"
+[paint."*-motorway*"]
+line-color = "#ff6b8b"
+[paint."*-casing"]
+line-color = "#0d0c1d"
+[paint."*-minor-casing"]
+line-color = ["interpolate", ["linear"], ["zoom"], 14, "#2e2f55", 16, "#0d0c1d"]
+[paint."*-service-track-casing"]
+line-color = ["interpolate", ["linear"], ["zoom"], 14, "#2e2f55", 16, "#0d0c1d"]
+[paint."highway-area"]
+fill-pattern = "platz"
+[paint."aeroway-*"]
+fill-color = "#2a2c52"
+line-color = "#2a2c52"
+[paint."*-path"]
+line-color = "#8a6a9a"
+[paint."*railway*"]
+line-color = "#8a8ab8"
+
+[paint."label_*"]
+text-color = "#f3ecff"
+text-halo-color = "#121229"
+text-halo-width = 2.5
+[paint."highway-name-*"]
+text-color = "#e6defa"
+text-halo-color = "#121229"
+text-halo-width = 2
+[paint."poi_*"]
+text-color = "#ffc46b"
+text-halo-color = "#121229"
+text-halo-width = 2
+[paint."water*label"]
+text-color = "#9fb8ff"
+text-halo-color = "#121229"
+
+[patterns]
+gras = { symbol = "mangagras", color = "#4f8a8a", bg = "#22424f" }
+park = { symbol = "mangagras", color = "#4f8a8a", bg = "#244a55" }
+wald = { symbol = "wolkenbaum", color = "#10122a", fill = "#2f5a6a", bg = "#22424f" }
+raster = { symbol = "raster", color = "#33365f", bg = "#212447" }
+platz = { symbol = "raster", color = "#3a3d6a", bg = "#2a2c52" }
+fenster = { symbol = "fenster", color = "#ffc46b", bg = "#3a2f5f" }
+[water_lines]
+color = "#9fb8ff"
+count = 2
+gap = 3
+[outlines."building-top"]
+color = "#0d0c1d"
+width = ["interpolate", ["linear"], ["zoom"], 15, 0, 15.5, 0.5, 16, 1, 18, 1.8]
+minzoom = 15
+
+[marker]
+type = "bubble"
+look = "manga"
+color = "#ffc46b"
+color2 = "#ff6b8b"
+bg = "#1d1f3f"
+fg = "#f3ecff"

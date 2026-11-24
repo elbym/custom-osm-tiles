@@ -209,6 +209,8 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
                              t.get("mode") == "dark", t.get("patterns"))
     if "water_lines" in t:
         water_lines(s, **t["water_lines"])
+    for lid, spec in t.get("outlines", {}).items():
+        outline(s, lid, **spec)
     if t.get("old_railways") and center:
         old_railways(s, center)
     if t.get("graticule") and center:
@@ -336,6 +338,21 @@ def old_railways(s, center):
     s["layers"][i:i] = new
 
 
+def outline(s, lid, color, width=1, minzoom=0):
+    """Kontur als eigene Linienebene über der Flächenebene lid (outlines im Stil, z. B. Tuschelinien um Gebäude):
+    fill-outline-color ist immer nur 1 px breit. Übernimmt Quelle, Filter und fill-translate der Fläche."""
+    i = next(k for k, l in enumerate(s["layers"]) if l["id"] == lid)
+    f = s["layers"][i]
+    l = {"id": f"{lid}-outline", "type": "line", "source": f["source"], "source-layer": f["source-layer"],
+         "minzoom": max(minzoom, f.get("minzoom", 0)), "layout": {"line-join": "round"},
+         "paint": {"line-color": color, "line-width": width}}
+    if "filter" in f:
+        l["filter"] = f["filter"]
+    if "fill-translate" in f.get("paint", {}):
+        l["paint"]["line-translate"] = f["paint"]["fill-translate"]
+    s["layers"].insert(i + 1, l)
+
+
 def water_lines(s, color, count=3, gap=2, width=0.6, minzoom=13):
     """Wasserlinien wie auf gestochenen Karten (water_lines im Stil): count feine Linien innen am Ufer entlang, je gap px
     weiter und schwächer. Positiver line-offset liegt bei Vektorkacheln innen (Außenringe im Uhrzeigersinn).
@@ -357,7 +374,7 @@ def poi_sprite(weight, bg, accent, glyph, dark, patterns=None):
     """Sprite wie style/ofm(@2x), aber die POI-Bilder aus style/icons.toml neu: Phosphor-Symbol in der POI-Farbe
     auf einem Kreis in dezentem Akzent (dunkel 22 %, hell 16 % Akzent über dem Grund), Ring 45 %.
     Liegt in style/sprites/ (gitignored, im Container unter /data); je Kombination nur einmal erzeugt.
-    patterns ([patterns] im Stil): name = { symbol, color, bg } -> 32×32-Musterbild für fill-pattern, Symbol aus
+    patterns ([patterns] im Stil): name = { symbol, color, bg[, fill] } -> 32×32-Musterbild für fill-pattern, Symbol aus
     vendor/patterns/<symbol>.svg in color auf bg (fill-pattern ersetzt die Füllfarbe), unten an das Sprite angehängt."""
     hexrgb = lambda h: [int(h[i:i + 2], 16) for i in (1, 3, 5)]
     mix = lambda t: "#%02x%02x%02x" % tuple(round(b + (a - b) * t) for b, a in zip(hexrgb(bg), hexrgb(accent)))
@@ -384,7 +401,8 @@ def poi_sprite(weight, bg, accent, glyph, dark, patterns=None):
             body = re.sub(r"<!--.*?-->|^\s*<svg[^>]*>|</svg>\s*$", "",
                           (ROOT / "vendor" / "patterns" / f"{spec['symbol']}.svg").read_text().strip(), flags=re.S | re.M)
             svg.append(f'<rect x="{x}" y="{h}" width="{d}" height="{d}" fill="{spec["bg"]}"/>'
-                       f'<g transform="translate({x},{h}) scale({pr})" color="{spec["color"]}">{body}</g>')
+                       f'<g transform="translate({x},{h}) scale({pr})" color="{spec["color"]}">'
+                       f'{body.replace("FILL", spec.get("fill", "none"))}</g>')
             idx[pn] = {"x": x, "y": h, "width": d, "height": d, "pixelRatio": pr}
         h += ph
         for key, r in idx.items():

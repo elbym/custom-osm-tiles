@@ -13,6 +13,11 @@ html, body { margin: 0; } #map { height: 100dvh; }
 .bubble .box { background: var(--bg); color: var(--fg); border: 2px solid var(--c1); border-radius: 8px; padding: 6px 10px; white-space: nowrap; box-shadow: 0 2px 6px rgb(0 0 0 / .3); }
 .bubble .stem { width: 2px; height: 14px; background: var(--c1); }
 .bubble .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); box-shadow: 0 0 0 3px var(--bg); }
+/* look = "manga" (Anime): Sprechblase mit dicker Tuschekontur, harter versetzter Schatten, "!" in der Akzentfarbe */
+.bubble.manga { font-weight: 800; }
+.bubble.manga .box { border-width: 3px; border-radius: 16px; box-shadow: 3px 3px 0 var(--c1); }
+.bubble.manga .box::after { content: " !"; color: var(--c2, var(--c1)); }
+.bubble.manga .stem { width: 3px; }
 /* Terminal-Marker (Nerd-Stile): Kästchen mit Prompt und (statischem) Block-Cursor, Stiel und Punkt auf der Position */
 .term { display: flex; flex-direction: column; align-items: center; font: 600 13px/1 ui-monospace, "JetBrains Mono", "Fira Code", monospace; }
 .term .box { background: var(--bg); color: var(--fg); border: 1.5px solid var(--c1); border-radius: 4px; padding: 5px 8px; white-space: nowrap; box-shadow: 0 2px 6px rgb(0 0 0 / .45); }
@@ -90,9 +95,9 @@ function markerIcon(m, px, font) {
   const PX_PROMPT = '<svg viewBox="0 0 12 5" fill="currentColor" shape-rendering="crispEdges"><rect x="1" y="2" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="9" y="1" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/></svg>';  // 8 Bit: ~/ als Pixelgrafik (Silkscreen-Tilde sitzt zu hoch, / zu rund)
   if (m?.type === 'bubble') {
     const el = document.createElement('div');
-    el.className = 'bubble';
+    el.className = 'bubble' + (m.look ? ' ' + m.look : '');  // look: z. B. manga
     if (font) el.style.fontFamily = `"${font}", system-ui, sans-serif`;
-    for (const [k, v] of Object.entries({ c1: m.color, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
+    for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
     el.innerHTML = '<span class="box"></span><span class="stem"></span><span class="dot"></span>';
     el.querySelector('.box').textContent = m.label;  // Text, kein HTML
     document.body.appendChild(el); const w = el.offsetWidth, h = el.offsetHeight; el.remove();

@@ -1,0 +1,125 @@
+# "Anime": Kartenstil im allgemeinen Look von Anime-Zeichentrick an einem Sommertag (Nutzerwunsch 2026-11-24).
+#   Nur der Genre-Look, keine Studios, Filme oder Figuren.
+#   - Cel-Shading: flache Farben, harte Stufen, kein Verlauf; Gebäude hell mit versetztem lavendelfarbenem Schlagschatten
+#   - Tuschekonturen um Gebäude (outlines) und Straßen (Ränder), Hauptstraßen breiter
+#   - Bäume als Wolkenbüschel, Wiesen mit Manga-Grasbüscheln, Rasterfolie (Screentone) auf Gewerbe und Plätzen, Wasser himmelblau mit weißen Glanzlinien
+#   - lockere Handschrift (Kalam) mit dickem weißem Rand, Marker als Manga-Sprechblase
+title = "Anime"
+category = "standard"
+mode = "light"
+family = "Anime"
+font = "Kalam"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Kalam"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+text_scale = 1.4
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#f4f1e4"
+[paint."landuse-*"]
+fill-color = "#efe9d8"
+fill-opacity = 1
+[paint."landuse-residential"]
+fill-color = "#f1ecdd"
+[paint."landuse-cemetery"]
+fill-color = "#b6e08f"
+[paint."park"]
+fill-pattern = "park"
+fill-color = "#a6e07a"
+[paint."landcover-*"]
+fill-color = "#b4e58a"
+fill-opacity = 1
+[paint."landcover-grass*"]
+fill-pattern = "gras"
+[paint."landcover-wood"]
+fill-pattern = "wald"
+[paint."landuse-commercial"]
+fill-pattern = "raster"
+[paint."landuse-industrial"]
+fill-pattern = "raster"
+
+[paint."water*"]
+fill-color = "#6cc4f2"
+line-color = "#3d9ad6"
+
+# Cel-Shading: building = Schlagschatten (lavendel), building-top = helle Dachfläche, nach oben links versetzt
+[paint."building"]
+fill-color = "#c4b6dc"
+[paint."building-top"]
+fill-opacity = 1   # OSM Bright blendet das Dach erst ab z16 ein, sonst scheint der Schatten durch
+# Dächer in 6 Pastelltönen nach OSM-ID (letzte Ziffer = OSM-Typ, daher /10), sonst wirkt dichte Bebauung grau. Fall 4 trifft
+# auffällig viele (von Planetiler zusammengefasste) Blöcke, daher dort neutrales Creme
+fill-color = ["match", ["%", ["floor", ["/", ["id"], 10]], 6], 0, "#fbe1c6", 1, "#f7c6b2", 2, "#d4e6f6", 3, "#f8e0a0", 4, "#fff1d8", 5, "#d3efd9", "#fffaf2"]
+fill-outline-color = ["interpolate", ["linear"], ["zoom"], 14, "#9a94b4", 16, "#2b2a3a"]
+fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 16, ["literal", [-3, -3]]]
+
+# Straßen weiß mit Tuschekontur, Hauptstraßen warmgelb, Autobahn koralle
+[paint."*-minor*"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#ffffff"
+[paint."*-link"]
+line-color = "#ffffff"
+[paint."*-secondary-tertiary*"]
+line-color = "#fff3c4"
+[paint."*-primary*"]
+line-color = "#ffd34d"
+[paint."*-trunk*"]
+line-color = "#ffd34d"
+[paint."*-motorway*"]
+line-color = "#ff8a6b"
+[paint."*-casing"]
+line-color = "#2b2a3a"
+[paint."*-minor-casing"]
+line-color = ["interpolate", ["linear"], ["zoom"], 14, "#9a94b4", 16, "#2b2a3a"]
+[paint."*-service-track-casing"]
+line-color = ["interpolate", ["linear"], ["zoom"], 14, "#9a94b4", 16, "#2b2a3a"]
+[paint."highway-area"]
+fill-pattern = "platz"
+[paint."aeroway-*"]
+fill-color = "#e8e4d6"
+line-color = "#e8e4d6"
+[paint."*-path"]
+line-color = "#d0805a"
+[paint."*railway*"]
+line-color = "#2b2a3a"
+
+# Schrift Tusche mit dickem weißem Rand, POIs pink (Akzent, mit Tusche gemischt bis Kontrast >= 4,5:1)
+[paint."label_*"]
+text-color = "#2b2a3a"
+text-halo-color = "#ffffff"
+text-halo-width = 2.5
+[paint."highway-name-*"]
+text-color = "#2b2a3a"
+text-halo-color = "#ffffff"
+text-halo-width = 2
+[paint."poi_*"]
+text-color = "#c2335f"
+text-halo-color = "#ffffff"
+text-halo-width = 2
+[paint."water*label"]
+text-color = "#1f6fa8"
+text-halo-color = "#ffffff"
+
+[patterns]
+gras = { symbol = "mangagras", color = "#3f7a2e", bg = "#b4e58a" }
+park = { symbol = "mangagras", color = "#3f7a2e", bg = "#a6e07a" }
+wald = { symbol = "wolkenbaum", color = "#2f5a2a", fill = "#8fd468", bg = "#74c24e" }
+raster = { symbol = "raster", color = "#b9b2a0", bg = "#efe9d8" }
+platz = { symbol = "raster", color = "#d6d0c0", bg = "#fbf8ef" }
+[water_lines]
+color = "#ffffff"
+count = 2
+gap = 3
+[outlines."building-top"]
+color = "#2b2a3a"
+width = ["interpolate", ["linear"], ["zoom"], 15, 0, 15.5, 0.5, 16, 1, 18, 1.8]
+minzoom = 15
+
+[marker]
+type = "bubble"
+look = "manga"
+color = "#2b2a3a"
+color2 = "#ff4f86"
+bg = "#ffffff"
+fg = "#2b2a3a"
