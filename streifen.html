@@ -10,11 +10,12 @@
 </head>
 <body class="h-dvh overflow-hidden bg-neutral-400 font-sans text-sm text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100">
 
-<div id="map" class="fixed inset-x-0 top-0 h-lvh bg-neutral-400 dark:bg-neutral-800"></div>
+<div id="map" class="absolute inset-x-0 top-0 h-lvh bg-neutral-400 dark:bg-neutral-800"></div>
 
 <!-- Stilnamen: senkrechte Streifen (cols) oben je Streifen, waagerechte (rows) links je Streifen.
-     Karte und Titel sind 100lvh hoch, reichen also auf dem iPhone hinter die Safari-Leisten (viewport-fit=cover). -->
-<div id="titles" class="pointer-events-none fixed inset-x-0 top-0 h-lvh z-[1000] flex cols:flex-row rows:flex-col compact:solo:hidden"></div>
+     Karte und Titel sind 100lvh hoch, reichen also auf dem iPhone hinter die Safari-Leisten (viewport-fit=cover).
+     absolute statt fixed: Safari 26 zeichnet fixed-Elemente nicht unter seine Leisten, sondern füllt sie mit deren Hintergrundfarbe (grauer Rand). -->
+<div id="titles" class="pointer-events-none absolute inset-x-0 top-0 h-lvh z-[1000] flex cols:flex-row rows:flex-col compact:solo:hidden"></div>
 
 <!-- Bedienleiste (Desktop/Querformat groß): oben links unter den Titeln bzw. oben rechts bei waagerechten Streifen.
      Auf kleinen Bildschirmen (compact: Hochformat oder niedrige Höhe) ausgeblendet: dort Navigation unten (#nav),
@@ -61,7 +62,7 @@
 
 <!-- Handy (compact): Navigation unten in Daumenreichweite. ‹ › oder Wischen über die Leiste schaltet den Stil,
      Tipp auf den Namen öffnet die Stilliste (#jump), ⚙︎ die Optionen (#sheet). -->
-<nav id="nav" aria-label="Stile" class="fixed inset-x-0 bottom-0 z-[1001] hidden touch-none select-none items-center gap-1 bg-white/90 px-2 pt-2
+<nav id="nav" aria-label="Stile" class="absolute inset-x-0 top-[100dvh] -translate-y-full z-[1001] hidden touch-none select-none items-center gap-1 bg-white/90 px-2 pt-2
   pb-[max(.5rem,env(safe-area-inset-bottom))] shadow-[0_-2px_8px_rgb(0_0_0/.2)] backdrop-blur dark:bg-neutral-900/90 compact:flex">
   <button data-step="-1" aria-label="Vorheriger Stil" class="size-11 shrink-0 rounded-lg active:bg-black/10 dark:active:bg-white/10 text-2xl">‹</button>
   <button id="nav-name" aria-haspopup="dialog" class="flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-2 text-base font-medium active:bg-black/10 dark:active:bg-white/10">
@@ -74,7 +75,7 @@
 
 <!-- Vergleich (?vs=Familie): Trennlinie zwischen Stil A (links/oben) und B (rechts/unten). Griff ziehen verschiebt,
      Tippen tauscht die Seiten. Lage setzt clip(). -->
-<div id="divider" hidden class="pointer-events-none fixed z-[1000]">
+<div id="divider" hidden class="pointer-events-none absolute z-[1000]">
   <div class="absolute bg-white shadow-[0_0_4px_rgb(0_0_0/.6)] cols:inset-y-0 cols:-left-px cols:w-0.5 rows:inset-x-0 rows:-top-px rows:h-0.5"></div>
   <span id="tag-a" class="absolute whitespace-nowrap rounded-md bg-white/85 px-2 py-1 font-medium dark:bg-neutral-900/85
     cols:right-2 cols:top-[calc(env(safe-area-inset-top)+.5rem)] rows:bottom-2 rows:left-[calc(env(safe-area-inset-left)+.5rem)]"></span>
