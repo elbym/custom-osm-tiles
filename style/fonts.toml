@@ -10,7 +10,6 @@
 #   scale   = 1.05   Größenfaktor (gleicht unterschiedlich große Schriftbilder aus)
 #   grid    = 12.5   Pixelschrift: Schriftgrößen werden auf Vielfache davon gerundet (passt genau ins Pixelraster)
 #   streets = "450"  Schnitt für Straßennamen statt Regular (muss oben als Schnitt stehen)
-#   slant   = 10     im Schnitt: Glyphen um so viele Grad neigen (unechte Kursive für Schriften ohne Italic)
 #
 # Noto Sans fehlt hier absichtlich: sie ist nur Ersatzschrift und wird fertig geladen.
 
@@ -74,17 +73,12 @@ Regular = { file = "tex-gyre-heros/texgyreheros-regular.otf" }
 Bold    = { file = "tex-gyre-heros/texgyreheros-bold.otf" }
 Italic  = { file = "tex-gyre-heros/texgyreheros-italic.otf" }
 
-["Mozilla Text"]   # für Bluecron: Medium als Grundschnitt; keine Kursive, daher Medium geneigt (slant)
+["Mozilla Text"]   # für Bluecron: Medium als Grundschnitt (statische Schnitte aus mozilla/mozilla-type-family,
+                   # google/fonts hat keine Kursive)
 group = "sans"
-Regular = { file = "mozilla-text/MozillaText-VF.ttf", wght = 500 }
-Bold    = { file = "mozilla-text/MozillaText-VF.ttf", wght = 700 }
-Italic  = { file = "mozilla-text/MozillaText-VF.ttf", wght = 500, slant = 10 }
-["JetBrains Mono"]
-group = "mono"
-Regular = { file = "jetbrains-mono/JetBrainsMono-VF.ttf", wght = 400 }
-Bold    = { file = "jetbrains-mono/JetBrainsMono-VF.ttf", wght = 700 }
-Italic  = { file = "jetbrains-mono/JetBrainsMono-Italic-VF.ttf", wght = 400 }
-
+Regular = { file = "mozilla-text/MozillaText-Medium.ttf" }
+Bold    = { file = "mozilla-text/MozillaText-Bold.ttf" }
+Italic  = { file = "mozilla-text/MozillaText-MediumItalic.ttf" }
 ["Maple Mono"]
 group = "mono"
 Regular = { file = "maple-mono/MapleMono-Regular.ttf" }

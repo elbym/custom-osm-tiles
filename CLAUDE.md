@@ -179,3 +179,4 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 - Only missing folders are rebuilt, so delete a folder after changing its spec.
 - Noto Sans is deliberately absent from `fonts.toml`: it is fallback only, because the user dislikes it as a label font.
 - `brotli` is not installed, so take new fonts as TTF/OTF from upstream (google/fonts, CTAN), not WOFF2.
+- google/fonts can lack styles the foundry ships (Mozilla Text there has no italic; mozilla/mozilla-type-family does). Before calling a font italic-less, check the foundry repo and the user's catalogue `elbym/font-collection`.

@@ -98,35 +98,12 @@ def ensure_glyphs():
             src = ROOT / "fonts-src" / spec["file"]
             # Dateiname = Ordnername der Glyphen, z. B. "Literata Bold"
             out = Path(tmp) / f"{font} {face}{src.suffix}"
-            axes = [f"{k}={v}" for k, v in spec.items() if k not in ("file", "slant")]
+            axes = [f"{k}={v}" for k, v in spec.items() if k != "file"]
             if axes:
                 run(sys.executable, "-m", "fontTools.varLib.instancer", str(src), *axes, "-o", str(out))
             else:
                 shutil.copy(src, out)
-            if "slant" in spec:
-                oblique(out, spec["slant"])
         run(tool, tmp, str(dest))
-
-
-def oblique(path, deg):
-    """Schrift ohne Kursive: alle Glyphen um deg Grad nach rechts neigen (unechte Kursive, slant = 10 in fonts.toml).
-    Nur TrueType-Umrisse (glyf), also TTF oder daraus instanziierte variable Schriften."""
-    from fontTools.pens.transformPen import TransformPen
-    from fontTools.pens.ttGlyphPen import TTGlyphPen
-    from fontTools.ttLib import TTFont
-    f = TTFont(path)
-    gs, glyf, skew = f.getGlyphSet(), f["glyf"], (1, 0, math.tan(math.radians(deg)), 1, 0, 0)
-    new = {}
-    for name in f.getGlyphOrder():
-        pen = TTGlyphPen(gs)
-        gs[name].draw(TransformPen(pen, skew))
-        new[name] = pen.glyph()
-    for name, g in new.items():  # erst danach ersetzen: zusammengesetzte Glyphen lesen sonst schon geneigte Teile
-        glyf[name] = g
-        g.recalcBounds(glyf)
-        # linker Rand in hmtx = neues xMin, sonst verschiebt FreeType den Umriss (falsche Abstände)
-        f["hmtx"][name] = (f["hmtx"][name][0], getattr(g, "xMin", 0))
-    f.save(path)
 
 
 # --streets-only: nur Straßennetz, Wasser und Ortsnamen (Poster-Look wie maptoposter); Straßennamen, Schilder,
