@@ -1,20 +1,19 @@
-# Firefox DevTools Dunkel: Kartenstil nach dem dunklen Theme der Firefox-Entwicklerwerkzeuge
-# (devtools/client/themes/variables.css, Farben aus Photon, https://github.com/FirefoxUX/photon-colors, MPL-2.0).
-title = "Firefox DevTools Dark"
-category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
+# Photon Dark: Standard-Stil mit den Photon-Farben der Mozilla-Entwicklerwerkzeuge (wie "Photon Dev"
+# Dark in der Nerd-Gruppe), aber neutrale Beschriftung, Straßenschilder und Blasen-Marker; Schrift Fira Sans.
+title = "Photon Dark"
+category = "standard"      # standard | nerd (Gruppe in der Vorschau)
 mode = "dark"          # light | dark
-family = "Firefox DevTools"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+family = "Photon"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Fira Sans"
-preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
-site_font = "Fira Code"   # Fira: Mozillas Hausschrift der Photon-Zeit
-fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Fira Sans"   # Fira: ursprünglich für Mozilla entworfen
 text_scale = 1.15
-attribution = "Farben nach Firefox DevTools / Photon (MPL-2.0)"
+attribution = "Farben aus Mozillas Photon-Farbsystem (MPL-2.0)"
 hide = ["poi_r20", "road_oneway*"]
 
 # Charakter: neutrales, kaum bläuliches Anthrazit (#232327 Inhalt, #18181a Seitenleiste) wie das Inspektor-Fenster,
 # pastellige Syntaxfarben als Akzente: Hauptstraßen highlight-blue, Land-/Kreisstraßen highlight-bluegrey,
-# Autobahn highlight-orange (Firefox-Orange), Grün highlight-green, Prompt highlight-red (Magenta). Kein Leuchtschein.
+# Autobahn highlight-orange (Photon-Orange), Grün highlight-green, Prompt highlight-red (Magenta). Kein Leuchtschein.
 [paint."background"]
 background-color = "#232327"
 [paint."landuse-*"]
@@ -74,47 +73,29 @@ fill-color = "#232327"
 [paint."road_pier"]
 line-color = "#232327"
 
-# Orts- und POI-Namen in der Akzentfarbe des Markers (#75bfff; POIs 22 % zum Grund gemischt)
-[paint."*label*"]
-text-color = "#75bfff"
-text-halo-color = "#232327"
+# Ortsnamen in Photon grey-30, Straßennamen grey-40, POIs und Wasser in der Markerfarbe (#75bfff)
 [paint."label_*"]
-text-color = "#75bfff"
+text-color = "#d7d7db"
 text-halo-color = "#232327"
 [paint."highway-name-*"]
-text-color = "#b1b1b3"   # body-color
+text-color = "#b1b1b3"
 text-halo-color = "#232327"
 [paint."poi_*"]
-text-color = "#639dcf"
+text-color = "#75bfff"
 text-halo-color = "#232327"
 [paint."poi_transit"]
 text-color = "#86de74"
 [paint."water*label"]
 text-color = "#75bfff"
 [paint."airport"]
-text-color = "#639dcf"
-text-halo-color = "#232327"
-
-# >>> Akzent-Beschriftung
-# Straßennummern ohne weißes Schild (Sprite-Bild, nicht umfärbbar), stattdessen in den Akzentfarben des Themes:
-# Autobahn #d96629, Bundes-/Hauptstraße #75bfff, Land-/Kreisstraße #5e88b0. Hauptstraßennamen ebenfalls #75bfff.
-[layout."*shield*"]
-icon-image = ""
-text-size = 12
-[paint."*shield*"]
-text-color = ["match", ["get", "class"], "motorway", "#d96629", ["trunk", "primary"], "#75bfff", "#5e88b0"]
-text-halo-color = "#232327"
-text-halo-width = 1.5
-[paint."highway-name-major"]
 text-color = "#75bfff"
-# <<< Akzent-Beschriftung
+text-halo-color = "#232327"
 
 # >>> Marker
-# Terminal-Marker: Kästchen "~/<--label>" mit Block-Cursor, Stiel und Punkt auf der Position
+# Blasen-Marker: Label im abgerundeten Kasten, Stiel und Punkt auf der Position
 [marker]
-type = "terminal"   # leaflet | terminal
-color = "#75bfff"      # Rahmen, Cursor, Stiel
-color2 = "#ff7de9"     # Prompt ~/ (highlight-red, Magenta)
-bg = "#232327"
-fg = "#d7d7db"
+type = "bubble"     # leaflet | bubble | terminal
+color = "#75bfff"     # Rahmen, Stiel, Punkt
+bg = "#232327"         # Kasten
+fg = "#f9f9fa"         # Schrift
 # <<< Marker

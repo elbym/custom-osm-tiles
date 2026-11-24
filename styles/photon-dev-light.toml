@@ -1,18 +1,18 @@
-# Firefox DevTools Hell: Kartenstil nach dem hellen Theme der Firefox-Entwicklerwerkzeuge
+# Photon Dev Hell: Kartenstil nach dem hellen Theme der Mozilla-Entwicklerwerkzeuge
 # (devtools/client/themes/variables.css, Farben aus Photon, https://github.com/FirefoxUX/photon-colors, MPL-2.0).
-title = "Firefox DevTools Light"
+title = "Photon Dev Light"
 category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
 mode = "light"          # light | dark
-family = "Firefox DevTools"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+family = "Photon Dev"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Fira Sans"
 preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
 site_font = "Fira Code"   # Fira: Mozillas Hausschrift der Photon-Zeit
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15
-attribution = "Farben nach Firefox DevTools / Photon (MPL-2.0)"
+attribution = "Farben aus Mozillas Photon-Farbsystem (MPL-2.0)"
 hide = ["poi_r20", "road_oneway*"]
 
-# Charakter: nüchternes Photon-Grau (grey-10 als Grund) mit kräftigem Firefox-Blau für Hauptstraßen, Orange für die
+# Charakter: nüchternes Photon-Grau (grey-10 als Grund) mit kräftigem Photon-Blau für Hauptstraßen, Orange für die
 # Autobahn, weiße Nebenstraßen mit grey-30-Rand. Grün highlight-green, Wasser blue-55, beide mit dem Grund gemischt.
 [paint."background"]
 background-color = "#f9f9fa"   # grey-10

@@ -18,7 +18,7 @@ Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bi
 |---|---|---|
 | **Americana**<br><sub>Standard</sub> | <a href="docs/previews/americana.png"><img src="docs/previews/americana.png" width="256" alt="OSM Americana"></a><br>OSM Americana | <a href="docs/previews/americana-dark.png"><img src="docs/previews/americana-dark.png" width="256" alt="OSM Americana Dark"></a><br>OSM Americana Dark |
 | **Clear**<br><sub>Standard</sub> | <a href="docs/previews/clear.png"><img src="docs/previews/clear.png" width="256" alt="Clear"></a><br>Clear | <a href="docs/previews/clear-dark.png"><img src="docs/previews/clear-dark.png" width="256" alt="Clear Dark"></a><br>Clear Dark |
-| **Firefox**<br><sub>Standard</sub> | <a href="docs/previews/firefox.png"><img src="docs/previews/firefox.png" width="256" alt="Firefox"></a><br>Firefox | <a href="docs/previews/firefox-dark.png"><img src="docs/previews/firefox-dark.png" width="256" alt="Firefox Dark"></a><br>Firefox Dark |
+| **Photon**<br><sub>Standard</sub> | <a href="docs/previews/photon.png"><img src="docs/previews/photon.png" width="256" alt="Photon"></a><br>Photon | <a href="docs/previews/photon-dark.png"><img src="docs/previews/photon-dark.png" width="256" alt="Photon Dark"></a><br>Photon Dark |
 | **Cupertino**<br><sub>Standard</sub> | <a href="docs/previews/cupertino.png"><img src="docs/previews/cupertino.png" width="256" alt="Cupertino"></a><br>Cupertino | <a href="docs/previews/cupertino-dark.png"><img src="docs/previews/cupertino-dark.png" width="256" alt="Cupertino Dark"></a><br>Cupertino Dark |
 | **North**<br><sub>Standard</sub> | <a href="docs/previews/north.png"><img src="docs/previews/north.png" width="256" alt="North"></a><br>North | <a href="docs/previews/north-dark.png"><img src="docs/previews/north-dark.png" width="256" alt="North Dark"></a><br>North Dark |
 | **OSM**<br><sub>Standard</sub> | <a href="docs/previews/osm-light.png"><img src="docs/previews/osm-light.png" width="256" alt="OSM light"></a><br>OSM light | <a href="docs/previews/osm-dark.png"><img src="docs/previews/osm-dark.png" width="256" alt="OSM dark"></a><br>OSM dark |
@@ -29,7 +29,7 @@ Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bi
 | **Dracula**<br><sub>Nerd</sub> | <a href="docs/previews/dracula-light.png"><img src="docs/previews/dracula-light.png" width="256" alt="Alucard"></a><br>Alucard | <a href="docs/previews/dracula.png"><img src="docs/previews/dracula.png" width="256" alt="Dracula"></a><br>Dracula |
 | **Everforest**<br><sub>Nerd</sub> | <a href="docs/previews/everforest-light.png"><img src="docs/previews/everforest-light.png" width="256" alt="Everforest Light"></a><br>Everforest Light | <a href="docs/previews/everforest-dark.png"><img src="docs/previews/everforest-dark.png" width="256" alt="Everforest Dark"></a><br>Everforest Dark |
 | **One**<br><sub>Nerd</sub> | <a href="docs/previews/one-light.png"><img src="docs/previews/one-light.png" width="256" alt="One Light"></a><br>One Light | <a href="docs/previews/one-dark.png"><img src="docs/previews/one-dark.png" width="256" alt="One Dark"></a><br>One Dark |
-| **Firefox DevTools**<br><sub>Nerd</sub> | <a href="docs/previews/firefox-devtools-light.png"><img src="docs/previews/firefox-devtools-light.png" width="256" alt="Firefox DevTools Light"></a><br>Firefox DevTools Light | <a href="docs/previews/firefox-devtools-dark.png"><img src="docs/previews/firefox-devtools-dark.png" width="256" alt="Firefox DevTools Dark"></a><br>Firefox DevTools Dark |
+| **Photon Dev**<br><sub>Nerd</sub> | <a href="docs/previews/photon-dev-light.png"><img src="docs/previews/photon-dev-light.png" width="256" alt="Photon Dev Light"></a><br>Photon Dev Light | <a href="docs/previews/photon-dev-dark.png"><img src="docs/previews/photon-dev-dark.png" width="256" alt="Photon Dev Dark"></a><br>Photon Dev Dark |
 | **Gruvbox**<br><sub>Nerd</sub> | <a href="docs/previews/gruvbox-light.png"><img src="docs/previews/gruvbox-light.png" width="256" alt="Gruvbox Light"></a><br>Gruvbox Light | <a href="docs/previews/gruvbox-dark.png"><img src="docs/previews/gruvbox-dark.png" width="256" alt="Gruvbox Dark"></a><br>Gruvbox Dark |
 | **Nightfox**<br><sub>Nerd</sub> | <a href="docs/previews/dayfox.png"><img src="docs/previews/dayfox.png" width="256" alt="Dayfox"></a><br>Dayfox | <a href="docs/previews/nightfox.png"><img src="docs/previews/nightfox.png" width="256" alt="Nightfox"></a><br>Nightfox |
 | **Solarized**<br><sub>Nerd</sub> | <a href="docs/previews/solarized-light.png"><img src="docs/previews/solarized-light.png" width="256" alt="Solarized Light"></a><br>Solarized Light | <a href="docs/previews/solarized-dark.png"><img src="docs/previews/solarized-dark.png" width="256" alt="Solarized Dark"></a><br>Solarized Dark |
@@ -131,7 +131,7 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 |---|---|---|---|
 | **OSM Americana** / Dark | Standard | Overpass | Stil der OSM-US-Community (openstreetmap-americana, CC0); dunkle Variante eigene Ableitung |
 | **Clear** / Clear Dark | Standard | Fira Sans | eigener Stil: kühl und reduziert, Farbe nur für Hauptstraßen (Standard) |
-| **Firefox** / Dark | Standard | Fira Sans | Farben der Firefox-Entwicklerwerkzeuge (Photon, MPL-2.0) als normale Karte: neutrale Ortsnamen, Straßenschilder, Blasen-Marker |
+| **Photon** / Dark | Standard | Fira Sans | Mozillas Photon-Farbsystem (MPL-2.0) als normale Karte: neutrale Ortsnamen, Straßenschilder, Blasen-Marker |
 | **Cupertino** / Dark | Standard | Public Sans | angelehnt an den Gesamteindruck von Apple Maps (eigene Farbwahl) |
 | **North** / Dark | Standard | DINish | Farben nach der Palette von Hydda (BSD-3) |
 | **OSM light** / OSM dark | Standard | Atkinson Hyperlegible Next | OSM-Standardkarte (openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
@@ -143,7 +143,7 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 | **Alucard** / **Dracula** | Nerd | Fira Code | Dracula, helle Variante nach der offiziellen Alucard-Palette (MIT) |
 | **Everforest Light** / **Dark** | Nerd | Ubuntu Sans Mono | Everforest (MIT) |
 | **One Light** / **Dark** | Nerd | Hack | Atom One (MIT); Regenbogen: Straßenhierarchie durch die sieben Syntaxfarben |
-| **Firefox DevTools Light** / **Dark** | Nerd | Fira Code | Firefox-Entwicklerwerkzeuge (devtools/client/themes/variables.css, Photon-Farben, MPL-2.0): Hauptstraßen highlight-blue, Autobahn Firefox-Orange, Beschriftung in der Akzentfarbe |
+| **Photon Dev Light** / **Dark** | Nerd | Fira Code | Theme der Mozilla-Entwicklerwerkzeuge (devtools/client/themes/variables.css, Photon-Farben, MPL-2.0): Hauptstraßen highlight-blue, Autobahn Photon-Orange, Beschriftung in der Akzentfarbe |
 | **Gruvbox Light** / **Dark** | Nerd | IBM Plex Mono | Gruvbox (MIT) |
 | **Solarized Light** / **Dark** | Nerd | Intel One Mono | Solarized (MIT) |
 | **Tokyo Night Day** / **Night** | Nerd | JetBrains Mono | tokyonight.nvim (Apache-2.0) |

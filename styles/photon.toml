@@ -1,17 +1,17 @@
-# Firefox: Standard-Stil mit den Farben der Firefox-Entwicklerwerkzeuge (Photon, wie "Firefox DevTools"
+# Photon: Standard-Stil mit den Photon-Farben der Mozilla-Entwicklerwerkzeuge (wie "Photon Dev"
 # Light in der Nerd-Gruppe), aber neutrale Beschriftung, Straßenschilder und Blasen-Marker; Schrift Fira Sans.
-title = "Firefox"
+title = "Photon"
 category = "standard"      # standard | nerd (Gruppe in der Vorschau)
 mode = "light"          # light | dark
-family = "Firefox"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
+family = "Photon"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Fira Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
 site_font = "Fira Sans"   # Fira: ursprünglich für Mozilla entworfen
 text_scale = 1.15
-attribution = "Farben nach Firefox DevTools / Photon (MPL-2.0)"
+attribution = "Farben aus Mozillas Photon-Farbsystem (MPL-2.0)"
 hide = ["poi_r20", "road_oneway*"]
 
-# Charakter: nüchternes Photon-Grau (grey-10 als Grund) mit kräftigem Firefox-Blau für Hauptstraßen, Orange für die
+# Charakter: nüchternes Photon-Grau (grey-10 als Grund) mit kräftigem Photon-Blau für Hauptstraßen, Orange für die
 # Autobahn, weiße Nebenstraßen mit grey-30-Rand. Grün highlight-green, Wasser blue-55, beide mit dem Grund gemischt.
 [paint."background"]
 background-color = "#f9f9fa"   # grey-10
