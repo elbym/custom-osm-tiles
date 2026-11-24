@@ -483,7 +483,7 @@ def parent(url):
     return fetch(url)
 
 
-PIXEL_TEXT = int(os.environ.get("PIXEL_TEXT", 10))  # --pixel 4 mit normaler Schrift: Geviert in Rasterpixeln
+PIXEL_TEXT = 11  # --pixel 4 mit normaler Schrift: Geviert in Rasterpixeln (9 unlesbar; Regel in CLAUDE.md)
 PIXEL_SS = 3  # --pixel: Vorfahrkachel in 3-facher Auflösung, je 3×3 = ein 8-Bit-Pixel (Schrift rastet ins Pixelraster)
 
 
