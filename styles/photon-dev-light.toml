@@ -48,9 +48,9 @@ line-color = "#ffffff"
 [paint."*-secondary-tertiary*"]
 line-color = "#b9dcff"   # toolbar-background-highlighted
 [paint."*-primary*"]
-line-color = "#0074e8"   # blue-55
+line-color = "#45a1ff"   # blue-40 (blue-55 war zu kräftig)
 [paint."*-trunk*"]
-line-color = "#0074e8"
+line-color = "#45a1ff"
 [paint."*-motorway*"]
 line-color = "#f13c00"   # highlight-orange
 [paint."*-casing"]
@@ -58,9 +58,9 @@ line-color = "#d7d7db"   # grey-30
 [paint."*-secondary-tertiary*-casing"]
 line-color = "#5e88b0"
 [paint."*-primary*-casing"]
-line-color = "#003eaa"   # blue-70
+line-color = "#0060df"   # blue-60
 [paint."*-trunk*-casing"]
-line-color = "#003eaa"
+line-color = "#0060df"
 [paint."*-motorway*-casing"]
 line-color = "#a4000f"   # red-70
 [paint."highway-area"]             # Fußgängerzonen, Plätze
