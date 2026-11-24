@@ -339,6 +339,7 @@ def write_previews(outdir):
         shutil.copy(ROOT / f, outdir / f)
     shutil.copy(ROOT / "vendor" / "streifen.css", outdir / "streifen.css")  # Tailwind, gebaut mit npm run css
     shutil.copytree(ROOT / "vendor" / "leaflet", outdir / "leaflet", dirs_exist_ok=True)
+    shutil.copy(SILKSCREEN, outdir / "silkscreen.ttf")  # 8-Bit-Marker
     names = sorted(d.name for d in outdir.iterdir() if (d / "config.json").exists())
     configs = {n: json.loads((outdir / n / "config.json").read_text()) for n in names}
     titles = {n: c["title"] for n, c in configs.items()}
@@ -452,6 +453,7 @@ def optimize(files):
         subprocess.run([OXIPNG, "-q", "-o", "2", "--strip", "safe", *files], check=True)
 
 
+SILKSCREEN = ROOT / "fonts-src" / "silkscreen" / "Silkscreen-Regular.ttf"  # Schrift des 8-Bit-Markers
 OXIPNG = shutil.which("oxipng") or shutil.which(str(Path.home() / ".cargo/bin/oxipng"))
 
 
@@ -714,6 +716,8 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     (out / "config.json").write_text(json.dumps(cfg, ensure_ascii=False))  # liest write_previews()
     if standalone:  # eigenständige Kartenseite; für die Vorschau-Seite (--site) nicht nötig
         shutil.copytree(ROOT / "vendor" / "leaflet", out / "leaflet", dirs_exist_ok=True)
+        if a.pixel:
+            shutil.copy(SILKSCREEN, out / "silkscreen.ttf")  # 8-Bit-Marker (OFL, Lizenz in fonts-src/silkscreen)
         write_page(out, cfg)
     write_previews(out.parent)
     size = sum(f.stat().st_size for f in (out / "tiles").rglob(f"*.{ext}"))

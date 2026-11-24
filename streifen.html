@@ -237,7 +237,18 @@ const overlays = strips.map(([, v]) => {
 });
 // Marker im Stil des mittleren Streifens (dort liegt er beim Öffnen)
 const mid = strips[Math.floor(strips.length / 2)][1] || strips.find(([, v]) => v)[1];
-const marker = L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker), title: mid?.[1].marker?.label }).addTo(map);
+// 8 Bit: Marker im Pixelraster (u = Größe eines 8-Bit-Pixels), eingerastet auf die Kachelpixel
+const pxu = px ? (+c0.pixel === 1 || c0.pixel === true ? 2 : +c0.pixel) : 0;
+const marker = L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker, pxu), title: mid?.[1].marker?.label }).addTo(map);
+function snapMarker() {  // Raster = pxu * 2^Hochskalierung über die gerenderte Stufe hinaus
+  const el = marker.getElement()?.firstChild;
+  if (!pxu || !el) return;
+  const g = pxu * 2 ** Math.max(0, map.getZoom() - Math.min(c0.zmax, c0.detail_from - 1));
+  const a = marker.options.icon.options.iconAnchor, p = map.project(marker.getLatLng()).round();
+  const m = v => ((v % g) + g) % g;
+  el.style.translate = `${-m(p.x - a[0])}px ${-m(p.y - a[1])}px`;
+}
+snapMarker(); map.on('zoomend', snapMarker);
 
 // Einzelansicht (?solo=Familie): nur ein Stil bildschirmfüllend, ‹ › schalten ohne Neuladen weiter, "Alle" zurück.
 // Ausgeblendete Streifen verlieren ihre Kachelebenen, damit nur der sichtbare Stil lädt.
@@ -255,7 +266,7 @@ function showSolo() {
   layers.forEach((ls, i) => ls.forEach(l => visible(i) ? l.addTo(map) : l.remove()));
   [...document.getElementById('titles').children].forEach((cell, i) => cell.hidden = !visible(i));
   const m = (strips[solo]?.[1] || mid)?.[1].marker;
-  marker.setIcon(markerIcon(m)); marker.options.title = m?.label;
+  marker.setIcon(markerIcon(m, pxu)); marker.options.title = m?.label; snapMarker();
   document.querySelector('#solo [data-step="0"]').setAttribute('aria-pressed', solo < 0);
   document.documentElement.toggleAttribute('data-solo', solo >= 0);
   document.getElementById('titles').hidden = cmp >= 0;
@@ -406,7 +417,7 @@ document.getElementById('about-styles').innerHTML = '';
 for (const t of credits) document.getElementById('about-styles').appendChild(document.createElement('li')).textContent = t;
 
 // Marker laut Stil: "bubble" (Standard-Stile), "terminal" (Nerd-Stile) oder der Leaflet-Standard
-function markerIcon(m) {
+function markerIcon(m, px) {
   const el = document.createElement('div');
   if (m?.type === 'bubble') {
     el.className = 'bubble';
@@ -415,14 +426,15 @@ function markerIcon(m) {
       '<path d="M0 0 L8 9 L16 0 Z" fill="var(--bg)"/><path d="M0 0 L8 9 L16 0" fill="none" stroke="var(--c1)" stroke-width="2" stroke-linejoin="round"/></svg>';
     el.querySelector('.box').textContent = m.label;  // Text, kein HTML
   } else if (m?.type === 'terminal') {
-    el.className = 'term';
-    for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
+    el.className = px ? 'term px' : 'term';
+    for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg, u: px + 'px' })) el.style.setProperty('--' + k, v);
     el.innerHTML = '<span class="box"><span class="p">~/</span><span class="t"></span><span class="cur"></span></span><span class="stem"></span><span class="dot"></span>';
     el.querySelector('.t').textContent = m.label;  // Text, kein HTML
   } else return new L.Icon.Default();
   // Größe messen, damit die Spitze (unten Mitte) genau auf der Position liegt
   document.body.appendChild(el); const w = el.offsetWidth, h = el.offsetHeight; el.remove();
-  return L.divIcon({ className: '', html: el, iconSize: [w, h], iconAnchor: [w / 2, h - (m.type === 'terminal' ? 4 : 1)] });
+  return L.divIcon({ className: '', html: el, iconSize: [w, h],
+    iconAnchor: [Math.round(w / 2), h - (m.type === 'terminal' ? px || 4 : 1)] });
 }
 </script>
 </body>
