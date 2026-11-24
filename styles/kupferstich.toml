@@ -1,0 +1,137 @@
+# "Kupferstich": Stadtansicht im Stil des 18. Jh., Entwurf C (Nutzerwunsch 2026-11-24).
+#   - einfarbig Sepia, Wasser zart grünblau koloriert, alte Drucktype (IM Fell English)
+#   - Signaturen, Wasserlinien und Papier-Overlay wie Historisch, alles in Sepia
+title = "Kupferstich"
+category = "standard"
+mode = "light"
+family = "Kupferstich"
+font = "IM Fell English"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "IM Fell English"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+stains = { strength = 0.5 }   # Altersflecken in die Kacheln eingebacken (stain_png), nahtlos über Kachelgrenzen
+overlay = "paper"          # Papierkorn und vergilbter Rand im Browser (template.html / src/streifen.css)
+text_scale = 1.4
+hide = ["railway-transit-hatching", "poi_r20", "poi_r7", "poi_transit", "road_oneway*", "highway-shield-*", "road_shield_us"]
+[hide_class]
+"poi_*" = ["fuel", "parking", "car", "bicycle", "bicycle_rental", "bicycle_parking", "bus", "mobile_phone", "electronics",
+           "computer", "fast_food", "charging_station", "aerialway", "cinema", "doctors", "dentist", "laundry", "atm",
+           "entrance", "playground", "swimming", "golf", "ice_cream", "car_rental", "car_repair", "taxi"]
+
+[paint."background"]
+background-color = "#eadcbc"
+[paint."landuse-*"]
+fill-color = "#e4d3ae"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-pattern = "friedhof"
+fill-color = "#d4c697"
+[paint."park"]
+fill-pattern = "wiese"
+fill-color = "#d4c697"
+[paint."landcover-*"]
+fill-color = "#dccd9f"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-pattern = "wald"
+fill-color = "#c8b886"
+[paint."landcover-grass*"]
+fill-pattern = "wiese"
+
+[paint."water*"]
+fill-color = "#bccab4"
+line-color = "#5b4a33"
+[paint."building*"]
+fill-color = "#b48e66"
+fill-outline-color = "#5e4026"
+[paint."*-minor*"]
+line-color = "#f0e4c6"
+[paint."*-service-track"]
+line-color = "#f0e4c6"
+[paint."*-link"]
+line-color = "#f0e4c6"
+[paint."*-secondary-tertiary*"]
+line-color = "#f0e4c6"
+[paint."*-primary*"]
+line-color = "#f0e4c6"
+[paint."*-trunk*"]
+line-color = "#f0e4c6"
+[paint."*-motorway*"]
+line-color = "#f0e4c6"
+[paint."*-casing"]
+line-color = "#5b3f24"
+[paint."highway-area"]
+fill-color = "#f0e4c6"
+fill-outline-color = "#5b3f24"
+[paint."aeroway-*"]
+fill-color = "#e4d3ae"
+line-color = "#e4d3ae"
+[paint."*-path"]
+line-color = "#6b4f33"
+[paint."*railway*"]
+line-color = "#4a3520"
+# Eisenbahn wie auf alten Karten: schwarzes Band, innen abwechselnd hell (Hatching-Ebenen als Innenstrich)
+[paint."railway"]
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 1.2, 16, 3, 18, 4.5]
+[paint."bridge-railway"]
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 1.2, 16, 3, 18, 4.5]
+[paint."*railway-hatching"]
+line-color = "#f0e4c6"
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 0.5, 16, 1.6, 18, 2.6]
+line-dasharray = [3, 3]
+[paint."railway-service"]
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.8, 16, 1.8, 18, 3]
+[paint."railway-service-hatching"]
+line-color = "#f0e4c6"
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.3, 16, 0.8, 18, 1.6]
+line-dasharray = [3, 3]
+[paint."railway-transit"]
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.6, 18, 1.5]
+[paint."label_*"]
+text-color = "#3b2614"
+text-halo-color = "#efe3c5"
+[paint."highway-name-*"]
+text-color = "#4a3220"
+text-halo-color = "#f0e4c6"
+[paint."poi_*"]
+text-color = "#5e3a1c"
+text-halo-color = "#efe3c5"
+[paint."water*label"]
+text-color = "#3e4a36"
+# Straßennamen größer und mit dem Zoom wachsend (Basis: ab z14 fest 13 × text_scale); feste Größen, text_scale gilt nicht
+[layout."highway-name-major"]
+text-size = ["interpolate", ["linear"], ["zoom"], 13, 17, 15, 21, 17, 26]
+[layout."highway-name-minor"]
+text-size = ["interpolate", ["linear"], ["zoom"], 13, 16, 15, 20, 17, 24]
+[layout."highway-name-path"]
+text-size = ["interpolate", ["linear"], ["zoom"], 14, 14, 17, 19]
+
+# Ortsnamen groß (Fraktur wirkt kleiner als Antiqua; feste Größen, text_scale gilt hier nicht). Orte in Fraktur, Ortsteile gesperrt in Antiqua-Versalien (wie auf alten Stadtplänen)
+[layout."label_other"]
+text-size = ["interpolate", ["linear"], ["zoom"], 12, 12, 14, 14, 17, 18]
+text-transform = "uppercase"
+text-letter-spacing = 0.25
+[layout."label_village"]
+text-size = ["interpolate", ["linear"], ["zoom"], 11, 17, 14, 22, 17, 28]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+[layout."label_town"]
+text-size = ["interpolate", ["linear"], ["zoom"], 11, 22, 14, 29, 17, 37]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+[layout."label_city"]
+text-size = ["interpolate", ["linear"], ["zoom"], 8, 21, 11, 30, 14, 39, 17, 48]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+
+# Signaturen (fill-pattern, Symbole in vendor/patterns/, Bild ersetzt die Füllfarbe) und Wasserlinien am Ufer
+[patterns]
+wald = { symbol = "laubwald", color = "#6b5232", bg = "#c8b886" }
+wiese = { symbol = "wiese", color = "#7f6a45", bg = "#dccd9f" }
+friedhof = { symbol = "friedhof", color = "#5e4026", bg = "#d4c697" }
+[water_lines]
+color = "#5b4a33"
+count = 3
+gap = 2
+
+[marker]
+type = "bubble"
+color = "#6b3a1e"
+bg = "#f0e4c6"
+fg = "#3b2614"

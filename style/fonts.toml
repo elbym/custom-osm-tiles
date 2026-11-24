@@ -170,3 +170,15 @@ group = "pixel"
 Regular = { file = "vt323/VT323-Regular.ttf" }
 Bold    = { file = "vt323/VT323-Regular.ttf" }
 Italic  = { file = "vt323/VT323-Regular.ttf" }
+
+["IM Fell English"]   # Nachbau englischer Drucktypen des 17. Jh. (Igino Marini); kein fetter Schnitt
+group = "serif"
+Regular = { file = "im-fell-english/IMFeENrm28P.ttf" }
+Bold    = { file = "im-fell-english/IMFeENrm28P.ttf" }
+Italic  = { file = "im-fell-english/IMFeENit28P.ttf" }
+
+["UnifrakturMaguntia"]   # Fraktur (nur Ortsnamen in Historisch/Kupferstich); ein Schnitt
+group = "blackletter"
+Regular = { file = "unifraktur-maguntia/UnifrakturMaguntia-Book.ttf" }
+Bold    = { file = "unifraktur-maguntia/UnifrakturMaguntia-Book.ttf" }
+Italic  = { file = "unifraktur-maguntia/UnifrakturMaguntia-Book.ttf" }

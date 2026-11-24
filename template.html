@@ -24,6 +24,11 @@ html, body { margin: 0; } #map { height: 100dvh; }
 .ov-crt::after { content: ""; position: absolute; inset: 0; z-index: 650; pointer-events: none;
   background: repeating-linear-gradient(to bottom, rgb(0 0 0 / .3) 0 1px, transparent 1px 3px),
     radial-gradient(ellipse at center, color-mix(in srgb, var(--glow, #50ff78) 8%, transparent), transparent 55%, rgb(0 0 0 / .6)); }
+/* paper (Historisch, Kupferstich): Papierkorn (SVG-Rauschen) und zum Rand vergilbt; Altersflecken sind in die Kacheln eingebacken (stains), multipliziert über der Karte. */
+.ov-paper::after { content: ""; position: absolute; inset: 0; z-index: 650; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .32 0 0 0 0 .18 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at center, transparent 30%, rgb(130 85 30 / .65) 100%);
+  mix-blend-mode: multiply; opacity: 1; }
 .term .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); box-shadow: 0 0 0 3px var(--bg); }
 /* 8 Bit (--pixel): Terminal-Marker im Pixelraster, --u = ein 8-Bit-Pixel; Schrift Silkscreen (8 Schriftpixel Geviert),
    keine Rundungen, harter Schatten. Kopie in src/streifen.css, gleich halten. */

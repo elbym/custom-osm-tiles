@@ -6,7 +6,7 @@ Beispiel:
   ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --out out/kunde-xy
   ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # jeder Stil × jede Schrift zum Vergleichen
 """
-import argparse, fnmatch, functools, os, re, io, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.parse, urllib.request, zipfile
+import argparse, fnmatch, functools, hashlib, os, re, io, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.parse, urllib.request, zipfile
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
@@ -171,6 +171,9 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
                 lay["text-rotation-alignment"] = lay["text-pitch-alignment"] = "viewport"
         if any(fnmatch.fnmatch(l["id"], g) for g in t.get("hide", [])):
             lay["visibility"] = "none"
+        for glob, classes in t.get("hide_class", {}).items():  # einzelne Klassen (z. B. POIs) statt ganzer Ebenen
+            if fnmatch.fnmatch(l["id"], glob) and "filter" in l:
+                l["filter"] = ["all", l["filter"], ["!", ["in", ["get", "class"], ["literal", classes]]]]
         # [paint."muster"] / [layout."muster"]: nur Eigenschaften, die zum Ebenentyp passen
         prefixes = ("text-", "icon-", "symbol-") if l["type"] == "symbol" else (l["type"] + "-",)
         for kind in ("paint", "layout"):
@@ -203,7 +206,11 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
     p, accent = t["paint"], t.get("marker", {}).get("color", "#888888")
     weight = {"mono": "bold", "pixel": "bold", "serif": "light"}.get(fcfg.get("group"), "regular")
     s["sprite"] = poi_sprite(weight, p["background"]["background-color"], accent, p["poi_*"]["text-color"],
-                             t.get("mode") == "dark")
+                             t.get("mode") == "dark", t.get("patterns"))
+    if "water_lines" in t:
+        water_lines(s, **t["water_lines"])
+    if t.get("old_railways") and center:
+        old_railways(s, center)
     if t.get("graticule") and center:
         graticule(s, center, accent, p["background"]["background-color"], font)
     return s, f"{t.get('title', Path(toml_path).stem)} · {font}", t.get("attribution", ""), font
@@ -290,17 +297,74 @@ def graticule(s, center, color, bg, font):
     s["layers"] += labels                            # zuletzt = geringster Vorrang, Ortsnamen gewinnen
 
 
+OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter"]
+
+
+def old_railways(s, center):
+    """Stillgelegte und abgebaute Bahnstrecken (old_railways = true im Stil), die OpenMapTiles nicht enthält: einmal per
+    Overpass um den Mittelpunkt (±0,15° Breite, ±0,25° Länge) geholt, in data/ zwischengespeichert, als GeoJSON-Quelle
+    mit denselben Farben und Breiten wie die Ebenen railway und railway-hatching gezeichnet (also wie in Betrieb)."""
+    f = DATA / f"old-railways-{center[0]:.3f}-{center[1]:.3f}.geojson"
+    if not f.exists():
+        b = f"{center[0] - .15},{center[1] - .25},{center[0] + .15},{center[1] + .25}"
+        q = (f'[out:json][timeout:90];(way["railway"~"^(abandoned|disused|razed)$"]({b});way["abandoned:railway"]({b});'
+             f'way["disused:railway"]({b});way["razed:railway"]({b}););out tags geom;')
+        for url in OVERPASS:  # ponytail: Hauptserver antwortet öfter mit 502, dann der Spiegel
+            try:
+                req = urllib.request.Request(url, urllib.parse.urlencode({"data": q}).encode(),
+                                             headers={"User-Agent": "make-tiles/1.0"})
+                with urllib.request.urlopen(req, timeout=120) as r:
+                    ways = json.load(r)["elements"]
+                break
+            except OSError as e:
+                print(f"Overpass {url}: {e}", flush=True)
+        else:
+            print("old_railways: Overpass nicht erreichbar, ohne alte Bahnstrecken", flush=True)
+            return
+        DATA.mkdir(exist_ok=True)
+        f.write_text(json.dumps({"type": "FeatureCollection", "features": [
+            {"type": "Feature", "properties": {},
+             "geometry": {"type": "LineString", "coordinates": [[p["lon"], p["lat"]] for p in w["geometry"]]}}
+            for w in ways if w.get("geometry")]}))
+    s["sources"]["oldrail"] = {"type": "geojson", "data": json.loads(f.read_text())}
+    ids = [l["id"] for l in s["layers"]]
+    new = []
+    for k in ("railway", "railway-hatching"):
+        l = {key: v for key, v in s["layers"][ids.index(k)].items() if key not in ("source-layer", "filter")}
+        new.append(dict(l, id=f"old-{k}", source="oldrail", minzoom=13))
+    i = ids.index("railway-hatching") + 1
+    s["layers"][i:i] = new
+
+
+def water_lines(s, color, count=3, gap=2, width=0.6, minzoom=13):
+    """Wasserlinien wie auf gestochenen Karten (water_lines im Stil): count feine Linien innen am Ufer entlang, je gap px
+    weiter und schwächer. Positiver line-offset liegt bei Vektorkacheln innen (Außenringe im Uhrzeigersinn).
+    count × gap unter dem Kachelpuffer (8 px) halten, sonst zeigen sich Linien an den Schnittkanten der Kacheln."""
+    i = next(k for k, l in enumerate(s["layers"]) if l["id"] == "water")
+    w = s["layers"][i]
+    s["layers"][i + 1:i + 1] = [
+        {"id": f"water-line-{n}", "type": "line", "source": w["source"], "source-layer": w["source-layer"],
+         "filter": w["filter"], "minzoom": minzoom,
+         "paint": {"line-color": color, "line-width": width, "line-offset": n * gap,
+                   "line-opacity": round(0.8 * (1 - (n - 1) / count), 2)}}
+        for n in range(1, count + 1)]
+
+
 STROKE = {"light": 12, "regular": 16, "bold": 24}  # Phosphor-Strichstärken im 256er-Raster
 
 
-def poi_sprite(weight, bg, accent, glyph, dark):
+def poi_sprite(weight, bg, accent, glyph, dark, patterns=None):
     """Sprite wie style/ofm(@2x), aber die POI-Bilder aus style/icons.toml neu: Phosphor-Symbol in der POI-Farbe
     auf einem Kreis in dezentem Akzent (dunkel 22 %, hell 16 % Akzent über dem Grund), Ring 45 %.
-    Liegt in style/sprites/ (gitignored, im Container unter /data); je Kombination nur einmal erzeugt."""
+    Liegt in style/sprites/ (gitignored, im Container unter /data); je Kombination nur einmal erzeugt.
+    patterns ([patterns] im Stil): name = { symbol, color, bg } -> 32×32-Musterbild für fill-pattern, Symbol aus
+    vendor/patterns/<symbol>.svg in color auf bg (fill-pattern ersetzt die Füllfarbe), unten an das Sprite angehängt."""
     hexrgb = lambda h: [int(h[i:i + 2], 16) for i in (1, 3, 5)]
     mix = lambda t: "#%02x%02x%02x" % tuple(round(b + (a - b) * t) for b, a in zip(hexrgb(bg), hexrgb(accent)))
     disc, ring = mix(0.22 if dark else 0.16), mix(0.45)
     name = f"sprites/{weight}-{bg[1:]}-{accent[1:]}-{glyph[1:]}"
+    if patterns:
+        name += "-" + hashlib.sha1(json.dumps(patterns, sort_keys=True).encode()).hexdigest()[:8]
     icons = tomllib.loads((ROOT / "style" / "icons.toml").read_text())
     for sfx in ("", "@2x"):
         out = ROOT / "style" / f"{name}{sfx}.png"
@@ -312,10 +376,20 @@ def poi_sprite(weight, bg, accent, glyph, dark):
         w, h = map(int, subprocess.run(["magick", "identify", "-format", "%w %h", f"{src}.png"],
                                        capture_output=True, text=True, check=True).stdout.split())
         px = bytearray(subprocess.run(["magick", f"{src}.png", "RGBA:-"], capture_output=True, check=True).stdout)
-        svg = []
+        svg, pr = [], 2 if sfx else 1
+        ph = 32 * pr if patterns else 0  # Musterzeile unter dem Sprite
+        px += bytes(w * ph * 4)
+        for k, (pn, spec) in enumerate(sorted((patterns or {}).items())):
+            x, d = k * 32 * pr, 32 * pr
+            body = re.sub(r"<!--.*?-->|^\s*<svg[^>]*>|</svg>\s*$", "",
+                          (ROOT / "vendor" / "patterns" / f"{spec['symbol']}.svg").read_text().strip(), flags=re.S | re.M)
+            svg.append(f'<rect x="{x}" y="{h}" width="{d}" height="{d}" fill="{spec["bg"]}"/>'
+                       f'<g transform="translate({x},{h}) scale({pr})" color="{spec["color"]}">{body}</g>')
+            idx[pn] = {"x": x, "y": h, "width": d, "height": d, "pixelRatio": pr}
+        h += ph
         for key, r in idx.items():
             icon = icons.get(key.removesuffix("_11"))
-            if not icon:
+            if not icon or key in (patterns or {}):
                 continue
             for y in range(r["y"], r["y"] + r["height"]):  # altes Bild ausradieren
                 px[(y * w + r["x"]) * 4:(y * w + r["x"] + r["width"]) * 4] = bytes(r["width"] * 4)
@@ -339,7 +413,7 @@ def poi_sprite(weight, bg, accent, glyph, dark):
         subprocess.run(["magick", str(base), str(over_png), "-composite", str(out)], check=True)
         for f in (base, over, over_png):
             f.unlink()
-        shutil.copy(src.with_suffix(".json"), out.with_suffix(".json"))
+        out.with_suffix(".json").write_text(json.dumps(idx))
     return name
 
 
@@ -494,6 +568,39 @@ OXIPNG = shutil.which("oxipng") or shutil.which(str(Path.home() / ".cargo/bin/ox
 def parent(url):
     """Elternkachel für --pixel; jede wird von vier Kindern (und @2x) gebraucht."""
     return fetch(url)
+
+
+def stain_png(data, x, y, cfg):
+    """Altersflecken in die Kachel einbacken (stains im Stil, Versuch): Wertrauschen in globalen Pixelkoordinaten der
+    Zoomstufe, daher nahtlos über Kachelgrenzen; je Zoomstufe gleich groß auf dem Bildschirm (andere Stufe = anderes
+    Blatt). Fleckenfarbe multipliziert, Stärke cfg["strength"]; danach wie immer pngquant."""
+    import numpy as np
+    from PIL import Image
+    im = Image.open(io.BytesIO(data)).convert("RGB")
+    size = im.size[0]
+    yy, xx = np.mgrid[0:size, 0:size] * (256 / size)
+    gx, gy = x * 256 + xx, y * 256 + yy
+
+    def noise(u, v, seed):  # Wertrauschen: Gitterwerte per Integer-Hash, weich interpoliert
+        i, j = np.floor(u).astype(np.int64), np.floor(v).astype(np.int64)
+        fu, fv = u - i, v - j
+        fu, fv = fu * fu * (3 - 2 * fu), fv * fv * (3 - 2 * fv)
+        def h(a, b):
+            n = (a * 73856093 ^ b * 19349663 ^ seed * 83492791) & 0xFFFFFFFF
+            n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
+            return (n ^ (n >> 16)) / 0xFFFFFFFF
+        top = h(i, j) * (1 - fu) + h(i + 1, j) * fu
+        bot = h(i, j + 1) * (1 - fu) + h(i + 1, j + 1) * fu
+        return top * (1 - fv) + bot * fv
+    n, tot, amp = 0, 0, 1
+    for cell in (640, 320, 160, 80, 40):  # Fleckengröße in px, feinere Oktaven fransen die Ränder aus
+        n, tot, amp = n + amp * noise(gx / cell, gy / cell, cell), tot + amp, amp * .5
+    a = np.clip((n / tot - cfg.get("threshold", .55)) * 4, 0, 1)[..., None] * cfg.get("strength", .35)
+    col = np.array([int(cfg.get("color", "#8c642d")[i:i + 2], 16) for i in (1, 3, 5)]) / 255
+    out = np.asarray(im, float) * (1 - a * (1 - col))
+    buf = io.BytesIO()
+    Image.fromarray(out.round().astype(np.uint8)).save(buf, "PNG")
+    return buf.getvalue()
 
 
 PIXEL_TEXT = 11  # --pixel 4 mit normaler Schrift: Geviert in Rasterpixeln (9 unlesbar; Regel in CLAUDE.md)
@@ -715,6 +822,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     style, title, attribution, font = build_style(style_file, font, (a.lat, a.lon), a.pixel, a.streets_only)
     if a.pixel:  # Beschriftung getrennt rendern, dither_tiles() backt sie ein
         style, labels = split_labels(style)
+    stains = tomllib.loads(Path(style_file).read_text()).get("stains")  # Versuch: Flecken eingebacken
     crops = []   # --pixel: (Kachel, URL der Beschriftungs-Vorfahrkachel ohne Basis, f, qx, qy)
     with tileserver(style, out.name, mb) as base:
         if not keep:  # keep: vorhandene Kacheln behalten (z. B. nur @2x ergänzen)
@@ -746,6 +854,8 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                 return f
             else:
                 data = fetch(f"{base}/{z}/{x}/{y}{sfx}.{ext}")
+                if stains and ext == "png":
+                    data = stain_png(data, x, y, stains)
             if ext == "png":  # Palette mit wenigen Farben, ohne Dithering (gemessen: kleiner als WebP, gleiche Qualität)
                 data = quantize(data, a.colors)
             f.write_bytes(data)

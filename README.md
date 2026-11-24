@@ -25,6 +25,8 @@ Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bi
 | **Papier**<br><sub>Standard</sub> | <a href="docs/previews/papier.png"><img src="docs/previews/papier.png" width="256" alt="Papier"></a><br>Papier | <a href="docs/previews/papier-dark.png"><img src="docs/previews/papier-dark.png" width="256" alt="Papier Dunkel"></a><br>Papier Dunkel |
 | **Protomaps**<br><sub>Standard</sub> | <a href="docs/previews/protomaps-light.png"><img src="docs/previews/protomaps-light.png" width="256" alt="Protomaps Light"></a><br>Protomaps Light | <a href="docs/previews/protomaps-dark.png"><img src="docs/previews/protomaps-dark.png" width="256" alt="Protomaps Dark"></a><br>Protomaps Dark |
 | **Wiki**<br><sub>Standard</sub> | <a href="docs/previews/wiki.png"><img src="docs/previews/wiki.png" width="256" alt="Wiki"></a><br>Wiki | <a href="docs/previews/wiki-dark.png"><img src="docs/previews/wiki-dark.png" width="256" alt="Wiki Dark"></a><br>Wiki Dark |
+| **Historisch**<br><sub>Standard</sub> | <a href="docs/previews/historisch.png"><img src="docs/previews/historisch.png" width="256" alt="Historisch"></a><br>Historisch | – |
+| **Kupferstich**<br><sub>Standard</sub> | <a href="docs/previews/kupferstich.png"><img src="docs/previews/kupferstich.png" width="256" alt="Kupferstich"></a><br>Kupferstich | – |
 | **Catppuccin**<br><sub>Nerd</sub> | <a href="docs/previews/catppuccin-latte.png"><img src="docs/previews/catppuccin-latte.png" width="256" alt="Catppuccin Latte"></a><br>Catppuccin Latte | <a href="docs/previews/catppuccin-mocha.png"><img src="docs/previews/catppuccin-mocha.png" width="256" alt="Catppuccin Mocha"></a><br>Catppuccin Mocha |
 | **Dracula**<br><sub>Nerd</sub> | <a href="docs/previews/dracula-light.png"><img src="docs/previews/dracula-light.png" width="256" alt="Alucard"></a><br>Alucard | <a href="docs/previews/dracula.png"><img src="docs/previews/dracula.png" width="256" alt="Dracula"></a><br>Dracula |
 | **Everforest**<br><sub>Nerd</sub> | <a href="docs/previews/everforest-light.png"><img src="docs/previews/everforest-light.png" width="256" alt="Everforest Light"></a><br>Everforest Light | <a href="docs/previews/everforest-dark.png"><img src="docs/previews/everforest-dark.png" width="256" alt="Everforest Dark"></a><br>Everforest Dark |
@@ -136,6 +138,8 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 | **North** / Dark | Standard | DINish | Farben nach der Palette von Hydda (BSD-3) |
 | **OSM light** / OSM dark | Standard | Atkinson Hyperlegible Next | OSM-Standardkarte (openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
 | **Papier** | Standard | Literata | eigener Stil: warmes Cremeweiß, Sepia-Konturen, Olivgrün, wie eine gedruckte Karte; dunkel wie auf dunklem Karton |
+| **Historisch** | Standard | TeX Gyre Schola, Ortsnamen UnifrakturMaguntia | eigener Stil: kolorierter Stadtplan um 1900 (rosa Häuser, Wald-/Wiesen-/Friedhofs-Signaturen, Wasserlinien, Bahn als Schwarz-Weiß-Band, stillgelegte Strecken aus OSM wie in Betrieb, Altersflecken in den Kacheln, Papierkorn im Browser); nur hell |
+| **Kupferstich** | Standard | IM Fell English, Ortsnamen UnifrakturMaguntia | eigener Stil im Look eines Kupferstichs des 18. Jh.: einfarbig Sepia, sonst wie Historisch; nur hell |
 | **Protomaps Light** / **Dark** | Standard | Figtree | Protomaps Basemaps (Design CC0) |
 | **Wiki** / Dark | Standard | Work Sans | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
 | **Dayfox** / **Nightfox** | Nerd | Adwaita Mono | Editor-Theme Nightfox (MIT) |
@@ -187,7 +191,8 @@ Ohne Achsenwerte wird die Datei unverändert übernommen, mit Achsenwerten wird 
 |---|---|---|
 | Atkinson Hyperlegible Next, DINish, Figtree, Fira Sans, Inter, Mozilla Text, Overpass, Public Sans, Work Sans | sans | OFL |
 | TeX Gyre Heros | sans | GUST Font License |
-| Literata | serif | OFL |
+| Literata, IM Fell English | serif | OFL |
+| UnifrakturMaguntia | blackletter (nur Ortsnamen in Historisch/Kupferstich) | OFL |
 | TeX Gyre Schola | serif | GUST Font License |
 | Adwaita Mono, Fantasque Sans Mono, Fira Code, IBM Plex Mono, Intel One Mono, JetBrains Mono, Maple Mono, Space Mono, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
 | Hack | mono (bei `--all-fonts` nur für Nerd-Stile) | MIT + Bitstream-Vera-Lizenz |

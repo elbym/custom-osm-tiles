@@ -49,10 +49,16 @@
 .term.px .stem { width: var(--u); height: calc(var(--u) * 3); }
 .term.px .dot { width: calc(var(--u) * 2); height: calc(var(--u) * 2); border-radius: 0; box-shadow: 0 0 0 var(--u) var(--bg); }
 
+/* paper (Historisch, Kupferstich): Kopie der Regel aus template.html, gleich halten. */
+.ov-paper { position: fixed; inset: 0; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .32 0 0 0 0 .18 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at center, transparent 30%, rgb(130 85 30 / .65) 100%);
+  mix-blend-mode: multiply; opacity: 1; }
+
 /* Leaflet-Namensnennung auf schmalen Bildschirmen nicht über die Bedienleiste legen */
 .leaflet-control-attribution { font-size: 10px; }
 
-/* overlay im Stil (Phosphor, Bernstein): je Streifen eine feste Ebene über der Karte, zugeschnitten wie der
+/* overlay im Stil (crt: Phosphor, Bernstein; paper: Historisch, Kupferstich): je Streifen eine feste Ebene über der Karte, zugeschnitten wie der
    Streifen (clip() in streifen.html), --glow = Markerfarbe. Kopie der Regel aus template.html, gleich halten. */
 .ov-crt { position: fixed; inset: 0; pointer-events: none;
   background: repeating-linear-gradient(to bottom, rgb(0 0 0 / .3) 0 1px, transparent 1px 3px),

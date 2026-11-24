@@ -1,0 +1,138 @@
+# "Historisch": kolorierter Stadtplan um 1900 (Baedeker-Stil), Entwurf A (Nutzerwunsch 2026-11-24).
+#   - rosa Häuserblöcke mit rotbrauner Kontur, cremefarbene Straßen mit feinem schwarzem Rand
+#   - Wald, Wiesen, Friedhöfe mit Signaturen, Wasser mit Wasserlinien, Papier-Overlay
+title = "Historisch"
+category = "standard"
+mode = "light"
+family = "Historisch"
+font = "TeX Gyre Schola"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "TeX Gyre Schola"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+old_railways = true       # stillgelegte/abgebaute Strecken aus OSM (Overpass) wie in Betrieb zeichnen
+stains = { strength = 0.5 }   # Altersflecken in die Kacheln eingebacken (stain_png), nahtlos über Kachelgrenzen
+overlay = "paper"          # Papierkorn und vergilbter Rand im Browser (template.html / src/streifen.css)
+text_scale = 1.3
+hide = ["railway-transit-hatching", "poi_r20", "poi_r7", "road_oneway*", "highway-shield-*", "road_shield_us"]
+[hide_class]
+"poi_*" = ["fuel", "parking", "car", "bicycle", "bicycle_rental", "bicycle_parking", "bus", "mobile_phone", "electronics",
+           "computer", "fast_food", "charging_station", "aerialway", "cinema", "doctors", "dentist", "laundry", "atm",
+           "entrance", "playground", "swimming", "golf", "ice_cream", "car_rental", "car_repair", "taxi"]
+
+[paint."background"]
+background-color = "#f3ead2"
+[paint."landuse-*"]
+fill-color = "#f0e3c8"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-pattern = "friedhof"
+fill-color = "#cfd6a8"
+[paint."park"]
+fill-pattern = "wiese"
+fill-color = "#cbd7a2"
+[paint."landcover-*"]
+fill-color = "#d3dbac"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-pattern = "wald"
+fill-color = "#b7c58c"
+[paint."landcover-grass*"]
+fill-pattern = "wiese"
+
+[paint."water*"]
+fill-color = "#a9c4d6"
+line-color = "#6d8fae"
+[paint."building*"]
+fill-color = "#e6a99a"
+fill-outline-color = "#a8564a"
+[paint."*-minor*"]
+line-color = "#fbf5e4"
+[paint."*-service-track"]
+line-color = "#fbf5e4"
+[paint."*-link"]
+line-color = "#fbf5e4"
+[paint."*-secondary-tertiary*"]
+line-color = "#fbf5e4"
+[paint."*-primary*"]
+line-color = "#f6e6b4"
+[paint."*-trunk*"]
+line-color = "#f6e6b4"
+[paint."*-motorway*"]
+line-color = "#f6e6b4"
+[paint."*-casing"]
+line-color = "#4a3b30"
+[paint."highway-area"]
+fill-color = "#fbf5e4"
+fill-outline-color = "#4a3b30"
+[paint."aeroway-*"]
+fill-color = "#ece0c4"
+line-color = "#ece0c4"
+[paint."*-path"]
+line-color = "#6b5a4a"
+[paint."*railway*"]
+line-color = "#2b2622"
+# Eisenbahn wie auf alten Karten: schwarzes Band, innen abwechselnd hell (Hatching-Ebenen als Innenstrich)
+[paint."railway"]
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 1.2, 16, 3, 18, 4.5]
+[paint."bridge-railway"]
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 1.2, 16, 3, 18, 4.5]
+[paint."*railway-hatching"]
+line-color = "#fbf5e4"
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 0.5, 16, 1.6, 18, 2.6]
+line-dasharray = [3, 3]
+[paint."railway-service"]
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.8, 16, 1.8, 18, 3]
+[paint."railway-service-hatching"]
+line-color = "#fbf5e4"
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.3, 16, 0.8, 18, 1.6]
+line-dasharray = [3, 3]
+[paint."railway-transit"]
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.6, 18, 1.5]
+[paint."label_*"]
+text-color = "#2a1f17"
+text-halo-color = "#f6eedb"
+[paint."highway-name-*"]
+text-color = "#3a2c22"
+text-halo-color = "#fbf5e4"
+[paint."poi_*"]
+text-color = "#7a2e22"
+text-halo-color = "#f6eedb"
+[paint."water*label"]
+text-color = "#2f5878"
+# Straßennamen größer und mit dem Zoom wachsend (Basis: ab z14 fest 13 × text_scale); feste Größen, text_scale gilt nicht
+[layout."highway-name-major"]
+text-size = ["interpolate", ["linear"], ["zoom"], 13, 17, 15, 21, 17, 26]
+[layout."highway-name-minor"]
+text-size = ["interpolate", ["linear"], ["zoom"], 13, 16, 15, 20, 17, 24]
+[layout."highway-name-path"]
+text-size = ["interpolate", ["linear"], ["zoom"], 14, 14, 17, 19]
+
+# Ortsnamen groß (Fraktur wirkt kleiner als Antiqua; feste Größen, text_scale gilt hier nicht). Orte in Fraktur, Ortsteile gesperrt in Antiqua-Versalien (wie auf alten Stadtplänen)
+[layout."label_other"]
+text-size = ["interpolate", ["linear"], ["zoom"], 12, 12, 14, 14, 17, 18]
+text-transform = "uppercase"
+text-letter-spacing = 0.25
+[layout."label_village"]
+text-size = ["interpolate", ["linear"], ["zoom"], 11, 17, 14, 22, 17, 28]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+[layout."label_town"]
+text-size = ["interpolate", ["linear"], ["zoom"], 11, 22, 14, 29, 17, 37]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+[layout."label_city"]
+text-size = ["interpolate", ["linear"], ["zoom"], 8, 21, 11, 30, 14, 39, 17, 48]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+
+# Signaturen (fill-pattern, Symbole in vendor/patterns/, Bild ersetzt die Füllfarbe) und Wasserlinien am Ufer
+[patterns]
+wald = { symbol = "laubwald", color = "#6f7d45", bg = "#b7c58c" }
+wiese = { symbol = "wiese", color = "#8a9a5a", bg = "#d3dbac" }
+friedhof = { symbol = "friedhof", color = "#6b5a4a", bg = "#cfd6a8" }
+[water_lines]
+color = "#6d8fae"
+count = 3
+gap = 2
+
+[marker]
+type = "bubble"
+color = "#7a2e22"
+bg = "#fbf5e4"
+fg = "#2a1f17"
