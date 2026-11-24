@@ -1,0 +1,4 @@
+<!-- Schirmgeist (Yōkai, Volksmotiv), Pose schlaeft; eigene Zeichnung, 64×64. Kontur/Sticker setzt poi_sprite() -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<rect x="30.5" y="34" width="3" height="18" fill="#d9b26a"/><rect x="26" y="52" width="12" height="3" rx="1" fill="#8a6a4e"/><path d="M32 6 L32 1" fill="none" stroke-width="1.6"/><path d="M6 36 Q32 0 58 36 Q51 31 45 36 Q38.5 31 32 36 Q25.5 31 19 36 Q12.5 31 6 36 Z" fill="#9b6dff"/><path d="M32 6 L19 34 M32 6 L45 34" fill="none" stroke-width="0.8"/><path d="M25 26 Q31 29 37 26" fill="none" stroke-width="1.4"/><path d="M32 27.5 Q33 34 36.5 27" fill="#ff7fb0" stroke-width="1"/><path d="M27 19 Q30 21.5 33 19" fill="none" stroke-width="2"/><path d="M48 9 L53 9 L48 15 L53 15 M55 2 L58.5 2 L55 6 L58.5 6" fill="none" stroke-width="1.5"/>
+</svg>

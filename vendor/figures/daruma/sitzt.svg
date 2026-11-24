@@ -1,0 +1,4 @@
+<!-- Daruma (Volksmotiv), Pose sitzt; eigene Zeichnung, 64×64. Kontur/Sticker setzt poi_sprite() -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<path d="M12 38 C12 8 52 8 52 38 C52 60 12 60 12 38 Z" fill="#e5383b"/><path d="M18 27 C18 16 46 16 46 27 C46 38 18 38 18 27 Z" fill="#fff"/><path d="M21 21.5 Q25 18.5 29 21.5 M35 21.5 Q39 18.5 43 21.5" fill="none" stroke-width="2.4"/><path d="M25 33.5 Q28.5 31 32 33.5 Q35.5 31 39 33.5" fill="none" stroke-width="2"/><path d="M22 46 Q32 52 42 46" fill="none" stroke="#ffd84a" stroke-width="2.4"/><ellipse cx="26.5" cy="27" rx="2.6" ry="3.4" fill="#2b2a3a" stroke-width="1"/><circle cx="27.4" cy="25.7" r="1.1" fill="#fff" stroke="none"/><ellipse cx="37.5" cy="27" rx="2.6" ry="3.4" fill="#2b2a3a" stroke-width="1"/><circle cx="38.4" cy="25.7" r="1.1" fill="#fff" stroke="none"/>
+</svg>

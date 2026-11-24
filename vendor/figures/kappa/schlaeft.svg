@@ -1,0 +1,4 @@
+<!-- Kappa (Yōkai, Volksmotiv), Pose schlaeft; eigene Zeichnung, 64×64. Kontur/Sticker setzt poi_sprite() -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<ellipse cx="32" cy="48" rx="15" ry="11" fill="#5a8f3a"/><path d="M20 58 C18 46 22 38 32 38 C42 38 46 46 44 58 Z" fill="#7cc95a"/><path d="M26 57 C26 48 28 44 32 44 C36 44 38 48 38 57 Z" fill="#f3e2a0"/><ellipse cx="32" cy="25" rx="16" ry="14" fill="#7cc95a"/><path d="M17 18 L20 12 L23 16 L26 10 L29 15 L32 9 L35 15 L38 10 L41 16 L44 12 L47 18 C40 14 24 14 17 18 Z" fill="#2f5a2a"/><ellipse cx="32" cy="12" rx="8" ry="3" fill="#cfeaff" stroke-width="1"/><path d="M28 30 Q32 36 36 30 Q32 28 28 30 Z" fill="#f5c542"/><path d="M22 24 Q25 26.5 28 24" fill="none" stroke-width="2"/><path d="M36 24 Q39 26.5 42 24" fill="none" stroke-width="2"/><path d="M48 9 L53 9 L48 15 L53 15 M55 2 L58.5 2 L55 6 L58.5 6" fill="none" stroke-width="1.5"/>
+</svg>

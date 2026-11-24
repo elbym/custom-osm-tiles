@@ -6,7 +6,7 @@ Beispiel:
   ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --out out/kunde-xy
   ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # jeder Stil × jede Schrift zum Vergleichen
 """
-import argparse, fnmatch, functools, hashlib, os, re, io, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.parse, urllib.request, zipfile
+import argparse, fnmatch, functools, gzip, hashlib, os, re, io, sqlite3, struct, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.parse, urllib.request, zipfile
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
@@ -124,9 +124,10 @@ STREETS_KEEP = ["background", "water", "water-intermittent", "waterway-*", "high
 STREETS_DROP = ["highway-name-*", "highway-shield-*", "highway-area", "*railway*", "waterway_*label"]
 
 
-def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
+def build_style(toml_path, font=None, center=None, pixel=False, streets=False, figs_at=None):
     """styles/<name>.toml + style/base.json (OSM Bright) -> fertiger Stil, Titel, Namensnennung.
     center (lat, lon): Mittelpunkt für das Koordinatengitter (graticule = true im Stil).
+    figs_at (mbtiles, (süd, west, nord, ost)): Daten und Ausschnitt für die Figuren (figures im Stil).
     pixel: 8-Bit-Modus (2 oder 4 = Pixelgröße), Pixelschriften dann nur in ganzen Rasterschritten; bei 4 jede Schrift
     genau ein Rasterschritt groß und Beschriftungen zwei Stufen früher, weil die Kachel zwei Stufen gröber gerendert
     wird (sonst fehlen Straßennamen und POIs). streets: siehe STREETS_KEEP."""
@@ -204,13 +205,19 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
             l["paint"]["text-halo-width"] = PIXEL_HALO * 2 // pixel
     # POI-Symbole: Phosphor im Kreis, Stärke nach Schriftgruppe, Farben aus dem Stil
     p, accent = t["paint"], t.get("marker", {}).get("color", "#888888")
+    fspec = t.get("figures")
+    figs = fspec and {"names": fspec["names"], "ink": fspec.get("ink", accent),
+                      "sticker": fspec.get("sticker", t.get("marker", {}).get("bg", "#ffffff"))}
     weight = {"mono": "bold", "pixel": "bold", "serif": "light"}.get(fcfg.get("group"), "regular")
     s["sprite"] = poi_sprite(weight, p["background"]["background-color"], accent, p["poi_*"]["text-color"],
-                             t.get("mode") == "dark", t.get("patterns"))
+                             t.get("mode") == "dark", t.get("patterns"), figs)
     if "water_lines" in t:
         water_lines(s, **t["water_lines"])
     for lid, spec in t.get("outlines", {}).items():
         outline(s, lid, **spec)
+    if fspec and figs_at:
+        figures(s, figs_at[1], figs_at[0], fspec["names"], fspec.get("places"), fspec.get("density", 0.45),
+                fspec.get("density_rich", 0.85))
     if t.get("old_railways") and center:
         old_railways(s, center)
     if t.get("graticule") and center:
@@ -302,6 +309,19 @@ def graticule(s, center, color, bg, font):
 OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter"]
 
 
+def overpass(q, timeout=120):
+    """Elemente einer Overpass-Abfrage, None wenn kein Server antwortet."""
+    for url in OVERPASS:  # ponytail: Hauptserver antwortet öfter mit 502, dann der Spiegel
+        try:
+            req = urllib.request.Request(url, urllib.parse.urlencode({"data": q}).encode(),
+                                         headers={"User-Agent": "make-tiles/1.0"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return json.load(r)["elements"]
+        except OSError as e:
+            print(f"Overpass {url}: {e}", flush=True)
+    return None
+
+
 def old_railways(s, center):
     """Stillgelegte und abgebaute Bahnstrecken (old_railways = true im Stil), die OpenMapTiles nicht enthält: einmal per
     Overpass um den Mittelpunkt (±0,15° Breite, ±0,25° Länge) geholt, in data/ zwischengespeichert, als GeoJSON-Quelle
@@ -309,18 +329,9 @@ def old_railways(s, center):
     f = DATA / f"old-railways-{center[0]:.3f}-{center[1]:.3f}.geojson"
     if not f.exists():
         b = f"{center[0] - .15},{center[1] - .25},{center[0] + .15},{center[1] + .25}"
-        q = (f'[out:json][timeout:90];(way["railway"~"^(abandoned|disused|razed)$"]({b});way["abandoned:railway"]({b});'
-             f'way["disused:railway"]({b});way["razed:railway"]({b}););out tags geom;')
-        for url in OVERPASS:  # ponytail: Hauptserver antwortet öfter mit 502, dann der Spiegel
-            try:
-                req = urllib.request.Request(url, urllib.parse.urlencode({"data": q}).encode(),
-                                             headers={"User-Agent": "make-tiles/1.0"})
-                with urllib.request.urlopen(req, timeout=120) as r:
-                    ways = json.load(r)["elements"]
-                break
-            except OSError as e:
-                print(f"Overpass {url}: {e}", flush=True)
-        else:
+        ways = overpass(f'[out:json][timeout:90];(way["railway"~"^(abandoned|disused|razed)$"]({b});'
+                        f'way["abandoned:railway"]({b});way["disused:railway"]({b});way["razed:railway"]({b}););out tags geom;')
+        if ways is None:
             print("old_railways: Overpass nicht erreichbar, ohne alte Bahnstrecken", flush=True)
             return
         DATA.mkdir(exist_ok=True)
@@ -370,18 +381,302 @@ def water_lines(s, color, count=3, gap=2, width=0.6, minzoom=13):
 STROKE = {"light": 12, "regular": 16, "bold": 24}  # Phosphor-Strichstärken im 256er-Raster
 
 
-def poi_sprite(weight, bg, accent, glyph, dark, patterns=None):
+FIG = 48     # Figuren im Sprite: FIG × FIG px (je pixelRatio), Zeichnungen vendor/figures/<figur>/<pose>.svg, viewBox 64×64
+FIG_CELL = (0.004, 0.006)  # Raster für Figuren in Grad (Breite, Länge), ~450 × 410 m bei 52° N
+
+
+def fig_poses(name):
+    return sorted((ROOT / "vendor" / "figures" / name).glob("*.svg"))
+
+
+# --- Figuren: Ortswahl aus den eigenen mbtiles (z14, OpenMapTiles) ---------------------------------------------------
+# Früher per Overpass; das ist für größere Gebiete zu langsam (Rate-Limit). Die mbtiles haben alles und sind genau die
+# Daten der Karte. Minimaler Vector-Tile-Leser (Protobuf von Hand), keine Abhängigkeit.
+
+def _varint(b, i):
+    r = s = 0
+    while True:
+        x = b[i]
+        i += 1
+        r |= (x & 0x7f) << s
+        s += 7
+        if x < 128:
+            return r, i
+
+
+def _fields(b):
+    """Protobuf-Felder (Nummer, Wert): Varint als int, Längenfeld als bytes, fest 32/64 Bit als bytes."""
+    i = 0
+    while i < len(b):
+        k, i = _varint(b, i)
+        t = k & 7
+        if t == 0:
+            v, i = _varint(b, i)
+        elif t == 2:
+            n, i = _varint(b, i)
+            v, i = b[i:i + n], i + n
+        else:
+            n = 8 if t == 1 else 4
+            v, i = b[i:i + n], i + n
+        yield k >> 3, v
+
+
+def _packed(b):
+    out, i = [], 0
+    while i < len(b):
+        v, i = _varint(b, i)
+        out.append(v)
+    return out
+
+
+def _mvt_value(b):
+    for f, v in _fields(b):
+        if f == 1:
+            return v.decode()
+        if f in (2, 3):
+            return struct.unpack("<f" if f == 2 else "<d", v)[0]
+        if f == 6:
+            return (v >> 1) ^ -(v & 1)
+        return v
+
+
+def _mvt_geom(cmds):
+    """Geometriebefehle -> Liste von Punktfolgen (Kacheleinheiten); Ringe geschlossen."""
+    x = y = i = 0
+    parts = []
+    while i < len(cmds):
+        c, n = cmds[i] & 7, cmds[i] >> 3
+        i += 1
+        if c == 7:
+            parts[-1].append(parts[-1][0])
+            continue
+        for _ in range(n):
+            dx, dy = cmds[i], cmds[i + 1]
+            i += 2
+            x, y = x + ((dx >> 1) ^ -(dx & 1)), y + ((dy >> 1) ^ -(dy & 1))
+            if c == 1:
+                parts.append([(x, y)])
+            else:
+                parts[-1].append((x, y))
+    return parts
+
+
+def mvt(data, want):
+    """Vector Tile -> {Ebene: [(Eigenschaften, Geometrie)]}, nur Ebenen aus want."""
+    out = {}
+    for f, lay in _fields(data):
+        if f != 3:
+            continue
+        fs = list(_fields(lay))
+        name = next(v.decode() for k, v in fs if k == 1)
+        if name not in want:
+            continue
+        keys = [v.decode() for k, v in fs if k == 3]
+        vals = [_mvt_value(v) for k, v in fs if k == 4]
+        feats = []
+        for k, v in fs:
+            if k == 2:
+                tags, geom = [], []
+                for fk, fv in _fields(v):
+                    if fk == 2:
+                        tags = _packed(fv)
+                    elif fk == 4:
+                        geom = _mvt_geom(_packed(fv))
+                feats.append(({keys[tags[n]]: vals[tags[n + 1]] for n in range(0, len(tags), 2)}, geom))
+        out[name] = feats
+    return out
+
+
+FIG_Z, FIG_EXT = 14, 4096   # Zoomstufe und Kachelraster der Daten
+FIG_GREEN = {"wood", "forest", "park", "garden", "meadow", "grassland", "village_green", "recreation_ground", "heath",
+             "scrub", "playground", "cemetery"}   # ohne grass: in OSM meist Straßenbegleitgrün
+FIG_LANDMARK = {"attraction", "viewpoint", "museum", "art_gallery", "artwork", "town_hall", "castle", "ruins",
+                "place_of_worship", "theatre", "zoo", "stadium"}   # POIs ohne passende Figur, neben denen eine stehen darf
+# Mindestabstand des Fußpunkts zur Straßenmitte in m (die Figur ist bei z16 etwa 50 m hoch, ganz frei geht in der Stadt nicht)
+FIG_ROAD = {"motorway": 25, "trunk": 25, "primary": 22, "secondary": 18, "tertiary": 18, "minor": 12, "service": 9,
+            "busway": 12, "raceway": 12, "rail": 12}
+FIG_BESIDE = 35   # m neben einem POI, das Symbol bleibt frei
+
+
+def fig_xy(lon, lat):
+    """Weltkoordinaten in z14-Kacheln (Bruchzahlen)."""
+    n = 2 ** FIG_Z
+    return (lon + 180) / 360 * n, (1 - math.asinh(math.tan(math.radians(lat))) / math.pi) / 2 * n
+
+
+def fig_lonlat(x, y):
+    n = 2 ** FIG_Z
+    return x / n * 360 - 180, math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * y / n))))
+
+
+@functools.lru_cache(maxsize=None)
+def fig_tile(mb, x, y):
+    """z14-Kachel -> (Flächen nach Streifen, Kontexte je Fläche, Straßen nach Gitter, POIs). Kacheleinheiten."""
+    with sqlite3.connect(f"file:{mb}?mode=ro", uri=True) as con:
+        r = con.execute("select tile_data from tiles where zoom_level=? and tile_column=? and tile_row=?",
+                        (FIG_Z, x, 2 ** FIG_Z - 1 - y)).fetchone()
+    m = mvt(gzip.decompress(r[0]), {"landcover", "landuse", "water", "transportation", "poi"}) if r else {}
+    bands, ctxs, roads, pois = {}, [], {}, []
+    areas = [({p.get("class"), p.get("subclass")} - {None}, g) for p, g in m.get("landcover", []) + m.get("landuse", [])]
+    for ctx, g in areas + [({"water"}, g) for _, g in m.get("water", [])]:
+        ctxs.append(ctx)
+        for ring in g:   # Kanten nach 64er-Streifen, Punkt-in-Fläche zählt Kreuzungen gerade/ungerade
+            for (x1, y1), (x2, y2) in zip(ring, ring[1:]):
+                for b in range(min(y1, y2) // 64, max(y1, y2) // 64 + 1):
+                    bands.setdefault(b, []).append((len(ctxs) - 1, x1, y1, x2, y2))
+    for p, g in m.get("transportation", []):
+        d = FIG_ROAD.get(p.get("class"))
+        if d and p.get("brunnel") != "tunnel":
+            for line in g:   # Segmente nach 256er-Gitter (> größter Abstand in Einheiten)
+                for (x1, y1), (x2, y2) in zip(line, line[1:]):
+                    for gx in range(min(x1, x2) // 256, max(x1, x2) // 256 + 1):
+                        for gy in range(min(y1, y2) // 256, max(y1, y2) // 256 + 1):
+                            roads.setdefault((gx, gy), []).append((d, x1, y1, x2, y2))
+    for p, g in m.get("poi", []):
+        if g and 0 <= g[0][0][0] < FIG_EXT and 0 <= g[0][0][1] < FIG_EXT:   # Puffer gehört der Nachbarkachel
+            pois.append(({p.get("class"), p.get("subclass")} - {None}, (x + g[0][0][0] / FIG_EXT, y + g[0][0][1] / FIG_EXT)))
+    return bands, ctxs, roads, pois
+
+
+def fig_at(mb, lon, lat):
+    """(Flächen-Kontexte, frei von Straßen?) am Ort: Klassen/Unterklassen aus landcover/landuse, "water"."""
+    X, Y = fig_xy(lon, lat)
+    bands, ctxs, roads, _ = fig_tile(mb, int(X), int(Y))
+    px, py = (X - int(X)) * FIG_EXT, (Y - int(Y)) * FIG_EXT
+    odd = set()
+    for pid, x1, y1, x2, y2 in bands.get(int(py // 64), ()):
+        if (y1 > py) != (y2 > py) and px < x1 + (py - y1) * (x2 - x1) / (y2 - y1):
+            odd ^= {pid}
+    unit = 40075016.7 * math.cos(math.radians(lat)) / 2 ** FIG_Z / FIG_EXT   # m je Kacheleinheit
+    gx, gy = int(px // 256), int(py // 256)
+    for d, x1, y1, x2, y2 in (s for a in (-1, 0, 1) for b in (-1, 0, 1) for s in roads.get((gx + a, gy + b), ())):
+        vx, vy = x2 - x1, y2 - y1
+        t = max(0, min(1, ((px - x1) * vx + (py - y1) * vy) / (vx * vx + vy * vy or 1)))
+        if math.hypot(px - x1 - t * vx, py - y1 - t * vy) * unit < d:
+            return set().union(*(ctxs[p] for p in odd)), False
+    return set().union(*(ctxs[p] for p in odd)), True
+
+
+def fig_pois(mb, box):
+    """POIs in box (süd, west, nord, ost): [(Kontexte, lon, lat)], sortiert."""
+    south, west, north, east = box
+    (x0, y1), (x1, y0) = fig_xy(west, south), fig_xy(east, north)
+    out = []
+    for x in range(int(x0), int(x1) + 1):
+        for y in range(int(y0), int(y1) + 1):
+            for ctx, (X, Y) in fig_tile(mb, x, y)[3]:
+                lon, lat = fig_lonlat(X, Y)
+                if south <= lat < north and west <= lon < east:
+                    out.append((sorted(ctx), round(lon, 6), round(lat, 6)))
+    return sorted(out)
+
+
+def fig_beside(mb, lon, lat, b):
+    """Platz FIG_BESIDE m neben einem POI: erste von 8 Richtungen (ab Hash-Richtung b), frei von Straßen und Wasser."""
+    spots = []
+    for k in range(8):
+        a = (b + k) % 8 * math.pi / 4
+        spots.append((lon + FIG_BESIDE * math.cos(a) / (111320 * math.cos(math.radians(lat))),
+                      lat + FIG_BESIDE * math.sin(a) / 111320))
+    for s in spots:
+        ctx, free = fig_at(mb, *s)
+        if free and "water" not in ctx:
+            return s
+    return spots[0]
+
+
+FIG_SPLIT = 6   # ab so vielen passenden POIs/Wahrzeichen wird die Zelle in 2×2 geteilt (Innenstadt)
+
+
+def fig_cell(mb, key, box, names, fit, density, density_rich):
+    """Figur für eine Zelle oder None, siehe figures(). key: Hash-Schlüssel, box: (süd, west, nord, ost)."""
+    south, west, north, east = box
+    h = hashlib.sha256(key.encode()).digest()
+    pick = lambda xs, k: xs[h[k] % len(xs)]
+    cand = [(west + (0.1 + 0.8 * h[6 + 2 * k] / 256) * (east - west), south + (0.1 + 0.8 * h[7 + 2 * k] / 256) * (north - south))
+            for k in range(12)]
+    info = [(c, *fig_at(mb, *c)) for c in cand]
+    pois = fig_pois(mb, box)
+    theme = [p for p in pois if fit(p[0])]
+    marks = [p for p in pois if FIG_LANDMARK & set(p[0])]
+    green = [x for x in info if FIG_GREEN & x[1] and "water" not in x[1]]
+    if h[0] / 256 >= (density_rich if theme or marks or green else density):
+        return None
+    pool = []
+    if theme and (not green or h[1] < 154) or marks and not green:   # Thema gewinnt zu 60 % vor Grün
+        ctx, plon, plat = pick(theme or marks, 30)
+        spot, pool = fig_beside(mb, plon, plat, h[31]), fit(ctx)
+    elif green:
+        spot, ctx, _ = next((x for x in green if x[2]), green[0])
+        pool = fit(ctx) if h[2] < 171 else []
+    else:
+        dry = [x for x in info if "water" not in x[1]] or info
+        spot = next((x for x in dry if x[2]), dry[0])[0]
+    n = pick(pool or names, 3)
+    poses = fig_poses(n)
+    img = f"fig-{n}-{poses[h[4] % len(poses)].stem}{'-m' if h[5] & 1 else ''}"
+    return {"type": "Feature", "properties": {"f": img},
+            "geometry": {"type": "Point", "coordinates": [round(spot[0], 6), round(spot[1], 6)]}}
+
+
+def figures(s, bounds, mb, names, places=None, density=0.45, density_rich=0.85):
+    """Kleine Figuren an festen Orten (figures im Stil). Stabil: ein weltweit verankertes Raster aus FIG_CELL-Zellen
+    (~450 m); alles hängt nur vom SHA-256 der Zellnummer und den mbtiles ab, nicht von Mittelpunkt, Radius oder Stil.
+    Zellen mit mindestens FIG_SPLIT passenden POIs/Wahrzeichen (Innenstadt) werden in 2×2 Unterzellen geteilt.
+    Je (Unter-)Zelle, in dieser Reihenfolge:
+      1. POI mit passender Figur (places: Figur = [OMT-Klassen/Unterklassen]) -> diese Figur daneben (Samurai an der
+         Burg); liegt auch Grün in der Zelle, nur zu 60 %, sonst gewinnen häufige POIs (Spielplatz, Sportplatz) überall
+      2. Grünfläche/Wald (FIG_GREEN) unter 12 Kandidatenorten -> dort, Figur zu 2/3 passend zur Fläche (Kitsune im Wald)
+      3. sonstiges Wahrzeichen (FIG_LANDMARK) -> daneben, beliebige Figur
+      4. sonst ein Kandidat nicht im Wasser
+    Kandidaten mit FIG_ROAD-Abstand zur Straße werden vorgezogen. Zellen mit POI oder Grün bekommen mit density_rich
+    eine Figur, die übrigen mit density.
+    Unter allen Beschriftungen und ohne Kollision (allow-overlap), sonst würden Kacheln an ihren Rändern je nach
+    eigener Beschriftung unterschiedlich entscheiden und Figuren halbieren."""
+    by_ctx = {}
+    for n in names:
+        for c in (places or {}).get(n, []):
+            by_ctx.setdefault(c, []).append(n)
+    fit = lambda ctx: sorted({n for c in ctx for n in by_ctx.get(c, [])})
+    dy, dx = FIG_CELL
+    south, west, north, east = bounds
+    feats = []
+    for i in range(math.floor(south / dy), math.floor(north / dy) + 1):
+        for j in range(math.floor(west / dx), math.floor(east / dx) + 1):
+            box = (i * dy, j * dx, (i + 1) * dy, (j + 1) * dx)
+            busy = sum(1 for p in fig_pois(mb, box) if fit(p[0]) or FIG_LANDMARK & set(p[0])) >= FIG_SPLIT
+            subs = [(f"fig {i} {j} {k}", (box[0] + k // 2 * dy / 2, box[1] + k % 2 * dx / 2,
+                                           box[0] + (k // 2 + 1) * dy / 2, box[1] + (k % 2 + 1) * dx / 2))
+                    for k in range(4)] if busy else [(f"fig {i} {j}", box)]
+            for key, b in subs:
+                f = fig_cell(mb, key, b, names, fit, density, density_rich)
+                if f:
+                    feats.append(f)
+    s["sources"]["figures"] = {"type": "geojson", "data": {"type": "FeatureCollection", "features": feats}}
+    first_symbol = next(k for k, l in enumerate(s["layers"]) if l["type"] == "symbol")
+    s["layers"].insert(first_symbol, {   # Stilzoom = Leaflet-Zoom - 1 (512er-Kacheln): ab Leaflet z15
+        "id": "figures", "type": "symbol", "source": "figures", "minzoom": 14,
+        "layout": {"icon-image": ["get", "f"], "icon-anchor": "bottom", "icon-allow-overlap": True,
+                   "icon-ignore-placement": True,
+                   "icon-size": ["interpolate", ["linear"], ["zoom"], 14, 0.55, 16, 0.85, 17, 1]}})
+
+
+def poi_sprite(weight, bg, accent, glyph, dark, patterns=None, figs=None):
     """Sprite wie style/ofm(@2x), aber die POI-Bilder aus style/icons.toml neu: Phosphor-Symbol in der POI-Farbe
     auf einem Kreis in dezentem Akzent (dunkel 22 %, hell 16 % Akzent über dem Grund), Ring 45 %.
     Liegt in style/sprites/ (gitignored, im Container unter /data); je Kombination nur einmal erzeugt.
     patterns ([patterns] im Stil): name = { symbol, color, bg[, fill] } -> 32×32-Musterbild für fill-pattern, Symbol aus
-    vendor/patterns/<symbol>.svg in color auf bg (fill-pattern ersetzt die Füllfarbe), unten an das Sprite angehängt."""
+    vendor/patterns/<symbol>.svg in color auf bg (fill-pattern ersetzt die Füllfarbe), unten an das Sprite angehängt.
+    figs (figures im Stil): {names, ink, sticker} -> Bilder fig-<figur>-<pose>[-m] aus vendor/figures/<figur>/<pose>.svg
+    (-m gespiegelt), mit Tuschekontur ink und breitem Sticker-Rand sticker (Lesbarkeit auf jedem Grund), in Zeilen
+    unter den Mustern."""
     hexrgb = lambda h: [int(h[i:i + 2], 16) for i in (1, 3, 5)]
     mix = lambda t: "#%02x%02x%02x" % tuple(round(b + (a - b) * t) for b, a in zip(hexrgb(bg), hexrgb(accent)))
     disc, ring = mix(0.22 if dark else 0.16), mix(0.45)
     name = f"sprites/{weight}-{bg[1:]}-{accent[1:]}-{glyph[1:]}"
-    if patterns:
-        name += "-" + hashlib.sha1(json.dumps(patterns, sort_keys=True).encode()).hexdigest()[:8]
+    if patterns or figs:  # Figuren mit Dateiinhalt im Hash, sonst bliebe nach dem Nachzeichnen das alte Sprite
+        drawn = [f.read_text() for n in (figs or {}).get("names", []) for f in fig_poses(n)]
+        name += "-" + hashlib.sha1(json.dumps([patterns, figs, drawn], sort_keys=True).encode()).hexdigest()[:8]
     icons = tomllib.loads((ROOT / "style" / "icons.toml").read_text())
     for sfx in ("", "@2x"):
         out = ROOT / "style" / f"{name}{sfx}.png"
@@ -405,6 +700,21 @@ def poi_sprite(weight, bg, accent, glyph, dark, patterns=None):
                        f'{body.replace("FILL", spec.get("fill", "none"))}</g>')
             idx[pn] = {"x": x, "y": h, "width": d, "height": d, "pixelRatio": pr}
         h += ph
+        if figs:  # Figurenzeilen, jede Pose normal und gespiegelt; Zeichnung zweimal: breiter Sticker-Rand, darüber Tusche
+            fh = FIG * pr
+            per = w // fh
+            imgs = [(f"fig-{n}-{f.stem}{m}", f, m) for n in figs["names"] for f in fig_poses(n) for m in ("", "-m")]
+            rows = -(-len(imgs) // per)
+            px += bytes(w * fh * rows * 4)
+            for k, (key, f, m) in enumerate(imgs):
+                x, y = k % per * fh, h + k // per * fh
+                body = re.sub(r"<!--.*?-->|^\s*<svg[^>]*>|</svg>\s*$", "", f.read_text().strip(), flags=re.S | re.M)
+                flip = " translate(64,0) scale(-1,1)" if m else ""
+                svg.append(f'<g transform="translate({x},{y}) scale({fh / 68}) translate(2,2){flip}" stroke-linejoin="round" '
+                           f'stroke-linecap="round"><g stroke="{figs["sticker"]}" stroke-width="7">{body}</g>'
+                           f'<g stroke="{figs["ink"]}" stroke-width="2">{body}</g></g>')
+                idx[key] = {"x": x, "y": y, "width": fh, "height": fh, "pixelRatio": pr}
+            h += fh * rows
         for key, r in idx.items():
             icon = icons.get(key.removesuffix("_11"))
             if not icon or key in (patterns or {}):
@@ -837,7 +1147,8 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     b = bbox(a.lat, a.lon, a.radius)
     # ponytail: high zooms only near the marker; Leaflet upscales z(detail_from-1) outside
     d = bbox(a.lat, a.lon, min(a.radius, a.detail_radius))
-    style, title, attribution, font = build_style(style_file, font, (a.lat, a.lon), a.pixel, a.streets_only)
+    fb = bbox(a.lat, a.lon, a.radius + 1)   # Figuren bis 1 km über den Rand (Leaflet zeigt bei z15 etwas mehr)
+    style, title, attribution, font = build_style(style_file, font, (a.lat, a.lon), a.pixel, a.streets_only, (mb, fb))
     if a.pixel:  # Beschriftung getrennt rendern, dither_tiles() backt sie ein
         style, labels = split_labels(style)
     stains = tomllib.loads(Path(style_file).read_text()).get("stains")  # Versuch: Flecken eingebacken

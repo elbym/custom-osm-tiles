@@ -123,3 +123,64 @@ color = "#2b2a3a"
 color2 = "#ff4f86"
 bg = "#ffffff"
 fg = "#2b2a3a"
+
+# Kleine Figuren an festen Orten (figures(), Nutzerwunsch 2026-11-24): Genre-Archetypen und Volksmotive in eigener
+# Zeichnung (vendor/figures/<figur>/<pose>.svg, tools/gen_figures.py), keine bestimmten Figuren aus Manga oder Anime.
+# Jede Pose auch gespiegelt. Tuschekontur = Marker-Farbe, Sticker-Rand = Marker-Grund.
+# density: Anteil der Zellen (~450 m) mit Figur; density_rich: Zellen mit POI oder Grün (Innenstadt, Parks)
+[figures]
+names = ["schulmaedchen", "ninja", "samurai", "miko", "zauberin", "held", "idol", "mecha", "maid", "kendo", "yankee",
+         "schulsprecherin", "lehrer", "baseball", "ramenkoch", "mangaka", "butler", "onmyoji", "moench", "nekomimi",
+         "schwertkaempfer", "magier", "ritterin", "daemonenkoenig", "engel", "vampir", "tengu", "oni",
+         "kitsune", "neko", "tanuki", "onigiri", "geist", "kappa", "karakasa", "daruma", "mondhase", "drache", "shiba",
+         "panda", "koi", "taiyaki", "dango", "sushi"]
+density = 0.45
+density_rich = 0.85
+
+# Figuren passend zum Ort: OpenMapTiles-Klassen/Unterklassen aus poi, landuse und landcover (z14). Steht so ein POI in
+# der Zelle, kommt eine passende Figur daneben; auf solchen Flächen ist sie zu 2/3 passend (Kitsune im Wald)
+[figures.places]
+samurai = ["castle", "ruins"]
+ninja = ["castle"]
+ritterin = ["castle"]
+daemonenkoenig = ["castle", "ruins"]
+drache = ["castle", "viewpoint"]
+schwertkaempfer = ["viewpoint", "attraction"]
+magier = ["library", "books", "museum"]
+mangaka = ["books", "library", "art_gallery", "arts_centre"]
+miko = ["place_of_worship"]
+moench = ["place_of_worship"]
+engel = ["place_of_worship", "cemetery"]
+onmyoji = ["place_of_worship", "cemetery"]
+geist = ["cemetery"]
+vampir = ["cemetery"]
+karakasa = ["shelter"]
+schulmaedchen = ["school", "college"]
+schulsprecherin = ["school", "college"]
+yankee = ["school"]
+lehrer = ["school", "college", "university"]
+held = ["pitch", "stadium", "playground"]
+baseball = ["pitch", "stadium"]
+kendo = ["sports_centre"]
+idol = ["theatre", "cinema", "nightclub", "music"]
+nekomimi = ["cafe", "cinema"]
+maid = ["cafe"]
+butler = ["cafe", "hotel"]
+ramenkoch = ["restaurant", "fast_food"]
+onigiri = ["restaurant", "fast_food"]
+sushi = ["restaurant"]
+dango = ["ice_cream", "confectionery", "bakery"]
+taiyaki = ["bakery", "ice_cream", "confectionery"]
+daruma = ["gift", "toys", "attraction"]
+neko = ["gift", "toys"]
+mecha = ["station", "industrial"]
+zauberin = ["playground", "toys"]
+shiba = ["dog_park", "veterinary", "pet"]
+panda = ["zoo", "aviary"]
+mondhase = ["meadow", "playground"]
+kitsune = ["wood", "forest"]
+tanuki = ["wood", "forest", "scrub"]
+tengu = ["wood", "forest", "viewpoint"]
+oni = ["quarry", "ruins"]
+kappa = ["swimming_pool", "basin", "fountain", "wetland"]
+koi = ["basin", "fountain", "garden"]

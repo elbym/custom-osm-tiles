@@ -1,0 +1,4 @@
+<!-- Dango (Chibi-Food), Pose schlaeft; eigene Zeichnung, 64×64. Kontur/Sticker setzt poi_sprite() -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<path d="M32 4 L32 60" fill="none" stroke="#c9a06a" stroke-width="2.5"/><circle cx="32" cy="14" r="9" fill="#ff9fb2"/><circle cx="32" cy="31" r="9" fill="#fff8f0"/><circle cx="32" cy="48" r="9" fill="#9fd88a"/><path d="M30.5 34.5 Q32 36 33.5 34.5" fill="none" stroke-width="1.2"/><ellipse cx="25.5" cy="34" rx="2" ry="1.1" fill="#ff9fb2" stroke="none"/><ellipse cx="38.5" cy="34" rx="2" ry="1.1" fill="#ff9fb2" stroke="none"/><path d="M25.5 30 Q28.5 32.5 31.5 30" fill="none" stroke-width="2"/><path d="M32.5 30 Q35.5 32.5 38.5 30" fill="none" stroke-width="2"/><path d="M48 9 L53 9 L48 15 L53 15 M55 2 L58.5 2 L55 6 L58.5 6" fill="none" stroke-width="1.5"/>
+</svg>
