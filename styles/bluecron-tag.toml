@@ -7,9 +7,9 @@ category = "nerd"      # standard | nerd (Gruppe in der Vorschau)
 mode = "light"          # light | dark
 family = "Bluecron"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 order = 97
-font = "Space Grotesk"
+font = "Mozilla Text"
 preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
-site_font = "Space Grotesk"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+site_font = "Mozilla Text"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 fonts = ["sans", "mono"]   # Schriftgruppen für --all-fonts
 text_scale = 1.1
 hide = ["poi_r20", "road_oneway*"]

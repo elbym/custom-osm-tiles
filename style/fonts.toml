@@ -10,6 +10,7 @@
 #   scale   = 1.05   Größenfaktor (gleicht unterschiedlich große Schriftbilder aus)
 #   grid    = 12.5   Pixelschrift: Schriftgrößen werden auf Vielfache davon gerundet (passt genau ins Pixelraster)
 #   streets = "450"  Schnitt für Straßennamen statt Regular (muss oben als Schnitt stehen)
+#   slant   = 10     im Schnitt: Glyphen um so viele Grad neigen (unechte Kursive für Schriften ohne Italic)
 #
 # Noto Sans fehlt hier absichtlich: sie ist nur Ersatzschrift und wird fertig geladen.
 
@@ -73,18 +74,11 @@ Regular = { file = "tex-gyre-heros/texgyreheros-regular.otf" }
 Bold    = { file = "tex-gyre-heros/texgyreheros-bold.otf" }
 Italic  = { file = "tex-gyre-heros/texgyreheros-italic.otf" }
 
-["Space Grotesk"]   # keine Kursive: Italic = Regular; für Bluecron
+["Mozilla Text"]   # für Bluecron: Medium als Grundschnitt; keine Kursive, daher Medium geneigt (slant)
 group = "sans"
-Regular = { file = "space-grotesk/SpaceGrotesk-VF.ttf", wght = 400 }
-Bold    = { file = "space-grotesk/SpaceGrotesk-VF.ttf", wght = 700 }
-Italic  = { file = "space-grotesk/SpaceGrotesk-VF.ttf", wght = 400 }
-# Monoschriften (für die Editor-Themes)
-["Fira Code"]   # keine Kursive: Italic = Regular
-group = "mono"
-Regular = { file = "fira-code/FiraCode-VF.ttf", wght = 400 }
-Bold    = { file = "fira-code/FiraCode-VF.ttf", wght = 700 }
-Italic  = { file = "fira-code/FiraCode-VF.ttf", wght = 400 }
-
+Regular = { file = "mozilla-text/MozillaText-VF.ttf", wght = 500 }
+Bold    = { file = "mozilla-text/MozillaText-VF.ttf", wght = 700 }
+Italic  = { file = "mozilla-text/MozillaText-VF.ttf", wght = 500, slant = 10 }
 ["JetBrains Mono"]
 group = "mono"
 Regular = { file = "jetbrains-mono/JetBrainsMono-VF.ttf", wght = 400 }
