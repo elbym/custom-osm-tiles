@@ -91,12 +91,11 @@ Regular = { file = "victor-mono/VictorMono-VF.ttf", wght = 400 }
 Bold    = { file = "victor-mono/VictorMono-VF.ttf", wght = 700 }
 Italic  = { file = "victor-mono/VictorMono-Italic-VF.ttf", wght = 400 }
 
-["Cascadia Code"]
+["Adwaita Mono"]   # GNOME-Standard seit 48 (Iosevka-Ableger, schmal), für Nightfox/Dayfox
 group = "mono"
-Regular = { file = "cascadia-code/CascadiaCode-VF.ttf", wght = 400 }
-Bold    = { file = "cascadia-code/CascadiaCode-VF.ttf", wght = 700 }
-Italic  = { file = "cascadia-code/CascadiaCode-Italic-VF.ttf", wght = 400 }
-
+Regular = { file = "adwaita-mono/AdwaitaMono-Regular.ttf" }
+Bold    = { file = "adwaita-mono/AdwaitaMono-Bold.ttf" }
+Italic  = { file = "adwaita-mono/AdwaitaMono-Italic.ttf" }
 ["Geist Mono"]
 group = "mono"
 Regular = { file = "geist-mono/GeistMono-VF.ttf", wght = 400 }
@@ -115,12 +114,11 @@ Regular = { file = "ibm-plex-mono/IBMPlexMono-Regular.ttf" }
 Bold    = { file = "ibm-plex-mono/IBMPlexMono-Bold.ttf" }
 Italic  = { file = "ibm-plex-mono/IBMPlexMono-Italic.ttf" }
 
-[Recursive]   # Mono, Casual (weich), alle Achsen fest
+["Ubuntu Sans Mono"]   # Ubuntu-Standard seit 24.04 (Ubuntu Font Licence), für Everforest
 group = "mono"
-Regular = { file = "recursive/Recursive-VF.ttf", MONO = 1, CASL = 1, wght = 400, slnt = 0, CRSV = 0.5 }
-Bold    = { file = "recursive/Recursive-VF.ttf", MONO = 1, CASL = 1, wght = 700, slnt = 0, CRSV = 0.5 }
-Italic  = { file = "recursive/Recursive-VF.ttf", MONO = 1, CASL = 1, wght = 400, slnt = -15, CRSV = 1 }
-
+Regular = { file = "ubuntu-sans-mono/UbuntuSansMono-Regular.ttf" }
+Bold    = { file = "ubuntu-sans-mono/UbuntuSansMono-Bold.ttf" }
+Italic  = { file = "ubuntu-sans-mono/UbuntuSansMono-Italic.ttf" }
 ["Source Code Pro"]
 group = "mono"
 Regular = { file = "source-code-pro/SourceCodePro-VF.ttf", wght = 400 }

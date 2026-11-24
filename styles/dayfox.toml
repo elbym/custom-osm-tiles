@@ -6,7 +6,7 @@ mode = "light"          # light | dark
 family = "Nightfox"          # gleiche Familie = Gegenstück beim Hell/Dunkel-Umschalten
 font = "Fira Sans"
 preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
-site_font = "Cascadia Code"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+site_font = "Adwaita Mono"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all
 text_scale = 1.15
 attribution = "Farben nach Nightfox (Dayfox) (MIT)"
