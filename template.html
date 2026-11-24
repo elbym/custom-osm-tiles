@@ -30,6 +30,7 @@ html, body { margin: 0; } #map { height: 100dvh; }
 @font-face { font-family: "Silkscreen"; src: url("silkscreen.ttf"); }
 .term.px { font: calc(var(--u) * 8)/calc(var(--u) * 6) Silkscreen, monospace; -webkit-font-smoothing: none; }
 .term.px .box { border: var(--u) solid var(--c1); border-radius: 0; padding: var(--u) calc(var(--u) * 2); box-shadow: var(--u) var(--u) 0 rgb(0 0 0 / .5); }
+.term.px .p svg { display: inline-block; width: calc(var(--u) * 12); height: calc(var(--u) * 5); vertical-align: baseline; }
 .term.px .cur { width: calc(var(--u) * 4); height: calc(var(--u) * 5); margin-left: var(--u); vertical-align: top; }
 .term.px .stem { width: var(--u); height: calc(var(--u) * 3); }
 .term.px .dot { width: calc(var(--u) * 2); height: calc(var(--u) * 2); border-radius: 0; box-shadow: 0 0 0 var(--u) var(--bg); }
@@ -70,6 +71,7 @@ function snapMarker(mk, px, native) {
 
 // Marker laut Stil: "bubble" (Standard-Stile), "terminal" (Nerd-Stile) oder der Leaflet-Standard; beide mit Stiel und Punkt
 function markerIcon(m, px) {
+  const PX_PROMPT = '<svg viewBox="0 0 12 5" fill="currentColor" shape-rendering="crispEdges"><rect x="1" y="2" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="9" y="1" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/></svg>';  // 8 Bit: ~/ als Pixelgrafik (Silkscreen-Tilde sitzt zu hoch, / zu rund)
   if (m?.type === 'bubble') {
     const el = document.createElement('div');
     el.className = 'bubble';
@@ -85,6 +87,7 @@ function markerIcon(m, px) {
   for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg, u: px + 'px' })) el.style.setProperty('--' + k, v);
   el.innerHTML = '<span class="box"><span class="p">~/</span><span class="t"></span><span class="cur"></span></span><span class="stem"></span><span class="dot"></span>';
   el.querySelector('.t').textContent = m.label;  // Text, kein HTML
+  if (px) el.querySelector('.p').innerHTML = PX_PROMPT;
   // Größe messen, damit der Punkt (unten Mitte) genau auf der Position liegt
   document.body.appendChild(el); const w = el.offsetWidth, h = el.offsetHeight; el.remove();
   return L.divIcon({ className: '', html: el, iconSize: [w, h], iconAnchor: [Math.round(w / 2), h - (px || 4)] });
