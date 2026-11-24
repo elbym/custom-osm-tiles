@@ -480,6 +480,7 @@ def lowres(data, f, qx, qy):
 
 PIXEL_MIN_LINE = 1.7  # --pixel: Mindestbreite von Linien in Rasterpixeln, sonst reißen sie im Raster ab
 PIXEL_COLORS = 16   # --pixel: Farben der Karte je Stil (eine Palette für alle Kacheln)
+ROAD_GLOBS = ("minor", "service", "link", "secondary", "primary", "trunk", "motorway", "path")  # --pixel: Umrisse
 LABEL_COLORS = 8    # --pixel: Farben der Beschriftungsebene (Schrift, Rand, Symbole), kommen zur Palette dazu
 OUTLINE_STEP = 24   # --pixel: Helligkeitssprung (0–255), ab dem ein Flächenpixel zum Umriss wird
 PIXEL_HALO = 2      # --pixel: Randbreite um Schrift (px im 128er-Raster, also 2 Schriftpixel)
@@ -516,37 +517,52 @@ def pixel_palette(px, cand, force=(), n=PIXEL_COLORS):
 
 
 def split_labels(style):
-    """--pixel: Stil in Karte ohne Beschriftung und Beschriftung allein (transparenter Grund) teilen. Die Platzierung
-    bleibt gleich, MapLibre richtet Beschriftungen nur nach anderen Beschriftungen aus."""
+    """--pixel: Stil in Karte ohne Beschriftung und Beschriftung allein (transparenter Grund) teilen. MapLibre richtet
+    Beschriftungen nur nach anderen Beschriftungen aus. Die Beschriftung wird eine Stufe feiner gerendert als die Karte
+    (OpenMapTiles hat POIs erst ab z14, zwei Stufen gröber fehlten sie ganz): Zoomverschiebung eine Stufe zurück,
+    Schrift und Rand doppelt so groß, dither_tiles() fasst doppelt so große Blöcke zusammen."""
     m, lab = json.loads(json.dumps(style)), json.loads(json.dumps(style))
     for l in m["layers"]:
         if l["type"] == "symbol":
             l.setdefault("layout", {})["visibility"] = "none"
     for l in lab["layers"]:
+        lay, paint = l.setdefault("layout", {}), l.setdefault("paint", {})
         if l["type"] != "symbol":
-            l.setdefault("layout", {})["visibility"] = "none"
+            lay["visibility"] = "none"
+            continue
+        for kind in (lay, paint):
+            for k, v in kind.items():
+                if k != "text-size":
+                    kind[k] = zoom_shift(v, -1)
+        for k in ("minzoom", "maxzoom"):
+            if k in l:
+                l[k] += 1
+        if "text-size" in lay:
+            lay["text-size"] = scale_out(lay["text-size"], 2)
+        if "text-halo-width" in paint:
+            paint["text-halo-width"] = scale_out(paint["text-halo-width"], 2)
     return m, lab
 
 
-def snap_labels(li, text, n):
+def snap_labels(li, text, n, b):
     """Beschriftung ins 8-Bit-Raster: MapLibre setzt sie auf Bruchteile von Pixeln, Striche liegen dann halb in zwei
-    PIXEL_SS-Blöcken und keiner bekommt genug (Querbalken verschwinden). Je Beschriftung (zusammenhängende Pixel der
-    Ebene) die Verschiebung um 0 bis PIXEL_SS-1 Bildpixel wählen, bei der die Schrift die Blöcke am eindeutigsten
+    b×b-Blöcken und keiner bekommt genug (Querbalken verschwinden). Je Beschriftung (zusammenhängende Pixel der
+    Ebene) die Verschiebung um 0 bis b-1 Bildpixel wählen, bei der die Schrift die Blöcke am eindeutigsten
     füllt oder frei lässt. li: Palettenindex je Bildpixel (-1 = leer), text: Schriftmaske."""
     import numpy as np
     from scipy import ndimage
-    lab, _ = ndimage.label(ndimage.binary_dilation(li >= 0, iterations=PIXEL_SS))
+    lab, _ = ndimage.label(ndimage.binary_dilation(li >= 0, iterations=b))
     out = np.full_like(li, -1)
     for i, sl in enumerate(ndimage.find_objects(lab), 1):
         own = lab[sl] == i
         part, tpart = np.where(own, li[sl], -1), text[sl] & own
         best = None
-        for dy in range(PIXEL_SS):
-            for dx in range(PIXEL_SS):
+        for dy in range(b):
+            for dx in range(b):
                 tmp = np.zeros(li.shape, bool)
                 tmp[sl] = np.roll(tpart, (dy, dx), (0, 1))  # Rand der Region ist leer (Dilatation), kein Umlauf
-                c = tmp.reshape(n, PIXEL_SS, n, PIXEL_SS).sum((1, 3))
-                score = np.minimum(c, PIXEL_SS ** 2 - c).sum()
+                c = tmp.reshape(n, b, n, b).sum((1, 3))
+                score = np.minimum(c, b * b - c).sum()
                 if best is None or score < best[0]:
                     best = (score, dy, dx)
         shifted = np.roll(part, best[1:], (0, 1))
@@ -590,6 +606,10 @@ def dither_tiles(files, toml_path, retina):
     lum = pal @ [.299, .587, .114]
     share = np.bincount(((sample[:, None].astype(float) - pal) ** 2).sum(-1).argmin(1), minlength=len(pal)) / len(sample)
     area, dark = share > .03, int(lum.argmin())
+    road = np.zeros(len(pal), bool)  # Palettenfarben der Straßen und Wege (line-color der Straßen-Muster im Stil)
+    for glob, props in t.get("paint", {}).items():
+        if any(k in glob for k in ROAD_GLOBS) and isinstance(props.get("line-color"), str):
+            road[nearest(hexrgb(props["line-color"]))] = True
     flat = [int(v) for v in np.concatenate([pal, lpal]).flatten()]
     flat += [0] * (768 - len(flat))
     blocks = lambda m: m.reshape(n, PIXEL_SS, n, PIXEL_SS).transpose(0, 2, 1, 3).reshape(n, n, -1, 1)
@@ -603,19 +623,25 @@ def dither_tiles(files, toml_path, retina):
         idx = np.where((n4 == n4[0]).all(0) & (n4[0] != idx), n4[0], idx)
         p = np.pad(idx, 1, mode="edge")
         n4 = np.stack([p[:-2, 1:-1], p[2:, 1:-1], p[1:-1, :-2], p[1:-1, 2:]])
-        # Umriss nur neben hellen Stellen aus mindestens zwei Pixeln, sonst bekommt jeder helle Fleck schwarze Nachbarn
+        # Umriss nur an Straßen und Wegen (nicht an Gebäuden und Landnutzung, sonst bekommt jeder helle Fleck schwarze
+        # Nachbarn), und nur neben Stellen aus mindestens zwei Pixeln; einzeln übrig gebliebene Umrisspixel fallen weg
         twin = np.pad((n4 == idx).any(0), 1)
         t4 = np.stack([twin[:-2, 1:-1], twin[2:, 1:-1], twin[1:-1, :-2], twin[1:-1, 2:]])
-        idx = np.where((np.where(t4, lum[n4], -1e9).max(0) - lum[idx] > OUTLINE_STEP) & area[idx], dark, idx)
+        edge = (np.where(t4 & road[n4], lum[n4], -1e9).max(0) - lum[idx] > OUTLINE_STEP) & area[idx]
+        e = np.pad(edge, 1)
+        friends = sum(e[1 + dy:e.shape[0] - 1 + dy, 1 + dx:e.shape[1] - 1 + dx]
+                      for dy in (-1, 0, 1) for dx in (-1, 0, 1) if dy or dx)
+        idx = np.where(edge & (friends > 0), dark, idx)
         for i, c, mask in textures:
             idx = np.where((idx == i) & mask, c, idx)
         # Beschriftung: deckende Pixel auf die Beschriftungspalette, ins Raster rücken, je Block entscheiden
         l = labs[f]
         li = np.where(l[..., 3] > 127, near(l[..., :3], lpal), -1)
-        li = snap_labels(li, (li >= 0) & is_text[np.maximum(li, 0)], n)
-        cnt = (blocks(li) == np.arange(len(lpal))).sum(2)
+        b = 2 * PIXEL_SS  # Beschriftung eine Stufe feiner gerendert (split_labels)
+        li = snap_labels(li, (li >= 0) & is_text[np.maximum(li, 0)], n, b)
+        cnt = (li.reshape(n, b, n, b).transpose(0, 2, 1, 3).reshape(n, n, -1, 1) == np.arange(len(lpal))).sum(2)
         tc = np.where(is_text, cnt, 0)
-        need = PIXEL_SS ** 2 * 4 / 9
+        need = b * b * 4 / 9
         lab = np.where(tc.sum(-1) >= need, tc.argmax(-1), np.where(cnt.sum(-1) >= need, cnt.argmax(-1), -1))
         idx = np.where(lab >= 0, len(pal) + lab, idx)
         f.with_suffix(".labels.png").unlink()
@@ -655,7 +681,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     style, title, attribution, font = build_style(style_file, font, (a.lat, a.lon), a.pixel, a.streets_only)
     if a.pixel:  # Beschriftung getrennt rendern, dither_tiles() backt sie ein
         style, labels = split_labels(style)
-    crops = []   # --pixel: (Kachel, Vorfahr-URL ohne Basis, f, qx, qy) für den Beschriftungsdurchgang
+    crops = []   # --pixel: (Kachel, URL der Beschriftungs-Vorfahrkachel ohne Basis, f, qx, qy)
     with tileserver(style, out.name, mb) as base:
         if not keep:  # keep: vorhandene Kacheln behalten (z. B. nur @2x ergänzen)
             shutil.rmtree(out / "tiles", ignore_errors=True)
@@ -679,10 +705,10 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
             if a.pixel:  # 8-Bit: Viertel der Elternkachel; Palette, Muster und @2x erst in dither_tiles()
                 if sfx:
                     return None
-                n = a.pixel.bit_length() - 1  # Zoomstufen nach oben
-                crop = (f, f"/{z - n}/{x >> n}/{y >> n}@{PIXEL_SS}x.png", a.pixel, x % a.pixel, y % a.pixel)
-                crops.append(crop)
-                f.write_bytes(lowres(parent(base + crop[1]), *crop[2:]))
+                n, fl = a.pixel.bit_length() - 1, a.pixel // 2  # Zoomstufen nach oben; Beschriftung eine weniger
+                crops.append((f, f"/{z - n + 1}/{x >> n - 1}/{y >> n - 1}@{PIXEL_SS}x.png", fl, x % fl, y % fl))
+                f.write_bytes(lowres(parent(f"{base}/{z - n}/{x >> n}/{y >> n}@{PIXEL_SS}x.png"),
+                                     a.pixel, x % a.pixel, y % a.pixel))
                 return f
             else:
                 data = fetch(f"{base}/{z}/{x}/{y}{sfx}.{ext}")
