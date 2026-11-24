@@ -88,10 +88,9 @@ Das Ergebnis in `out/kunde-xy/` (`tiles/`, `leaflet/`, `index.html`) einfach neb
 
 Für die Vorschau nutzt jeder Stil seine `preview_font` (Standard-Stile Fira Sans, Nerd-Stile Maple Mono); 34 Varianten dauern so etwa 4 Minuten. `--missing` überspringt schon gerenderte Varianten.
 
-- `out/streifen.html`: eine durchgehende Karte, senkrecht geteilt in einen Streifen pro Stil, alle in derselben Schrift.
-- `out/compare.html`: vier Varianten im 2×2-Raster mit synchronem Ausschnitt, jedes Fenster mit eigener Auswahl.
+`out/index.html` ist dieselbe Vorschauseite wie die öffentliche in `site/`: eine durchgehende Karte, senkrecht geteilt in einen Streifen pro Stil, mit Einzelansicht und Vergleich.
 
-Beide Seiten haben die Schalter **Standard | Nerd** und **Hell | Dunkel**. Stile derselben Familie sind Gegenstücke: Beim Umschalten wird aus Clear „Clear Dark“, aus Catppuccin Latte „Mocha“. Hat eine Familie einen Modus nicht, bleibt ihr Platz leer und ist beschriftet.
+Sie hat die Schalter **Standard | Nerd** und **Hell | Dunkel**. Stile derselben Familie sind Gegenstücke: Beim Umschalten wird aus Clear „Clear Dark“, aus Catppuccin Latte „Mocha“. Hat eine Familie einen Modus nicht, bleibt ihr Platz leer und ist beschriftet.
 
 ## Öffentliche Vorschau (GitHub Pages)
 

@@ -338,9 +338,12 @@ def write_page(out, cfg):
 
 
 def write_previews(outdir):
-    """Vergleichsseiten + variants.js (Titel und Konfiguration aller Varianten) nach outdir."""
-    for f in ("compare.html", "streifen.html"):
-        shutil.copy(ROOT / f, outdir / f)
+    """Vorschauseite (index.html = streifen.html) + variants.js (Titel und Konfiguration aller Varianten) nach outdir."""
+    index = outdir / "index.html"
+    if not index.exists() or "variants.js" in index.read_text():  # fremde index.html (--out in eine Website) nie überschreiben
+        shutil.copy(ROOT / "streifen.html", index)
+    for old in ("compare.html", "streifen.html"):  # frühere Vorschauseiten
+        (outdir / old).unlink(missing_ok=True)
     shutil.copy(ROOT / "vendor" / "streifen.css", outdir / "streifen.css")  # Tailwind, gebaut mit npm run css
     shutil.copytree(ROOT / "vendor" / "leaflet", outdir / "leaflet", dirs_exist_ok=True)
     names = sorted(d.name for d in outdir.iterdir() if (d / "config.json").exists())
@@ -437,8 +440,6 @@ def build_site(a):
         if old.parent not in wanted:
             shutil.rmtree(old.parent)
     write_previews(site)
-    (site / "compare.html").unlink(missing_ok=True)       # veröffentlicht wird nur die Streifen-Ansicht
-    shutil.move(site / "streifen.html", site / "index.html")
     (site / ".nojekyll").touch()                          # GitHub Pages: Dateien unverändert ausliefern
     size = sum(f.stat().st_size for f in site.rglob("*") if f.is_file())
     print(f"site/: {size / 1e6:.0f} MB")
@@ -806,9 +807,6 @@ def main():
         for d in (ROOT / "out", ROOT / "site"):
             if d.exists():
                 reindex(d, a.label)
-        if (ROOT / "site" / "streifen.html").exists():  # site/: nur die Streifen-Ansicht, als index.html
-            (ROOT / "site" / "compare.html").unlink(missing_ok=True)
-            shutil.move(ROOT / "site" / "streifen.html", ROOT / "site" / "index.html")
         return
     zmin, zmax = map(int, a.zoom.split("-"))
     if not (0 <= zmin <= zmax <= 20):

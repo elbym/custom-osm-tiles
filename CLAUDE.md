@@ -21,7 +21,7 @@ npm install && npm run css                             # rebuild vendor/streifen
 ```
 
 There are no tests. To check a rendering change, re-render and look at a tile near the marker. For the Bielefeld default that is `out/<variant>/tiles/16/34321/21641.png`, or `.webp` with `--format webp` (z18: `18/137286/86565`). `magick` builds contact sheets. Check the preview pages with headless Chromium, because the Chrome extension is usually not connected:
-`chromium-browser --headless=new --allow-file-access-from-files --virtual-time-budget=8000 --window-size=1800,900 --screenshot=… "file://…/out/streifen.html?cat=nerd&mode=dark"`
+`chromium-browser --headless=new --allow-file-access-from-files --virtual-time-budget=8000 --window-size=1800,900 --screenshot=… "file://…/out/index.html?cat=nerd&mode=dark"`
 
 ## How it fits together
 
@@ -37,7 +37,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
    - Format: by default each tile is fetched as PNG and piped through `quantize()`: `pngquant <colors> --nofs --strip` (`--colors`, default 32), and `optimize()` runs `oxipng -o 2` over the new files after the container has stopped (optional; looked up in PATH and `~/.cargo/bin`). Measured on 80 retina tiles around the Sparrenburg: oxipng saves 7–10 % losslessly (about 0.2 s per tile on this 2-core VM); 32 colours + oxipng is the size of 24 without it, but more accurate (RMSE 0.70 % vs 0.88 %). 16 colours + oxipng would be 19 % smaller with no visible difference in samples, 12 loses icon colours. ImageMagick quantising is 3–4× slower. `--format webp` keeps the old path. The extension is stored as `ext` in the config, and `template.html`/`streifen.html` build tile URLs from it.
    - Finally it fills `template.html` into `out/<name>/index.html` by replacing the `/*CONFIG*/{}` placeholder with JSON. The config includes `style`, `font`, `category`, `mode`, `family` and `attribution`.
 `tileserver(style, tag, mb)` is the context manager both paths share. `render()` fetches tiles through it. `readme_previews()` fetches one tileserver static image per style (`/styles/map/static/lon,lat,12/512x512.png`) in its `preview_font`, runs it through pngquant and writes it to `docs/previews/`. The README gallery is a Hell/Dunkel table per family that links those files, so update it when styles are added or renamed.
-5. `write_previews()` copies `compare.html`, `streifen.html` and Leaflet into `out/`, and regenerates `out/variants.js` (`VARIANTS`, `TITLES`, `CONFIGS`) from every `out/*/index.html`.
+5. `write_previews()` copies `streifen.html` as `index.html` (same page as `site/`; an existing `index.html` without `variants.js` is never overwritten, so `--out` into a website is safe; old `compare.html`/`streifen.html` are deleted) and Leaflet into `out/`, and regenerates `out/variants.js` (`VARIANTS`, `TITLES`, `CONFIGS`) from every `out/*/index.html`.
 
 **The script and `template.html` are coupled.** The tile coverage in `tiles_for()` assumes Leaflet's `maxBounds` = the `--radius` bbox:
 - At low zooms the view is bigger than the bbox, so one `--viewport` worth of tiles is rendered around it.
@@ -48,7 +48,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 **Public site:**
 - `build_site()` reads `site.toml` and renders each style × the fonts of its category into `site/`. Since 2026-11-22 one font per category (Fira Sans / Maple Mono) to halve the render time on the 2-core VM.
 - It deletes `site/` variants that the current `site.toml` no longer produces (old fonts or area), otherwise `variants.js` would list them.
-- It turns `streifen.html` into `site/index.html`, drops `compare.html`, and adds `.nojekyll`.
+- It adds `.nojekyll` (`index.html` comes from `write_previews()`).
 - Publish `site/` as an orphan `gh-pages` branch (force-pushed, no history). Never commit tiles to `main`. The Pages limit is 1 GB.
 - `streifen.html` is styled with Tailwind v4, built locally into `vendor/streifen.css`, never from a CDN.
   - The `dark:` variant is bound to `<html data-mode>`, which follows the page's light/dark switch. Without `?mode`, the mode follows `prefers-color-scheme` (reload on change).
@@ -65,11 +65,9 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 - Compare (`?solo=A&vs=B`, user request 2026-11-23): the "⇆ Vergleich" button (in `#solo` and in `#nav`, both `[data-cmp]`) shows A left/top and B right/bottom, split at `frac` by `clip()`'s `part()`. The `#divider` line has name tags and a `#handle`: dragging moves the line, tapping swaps A and B. ‹ › and the `#jump` list change B; "Alle" ends compare. The direction follows `split`.
 - The "Über" dialog holds all attributions. Keep it complete; the user insisted on this.
 
-**Preview pages** (opened via file://):
-- Both pages filter by `category` (standard|nerd) and `mode` (light|dark), and pair styles via `family`.
+**Preview page** (`out/index.html` via file://, `compare.html` was removed at the user's request 2026-11-24):
+- It filters by `category` (standard|nerd) and `mode` (light|dark), and pair styles via `family`.
 - `streifen.html` is one Leaflet map with one tile layer per family, each in its own pane that is cut to a vertical strip with a `clip-path` polygon. Panes live inside the translated mapPane, so `clip()` subtracts the mapPane position on every move or zoom.
-- `compare.html` is a 2×2 grid of iframes. Switching mode swaps each pick for its family counterpart in the same font.
-- Map sync uses `postMessage`, because file:// iframes are cross-origin: `template.html` posts on `moveend` when framed, and `compare.html` forwards the message to the other frames.
 
 **Schema choice:** OpenMapTiles was kept on purpose (comparison table in README, "Warum OpenMapTiles?").
 - Shortbread (Geofabrik, CC0): leaner, POIs mostly only from z14, little ranking.
@@ -107,7 +105,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - The label is set via `textContent`, never as HTML.
   - `streifen.html` carries a copy of `markerIcon()` and its CSS, and uses the middle strip's marker. Keep both copies in sync.
 - Marker font (user request 2026-11-24): the marker label uses the style's font. `marker_font()` copies the unmodified original file (Bold face, Regular for pixel fonts, variable fonts whole) plus its licence files to `<out>/fonts/<font>/`; no subsetting, because a subset is a Modified Version under the OFL and many fonts have Reserved Font Names. `write_previews()` adds `font_url` to every config in `variants.js`; standalone pages get it in their config. `loadFont()` (in `template.html` and `streifen.html`) loads it on demand via `FontFace` with weight range 100–900 (no faux bold), then the marker is redrawn and re-measured. `site/fonts` is about 5 MB in total, each style loads only its own file.
-- Strip titles in `streifen.html` show the font under the style name (like the compare tags).
+- Strip titles in `streifen.html` show the font under the style name (like the compare name tags).
 - `--reindex` rewrites every `out/*/index.html` from `template.html` and the current style metadata (category, mode, family, attribution, marker) without rendering. Use it after template or marker changes.
 - Nerd styles show green areas (`park`, `landcover-*`, `landuse-cemetery`, `landcover-wood`) in the theme's signature colour instead of green (Tokyo Night magenta2 pink, Dracula/Alucard purple, Catppuccin Latte peach, Nightfox/Dayfox cyan, Solarized yellow, Gruvbox orange; One: wood purple, grass green, see one-dark below), mixed with the background: dark 20 % (wood 28 %), light 25 % (wood 35 %). This was a user request; Tokyo Night uses `magenta2`. Exceptions: Everforest stays green (Everforest green is its signature colour). catppuccin-mocha uses Catppuccin green `#a6e3a1` (18 %, wood 26 %) as part of its pastel character; in solarized-dark the RGB mix with the teal base turned green, so it uses an OKLCH dark gold (#4b3b13), mixed again 45 % (wood 60 %) with base03 so the petrol ground dominates.
 - Dark nerd styles each have their own character (user request, because they all looked alike); every colour is still a palette colour or a mix of two. Each file says its character in the comment above `[paint."background"]`.
