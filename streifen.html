@@ -262,8 +262,17 @@ function showSolo() {
   document.getElementById('divider').hidden = cmp < 0;
   for (const b of document.querySelectorAll('[data-cmp]')) b.setAttribute('aria-pressed', cmp >= 0);
   if (cmp >= 0) {
-    document.getElementById('tag-a').textContent = titleOf(solo);
-    document.getElementById('tag-b').textContent = titleOf(cmp);
+    // Name, darunter klein die Schrift der Kacheln
+    for (const [id, i] of [['tag-a', solo], ['tag-b', cmp]]) {
+      const f = document.createElement('span');
+      f.className = 'block text-xs font-normal opacity-75';
+      f.textContent = strips[i][1][1].font;
+      document.getElementById(id).replaceChildren(titleOf(i), f);
+    }
+    // Senkrecht am Desktop: Schilder unter die Bedienleiste, sonst verdeckt sie die Schriftzeile
+    const bar = document.getElementById('bar').getBoundingClientRect();
+    for (const id of ['tag-a', 'tag-b']) document.getElementById(id).style.top =
+      document.documentElement.dataset.split === 'cols' && bar.height ? `${bar.bottom + 8}px` : '';
   }
   document.getElementById('nav-title').textContent = solo < 0 ? 'Alle Stile' : cmp >= 0 ? `${titleOf(solo)} ⇆ ${titleOf(cmp)}` : titleOf(solo);
   document.getElementById('nav-count').textContent = solo < 0 ? `(${rendered.length})` : cmp >= 0 ? '' : `${rendered.indexOf(solo) + 1}/${rendered.length}`;
