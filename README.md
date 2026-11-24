@@ -149,7 +149,7 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 | **Tokyo Night Day** / **Night** | Nerd | JetBrains Mono | tokyonight.nvim (Apache-2.0) |
 | **Bluecron Tag** / **Bluecron** | Nerd | Mozilla Text | eigener Entwurf (Arbeitstitel) im Look von Tron: fast schwarzer Grund, Gebäude als Drahtgitter mit Cyan-Kante, Hauptstraßen weißglühend mit Cyan-Leuchtschein, Autobahn Orange; hell als Drahtgitter auf Papier ohne Leuchten. Schrift Mozilla Text |
 | **Bernstein** / **Phosphor** | Nerd | VT323 | eigener Entwurf: Röhrenmonitor in Grün (P1-Phosphor) bzw. Bernstein (P3), Scanlines und Vignette, Schrift VT323. Bernstein ist in der Familie die „helle“ Variante, obwohl das Bild dunkel ist. Die Röhren-Effekte sind eine CSS-Ebene im Browser (`overlay` im Stil) und fehlen daher in den Bildern oben |
-| **Cyberpunk Day** / **Neon Cyberpunk** | Nerd | Geist Mono | maptoposter „neon_cyberpunk“ (MIT); helle Variante eigener Entwurf in Warnfarben: gelber Grund, Pink und Cyan, schwarze Konturen, ohne Leuchten |
+| **Cyberpunk Day** / **Neon Cyberpunk** | Nerd | Space Mono | maptoposter „neon_cyberpunk“ (MIT); helle Variante eigener Entwurf in Warnfarben: gelber Grund, Pink und Cyan, schwarze Konturen, ohne Leuchten |
 
 Die Schrift ist die der öffentlichen Vorschau (`site_font` im Stil, sonst die Gruppenschrift aus `site.toml`); die 8-Bit-Varianten nutzen dort Silkscreen. Mit `--font` lässt sich jeder Stil in jeder Schrift aus `style/fonts.toml` rendern.
 
@@ -189,7 +189,7 @@ Ohne Achsenwerte wird die Datei unverändert übernommen, mit Achsenwerten wird 
 | TeX Gyre Heros | sans | GUST Font License |
 | Literata | serif | OFL |
 | TeX Gyre Schola | serif | GUST Font License |
-| Adwaita Mono, Fira Code, Geist Mono, IBM Plex Mono, JetBrains Mono, Maple Mono, Source Code Pro, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
+| Adwaita Mono, Fira Code, IBM Plex Mono, JetBrains Mono, Maple Mono, Source Code Pro, Space Mono, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
 | Hack | mono (bei `--all-fonts` nur für Nerd-Stile) | MIT + Bitstream-Vera-Lizenz |
 | Ubuntu Sans Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | Ubuntu Font Licence 1.0 |
 | Press Start 2P, Silkscreen, VT323 | pixel (nur für `--pixel`) | OFL |

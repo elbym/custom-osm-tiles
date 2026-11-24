@@ -8,7 +8,7 @@ family = "Neon Cyberpunk"          # gleiche Familie = Gegenstück beim Hell/Dun
 order = 99             # Reihenfolge der Streifen: höher = weiter rechts (Standard 50)
 font = "Maple Mono"
 preview_font = "Maple Mono"   # Schrift für die Vorschau (--all)
-site_font = "Geist Mono"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+site_font = "Space Mono"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
 fonts = ["sans", "serif", "mono"]   # Schriftgruppen für --all-fonts
 text_scale = 1.15
 attribution = "Farben nach maptoposter Neon Cyberpunk (MIT)"

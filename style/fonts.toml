@@ -109,12 +109,11 @@ group = "mono"
 Regular = { file = "adwaita-mono/AdwaitaMono-Regular.ttf" }
 Bold    = { file = "adwaita-mono/AdwaitaMono-Bold.ttf" }
 Italic  = { file = "adwaita-mono/AdwaitaMono-Italic.ttf" }
-["Geist Mono"]
+["Space Mono"]   # Colophon für Google Design (2016), für Cyberpunk
 group = "mono"
-Regular = { file = "geist-mono/GeistMono-VF.ttf", wght = 400 }
-Bold    = { file = "geist-mono/GeistMono-VF.ttf", wght = 700 }
-Italic  = { file = "geist-mono/GeistMono-Italic-VF.ttf", wght = 400 }
-
+Regular = { file = "space-mono/SpaceMono-Regular.ttf" }
+Bold    = { file = "space-mono/SpaceMono-Bold.ttf" }
+Italic  = { file = "space-mono/SpaceMono-Italic.ttf" }
 [Hack]   # MIT + Bitstream-Vera-Lizenz (DejaVu Sans Mono)
 group = "mono"
 Regular = { file = "hack/Hack-Regular.ttf" }
