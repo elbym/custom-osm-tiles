@@ -68,7 +68,7 @@ fill-outline-color = "#ffffff"
 fill-color = "#ffffff"
 line-color = "#ffffff"
 [paint."*-path"]
-line-color = "#9ca0b0"
+line-color = "#40a02b"   # Fußwege in Green (grüner Akzent)
 [paint."*railway*"]
 line-color = "#8c8fa1"
 [paint."road_area_pier"]
@@ -116,7 +116,7 @@ text-color = "#8839ef"
 [marker]
 type = "terminal"   # leaflet | terminal
 color = "#8839ef"      # Rahmen, Cursor, Stiel
-color2 = "#fe640b"     # Prompt ~/
+color2 = "#40a02b"     # Prompt ~/ in Green (grüner Akzent)
 bg = "#eff1f5"
 fg = "#4c4f69"
 # <<< Marker
