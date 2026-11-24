@@ -137,6 +137,18 @@ Regular = { file = "source-code-pro/SourceCodePro-VF.ttf", wght = 400 }
 Bold    = { file = "source-code-pro/SourceCodePro-VF.ttf", wght = 700 }
 Italic  = { file = "source-code-pro/SourceCodePro-Italic-VF.ttf", wght = 400 }
 
+["Intel One Mono"]   # Frere-Jones Type für Intel (2023), auf Lesbarkeit gebaut, für Solarized
+group = "mono"
+Regular = { file = "intel-one-mono/IntelOneMono-Regular.ttf" }
+Bold    = { file = "intel-one-mono/IntelOneMono-Bold.ttf" }
+Italic  = { file = "intel-one-mono/IntelOneMono-Italic.ttf" }
+
+["Fantasque Sans Mono"]   # handschriftlich, verspielt, für Catppuccin
+group = "mono"
+Regular = { file = "fantasque-sans-mono/FantasqueSansMono-Regular.ttf" }
+Bold    = { file = "fantasque-sans-mono/FantasqueSansMono-Bold.ttf" }
+Italic  = { file = "fantasque-sans-mono/FantasqueSansMono-Italic.ttf" }
+
 ["Press Start 2P"]   # 8-Bit-Option (--pixel --font "Press Start 2P"): Arcade-Klassiker, breit
 grid = 8           # Geviert in px, wenn 1 Schriftpixel = 1 Bildpixel (Raster 125 von 1000 Einheiten)
 group = "pixel"
