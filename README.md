@@ -189,7 +189,7 @@ Ohne Achsenwerte wird die Datei unverändert übernommen, mit Achsenwerten wird 
 | TeX Gyre Heros | sans | GUST Font License |
 | Literata | serif | OFL |
 | TeX Gyre Schola | serif | GUST Font License |
-| Adwaita Mono, Fantasque Sans Mono, Fira Code, IBM Plex Mono, Intel One Mono, JetBrains Mono, Maple Mono, Source Code Pro, Space Mono, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
+| Adwaita Mono, Fantasque Sans Mono, Fira Code, IBM Plex Mono, Intel One Mono, JetBrains Mono, Maple Mono, Space Mono, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
 | Hack | mono (bei `--all-fonts` nur für Nerd-Stile) | MIT + Bitstream-Vera-Lizenz |
 | Ubuntu Sans Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | Ubuntu Font Licence 1.0 |
 | Press Start 2P, Silkscreen, VT323 | pixel (nur für `--pixel`) | OFL |

@@ -131,12 +131,6 @@ group = "mono"
 Regular = { file = "ubuntu-sans-mono/UbuntuSansMono-Regular.ttf" }
 Bold    = { file = "ubuntu-sans-mono/UbuntuSansMono-Bold.ttf" }
 Italic  = { file = "ubuntu-sans-mono/UbuntuSansMono-Italic.ttf" }
-["Source Code Pro"]
-group = "mono"
-Regular = { file = "source-code-pro/SourceCodePro-VF.ttf", wght = 400 }
-Bold    = { file = "source-code-pro/SourceCodePro-VF.ttf", wght = 700 }
-Italic  = { file = "source-code-pro/SourceCodePro-Italic-VF.ttf", wght = 400 }
-
 ["Intel One Mono"]   # Frere-Jones Type für Intel (2023), auf Lesbarkeit gebaut, für Solarized
 group = "mono"
 Regular = { file = "intel-one-mono/IntelOneMono-Regular.ttf" }
