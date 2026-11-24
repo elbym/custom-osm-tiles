@@ -11,6 +11,7 @@ pip install -r requirements.txt && cargo install build_pbf_glyphs oxipng   # onc
 
 ./make-tiles.py                                        # defaults: styles/clear.toml, Bielefeld, 5 km, z10-18 -> out/clear
 ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --font Inter --retina --out out/kunde-xy
+./make-tiles.py --place "Sparrenburg, Bielefeld" ...          # place name instead of coordinates (Nominatim, one request)
 ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # preview set: each style in its preview_font -> out/<style>-<font> (~4 min for 34 styles)
 ./make-tiles.py --all --all-fonts --missing ...           # full matrix: each style × every font of its groups (slow)
 ./make-tiles.py --all --style styles/wiki.toml ...     # one style (preview_font; add --all-fonts for all);  --font X: one font for all styles, ignoring groups

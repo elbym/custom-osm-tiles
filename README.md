@@ -56,6 +56,7 @@ Außerdem nötig: podman, pngquant und Inkscape (`sudo dnf install pngquant inks
 | Option | Bedeutung | Standard |
 |---|---|---|
 | `--lat`, `--lon` | Position des Markers | Bielefeld-Innenstadt |
+| `--place` | Ortsname oder Adresse statt `--lat`/`--lon`, z. B. `"Sparrenburg, Bielefeld"`; per Nominatim (OSM) in Koordinaten übersetzt, erster Treffer | – |
 | `--style` | Stil-Datei aus `styles/` | `styles/clear.toml` |
 | `--font` | Schrift, z. B. `"Inter"`, `"JetBrains Mono"` | `font` im Stil |
 | `--radius` | Bereich in km um den Marker | 5 |

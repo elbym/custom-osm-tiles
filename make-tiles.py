@@ -6,7 +6,7 @@ Beispiel:
   ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --out out/kunde-xy
   ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # jeder Stil × jede Schrift zum Vergleichen
 """
-import argparse, fnmatch, functools, os, re, io, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.request, zipfile
+import argparse, fnmatch, functools, os, re, io, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.parse, urllib.request, zipfile
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
@@ -72,6 +72,18 @@ def ensure_noto():
 def fetch(url):
     with urllib.request.urlopen(url, timeout=60) as r:
         return r.read()
+
+
+def geocode(query):
+    """Ortsname -> (lat, lon) über Nominatim (OSM); erster Treffer. Eine Anfrage je Lauf, Nutzungsregeln: max. 1/s."""
+    url = "https://nominatim.openstreetmap.org/search?" + urllib.parse.urlencode({"q": query, "format": "jsonv2", "limit": 1})
+    req = urllib.request.Request(url, headers={"User-Agent": "make-tiles/1.0"})  # Nominatim verlangt einen User-Agent
+    with urllib.request.urlopen(req, timeout=30) as r:
+        hits = json.load(r)
+    if not hits:
+        sys.exit(f"--place: nichts gefunden für {query!r}")
+    print(f"{query}: {hits[0]['display_name']} -> {hits[0]['lat']}, {hits[0]['lon']}", flush=True)
+    return float(hits[0]["lat"]), float(hits[0]["lon"])
 
 
 def font_config():
@@ -774,6 +786,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--lat", type=float, default=52.0211, help="Standard: Bielefeld")
     p.add_argument("--lon", type=float, default=8.5347)
+    p.add_argument("--place", help='Ortsname oder Adresse statt --lat/--lon, z. B. "Sparrenburg, Bielefeld" (Nominatim)')
     p.add_argument("--radius", type=float, default=5, help="km um den Marker")
     p.add_argument("--zoom", default="10-18", help="z. B. 10-14")
     p.add_argument("--detail-from", type=int, default=17, help="ab dieser Stufe nur --detail-radius")
@@ -801,6 +814,8 @@ def main():
     p.add_argument("--readme-previews", action="store_true",
                    help="je Stil ein 512×512-Bild (Zoom 12, ohne Marker) nach docs/previews/ für die README")
     a = p.parse_args()
+    if a.place:
+        a.lat, a.lon = geocode(a.place)
     if a.pixel and not a.font:
         a.font = "VT323" if a.pixel == 2 else "Silkscreen"  # Alternativen in fonts.toml: Press Start 2P
     if a.reindex:
