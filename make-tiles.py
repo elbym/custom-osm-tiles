@@ -115,7 +115,9 @@ STREETS_DROP = ["highway-name-*", "highway-shield-*", "highway-area", "*railway*
 def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
     """styles/<name>.toml + style/base.json (OSM Bright) -> fertiger Stil, Titel, Namensnennung.
     center (lat, lon): Mittelpunkt für das Koordinatengitter (graticule = true im Stil).
-    pixel: 8-Bit-Modus, Pixelschriften dann nur in ganzen Rasterschritten. streets: siehe STREETS_KEEP."""
+    pixel: 8-Bit-Modus (2 oder 4 = Pixelgröße), Pixelschriften dann nur in ganzen Rasterschritten; bei 4 jede Schrift
+    genau ein Rasterschritt groß und Beschriftungen zwei Stufen früher, weil die Kachel zwei Stufen gröber gerendert
+    wird (sonst fehlen Straßennamen und POIs). streets: siehe STREETS_KEEP."""
     t = tomllib.loads(Path(toml_path).read_text())
     s = json.loads((ROOT / "style" / "base.json").read_text())
     font = font or t.get("font", "Noto Sans")
@@ -147,7 +149,7 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
                 for i in range(4, len(size), 2):
                     size[i] = r(size[i])
         if "grid" in fcfg and l["type"] == "symbol":  # Pixelschrift: Größen aufs Raster, Halo ohne Weichzeichnung
-            lay["text-size"] = on_grid(lay.get("text-size", 16), fcfg["grid"], 1 if pixel else 2)
+            lay["text-size"] = fcfg["grid"] if pixel == 4 else on_grid(lay.get("text-size", 16), fcfg["grid"], 1 if pixel else 2)
             l.setdefault("paint", {})["text-halo-blur"] = 0
             if lay.get("symbol-placement", "point") != "point":  # Straßennamen waagerecht: schräg passt nie ins Raster
                 lay["text-rotation-alignment"] = lay["text-pitch-alignment"] = "viewport"
@@ -164,7 +166,9 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False):
                         or not any(fnmatch.fnmatch(l["id"], g) for g in STREETS_KEEP)):
             lay["visibility"] = "none"
         if pixel and "grid" in fcfg and "text-halo-color" in l.get("paint", {}):  # 8 Bit: Rand hält Raster von Schrift fern
-            l["paint"]["text-halo-width"] = PIXEL_HALO
+            l["paint"]["text-halo-width"] = PIXEL_HALO * 2 // pixel
+        if pixel == 4 and l["type"] == "symbol" and "minzoom" in l:
+            l["minzoom"] = max(0, l["minzoom"] - 2)
     # POI-Symbole: Phosphor im Kreis, Stärke nach Schriftgruppe, Farben aus dem Stil
     p, accent = t["paint"], t.get("marker", {}).get("color", "#888888")
     weight = {"mono": "bold", "pixel": "bold", "serif": "light"}.get(fcfg.get("group"), "regular")
@@ -375,7 +379,7 @@ def build_site(a):
         # Gruppen in streets = [...] eine Nur-Straßen-Variante (Schalter "Straßen") in der ersten Schrift
         site_fonts = [meta["site_font"]] if "site_font" in meta else cfg["fonts"][cat]  # z. B. Phosphor: VT323
         variants = [(f, False, False) for f in site_fonts]
-        variants += [("VT323", True, False)] if cat in cfg.get("pixel", []) else []
+        variants += [("Silkscreen", 4, False)] if cat in cfg.get("pixel", []) else []
         variants += [(site_fonts[0], False, True)] if cat in cfg.get("streets", []) else []
         for font, s.pixel, s.streets_only in variants:
             suffix = "-8bit" if s.pixel else "-streets" if s.streets_only else ""
@@ -420,67 +424,159 @@ def parent(url):
     return fetch(url)
 
 
-def lowres(data, qx, qy):
-    """--pixel: Viertel (qx, qy) der 256er-Elternkachel = die 128×128 echten 8-Bit-Pixel der Kachel. Die Elternkachel
-    ist im Stil eine Stufe gröber gezeichnet, Striche und Schrift sind also halb so groß; dither_tiles() verdoppelt."""
+PIXEL_SS = 3  # --pixel: Vorfahrkachel in 3-facher Auflösung, je 3×3 = ein 8-Bit-Pixel (Schrift rastet ins Pixelraster)
+
+
+def lowres(data, f, qx, qy):
+    """--pixel f: Stück (qx, qy) der Vorfahrkachel (f = 2: Eltern, 4: Großeltern), in PIXEL_SS-facher Auflösung
+    gerendert = die 256/f echten 8-Bit-Pixel der Kachel, je PIXEL_SS² Bildpixel. Die Vorfahrkachel ist im Stil gröber
+    gezeichnet, Striche und Schrift sind also 1/f so groß; dither_tiles() fasst zusammen und vergrößert um f."""
     from PIL import Image
-    im = Image.open(io.BytesIO(data)).convert("RGB").crop((qx * 128, qy * 128, qx * 128 + 128, qy * 128 + 128))
+    s = 256 * PIXEL_SS // f
+    im = Image.open(io.BytesIO(data)).convert("RGBA").crop((qx * s, qy * s, qx * s + s, qy * s + s))
     buf = io.BytesIO()
     im.save(buf, "PNG")
     return buf.getvalue()
 
 
-PIXEL_COLORS = 16   # --pixel: Farben je Stil (eine Palette für alle Kacheln)
+PIXEL_COLORS = 16   # --pixel: Farben der Karte je Stil (eine Palette für alle Kacheln)
+LABEL_COLORS = 8    # --pixel: Farben der Beschriftungsebene (Schrift, Rand, Symbole), kommen zur Palette dazu
+OUTLINE_STEP = 24   # --pixel: Helligkeitssprung (0–255), ab dem ein Flächenpixel zum Umriss wird
 PIXEL_HALO = 2      # --pixel: Randbreite um Schrift (px im 128er-Raster, also 2 Schriftpixel)
 TEXT_MERGE = 24     # --pixel: Textfarben näher als das (RGB-Abstand) werden eine Palettenfarbe
-TEXT_SNAP = 40      # --pixel: Pixel so nah an einer Textfarbe werden ohne Raster abgebildet (Schrift bleibt glatt)
-BAYER_SPREAD = 40   # Stärke des Musters (RGB-Einheiten); höher = mehr Raster, auch auf reinen Flächen
 
 
-def pixel_palette(px, toml_path, n=PIXEL_COLORS):
-    """Palette aus den Farben der Stil-Datei: jede Hex-Farbe gewichtet mit der Zahl der Pixel, die ihr am nächsten
-    liegen. Erst die häufigste Farbe, dann alle Textfarben des Stils, auch ohne Gewicht (dünne, geglättete Schrift hat
-    kaum reine Pixel), fast gleiche zusammengefasst; dann jeweils die mit dem größten Abstand × log(Gewicht).
-    Gibt (Palette, Anzahl Textfarben hinter Index 0) zurück."""
-    import numpy as np
+def style_colors(toml_path):
+    """Alle Hex-Farben der Stil-Datei und die Textfarben darunter (auch in match-Ausdrücken)."""
     src = Path(toml_path).read_text()
-    cand = sorted(set(re.findall(r'"(#[0-9a-fA-F]{6})"', src)))
-    texts = set(re.findall(r'#[0-9a-fA-F]{6}', " ".join(re.findall(r'text-color\s*=(.*)', src))))  # auch in match
+    texts = set(re.findall(r'#[0-9a-fA-F]{6}', " ".join(re.findall(r'text-color\s*=(.*)', src))))
+    return sorted(set(re.findall(r'"(#[0-9a-fA-F]{6})"', src))), texts
+
+
+def pixel_palette(px, cand, force=(), n=PIXEL_COLORS):
+    """Palette aus den Farben cand (Hex) der Stil-Datei: jede gewichtet mit der Zahl der Pixel px, die ihr am nächsten
+    liegen. Erst die häufigste, dann alle Farben aus force, auch ohne Gewicht (dünne Schrift hat kaum reine Pixel),
+    fast gleiche zusammengefasst; dann jeweils die mit dem größten Abstand × log(Gewicht)."""
+    import numpy as np
     cv = np.array([[int(h[i:i + 2], 16) for i in (1, 3, 5)] for h in cand], float)
     u, c = np.unique(px, axis=0, return_counts=True)
     w = np.bincount((((u[:, None].astype(float) - cv[None]) ** 2).sum(-1)).argmin(1), weights=c, minlength=len(cv))
     order = np.argsort(-w)
     pal = [cv[order[0]]]
     for i in order:
-        if cand[i] in texts and min(((cv[i] - q) ** 2).sum() for q in pal) > TEXT_MERGE ** 2:
+        if cand[i] in force and min(((cv[i] - q) ** 2).sum() for q in pal) > TEXT_MERGE ** 2:
             pal.append(cv[i])
-    pal = pal[:n // 2]  # ponytail: mehr als 7 Textfarben hat kein Stil; Rest bleibt für Flächen
-    k = len(pal) - 1
-    ok = w > 0
-    while len(pal) < min(n, ok.sum() + k):
-        d = np.min([((cv - q) ** 2).sum(1) for q in pal], axis=0) ** .5
-        pal.append(cv[np.where(ok, d * np.log1p(w), -1).argmax()])
-    return np.array(pal), k
+    pal = pal[:n]
+    while len(pal) < n:
+        score = np.min([((cv - q) ** 2).sum(1) for q in pal], axis=0) ** .5 * np.log1p(w)
+        if score.max() <= 0:  # keine weitere Farbe kommt in den Pixeln vor
+            break
+        pal.append(cv[score.argmax()])
+    return np.array(pal)
+
+
+def split_labels(style):
+    """--pixel: Stil in Karte ohne Beschriftung und Beschriftung allein (transparenter Grund) teilen. Die Platzierung
+    bleibt gleich, MapLibre richtet Beschriftungen nur nach anderen Beschriftungen aus."""
+    m, lab = json.loads(json.dumps(style)), json.loads(json.dumps(style))
+    for l in m["layers"]:
+        if l["type"] == "symbol":
+            l.setdefault("layout", {})["visibility"] = "none"
+    for l in lab["layers"]:
+        if l["type"] != "symbol":
+            l.setdefault("layout", {})["visibility"] = "none"
+    return m, lab
+
+
+def snap_labels(li, text, n):
+    """Beschriftung ins 8-Bit-Raster: MapLibre setzt sie auf Bruchteile von Pixeln, Striche liegen dann halb in zwei
+    PIXEL_SS-Blöcken und keiner bekommt genug (Querbalken verschwinden). Je Beschriftung (zusammenhängende Pixel der
+    Ebene) die Verschiebung um 0 bis PIXEL_SS-1 Bildpixel wählen, bei der die Schrift die Blöcke am eindeutigsten
+    füllt oder frei lässt. li: Palettenindex je Bildpixel (-1 = leer), text: Schriftmaske."""
+    import numpy as np
+    from scipy import ndimage
+    lab, _ = ndimage.label(ndimage.binary_dilation(li >= 0, iterations=PIXEL_SS))
+    out = np.full_like(li, -1)
+    for i, sl in enumerate(ndimage.find_objects(lab), 1):
+        own = lab[sl] == i
+        part, tpart = np.where(own, li[sl], -1), text[sl] & own
+        best = None
+        for dy in range(PIXEL_SS):
+            for dx in range(PIXEL_SS):
+                tmp = np.zeros(li.shape, bool)
+                tmp[sl] = np.roll(tpart, (dy, dx), (0, 1))  # Rand der Region ist leer (Dilatation), kein Umlauf
+                c = tmp.reshape(n, PIXEL_SS, n, PIXEL_SS).sum((1, 3))
+                score = np.minimum(c, PIXEL_SS ** 2 - c).sum()
+                if best is None or score < best[0]:
+                    best = (score, dy, dx)
+        shifted = np.roll(part, best[1:], (0, 1))
+        out[sl] = np.where(shifted >= 0, shifted, out[sl])
+    return out
 
 
 def dither_tiles(files, toml_path, retina):
-    """--pixel, zweiter Durchgang: eine Palette für alle Kacheln, dann Bayer-4×4-Dithering auf den 128er-Pixeln
-    (Muster deckungsgleich über Kachelgrenzen, 128 ist durch 4 teilbar) und ohne Glättung auf 256 (@2x 512) px."""
+    """--pixel, zweiter Durchgang im Stil von 8-Bit-Kunst. Karte (f) und Beschriftung (f.labels.png, transparent)
+    kommen getrennt in PIXEL_SS-facher Auflösung. Karte: eine Palette für alle Kacheln, je PIXEL_SS² Bildpixel die
+    häufigste Palettenfarbe (Leuchtschein und Glättung werden harte Stufen), verirrte Einzelpixel weg, dunkle Umrisse,
+    Wasser mit Wellenstrichen und Grün mit Punktmuster. Beschriftung: eigene kleine Palette, ins Raster gerückt, je
+    Block Schrift ab 4/9 Deckung, sonst Rand/Symbol ab 4/9; dann in die Kachel eingebacken. Ohne Glättung auf 256
+    (@2x 512) px."""
     import numpy as np
     from PIL import Image
-    sample = np.concatenate([np.asarray(Image.open(f).convert("RGB"))[::2, ::2].reshape(-1, 3) for f in files])
-    pal, k = pixel_palette(sample, toml_path)
-    bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]])
-    shift = np.tile((bayer + .5) / 16 - .5, (32, 32))[..., None] * BAYER_SPREAD
-    flat = [int(v) for v in pal.flatten()] + [0] * (768 - pal.size)
+    t = tomllib.loads(Path(toml_path).read_text())
+    cand, texts = style_colors(toml_path)
+    maps = {f: np.asarray(Image.open(f).convert("RGB")) for f in files}
+    labs = {f: np.asarray(Image.open(f.with_suffix(".labels.png")).convert("RGBA")) for f in files}
+    sample = np.concatenate([m[::2, ::2].reshape(-1, 3) for m in maps.values()])
+    pal = pixel_palette(sample, cand)
+    ls = np.concatenate([l[l[..., 3] > 200][:, :3] for l in labs.values()] + [np.zeros((1, 3), np.uint8)])
+    lpal = pixel_palette(ls, cand, texts, LABEL_COLORS)
+    is_text = np.array([any(((lpal[i] - np.array([int(h[j:j + 2], 16) for j in (1, 3, 5)])) ** 2).sum()
+                            <= TEXT_MERGE ** 2 for h in texts) for i in range(len(lpal))])
+    hexrgb = lambda h: np.array([int(h[i:i + 2], 16) for i in (1, 3, 5)], float)
+    nearest = lambda c, skip=-1: int(np.where(np.arange(len(pal)) == skip, np.inf, ((pal - c) ** 2).sum(1)).argmin())
+    ink = hexrgb(t["paint"]["label_*"]["text-color"])
+    n = next(iter(maps.values())).shape[0] // PIXEL_SS  # 128 oder 64 echte Pixel je Kachel
+    y, x = np.mgrid[:n, :n]
+    textures = []  # (Palettenindex der Fläche, Musterfarbe, Maske)
+    for key, mask in [("water*", (y % 4 == 1) & ((x + 3 * (y // 4)) % 8 < 3)),          # Wellenstriche
+                      ("park", ((x % 4 == 0) & (y % 4 == 0)) | ((x % 4 == 2) & (y % 4 == 2)))]:  # Punkte
+        c = t["paint"].get(key, {}).get("fill-color")
+        i = nearest(hexrgb(c)) if c else 0
+        if i > 0 and i not in [j for j, _, _ in textures]:  # nur eigene Flächenfarbe, nie der Grund (0)
+            textures.append((i, nearest(pal[i] * .65 + ink * .35, skip=i), mask))
+    # Umrisse wie in Sierra-Spielen: Flächenpixel (Grund, Landnutzung, Gebäude …: je > 3 % der Pixel) neben einem
+    # deutlich helleren Pixel werden zur dunkelsten Farbe; Leuchtstufen lösen das nicht aus
+    lum = pal @ [.299, .587, .114]
+    share = np.bincount(((sample[:, None].astype(float) - pal) ** 2).sum(-1).argmin(1), minlength=len(pal)) / len(sample)
+    area, dark = share > .03, int(lum.argmin())
+    flat = [int(v) for v in np.concatenate([pal, lpal]).flatten()]
+    flat += [0] * (768 - len(flat))
+    blocks = lambda m: m.reshape(n, PIXEL_SS, n, PIXEL_SS).transpose(0, 2, 1, 3).reshape(n, n, -1, 1)
+    near = lambda img, p: (((img[..., None, :].astype(float) - p) ** 2).sum(-1)).argmin(-1)
     out = []
     for f in files:
-        a = np.asarray(Image.open(f).convert("RGB"), float)
-        d = ((a[..., None, :] - pal) ** 2).sum(-1)
-        near = d.argmin(-1)
-        idx = (((a + shift)[..., None, :] - pal) ** 2).sum(-1).argmin(-1)
-        text = (near >= 1) & (near <= k) & (d.min(-1) < TEXT_SNAP ** 2)  # Schrift: nächste Farbe, kein Raster
-        im = Image.fromarray(np.where(text, near, idx).astype(np.uint8), "P")
+        idx = (blocks(near(maps[f], pal)) == np.arange(len(pal))).sum(2).argmax(-1)
+        # verirrte Einzelpixel: alle vier Nachbarn gleich und anders als das Pixel -> Nachbarfarbe
+        p = np.pad(idx, 1, mode="edge")
+        n4 = np.stack([p[:-2, 1:-1], p[2:, 1:-1], p[1:-1, :-2], p[1:-1, 2:]])
+        idx = np.where((n4 == n4[0]).all(0) & (n4[0] != idx), n4[0], idx)
+        p = np.pad(idx, 1, mode="edge")
+        n4 = np.stack([p[:-2, 1:-1], p[2:, 1:-1], p[1:-1, :-2], p[1:-1, 2:]])
+        idx = np.where((lum[n4].max(0) - lum[idx] > OUTLINE_STEP) & area[idx], dark, idx)
+        for i, c, mask in textures:
+            idx = np.where((idx == i) & mask, c, idx)
+        # Beschriftung: deckende Pixel auf die Beschriftungspalette, ins Raster rücken, je Block entscheiden
+        l = labs[f]
+        li = np.where(l[..., 3] > 127, near(l[..., :3], lpal), -1)
+        li = snap_labels(li, (li >= 0) & is_text[np.maximum(li, 0)], n)
+        cnt = (blocks(li) == np.arange(len(lpal))).sum(2)
+        tc = np.where(is_text, cnt, 0)
+        need = PIXEL_SS ** 2 * 4 / 9
+        lab = np.where(tc.sum(-1) >= need, tc.argmax(-1), np.where(cnt.sum(-1) >= need, cnt.argmax(-1), -1))
+        idx = np.where(lab >= 0, len(pal) + lab, idx)
+        f.with_suffix(".labels.png").unlink()
+        im = Image.fromarray(idx.astype(np.uint8), "P")
         im.putpalette(flat)
         if retina:
             out.append(f.with_name(f.stem + "@2x.png"))
@@ -514,6 +610,9 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     # ponytail: high zooms only near the marker; Leaflet upscales z(detail_from-1) outside
     d = bbox(a.lat, a.lon, min(a.radius, a.detail_radius))
     style, title, attribution, font = build_style(style_file, font, (a.lat, a.lon), a.pixel, a.streets_only)
+    if a.pixel:  # Beschriftung getrennt rendern, dither_tiles() backt sie ein
+        style, labels = split_labels(style)
+    crops = []   # --pixel: (Kachel, Vorfahr-URL ohne Basis, f, qx, qy) für den Beschriftungsdurchgang
     with tileserver(style, out.name, mb) as base:
         if not keep:  # keep: vorhandene Kacheln behalten (z. B. nur @2x ergänzen)
             shutil.rmtree(out / "tiles", ignore_errors=True)
@@ -537,7 +636,10 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
             if a.pixel:  # 8-Bit: Viertel der Elternkachel; Palette, Muster und @2x erst in dither_tiles()
                 if sfx:
                     return None
-                f.write_bytes(lowres(parent(f"{base}/{z - 1}/{x // 2}/{y // 2}.png"), x % 2, y % 2))
+                n = a.pixel.bit_length() - 1  # Zoomstufen nach oben
+                crop = (f, f"/{z - n}/{x >> n}/{y >> n}@{PIXEL_SS}x.png", a.pixel, x % a.pixel, y % a.pixel)
+                crops.append(crop)
+                f.write_bytes(lowres(parent(base + crop[1]), *crop[2:]))
                 return f
             else:
                 data = fetch(f"{base}/{z}/{x}/{y}{sfx}.{ext}")
@@ -551,6 +653,11 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
             written = [f for f in pool.map(get, jobs) if f]
         count = len(jobs)
     if a.pixel:
+        parent.cache_clear()
+        with tileserver(labels, out.name + "-labels", mb) as base:
+            with ThreadPoolExecutor(WORKERS) as pool:
+                list(pool.map(lambda c: c[0].with_suffix(".labels.png").write_bytes(
+                    lowres(parent(base + c[1]), *c[2:])), crops))
         written = dither_tiles(written, style_file, a.retina)
     optimize(written)  # nach dem Stoppen des Containers
 
@@ -585,8 +692,9 @@ def main():
     p.add_argument("--retina", action="store_true", help="zusätzlich @2x rendern")
     p.add_argument("--format", choices=["png", "webp"], default="png",
                    help="png = Palette über pngquant (Standard, kleinste Dateien), webp = direkt vom tileserver")
-    p.add_argument("--pixel", action="store_true",
-                   help="8-Bit-Look: jede Kachel aus der gröberen Elternkachel, Pixel ohne Glättung verdoppelt; Schrift VT323")
+    p.add_argument("--pixel", type=int, nargs="?", const=4, default=0, choices=[2, 4],
+                   help="8-Bit-Look: jede Kachel aus der 2 (Standard 4) bzw. 1 (2) Stufen gröberen Kachel, Pixel ohne "
+                        "Glättung 4- bzw. 2-fach, flache Farben mit Umrissen; Schrift Silkscreen bzw. VT323")
     p.add_argument("--streets-only", action="store_true",
                    help="nur Straßennetz, Wasser und Ortsnamen (Poster-Look); mit --all: Ausgabe out/<stil>-<schrift>-streets")
     p.add_argument("--colors", type=int, default=32, help="Farben je PNG-Kachel (pngquant), Standard 32")
@@ -603,7 +711,7 @@ def main():
                    help="je Stil ein 512×512-Bild (Zoom 12, ohne Marker) nach docs/previews/ für die README")
     a = p.parse_args()
     if a.pixel and not a.font:
-        a.font = "VT323"  # 8-Bit-Schrift; Alternativen in fonts.toml: Press Start 2P, Silkscreen
+        a.font = "VT323" if a.pixel == 2 else "Silkscreen"  # Alternativen in fonts.toml: Press Start 2P
     if a.reindex:
         for d in (ROOT / "out", ROOT / "site"):
             if d.exists():

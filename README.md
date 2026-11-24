@@ -63,7 +63,7 @@ Außerdem nötig: podman, pngquant und Inkscape (`sudo dnf install pngquant inks
 | `--retina` | zusätzlich @2x-Kacheln für hochauflösende Bildschirme | aus |
 | `--format` | `png` (Palette über pngquant) oder `webp` | `png` |
 | `--colors` | Farben je PNG-Kachel | 32 |
-| `--pixel` | 8-Bit-Look für jeden Stil (siehe [8-Bit-Modus](#8-bit-modus)), Schrift VT323 | aus |
+| `--pixel [4\|2]` | 8-Bit-Look für jeden Stil (siehe [8-Bit-Modus](#8-bit-modus)), Pixel 4-fach (Schrift Silkscreen) oder 2-fach (VT323) | aus |
 | `--streets-only` | nur Straßennetz, Wasser und Ortsnamen (Poster-Look); mit `--all` nach `out/<stil>-<schrift>-streets` | aus |
 | `--area` | Geofabrik-Region, muss den Bereich enthalten (https://download.geofabrik.de) | `detmold-regbez` |
 | `--label` | Text im Marker (Sprechblase bzw. Terminal `~/<label>`) | `hier` |
@@ -207,26 +207,29 @@ Ohne Dithering (`--nofs`), sonst werden die Dateien größer und die Flächen un
 
 ## 8-Bit-Modus
 
-`--pixel` lässt jeden Stil wie eine 8-Bit-Retrografik aussehen: 16 Farben mit Bayer-Rastermuster, Schrift im Pixelraster.
+`--pixel` lässt jeden Stil wie 8-Bit-Pixelkunst aussehen: grobe Pixel, 16 flache Farben mit harten Stufen, dunkle Umrisse, Wasser- und Wiesenmuster, Schrift im Pixelraster.
 
 ```sh
-./make-tiles.py --style styles/dracula.toml --pixel                           # Schrift VT323
-./make-tiles.py --style styles/dracula.toml --pixel --font "Press Start 2P"   # oder "Silkscreen"
+./make-tiles.py --style styles/dracula.toml --pixel                           # 4-fache Pixel, Schrift Silkscreen
+./make-tiles.py --style styles/dracula.toml --pixel 2                         # 2-fache Pixel, Schrift VT323
+./make-tiles.py --style styles/dracula.toml --pixel --font "Press Start 2P"   # andere Pixelschrift
 ```
 
-- **Pixel:** Jede Kachel entsteht aus der Kachel eine Zoomstufe darüber. Deren passendes Viertel (128×128 px) sind die echten 8-Bit-Pixel, die ohne Glättung auf 256 px vergrößert werden, also 2×2-Blöcke (@2x: 4×4). Weil die Karte so in halber Auflösung gezeichnet wird, bleiben Striche und Schrift lesbar.
-- **Farben:** eine Palette mit 16 Farben je Stil, für alle Kacheln gleich. Sie stammt aus den Farben der Stil-Datei. Die Textfarben sind fest dabei, den Rest füllen die Farben, die sich am stärksten unterscheiden. Zwischentöne werden mit einem Bayer-4×4-Muster gerastert, das über Kachelgrenzen hinweg deckungsgleich bleibt.
-- **Schrift:** Die Schriftgrößen werden auf das Pixelraster der Schrift gerundet (`grid` in `fonts.toml`, bei VT323 12,5 px), sodass ein Schriftpixel genau ein 8-Bit-Pixel ist. Straßennamen stehen waagerecht, weil schräge Schrift nie ins Raster passt.
+- **Pixel:** Jede Kachel entsteht aus der Kachel zwei Zoomstufen darüber. Deren passendes Sechzehntel (64×64 px) sind die echten 8-Bit-Pixel, die ohne Glättung auf 256 px vergrößert werden, also 4×4-Blöcke (@2x: 8×8). Mit `--pixel 2` eine Stufe darüber, 128×128 px und 2×2-Blöcke.
+- **Farben:** eine Palette mit 16 Farben je Stil, für alle Kacheln gleich. Sie stammt aus den Farben der Stil-Datei: die häufigste, dann die, die sich am stärksten unterscheiden. Jedes Pixel bekommt flach die nächste Palettenfarbe: Leuchtschein und Kanten werden zu harten Stufen, verirrte Einzelpixel verschwinden.
+- **Beschriftung:** wird getrennt von der Karte gerendert (eigene kleine Palette mit den Textfarben), in dreifacher Auflösung, je Beschriftung so verschoben, dass die Striche genau ins 8-Bit-Raster fallen, und dann in die Kachel eingebacken. So bleibt Schrift scharf, auch wenn sie dieselbe Farbe wie eine Straße hat.
+- **Umrisse und Muster:** Flächen neben deutlich helleren Pixeln bekommen einen dunklen Umriss (wie in Sierra-Spielen), außer direkt an der Schrift. Wasser hat Wellenstriche, Parks ein Punktmuster, beide deckungsgleich über Kachelgrenzen.
+- **Schrift:** Ein Schriftpixel ist genau ein 8-Bit-Pixel (`grid` in `fonts.toml`, Silkscreen 8 px, VT323 12,5 px). Bei 4-fachen Pixeln ist jede Beschriftung genau einen Rasterschritt groß und erscheint zwei Zoomstufen früher, weil die Karte zwei Stufen gröber gezeichnet wird. Straßennamen stehen waagerecht, weil schräge Schrift nie ins Raster passt.
 - **Anzeige:** Die Kartenseite zeigt hochgezoomte Kacheln ohne Glättung (`image-rendering: pixelated`).
 - **Voraussetzung:** numpy und Pillow (`requirements.txt`).
 
 | Schrift | Charakter |
 |---|---|
-| **VT323** (Standard) | Terminalschrift (DEC VT320), schmal, gut lesbar |
+| **Silkscreen** (Standard bei 4-fachen Pixeln) | nur Versalien, sehr klar |
+| **VT323** (Standard bei `--pixel 2`) | Terminalschrift (DEC VT320), schmal, gut lesbar |
 | Press Start 2P | Arcade-Klassiker, breit und fett, am deutlichsten „8 Bit“ |
-| Silkscreen | nur Versalien, sehr klar |
 
-Da die Karte eine Stufe gröber gezeichnet wird, zeigt sie etwas weniger kleine Straßennamen und POIs; die Symbole sind doppelt so groß.
+Da die Karte gröber gezeichnet wird, zeigt sie weniger Beschriftung und Details; die Symbole sind entsprechend größer.
 
 ## Ablauf
 

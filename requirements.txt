@@ -1,7 +1,8 @@
 # Python-Pakete (pip install -r requirements.txt)
 fonttools>=4.50          # feste Schnitte aus variablen Schriften erzeugen
-numpy>=1.26             # --pixel: Palette und Bayer-Dithering
+numpy>=1.26             # --pixel: Palette, Umrisse, Muster
 pillow>=10               # --pixel: Kacheln zuschneiden, indizierte PNGs schreiben
+scipy>=1.11              # --pixel: Beschriftungen erkennen und ins Pixelraster rücken
 
 # Außerdem nötig, nicht über pip installierbar:
 #   podman                        Container für Planetiler und tileserver-gl
