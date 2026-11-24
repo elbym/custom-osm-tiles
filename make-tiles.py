@@ -783,36 +783,64 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
 
 
 def main():
-    p = argparse.ArgumentParser()
-    p.add_argument("--lat", type=float, default=52.0211, help="Standard: Bielefeld")
-    p.add_argument("--lon", type=float, default=8.5347)
-    p.add_argument("--place", help='Ortsname oder Adresse statt --lat/--lon, z. B. "Sparrenburg, Bielefeld" (Nominatim)')
-    p.add_argument("--radius", type=float, default=5, help="km um den Marker")
-    p.add_argument("--zoom", default="10-18", help="z. B. 10-14")
-    p.add_argument("--detail-from", type=int, default=17, help="ab dieser Stufe nur --detail-radius")
-    p.add_argument("--detail-radius", type=float, default=1, help="km, für die Detailstufen")
-    p.add_argument("--viewport", default="2560x1440", help="größte Kartengröße in px")
-    p.add_argument("--area", default="detmold-regbez", help="Geofabrik-Name")
-    p.add_argument("--retina", action="store_true", help="zusätzlich @2x rendern")
-    p.add_argument("--format", choices=["png", "webp"], default="png",
-                   help="png = Palette über pngquant (Standard, kleinste Dateien), webp = direkt vom tileserver")
-    p.add_argument("--pixel", type=int, nargs="?", const=4, default=0, choices=[2, 4],
-                   help="8-Bit-Look: jede Kachel aus der 2 (Standard 4) bzw. 1 (2) Stufen gröberen Kachel, Pixel ohne "
-                        "Glättung 4- bzw. 2-fach, flache Farben mit Umrissen; Schrift Silkscreen bzw. VT323")
-    p.add_argument("--streets-only", action="store_true",
-                   help="nur Straßennetz, Wasser und Ortsnamen (Poster-Look); mit --all: Ausgabe out/<stil>-<schrift>-streets")
-    p.add_argument("--colors", type=int, default=32, help="Farben je PNG-Kachel (pngquant), Standard 32")
-    p.add_argument("--label", help="Text im Terminal-Marker der Nerd-Stile (~/<label>), Standard: hier")
-    p.add_argument("--style", help="Standard: styles/clear.toml; mit --all: nur dieser Stil")
-    p.add_argument("--font", help="Schrift statt der des Stils; mit --all: nur diese Schrift")
-    p.add_argument("--all", action="store_true", help="jeder Stil in seiner preview_font nach out/<stil>-<schrift>")
-    p.add_argument("--all-fonts", action="store_true", help="mit --all: jede Schrift der Gruppen des Stils statt nur preview_font")
-    p.add_argument("--missing", action="store_true", help="mit --all: vorhandene Varianten überspringen")
-    p.add_argument("--out", help="Standard: out/<stilname>")
-    p.add_argument("--reindex", action="store_true", help="nur index.html aller Varianten in out/ neu schreiben")
-    p.add_argument("--site", action="store_true", help="öffentliche Vorschau laut site.toml nach site/ (GitHub Pages)")
-    p.add_argument("--readme-previews", action="store_true",
-                   help="je Stil ein 512×512-Bild (Zoom 12, ohne Marker) nach docs/previews/ für die README")
+    p = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="Rendert Kartenkacheln für eine Website: ein kleiner Kartenausschnitt um einen Ort, als fertige\n"
+                    "Bilddateien plus index.html mit Leaflet. Die Website lädt die Karte dann ohne fremde Server.\n"
+                    "Ohne Angaben: Stil Clear, Bielefeld-Innenstadt, 5 km Umkreis -> out/clear/",
+        epilog="Beispiele:\n"
+               '  ./make-tiles.py --place "Sparrenburg, Bielefeld" --retina\n'
+               "  ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --out out/kunde-xy\n"
+               "  ./make-tiles.py --all --zoom 16-16 --radius 1.5    # alle Stile zum Vergleichen, Vorschau: out/index.html\n"
+               "\nDas Ergebnis (Ordner mit tiles/, leaflet/, index.html) einfach auf den Webserver kopieren.")
+    p._optionals.title = "Allgemein"
+    p._actions[0].help = "diese Hilfe anzeigen"
+    g = p.add_argument_group("Ort")
+    g.add_argument("--place", metavar="ORT", help='Ort oder Adresse, z. B. "Sparrenburg, Bielefeld"; wird über '
+                   "OpenStreetMap (Nominatim) in Koordinaten umgerechnet. Ersetzt --lat/--lon")
+    g.add_argument("--lat", type=float, default=52.0211, help="Breitengrad des Markers (Standard: Bielefeld)")
+    g.add_argument("--lon", type=float, default=8.5347, help="Längengrad des Markers")
+    g.add_argument("--area", default="detmold-regbez", metavar="GEBIET",
+                   help="OSM-Daten, die heruntergeladen werden: Gebietsname bei download.geofabrik.de, "
+                        "muss den Ort enthalten (Standard: detmold-regbez)")
+    g = p.add_argument_group("Ausschnitt")
+    g.add_argument("--radius", type=float, default=5, metavar="KM",
+                   help="wie weit man die Karte verschieben kann, in km um den Marker (Standard: 5)")
+    g.add_argument("--zoom", default="10-18", metavar="VON-BIS",
+                   help="Zoomstufen, 10 = Region, 14 = Stadtteil, 18 = Hausnummern (Standard: 10-18)")
+    g.add_argument("--detail-from", type=int, default=17, metavar="STUFE",
+                   help="ab dieser Zoomstufe nur noch die nähere Umgebung rendern, spart Dateien (Standard: 17)")
+    g.add_argument("--detail-radius", type=float, default=1, metavar="KM",
+                   help="Größe dieser näheren Umgebung in km (Standard: 1)")
+    g.add_argument("--viewport", default="2560x1440", metavar="BxH",
+                   help="größte erwartete Kartengröße auf dem Bildschirm in Pixeln (Standard: 2560x1440)")
+    g = p.add_argument_group("Aussehen")
+    g.add_argument("--style", metavar="DATEI", help="Kartenstil, eine Datei aus styles/ (Standard: styles/clear.toml)")
+    g.add_argument("--font", metavar="SCHRIFT", help='Schrift der Beschriftung, z. B. "Fira Sans" (Liste: '
+                   "style/fonts.toml; Standard: die Schrift des Stils)")
+    g.add_argument("--label", metavar="TEXT", help='Text am Marker (Standard: "hier")')
+    g.add_argument("--retina", action="store_true", help="zusätzlich Kacheln in doppelter Auflösung für scharfe "
+                   "Darstellung auf Handys und hochauflösenden Bildschirmen (etwa 4× so viel Speicher)")
+    g.add_argument("--pixel", type=int, nargs="?", const=4, default=0, choices=[2, 4],
+                   help="Pixel-Look wie in alten Computerspielen; --pixel allein = grobe Pixel, --pixel 2 = feinere")
+    g.add_argument("--streets-only", action="store_true",
+                   help="nur Straßen, Wasser und Ortsnamen, ohne Gebäude und Symbole (Poster-Look)")
+    g = p.add_argument_group("Dateien")
+    g.add_argument("--out", metavar="ORDNER", help="Zielordner (Standard: out/<stilname>)")
+    g.add_argument("--format", choices=["png", "webp"], default="png",
+                   help="Bildformat der Kacheln; png ist meist am kleinsten (Standard: png)")
+    g.add_argument("--colors", type=int, default=32, metavar="ANZAHL",
+                   help="Farben je PNG-Kachel; weniger = kleinere Dateien (Standard: 32)")
+    g = p.add_argument_group("Stile vergleichen")
+    g.add_argument("--all", action="store_true",
+                   help="alle Stile rendern, je in einen eigenen Ordner out/<stil>-<schrift>; Vergleich: out/index.html")
+    g.add_argument("--all-fonts", action="store_true", help="mit --all: jeden Stil in allen passenden Schriften (dauert lange)")
+    g.add_argument("--missing", action="store_true", help="mit --all oder --site: schon gerenderte überspringen")
+    g = p.add_argument_group("Wartung")
+    g.add_argument("--reindex", action="store_true",
+                   help="nur die HTML-Seiten in out/ und site/ neu schreiben, ohne neu zu rendern (nach Stil-Änderungen)")
+    g.add_argument("--site", action="store_true", help="öffentliche Vorschau-Website nach site/ bauen (Einstellungen: site.toml)")
+    g.add_argument("--readme-previews", action="store_true", help="Vorschaubilder der Stile für die README erzeugen")
     a = p.parse_args()
     if a.place:
         a.lat, a.lon = geocode(a.place)
