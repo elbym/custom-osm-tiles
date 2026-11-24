@@ -149,7 +149,7 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 
 Die Stile sind eigene Umsetzungen: Von den Vorbildern sind nur Farbwerte übernommen, keine Stildateien. Jeder Nachbau nennt sein Vorbild in `attribution`; bei Wiki verlangt die Lizenz das.
 
-Die Standard-Stile haben einen **Sprechblasen-Marker** (angelehnt an das Heroicons-Icon „chat-bubble-bottom-center“): das Label in einer abgerundeten Blase, deren Spitze unten mittig auf die Position zeigt. Bei hellen Stilen weiß, bei dunklen im Grundton, Rahmen jeweils in der Akzentfarbe des Stils (Abschnitt `[marker]`, `type = "bubble"`).
+Die Standard-Stile haben einen **Blasen-Marker**: das Label in einem abgerundeten Kasten, darunter ein Stiel mit einem Punkt genau auf der Position, damit das Ziel frei bleibt. Bei hellen Stilen weiß, bei dunklen im Grundton, Rahmen, Stiel und Punkt in der Akzentfarbe des Stils (Abschnitt `[marker]`, `type = "bubble"`).
 
 Die Nerd-Stile haben statt des Leaflet-Markers einen **Terminal-Marker**: ein Kästchen `~/<label>` mit Block-Cursor (nicht blinkend) in den Akzentfarben, darunter Stiel und Punkt auf der Position (Abschnitt `[marker]` in der Stil-Datei: `type = "terminal"`, `color`, `color2`, `bg`, `fg`). Der Text nutzt die Monoschrift des Betrachters (`ui-monospace`).
 

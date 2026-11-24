@@ -422,8 +422,7 @@ function markerIcon(m, px) {
   if (m?.type === 'bubble') {
     el.className = 'bubble';
     for (const [k, v] of Object.entries({ c1: m.color, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
-    el.innerHTML = '<span class="box"></span><svg width="16" height="10" viewBox="0 0 16 10">' +
-      '<path d="M0 0 L8 9 L16 0 Z" fill="var(--bg)"/><path d="M0 0 L8 9 L16 0" fill="none" stroke="var(--c1)" stroke-width="2" stroke-linejoin="round"/></svg>';
+    el.innerHTML = '<span class="box"></span><span class="stem"></span><span class="dot"></span>';
     el.querySelector('.box').textContent = m.label;  // Text, kein HTML
   } else if (m?.type === 'terminal') {
     el.className = px ? 'term px' : 'term';
@@ -431,10 +430,10 @@ function markerIcon(m, px) {
     el.innerHTML = '<span class="box"><span class="p">~/</span><span class="t"></span><span class="cur"></span></span><span class="stem"></span><span class="dot"></span>';
     el.querySelector('.t').textContent = m.label;  // Text, kein HTML
   } else return new L.Icon.Default();
-  // Größe messen, damit die Spitze (unten Mitte) genau auf der Position liegt
+  // Größe messen, damit der Punkt (unten Mitte) genau auf der Position liegt
   document.body.appendChild(el); const w = el.offsetWidth, h = el.offsetHeight; el.remove();
   return L.divIcon({ className: '', html: el, iconSize: [w, h],
-    iconAnchor: [Math.round(w / 2), h - (m.type === 'terminal' ? px || 4 : 1)] });
+    iconAnchor: [Math.round(w / 2), h - (m.type === 'terminal' && px || 4)] });
 }
 </script>
 </body>

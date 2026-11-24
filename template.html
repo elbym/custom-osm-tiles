@@ -7,10 +7,12 @@
 <link rel="stylesheet" href="leaflet/leaflet.css">
 <style>
 html, body { margin: 0; } #map { height: 100dvh; }
-/* Sprechblasen-Marker (Standard-Stile, angelehnt an Heroicons "chat-bubble-bottom-center"): Spitze unten mittig auf der Position */
+/* Blasen-Marker (Standard-Stile): Label im abgerundeten Kasten, Stiel und Punkt auf der Position (wie der Terminal-Marker,
+   damit das Ziel frei bleibt) */
 .bubble { display: flex; flex-direction: column; align-items: center; font: 600 14px/1.2 system-ui, sans-serif; }
 .bubble .box { background: var(--bg); color: var(--fg); border: 2px solid var(--c1); border-radius: 8px; padding: 6px 10px; white-space: nowrap; box-shadow: 0 2px 6px rgb(0 0 0 / .3); }
-.bubble svg { margin-top: -2px; overflow: visible; }
+.bubble .stem { width: 2px; height: 14px; background: var(--c1); }
+.bubble .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); box-shadow: 0 0 0 3px var(--bg); }
 /* Terminal-Marker (Nerd-Stile): Kästchen mit Prompt und (statischem) Block-Cursor, Stiel und Punkt auf der Position */
 .term { display: flex; flex-direction: column; align-items: center; font: 600 13px/1 ui-monospace, "JetBrains Mono", "Fira Code", monospace; }
 .term .box { background: var(--bg); color: var(--fg); border: 1.5px solid var(--c1); border-radius: 4px; padding: 5px 8px; white-space: nowrap; box-shadow: 0 2px 6px rgb(0 0 0 / .45); }
@@ -66,17 +68,16 @@ function snapMarker(mk, px, native) {
   el.style.translate = `${-m(p.x - a[0])}px ${-m(p.y - a[1])}px`;
 }
 
-// Marker laut Stil: "bubble" (Standard-Stile), "terminal" (Nerd-Stile) oder der Leaflet-Standard
+// Marker laut Stil: "bubble" (Standard-Stile), "terminal" (Nerd-Stile) oder der Leaflet-Standard; beide mit Stiel und Punkt
 function markerIcon(m, px) {
   if (m?.type === 'bubble') {
     const el = document.createElement('div');
     el.className = 'bubble';
     for (const [k, v] of Object.entries({ c1: m.color, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
-    el.innerHTML = '<span class="box"></span><svg width="16" height="10" viewBox="0 0 16 10">' +
-      '<path d="M0 0 L8 9 L16 0 Z" fill="var(--bg)"/><path d="M0 0 L8 9 L16 0" fill="none" stroke="var(--c1)" stroke-width="2" stroke-linejoin="round"/></svg>';
+    el.innerHTML = '<span class="box"></span><span class="stem"></span><span class="dot"></span>';
     el.querySelector('.box').textContent = m.label;  // Text, kein HTML
     document.body.appendChild(el); const w = el.offsetWidth, h = el.offsetHeight; el.remove();
-    return L.divIcon({ className: '', html: el, iconSize: [w, h], iconAnchor: [w / 2, h - 1] });
+    return L.divIcon({ className: '', html: el, iconSize: [w, h], iconAnchor: [Math.round(w / 2), h - 4] });
   }
   if (m?.type !== 'terminal') return new L.Icon.Default();
   const el = document.createElement('div');
