@@ -46,7 +46,7 @@
 .term.px { font: calc(var(--u) * 8)/calc(var(--u) * 6) Silkscreen, monospace; -webkit-font-smoothing: none; }
 .term.px .box { border: var(--u) solid var(--c1); border-radius: 0; padding: var(--u) calc(var(--u) * 2); box-shadow: var(--u) var(--u) 0 rgb(0 0 0 / .5); }
 .term.px .p svg { display: inline-block; width: calc(var(--u) * 12); height: calc(var(--u) * 5); vertical-align: baseline; }
-.term.px .cur { width: calc(var(--u) * 4); height: calc(var(--u) * 5); margin-left: var(--u); vertical-align: top; }
+.term.px .cur { width: calc(var(--u) * 3); height: calc(var(--u) * 7); margin-left: var(--u); vertical-align: calc(var(--u) * -1); }
 .term.px .stem { width: var(--u); height: calc(var(--u) * 3); }
 .term.px .dot { width: calc(var(--u) * 2); height: calc(var(--u) * 2); border-radius: 0; box-shadow: 0 0 0 var(--u) var(--bg); }
 
