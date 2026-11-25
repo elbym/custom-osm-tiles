@@ -128,10 +128,12 @@ fg = "#f3ecff"
 # seltener als am Tag. Rest wie in anime.toml.
 [figures]
 names = ["kitsune", "neko", "tanuki", "onigiri", "geist", "kappa", "karakasa", "daruma", "mondhase", "drache", "shiba",
-         "panda", "koi", "taiyaki", "dango", "sushi"]
+         "panda", "koi", "taiyaki", "dango", "sushi",
+         "umibozu", "amabie", "kawauso", "ruderboot"]
 poses = ["schlaeft"]
 density = 0.15
 density_rich = 0.35
+areas = ["water"]   # Wasser zählt als Platz; dort stehen nur die Wasserfiguren (places mit "water")
 
 [figures.places]
 drache = ["castle", "viewpoint"]
@@ -148,5 +150,9 @@ panda = ["zoo", "aviary"]
 mondhase = ["meadow", "playground"]
 kitsune = ["wood", "forest"]
 tanuki = ["wood", "forest", "scrub"]
-kappa = ["swimming_pool", "basin", "fountain", "wetland"]
-koi = ["basin", "fountain", "garden"]
+kappa = ["water"]
+koi = ["water"]
+umibozu = ["water"]
+amabie = ["water"]
+kawauso = ["water"]
+ruderboot = ["water"]

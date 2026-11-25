@@ -472,6 +472,52 @@ A.update({
     '<ellipse cx="20" cy="47" rx="2.6" ry="1.4" fill="#ff9fb2" stroke="none"/><ellipse cx="44" cy="47" rx="2.6" ry="1.4" fill="#ff9fb2" stroke="none"/>'),
 })
 
+# Wasserfiguren (Nutzerwunsch 2026-11-25): stehen nur im Wasser (places = ["water"] im Stil), Wellen vorn im Bild
+WAVES = lambda y: (f'<path d="M6 {y} Q12 {y-5} 18 {y} Q25 {y-5} 32 {y} Q39 {y-5} 46 {y} Q52 {y-5} 58 {y} L56 {y+7} L8 {y+7} Z" fill="#6ec3e8"/>'
+                   f'<path d="M10 {y-1} Q13 {y-4} 16 {y-2} M38 {y-1} Q41 {y-4} 44 {y-2}" fill="none" stroke="#fff" stroke-width="1.4"/>')
+WAVELINE = lambda y: f'<path d="M8 {y} Q14 {y-4} 20 {y} Q26 {y-4} 32 {y} Q38 {y-4} 44 {y} Q50 {y-4} 56 {y}" fill="none" stroke="#3d9ad6" stroke-width="1.6"/>'
+A.update({
+ "umibozu": dict(eyes=[(25, 25), (39, 25)], line="#ffffff", body=
+    '<path d="M11 54 C10 30 17 8 32 8 C47 8 54 30 53 54 Z" fill="#3d4a66"/>'
+    '<ellipse cx="23" cy="17" rx="5" ry="2.6" fill="#6a7a9c" stroke="none" transform="rotate(-35 23 17)"/>'
+    '<path d="M27 35 Q32 38.5 37 35" fill="none" stroke="#cfd8ea" stroke-width="1.5"/>' + WAVES(50)),
+ "amabie": dict(eyes=[(27.5, 21), (36.5, 21)], body=
+    '<path d="M14 22 C12 8 22 4 32 4 C42 4 52 8 50 22 C54 34 52 44 49 50 L40 42 L24 42 L15 50 C12 44 10 34 14 22 Z" fill="#7fd6c8"/>'
+    '<path d="M22 45 L17 55 L26 53 Z M29 46 L28 56 L36 56 L35 46 Z M42 45 L47 55 L38 53 Z" fill="#f0789a"/>'
+    '<path d="M23 32 C25 30 39 30 41 32 L43 47 L21 47 Z" fill="#ff9fb2"/>'
+    '<path d="M25 37 q2 2 3.5 0 q2 2 3.5 0 q2 2 3.5 0 q2 2 3.5 0 M23.5 42 q2 2 3.5 0 q2 2 3.5 0 q2 2 3.5 0 q2 2 3.5 0 q2 2 3.5 0" '
+    'fill="none" stroke="#e0567c" stroke-width="0.9"/>'
+    '<ellipse cx="32" cy="22" rx="11" ry="10" fill="#fff4ea"/>'
+    '<path d="M20 19 C21 9 43 9 44 19 C40 14 36 16 32 12.5 C28 16 24 14 20 19 Z" fill="#7fd6c8"/>'
+    '<path d="M28 27.5 L32 25.3 L36 27.5 L32 31.5 Z" fill="#ffb347" stroke-width="1"/><path d="M28 27.5 L36 27.5" fill="none" stroke-width="0.8"/>'
+    '<ellipse cx="24" cy="26" rx="2.2" ry="1.2" fill="#ff9fb2" stroke="none"/><ellipse cx="40" cy="26" rx="2.2" ry="1.2" fill="#ff9fb2" stroke="none"/>'
+    + WAVELINE(58)),
+ "kawauso": dict(eyes=[(25, 23), (39, 23)], body=
+    '<path d="M19 56 C16 42 22 34 32 34 C42 34 48 42 45 56 Z" fill="#8a5a3a"/>'
+    '<path d="M26 56 C26 46 28 40 32 40 C36 40 38 46 38 56 Z" fill="#f3e2c8"/>'
+    '<path d="M22 45 C26 41 36 41 40 45 L45 41.5 L44 48.5 L40 46 C36 49.5 26 49.5 22 45 Z" fill="#ff9a5a"/>'
+    '<circle cx="25.5" cy="44.3" r="0.9" fill="#2b2a3a" stroke="none"/>'
+    '<ellipse cx="22" cy="46" rx="3" ry="2.4" fill="#8a5a3a"/><ellipse cx="41" cy="46.5" rx="3" ry="2.4" fill="#8a5a3a"/>'
+    '<circle cx="15" cy="20" r="2.6" fill="#8a5a3a"/><circle cx="49" cy="20" r="2.6" fill="#8a5a3a"/>'
+    '<ellipse cx="32" cy="24" rx="18" ry="11.5" fill="#8a5a3a"/>'
+    '<path d="M15 25 C19 38 45 38 49 25 C45 29 40 28 32 28 C24 28 19 29 15 25 Z" fill="#f3e2c8" stroke="none"/>'
+    '<ellipse cx="32" cy="27.5" rx="2.6" ry="1.7" fill="#2b2a3a" stroke="none"/>'
+    '<path d="M32 29 Q30.5 31.5 29 30.5 M32 29 Q33.5 31.5 35 30.5" fill="none" stroke-width="1.1"/>'
+    '<path d="M23 30 L13 28.5 M23 32 L14 33 M41 30 L51 28.5 M41 32 L50 33" fill="none" stroke-width="0.8"/>' + WAVES(51)),
+ "ruderboot": dict(eyes=[(27.5, 22), (36.5, 22)], body=
+    '<path d="M24 40 L5 53 M40 40 L59 53" fill="none" stroke="#8a5a3a" stroke-width="2.2"/>'
+    '<ellipse cx="6" cy="53" rx="3.5" ry="1.8" fill="#c9844a" transform="rotate(-34 6 53)"/>'
+    '<ellipse cx="58" cy="53" rx="3.5" ry="1.8" fill="#c9844a" transform="rotate(34 58 53)"/>'
+    '<path d="M25 33 L39 33 L41 45 L23 45 Z" fill="#5aa0e6"/>'
+    '<circle cx="24" cy="40" r="2.4" fill="' + SKIN + '"/><circle cx="40" cy="40" r="2.4" fill="' + SKIN + '"/>'
+    '<ellipse cx="32" cy="22" rx="11" ry="10" fill="' + SKIN + '"/>'
+    '<path d="M21 21 C20 11 26 9 32 9 C38 9 44 11 43 21 C40 15 35 17 32 14 C29 17 24 15 21 21 Z" fill="#6b4a32"/>'
+    '<path d="M30 27.5 Q32 29.5 34 27.5" fill="none" stroke-width="1.2"/>'
+    '<ellipse cx="24.5" cy="26" rx="2.2" ry="1.2" fill="' + BLUSH + '" stroke="none"/><ellipse cx="39.5" cy="26" rx="2.2" ry="1.2" fill="' + BLUSH + '" stroke="none"/>'
+    '<path d="M8 44 L56 44 L51 55 L13 55 Z" fill="#c9844a"/><path d="M10.5 49 L53.5 49" fill="none" stroke="#9a5f30" stroke-width="1.2"/>'
+    + WAVELINE(59)),
+})
+
 DESC.update({
  "maid": "Café-Maid mit Tablett (Genre-Archetyp)", "kendo": "Kendō-Kämpfer mit Schutzhelm (Genre-Archetyp)",
  "yankee": "Delinquent mit Tolle und langem Mantel (Genre-Archetyp)", "schulsprecherin": "Schulsprecherin mit Brille und Klemmbrett (Genre-Archetyp)",
@@ -485,6 +531,8 @@ DESC.update({
  "karakasa": "Schirmgeist (Yōkai, Volksmotiv)", "daruma": "Daruma (Volksmotiv)", "mondhase": "Mondhase mit Mochi (Volksmotiv)",
  "drache": "Östlicher Drache (Volksmotiv)", "shiba": "Shiba-Hund", "panda": "Panda", "koi": "Koi", "taiyaki": "Taiyaki (Chibi-Food)",
  "dango": "Dango (Chibi-Food)", "sushi": "Nigiri-Sushi (Chibi-Food)",
+ "umibozu": "Umibōzu, Meermönch (Yōkai, Volksmotiv)", "amabie": "Amabie, Glücksbringer aus dem Meer (Yōkai, Volksmotiv)",
+ "kawauso": "Kawauso, Fischotter mit Fisch (Yōkai, Volksmotiv)", "ruderboot": "Ruderboot am Parkteich (Genre-Szene)",
 })
 
 import shutil

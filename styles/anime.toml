@@ -139,9 +139,11 @@ names = ["schulmaedchen", "ninja", "samurai", "miko", "zauberin", "held", "idol"
          "schulsprecherin", "lehrer", "baseball", "ramenkoch", "mangaka", "butler", "onmyoji", "moench", "nekomimi",
          "schwertkaempfer", "magier", "ritterin", "daemonenkoenig", "engel", "vampir", "tengu", "oni",
          "kitsune", "neko", "tanuki", "onigiri", "geist", "kappa", "karakasa", "daruma", "mondhase", "drache", "shiba",
-         "panda", "koi", "taiyaki", "dango", "sushi"]
+         "panda", "koi", "taiyaki", "dango", "sushi",
+         "umibozu", "amabie", "kawauso", "ruderboot"]
 density = 0.45
 density_rich = 0.85
+areas = ["water"]   # Wasser zählt als Platz; dort stehen nur die Wasserfiguren (places mit "water")
 
 # Figuren passend zum Ort: OpenMapTiles-Klassen/Unterklassen aus poi, landuse und landcover (z14). Steht so ein POI in
 # der Zelle, kommt eine passende Figur daneben; auf solchen Flächen ist sie zu 2/3 passend (Kitsune im Wald)
@@ -188,5 +190,9 @@ kitsune = ["wood", "forest"]
 tanuki = ["wood", "forest", "scrub"]
 tengu = ["wood", "forest", "viewpoint"]
 oni = ["quarry", "ruins"]
-kappa = ["swimming_pool", "basin", "fountain", "wetland"]
-koi = ["basin", "fountain", "garden"]
+kappa = ["water"]
+koi = ["water"]
+umibozu = ["water"]
+amabie = ["water"]
+kawauso = ["water"]
+ruderboot = ["water"]

@@ -1,0 +1,4 @@
+<!-- Umibōzu, Meermönch (Yōkai, Volksmotiv), Pose sitzt; eigene Zeichnung, 64×64. Kontur/Sticker setzt poi_sprite() -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<path d="M11 54 C10 30 17 8 32 8 C47 8 54 30 53 54 Z" fill="#3d4a66"/><ellipse cx="23" cy="17" rx="5" ry="2.6" fill="#6a7a9c" stroke="none" transform="rotate(-35 23 17)"/><path d="M27 35 Q32 38.5 37 35" fill="none" stroke="#cfd8ea" stroke-width="1.5"/><path d="M6 50 Q12 45 18 50 Q25 45 32 50 Q39 45 46 50 Q52 45 58 50 L56 57 L8 57 Z" fill="#6ec3e8"/><path d="M10 49 Q13 46 16 48 M38 49 Q41 46 44 48" fill="none" stroke="#fff" stroke-width="1.4"/><circle cx="25" cy="25" r="2.3" fill="#fff" stroke="none"/><circle cx="25" cy="25" r="1.2" fill="#2b2a3a" stroke="none"/><circle cx="39" cy="25" r="2.3" fill="#fff" stroke="none"/><circle cx="39" cy="25" r="1.2" fill="#2b2a3a" stroke="none"/>
+</svg>
