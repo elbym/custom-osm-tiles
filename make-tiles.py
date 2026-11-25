@@ -215,6 +215,8 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False, f
         water_lines(s, **t["water_lines"])
     for lid, spec in t.get("outlines", {}).items():
         outline(s, lid, **spec)
+    for spec in t.get("layers", []):
+        add_layer(s, dict(spec))
     if fspec and figs_at:
         figures(s, figs_at[1], figs_at[0], fspec["names"], fspec.get("places"), fspec.get("density", 0.45),
                 fspec.get("density_rich", 0.85))
@@ -362,6 +364,25 @@ def outline(s, lid, color, width=1, minzoom=0):
     if "fill-translate" in f.get("paint", {}):
         l["paint"]["line-translate"] = f["paint"]["fill-translate"]
     s["layers"].insert(i + 1, l)
+
+
+def add_layer(s, spec):
+    """[[layers]] im Stil: zusätzliche Ebene. like = Vorlage (kopiert samt Filter, Paint, Layout; ein eigener filter wird
+    mit dem der Vorlage verknüpft); mit source-layer statt dessen nur die Quelle, filter dann allein. Eingefügt hinter
+    after (Standard: like). Die Globs aus [paint]/[layout] gelten hier nicht, die Ebene bringt ihre Werte selbst mit."""
+    ids = [l["id"] for l in s["layers"]]
+    base = s["layers"][ids.index(spec.pop("like", spec.get("after")))]
+    after = spec.pop("after", base["id"])
+    if "source-layer" in spec:
+        l = {"type": base["type"], "source": base["source"]}
+    else:
+        l = json.loads(json.dumps(base))
+        if "filter" in spec and "filter" in l:
+            spec["filter"] = ["all", l["filter"], spec["filter"]]
+    for kind in ("paint", "layout"):
+        l[kind] = {**l.get(kind, {}), **spec.pop(kind, {})}
+    l.update(spec)
+    s["layers"].insert(ids.index(after) + 1, l)
 
 
 def water_lines(s, color, count=3, gap=2, width=0.6, minzoom=13):

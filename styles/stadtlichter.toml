@@ -1,0 +1,254 @@
+# "Stadtlichter": eine Stadt bei Nacht von oben (Nutzerwunsch 2026-11-24, nach einem Nachtfoto einer Großstadt).
+# Nicht "Night City" genannt: so heißt die Stadt aus Cyberpunk 2077 (Marke).
+#   - fast schwarzer, leicht violetter Grund; Flächen kaum heller, Grün und Wasser nur als dunkle Töne
+#   - Straßen leuchten wie Natriumdampflampen und Lichtspuren: heller Kern, breiter weichgezeichneter Schein
+#     (Ränder als Glow); Hauptstraßen und Autobahn fast weißglühend, Nebenstraßen gedämpft orange
+#   - Gebäude dunkel mit Fensterlichtern (Muster stadtlichter: meist warm, dazwischen kaltweiß, selten blau/violett)
+#   - Sportplätze im Flutlicht grün
+title = "Stadtlichter"
+category = "standard"
+mode = "dark"
+family = "Stadtlichter"
+order = 60
+font = "Fira Sans"
+preview_font = "Fira Sans"
+site_font = "Fira Sans"
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#07060d"
+[paint."landuse-*"]
+fill-color = "#0a0912"
+fill-opacity = 1
+# Wohn-, Gewerbe- und Industrieflächen: gedämpfte Lichtpunkte, damit die Übersicht (z12–14, noch ohne Nebenstraßen)
+# wie ein Lichterteppich wirkt
+[paint."landuse-residential"]
+fill-pattern = "streulicht"
+[paint."landuse-commercial"]
+fill-pattern = "streulicht_kalt"
+[paint."landuse-industrial"]
+fill-pattern = "streulicht_gewerbe"
+[paint."landuse-railway"]
+fill-color = "#0b0a12"
+[paint."park"]
+fill-color = "#08100b"
+[paint."landcover-*"]
+fill-color = "#08100b"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#060c08"
+[paint."landuse-cemetery"]
+fill-color = "#08100b"
+[paint."landcover-sand"]
+fill-color = "#100e0c"
+[paint."landcover-glacier"]
+fill-color = "#0e1018"
+[paint."landcover-ice-shelf"]
+fill-color = "#0e1018"
+
+[paint."water*"]
+fill-color = "#030409"
+line-color = "#0d1426"
+
+# Gebäude: Seiten fast schwarz, Dächer mit Fensterlichtern
+[paint."building"]
+fill-color = "#05040a"
+[paint."building-top"]
+fill-pattern = "lichter"
+fill-color = "#100d18"
+fill-outline-color = "#2a2030"
+
+[paint."highway-area"]   # Plätze und Fußgängerzonen: violetter Schein der Leuchtreklame
+fill-color = "#1c0f26"
+fill-outline-color = "#5a2a78"
+[paint."aeroway-*"]
+fill-color = "#14101a"
+line-color = "#3a2a20"
+
+# Straßen: Kern hell, Ränder als Schein (weichgezeichnet, gut doppelt so breit wie die Straße)
+[paint."*-service-track"]
+line-color = "#7a3c18"
+[paint."*-minor*"]
+line-color = "#b4642a"
+[paint."*-link"]
+line-color = "#ffb860"
+[paint."*-secondary-tertiary*"]
+line-color = "#ffc070"
+[paint."*-primary*"]   # nah: amber, damit die Lichtspuren darauf leuchten
+line-color = ["interpolate", ["linear"], ["zoom"], 13, "#ffdca0", 15, "#ffb257"]
+[paint."*-trunk*"]   # nah: amber, damit die Lichtspuren darauf leuchten
+line-color = ["interpolate", ["linear"], ["zoom"], 13, "#ffe6bf", 15, "#ffa850"]
+[paint."*-motorway*"]   # nah: amber, damit die Lichtspuren darauf leuchten
+line-color = ["interpolate", ["linear"], ["zoom"], 13, "#fff2dc", 15, "#ff9e48"]
+[paint."*-path"]
+line-color = "#3c2a3a"
+[paint."*-casing"]
+line-color = "#07060d"
+[paint."*-minor-casing"]
+line-color = "#a0400f"
+line-blur = 4
+line-opacity = 0.35
+line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, 1, 14, 8, 20, 32]
+[paint."*-service-track-casing"]
+line-color = "#6a2a0c"
+line-blur = 3
+line-opacity = 0.4
+line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 4, 20, 20]
+[paint."*-link-casing"]
+line-color = "#e0581a"
+line-blur = 5
+line-opacity = 0.6
+line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, 2, 14, 9, 20, 34]
+[paint."*-secondary-tertiary*-casing"]
+line-color = "#e8601a"
+line-blur = 6
+line-opacity = 0.65
+line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 8, 3, 14, 12, 20, 40]
+[paint."*-primary*-casing"]
+line-color = "#ff6a1a"
+line-blur = 8
+line-opacity = 0.7
+line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 8, 3, 14, 16, 20, 52]
+[paint."*-trunk*-casing"]
+line-color = "#ff5a18"
+line-blur = 8
+line-opacity = 0.75
+line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 6, 2, 14, 16, 20, 52]
+[paint."*-motorway*-casing"]
+line-color = "#ff4a1a"
+line-blur = 10
+line-opacity = 0.8
+line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 5, 2, 14, 18, 20, 56]
+[paint."*railway*"]
+line-color = "#2c2440"
+[paint."road_area_pier"]
+fill-color = "#07060d"
+[paint."road_pier"]
+line-color = "#07060d"
+
+# Beschriftung warmweiß auf dunklem Rand; POIs im Lichtorange
+[paint."*label*"]
+text-color = "#efe2cf"
+text-halo-color = "#07060d"
+[paint."label_*"]
+text-color = "#efe2cf"
+text-halo-color = "#07060d"
+[paint."highway-name-*"]
+text-color = "#f4d8b0"
+text-halo-color = "#07060d"
+text-halo-width = 1.6
+[paint."poi_*"]
+text-color = "#ffad5c"
+text-halo-color = "#07060d"
+[paint."water*label"]
+text-color = "#5f7cb0"
+[paint."airport"]
+text-color = "#ffad5c"
+text-halo-color = "#07060d"
+
+# Straßennummern ohne weißes Schild, im Licht der Straße
+[layout."*shield*"]
+icon-image = ""
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#fff2dc", ["trunk", "primary"], "#ffdca0", "#ffc070"]
+text-halo-color = "#07060d"
+text-halo-width = 1.5
+
+[patterns]
+lichter = { symbol = "stadtlichter", color = "#ffc46b", bg = "#100d18" }
+streulicht = { symbol = "stadtlichter", color = "#9a6a34", bg = "#0b0a13" }
+streulicht_gewerbe = { symbol = "stadtlichter", color = "#d08a3a", bg = "#0e0b12" }
+streulicht_kalt = { symbol = "stadtlichter", color = "#8fb0ff", bg = "#0b0c16" }
+lichter_kalt = { symbol = "stadtlichter", color = "#b8d4ff", bg = "#0e1020" }
+
+# >>> Zusatzebenen (Nutzerwunsch 2026-11-25) ------------------------------------------------------------------------
+# Hochhäuser (ab ~6 Geschosse) mit kaltweißen Bürolichtern
+[[layers]]
+like = "building-top"
+id = "building-top-hoch"
+filter = [">=", ["get", "render_height"], 18]
+paint = { fill-pattern = "lichter_kalt" }
+
+# Sportplätze und Stadien im grünen Flutlicht
+[[layers]]
+after = "landcover-sand"
+id = "flutlicht"
+source-layer = "landuse"
+filter = ["match", ["get", "class"], ["pitch", "stadium", "track"], true, false]
+paint = { fill-color = "#0c2a16" }
+[[layers]]
+after = "flutlicht"
+id = "flutlicht-schein"
+type = "line"
+source-layer = "landuse"
+filter = ["match", ["get", "class"], ["pitch", "stadium", "track"], true, false]
+minzoom = 13
+paint = { line-color = "#5cff8a", line-blur = 3, line-opacity = 0.45, line-width = ["interpolate", ["linear"], ["zoom"], 13, 1, 16, 4] }
+
+# Fußgängerzonen: violette Neonlinie
+[[layers]]
+like = "highway-path"
+id = "neon-schein"
+filter = ["==", ["get", "subclass"], "pedestrian"]
+paint = { line-color = "#a040ff", line-blur = 4, line-opacity = 0.55, line-dasharray = [1, 0], line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 4, 20, 20] }
+[[layers]]
+like = "highway-path"
+after = "neon-schein"
+id = "neon"
+filter = ["==", ["get", "subclass"], "pedestrian"]
+paint = { line-color = "#e9a6ff", line-dasharray = [1, 0], line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 1, 20, 3] }
+
+# Laternen als Lichtperlen links und rechts der Nebenstraßen (ab Leaflet z15); Abstand in Linienbreiten
+[[layers]]
+like = "highway-minor"
+id = "laterne-schein-l"
+after = "highway-minor"
+minzoom = 14
+layout = { line-cap = "round" }
+paint = { line-color = "#ff9a3c", line-blur = 2, line-opacity = 0.55, line-dasharray = [0, 5], line-width = 5, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, -2.5, 16, -4.5, 19, -9] }
+[[layers]]
+like = "highway-minor"
+id = "laterne-schein-r"
+after = "laterne-schein-l"
+minzoom = 14
+layout = { line-cap = "round" }
+paint = { line-color = "#ff9a3c", line-blur = 2, line-opacity = 0.55, line-dasharray = [0, 5], line-width = 5, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 2.5, 16, 4.5, 19, 9] }
+[[layers]]
+like = "highway-minor"
+id = "laterne-l"
+after = "laterne-schein-r"
+minzoom = 14
+layout = { line-cap = "round" }
+paint = { line-color = "#fff0c8", line-blur = 0.3, line-opacity = 1, line-dasharray = [0, 13.9], line-width = 1.8, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, -2.5, 16, -4.5, 19, -9] }
+[[layers]]
+like = "highway-minor"
+id = "laterne-r"
+after = "laterne-l"
+minzoom = 14
+layout = { line-cap = "round" }
+paint = { line-color = "#fff0c8", line-blur = 0.3, line-opacity = 1, line-dasharray = [0, 13.9], line-width = 1.8, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 2.5, 16, 4.5, 19, 9] }
+
+# Lichtspuren der Autos auf Hauptstraßen: rechts der Linienrichtung rote Rücklichter, links weiße Scheinwerfer
+[[layers]]
+after = "bridge-motorway"
+id = "lichtspur-rot"
+source-layer = "transportation"
+minzoom = 12
+filter = ["all", ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false], ["match", ["get", "class"], ["motorway", "trunk", "primary"], true, false], ["!=", ["get", "brunnel"], "tunnel"]]
+layout = { line-join = "round", line-cap = "round" }
+paint = { line-color = "#ff2a1e", line-blur = 0.6, line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, 0.4, 15, 1.4, 19, 3.2], line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 12, 0.5, 15, 1.6, 17, 2.8, 19, 4.8] }
+[[layers]]
+after = "lichtspur-rot"
+id = "lichtspur-weiss"
+source-layer = "transportation"
+minzoom = 12
+filter = ["all", ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false], ["match", ["get", "class"], ["motorway", "trunk", "primary"], true, false], ["!=", ["get", "brunnel"], "tunnel"]]
+layout = { line-join = "round", line-cap = "round" }
+paint = { line-color = "#ffffff", line-blur = 0.6, line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, 0.4, 15, 1.4, 19, 3.2], line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 12, -0.5, 15, -1.6, 17, -2.8, 19, -4.8] }
+# <<< Zusatzebenen
+
+[marker]
+type = "bubble"
+color = "#ff7a1a"
+bg = "#16101c"
+fg = "#ffe8c8"
