@@ -930,7 +930,7 @@ def parent(url):
 def stain_png(data, x, y, cfg):
     """Altersflecken in die Kachel einbacken (stains im Stil, Versuch): Wertrauschen in globalen Pixelkoordinaten der
     Zoomstufe, daher nahtlos über Kachelgrenzen; je Zoomstufe gleich groß auf dem Bildschirm (andere Stufe = anderes
-    Blatt). Fleckenfarbe multipliziert (blend = "tint": nur Farbton), Stärke cfg["strength"]; danach wie immer pngquant."""
+    Blatt). Fleckenfarbe multipliziert (blend = "patina": Grünspan-Kruste), Stärke cfg["strength"]; danach wie immer pngquant."""
     import numpy as np
     from PIL import Image
     im = Image.open(io.BytesIO(data)).convert("RGB")
@@ -955,10 +955,19 @@ def stain_png(data, x, y, cfg):
         n, tot, amp = n + amp * noise(gx / cell, gy / cell, round(cell)), tot + amp, amp * .5
     a = np.clip((n / tot - cfg.get("threshold", .55)) * cfg.get("edge", 4), 0, 1)[..., None] * cfg.get("strength", .35)  # edge: Randschärfe
     col = np.array([int(cfg.get("color", "#8c642d")[i:i + 2], 16) for i in (1, 3, 5)]) / 255
-    if cfg.get("blend") == "tint":  # Farbton tönen, Helligkeit bleibt (Grünspan auf der Kupferplatte: Linien bleiben hell)
+    if cfg.get("blend") == "patina":  # Grünspan (Kupferplatte, nach Fotos oxidierter Kupferplatten): körnige Kruste in hellem
+        # Türkis bis Grün, die in den Zonen dicht ist und zum Rand in Krümel zerfällt (Lücken lassen die Linien durch),
+        # ringsum ein rostiger Saum; Farben mit eigener Helligkeit, damit es auf dunklem Grund leuchtet
         px = np.asarray(im, float)
-        lum = lambda c: c[..., 0] * .2126 + c[..., 1] * .7152 + c[..., 2] * .0722
-        out = np.clip(px * (1 - a) + a * col / lum(col) * lum(px)[..., None], 0, 255)
+        z = n / tot - cfg.get("threshold", .55)          # > 0: Zone
+        grain = sum(noise(gx / c, gy / c, round(7 + 10 * c)) * w for c, w in ((1.5, .5), (4, .3), (12, .2)))   # Korn, 0..1
+        crust = np.clip((np.clip(z * cfg.get("edge", 4), 0, 1) * .75 + grain - 1.05) * 6, 0, 1)[..., None] * cfg.get("strength", .35)
+        hue = noise(gx / 30, gy / 30, 99)[..., None]       # Türkis ↔ Grün, fleckig
+        hexc = lambda h: np.array([int(h[i:i + 2], 16) for i in (1, 3, 5)], float)
+        green = hexc(cfg.get("color", "#40bfae")) * (1 - hue) + hexc(cfg.get("color2", "#6a9a52")) * hue
+        rust = (np.clip(1 - np.abs(z + .02) * 45, 0, 1) * np.clip(grain * 2 - .6, 0, 1))[..., None] * .5   # Saum um die Zone
+        px = px * (1 - rust) + hexc(cfg.get("rust", "#b0582a")) * rust
+        out = np.clip(px * (1 - crust) + green * crust, 0, 255)
     else:
         out = np.asarray(im, float) * (1 - a * (1 - col))
     buf = io.BytesIO()
