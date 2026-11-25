@@ -919,6 +919,8 @@ def build_site(a):
     for st in sorted((ROOT / "styles").glob("*.toml")):
         meta = tomllib.loads(st.read_text())
         cat = meta.get("category", "standard")
+        if meta.get("family") in cfg.get("exclude", []):  # nur README, nicht auf der öffentlichen Vorschau
+            continue
         # Schriften der Gruppe, dazu für Gruppen in pixel = [...] eine 8-Bit-Variante (Schalter "8 Bit") und für
         # Gruppen in streets = [...] eine Nur-Straßen-Variante (Schalter "Straßen") in der ersten Schrift
         site_fonts = [meta["site_font"]] if "site_font" in meta else cfg["fonts"][cat]  # z. B. Phosphor: VT323
@@ -931,7 +933,9 @@ def build_site(a):
             wanted.add(out)
             done = out / "config.json"
             keep = a.missing and done.exists()
-            if keep and json.loads(done.read_text()).get("retina") == s.retina:
+            old = json.loads(done.read_text()) if keep else {}
+            z0, z1 = map(int, s.zoom.split("-"))  # neue Zoomstufe/@2x: fehlende Kacheln ergänzen
+            if keep and (old.get("retina"), old.get("zmin"), old.get("zmax")) == (s.retina, z0, z1):
                 continue
             render(s, st, out, mb, font, standalone=False, keep=keep)  # keep: nur fehlende Kacheln (z. B. @2x)
     for old in site.glob("*/config.json"):              # Varianten aus früheren site.toml-Ständen (andere Schrift/Ort)

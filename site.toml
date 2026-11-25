@@ -4,11 +4,13 @@ area = "detmold-regbez"    # Geofabrik-Extrakt (Bielefeld liegt im Regierungsbez
 lat = 52.0149              # Sparrenburg, Bielefeld
 lon = 8.5269                # Burg und Festung Sparrenberg laut OSM (Nominatim)
 label = "Sparrenburg"      # Text im Marker
-zoom = "16-16"
+zoom = "16-17"
 radius = 1.2               # km um den Mittelpunkt; kleiner Ausschnitt rund um die Sparrenburg (Kacheln: mindestens
                            # ein viewport, siehe tiles_for(); größere Fenster sind dann nicht mehr verschiebbar)
 viewport = "1920x1920"     # größte Kartengröße; quadratisch, damit Hoch- und Querformat gefüllt sind
 retina = true              # @2x zusätzlich; bei 1,2 km Radius ca. 350–400 MB (Pages-Limit 1 GB)
+exclude = ["OSM", "Americana", "Papier", "Cupertino", "Protomaps",   # Familien nur in der README-Galerie,
+           "One", "Everforest", "Gruvbox", "Photon Dev"]               # nicht auf der öffentlichen Vorschau
 pixel = ["nerd"]           # diese Gruppen zusätzlich im 8-Bit-Modus (--pixel 4, Schrift Silkscreen), Schalter "8 Bit"
 
 [fonts]                    # Schriften je Stil-Gruppe (category)

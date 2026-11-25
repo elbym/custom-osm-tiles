@@ -49,6 +49,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 
 **Public site:**
 - `build_site()` reads `site.toml` and renders each style × the fonts of its category into `site/`. Since 2026-11-22 one font per category (Fira Sans / Maple Mono) to halve the render time on the 2-core VM.
+- `exclude` in `site.toml` lists families left off the public preview but kept in the README gallery (user request 2026-11-25: OSM, Americana, Papier, Cupertino, Protomaps, One, Everforest, Gruvbox, Photon Dev).
 - It deletes `site/` variants that the current `site.toml` no longer produces (old fonts or area), otherwise `variants.js` would list them.
 - It adds `.nojekyll` (`index.html` comes from `write_previews()`).
 - Publish `site/` as an orphan `gh-pages` branch (force-pushed, no history). Never commit tiles to `main`. The Pages limit is 1 GB.
