@@ -780,6 +780,57 @@ def write_page(out, cfg):
     (out / "index.html").write_text(page.replace("/*CONFIG*/{}", json.dumps(cfg, ensure_ascii=False)))
 
 
+def tile_lab(d, n=25):
+    """Mittlere OKLab-Farbe der Kacheln einer Variante (n Kacheln aus der Mitte der höchsten Zoomstufe)."""
+    import numpy as np
+    from PIL import Image
+    z = max((p for p in (d / "tiles").iterdir() if p.name.isdigit()), key=lambda p: int(p.name))
+    files = sorted(f for f in z.rglob("*.*") if "@" not in f.name and ".labels." not in f.name)
+    k = max(0, len(files) // 2 - n // 2)
+    px = np.concatenate([np.asarray(Image.open(f).convert("RGB").reduce(4)).reshape(-1, 3) for f in files[k:k + n]]) / 255
+    c = np.where(px <= 0.04045, px / 12.92, ((px + 0.055) / 1.055) ** 2.4)
+    lms = np.cbrt(c @ np.array([[0.4122214708, 0.5363325363, 0.0514459929], [0.2119034982, 0.6806995451, 0.1073969566],
+                                [0.0883024619, 0.2817188376, 0.6299787005]]).T)
+    return (lms @ np.array([[0.2104542553, 0.7936177850, -0.0040720468], [1.9779984951, -2.4285922050, 0.4505937099],
+                            [0.0259040371, 0.7827717662, -0.8086757660]]).T).mean(0)
+
+
+def colour_order(outdir, configs):
+    """Streifen-Reihenfolge mit sanftem Farbübergang (Nutzerwunsch 2026-11-25): je Gruppe eine Kette der Familien, in der
+    Nachbarn farblich möglichst nah sind, gemessen an Hell- und Dunkel-Variante zusammen, damit der Moduswechsel die
+    Reihenfolge nicht ändert. Nur Familien mit order 50 (Standard) werden sortiert; ein eigenes order (Cyberpunk 99 …)
+    bleibt fest rechts. Schreibt order = 50 + Rang/100 in die Konfiguration, streifen.html sortiert wie bisher danach."""
+    try:
+        import numpy as np
+    except ImportError:
+        return
+    lab = {}
+    for n, c in configs.items():   # je (Gruppe, Familie, Modus) die erste normale Variante
+        key = (c.get("category"), c.get("family"), c.get("mode"))
+        if key not in lab and not c.get("pixel") and not c.get("streets") and (outdir / n / "tiles").exists():
+            lab[key] = tile_lab(outdir / n)
+    for cat in {k[0] for k in lab}:
+        fams = {f for c, f, _ in lab if c == cat}
+        vec = {f: np.concatenate([lab.get((cat, f, m), lab.get((cat, f, "dark" if m == "light" else "light")))
+                                  for m in ("light", "dark")]) for f in fams}
+        order = {f: min(c.get("order", 50) for c in configs.values() if c.get("family") == f) for f in fams}
+        free = [f for f in sorted(fams) if order[f] == 50]
+        pinned = sorted((f for f in fams if order[f] != 50), key=lambda f: (order[f], f))
+        d = lambda a, b: float(np.linalg.norm(vec[a] - vec[b]))
+        best, cost = free, math.inf
+        for start in free:   # gierige Kette von jedem Start aus, die kürzeste gewinnt (bis zum ersten festen Streifen)
+            path, rest = [start], set(free) - {start}
+            while rest:
+                path.append(min(sorted(rest), key=lambda r: d(path[-1], r)))
+                rest.remove(path[-1])
+            c = sum(d(a, b) for a, b in zip(path, path[1:] + pinned[:1]))
+            if c < cost:
+                best, cost = path, c
+        for c in configs.values():
+            if c.get("category") == cat and c.get("family") in best:
+                c["order"] = 50 + best.index(c["family"]) / 100
+
+
 def write_previews(outdir):
     """Vorschauseite (index.html = streifen.html) + variants.js (Titel und Konfiguration aller Varianten) nach outdir."""
     index = outdir / "index.html"
@@ -793,6 +844,7 @@ def write_previews(outdir):
     configs = {n: json.loads((outdir / n / "config.json").read_text()) for n in names}
     for c in configs.values():  # Marker in der Schrift des Stils (oder [marker] font)
         c["font_url"] = marker_font(c.get("marker", {}).get("font") or c.get("font", ""), outdir)
+    colour_order(outdir, configs)
     titles = {n: c["title"] for n, c in configs.items()}
     (outdir / "variants.js").write_text(
         f"const VARIANTS = {json.dumps(names)};\n"
