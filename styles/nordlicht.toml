@@ -7,9 +7,9 @@ title = "Nordlicht"
 category = "standard"
 mode = "dark"
 family = "Island"
-font = "Alegreya Sans"
+font = "Public Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
-site_font = "Alegreya Sans"   # öffentliche Vorschau (--site)
+site_font = "Public Sans"   # öffentliche Vorschau (--site)
 text_scale = 1.25
 colors = 64        # Nordlicht-Verläufe zerfallen bei 32 Farben in Ringe (wie Stadtlichter)
 stains = { blend = "aurora", strength = 0.6, color = "#4af0a0", color2 = "#a070f0" }

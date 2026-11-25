@@ -3,15 +3,15 @@
 #   - Wasser gletschertürkis mit hellen Wasserlinien
 #   - Häuser wie Wellblechhäuser in Reykjavík: Dächer nach OSM-ID in Rot, Ochsenblut, Senf, Petrol, Weiß, flach mit kleinem Schatten
 #   - Straßen lavagrau mit heller Kante, Hauptstraßen senfgelb (Ringstraße), Autobahn ochsenblut
-#   - Ortsnamen in Uncial Antiqua (wie die Handschriften der Edda), sonst Alegreya Sans; Marker mit Strickborte
+#   - Ortsnamen in Uncial Antiqua (wie die Handschriften der Edda), sonst Public Sans (vorläufig, vorher Alegreya Sans); Marker mit Strickborte
 #   - Figuren als skandinavische Bilderbuch-Volkskunst (tools/gen_figures.py, ISL)
 title = "Island"
 category = "standard"
 mode = "light"
 family = "Island"
-font = "Alegreya Sans"
+font = "Public Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
-site_font = "Alegreya Sans"   # öffentliche Vorschau (--site)
+site_font = "Public Sans"   # öffentliche Vorschau (--site)
 text_scale = 1.25
 hide = ["poi_r20", "road_oneway*"]
 attribution = "Figuren und Kartenstil: eigene Zeichnung nach isländischer Volkskunst und Sage"
@@ -96,7 +96,7 @@ text-halo-color = "#f6f2e6"
 [paint."water*label"]
 text-color = "#2f6b73"
 text-halo-color = "#f6f2e6"
-# Orts- und Stadtteilnamen in der Unziale (Marker auch, [marker] font), Straßen und POIs in Alegreya Sans
+# Orts- und Stadtteilnamen in der Unziale (Marker auch, [marker] font), Straßen und POIs in Public Sans
 [layout."label_*"]
 text-font = ["Uncial Antiqua Regular", "Noto Sans Regular"]
 
