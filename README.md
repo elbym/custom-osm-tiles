@@ -92,7 +92,7 @@ Das Ergebnis in `out/kunde-xy/` (`tiles/`, `leaflet/`, `index.html`) einfach neb
 ./make-tiles.py --all --font "Inter" ...                            # alle Stile in einer bestimmten Schrift
 ```
 
-Für die Vorschau nutzt jeder Stil seine `preview_font` (Standard-Stile Fira Sans, Nerd-Stile Maple Mono); 34 Varianten dauern so etwa 4 Minuten. `--missing` überspringt schon gerenderte Varianten.
+Für die Vorschau nutzt jeder Stil seine `preview_font` (Standard-Stile Fira Sans, Nerd-Stile Maple Mono); 34 Varianten dauern so etwa 4 Minuten. `--missing` überspringt schon gerenderte Varianten. Unveränderte Varianten (gleicher Stil, gleiche Einstellungen, gleiche OSM-Daten) werden ohnehin übersprungen; `--force` rendert sie trotzdem neu, etwa nach Änderungen am Python-Code.
 
 `out/index.html` ist dieselbe Vorschauseite wie die öffentliche in `site/`: eine durchgehende Karte, senkrecht geteilt in einen Streifen pro Stil, mit Einzelansicht und Vergleich.
 
@@ -104,7 +104,7 @@ Sie hat die Schalter **Standard | Nerd** und **Hell | Dunkel**. Stile derselben 
 ./make-tiles.py --site [--missing]     # Einstellungen aus site.toml -> site/
 ```
 
-`site.toml` legt Ort (Bielefeld, Sparrenburg), Label, Zoom (16), Bereich (1,2 km um die Sparrenburg), Retina (an; mit den 8-Bit-Varianten der Nerd-Stile gut 500 MB, Pages erlaubt 1 GB) und die Schrift je Gruppe fest (Standard: Fira Sans; Nerd: Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
+`site.toml` legt Ort (Bielefeld, Sparrenburg), Label, Zoom (15–17), Bereich (1,2 km um die Sparrenburg), Retina (an; mit den 8-Bit-Varianten der Nerd-Stile knapp 700 MB, Pages erlaubt 1 GB) und die Schrift je Gruppe fest (Standard: Fira Sans; Nerd: Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
 
 Die Streifen-Seite nutzt Tailwind CSS, lokal gebaut (kein CDN): `npm install && npm run css` erzeugt `vendor/streifen.css` aus `src/streifen.css`. Im Querformat sind die Streifen senkrecht, im Hochformat (Handy) waagerecht. Der Dialog „Über“ nennt alle Quellen und Lizenzen.
 

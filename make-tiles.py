@@ -954,11 +954,12 @@ def quantize(data, colors):
 
 
 def optimize(files):
-    """PNGs verlustfrei nachkomprimieren (oxipng, falls installiert), erst nach dem Rendern: oxipng nutzt dann
-    alle Kerne allein. Gemessen: 32 Farben + oxipng so groß wie 24 Farben ohne, aber genauer."""
+    """PNGs verlustfrei nachkomprimieren (oxipng, falls installiert), nach dem Stoppen des Containers.
+    Gemessen (8 Kerne, 652 Kacheln): -o 1 spart 5,6 % in 5 s, -o 2 7,2 % in 11–13 s; oxipng belegt ~6,5 Kerne,
+    parallel zum nächsten Stil gewinnt man daher nichts. 32 Farben + oxipng so groß wie 24 Farben ohne, aber genauer."""
     files = [str(f) for f in files]
-    if OXIPNG and files:  # ponytail: -o 2; -o 4 spart nur 0,3–1 % mehr bei doppelter Zeit
-        subprocess.run([OXIPNG, "-q", "-o", "2", "--strip", "safe", *files], check=True)
+    if OXIPNG and files:
+        subprocess.run([OXIPNG, "-q", "-o", "1", "--strip", "safe", *files], check=True)
 
 
 def marker_font(font, dest):
@@ -1285,6 +1286,15 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     d = bbox(a.lat, a.lon, min(a.radius, a.detail_radius))
     fb = bbox(a.lat, a.lon, a.radius + 1)   # Figuren bis 1 km über den Rand (Leaflet zeigt bei z15 etwas mehr)
     style, title, attribution, font = build_style(style_file, font, (a.lat, a.lon), a.pixel, a.streets_only, (mb, fb))
+    # Fingerabdruck aller Eingaben: Style-JSON (Figuren, Bahnen, Sprite-Name mit Inhalts-Hash stecken darin), Stil-TOML,
+    # Ausschnitt/Format und die mbtiles. ponytail: Python-Code (stain_png, dither_tiles …) fehlt, dann --force
+    params = [a.lat, a.lon, a.zoom, a.radius, a.viewport, a.retina, a.detail_from, a.detail_radius, a.format,
+              a.colors, a.pixel, a.streets_only, mb.stat().st_mtime, Path(style_file).read_text()]
+    fp = hashlib.sha256(json.dumps([style, params], sort_keys=True, default=str).encode()).hexdigest()[:16]
+    done = out / "config.json"
+    if not a.force and done.exists() and json.loads(done.read_text()).get("hash") == fp:
+        print(f"unverändert, übersprungen: {out}")
+        return
     if a.pixel:  # Beschriftung getrennt rendern, dither_tiles() backt sie ein
         style, labels = split_labels(style)
     meta = tomllib.loads(Path(style_file).read_text())
@@ -1344,7 +1354,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     cfg = dict(lat=a.lat, lon=a.lon, zmin=zmin, zmax=zmax, retina=a.retina,
                detail_from=a.detail_from, bounds=[[b[0], b[1]], [b[2], b[3]]],
                detail=[[d[0], d[1]], [d[2], d[3]]], attribution=attribution,
-               style=Path(style_file).stem, font=font, ext=ext, pixel=a.pixel, streets=a.streets_only)
+               style=Path(style_file).stem, font=font, ext=ext, pixel=a.pixel, streets=a.streets_only, hash=fp)
     meta = tomllib.loads(Path(style_file).read_text())  # Gliederung der Vorschau
     cfg.update(category=meta.get("category", "standard"), mode=meta.get("mode", "light"),
                family=meta.get("family", meta.get("title", Path(style_file).stem)), order=meta.get("order", 50),
@@ -1413,6 +1423,8 @@ def main():
                    help="alle Stile rendern, je in einen eigenen Ordner out/<stil>-<schrift>; Vergleich: out/index.html")
     g.add_argument("--all-fonts", action="store_true", help="mit --all: jeden Stil in allen passenden Schriften (dauert lange)")
     g.add_argument("--missing", action="store_true", help="mit --all oder --site: schon gerenderte überspringen")
+    g.add_argument("--force", action="store_true", help="auch unveränderte Stile neu rendern (sonst übersprungen; "
+                   "nötig nach Änderungen am Python-Code, z. B. an Flecken oder 8-Bit)")
     g = p.add_argument_group("Wartung")
     g.add_argument("--reindex", action="store_true",
                    help="nur die HTML-Seiten in out/ und site/ neu schreiben, ohne neu zu rendern (nach Stil-Änderungen)")
