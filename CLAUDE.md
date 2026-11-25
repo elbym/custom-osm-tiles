@@ -15,7 +15,7 @@ pip install -r requirements.txt && cargo install build_pbf_glyphs oxipng   # onc
 ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # preview set: each style in its preview_font -> out/<style>-<font> (~4 min for 34 styles)
 ./make-tiles.py --all --all-fonts --missing ...           # full matrix: each style × every font of its groups (slow)
 ./make-tiles.py --all --style styles/wiki.toml ...     # one style (preview_font; add --all-fonts for all);  --font X: one font for all styles, ignoring groups
-./make-tiles.py --site [--missing]                     # public preview per site.toml (Bielefeld/Sparrenburg, z16, retina, 8-bit for nerd; ~520 MB) -> site/ for GitHub Pages
+./make-tiles.py --site [--missing]                     # public preview per site.toml (Bielefeld/SchücoArena, z15–17, retina, 8-bit for Phosphor/Neon Cyberpunk) -> site/ for GitHub Pages
 npm install && npm run css                             # rebuild vendor/streifen.css (Tailwind v4) after changing streifen.html classes
 ./make-tiles.py --readme-previews                      # docs/previews/<style>.png: 512×512, z12, no marker (README gallery, ~30 s)
 ./make-tiles.py --reindex [--label "Firma"]            # rewrite all out/*/index.html from template + styles, no rendering
@@ -50,7 +50,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
 
 **Public site:**
 - `build_site()` reads `site.toml` and renders each style × the fonts of its category into `site/`. Since 2026-11-22 one font per category (Fira Sans / Maple Mono) to halve the render time on the 2-core VM.
-- `exclude` in `site.toml` lists families left off the public preview but kept in the README gallery (user request 2026-11-25: OSM, Americana, Papier, Cupertino, Protomaps, One, Everforest, Gruvbox, Photon Dev).
+- `exclude` in `site.toml` lists families left off the public preview but kept in the README gallery (user request 2026-11-25: OSM, Americana, Papier, Cupertino, Protomaps, One, Everforest, Gruvbox, Photon Dev; later also Wiki, Kupferstich, Tokyo Night, Catppuccin, Solarized, North, each with its dark variant).
 - It deletes `site/` variants that the current `site.toml` no longer produces (old fonts or area), otherwise `variants.js` would list them.
 - It adds `.nojekyll` (`index.html` comes from `write_previews()`).
 - Publish `site/` as an orphan `gh-pages` branch (force-pushed, no history). Never commit tiles to `main`. The Pages limit is 1 GB.
@@ -187,7 +187,7 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - Replacements for Silkscreen (user rule 2026-11-24): only monospace fonts that have no italic or slanted style. Reason: POI and water labels use the Italic face, and cursive/slanted shapes fall apart in the 8-bit grid (tested on Dracula: Victor Mono unreadable at 9 grid px, ragged at 11; JetBrains Mono at 11 uneven). Best candidate so far: Departure Mono (pixel font with lowercase, MIT, `grid = 11`, only a Regular face), in `fonts.toml` as an option (`--pixel --font "Departure Mono"`), not the default and not on the public preview.
 - `config.json` carries `pixel`, and `template.html` then sets `image-rendering: pixelated` on the tiles.
 - 8-bit marker (user chose "Terminal wie bisher, gepixelt" 2026-11-24): `markerIcon(m, px)` adds class `px` and `--u` = pixel size; `.term.px` CSS (in `template.html` and `src/streifen.css`, keep in sync) draws everything in multiples of `--u`, Silkscreen at 8u, no radius, hard shadow. `snapMarker()` shifts the icon so its pixels sit on the tile pixel grid (grid = pixel × 2^(zoom − native max)). The font comes from the general marker-font mechanism below.
-- Public preview: `site.toml` `pixel = ["nerd"]` makes `build_site()` render each nerd style again with `--pixel 4` in Silkscreen (`site/<style>-silkscreen-8bit`). `streifen.html` shows an "8 Bit" button (`?px=1`) only for categories that have pixel variants, and `inSet()` keeps them apart from the normal variants. The Über dialog lists Silkscreen.
+- Public preview: `site.toml` `pixel` lists categories or families (since 2026-11-25 only `["Phosphor", "Neon Cyberpunk"]`, user request); `build_site()` renders each matching style again with `--pixel 4` in Silkscreen (`site/<style>-silkscreen-8bit`). `streifen.html` shows an "8 Bit" button (`?px=1`) only for categories that have pixel variants, and `inSet()` keeps them apart from the normal variants. The Über dialog lists Silkscreen.
 - Streets-only on the public preview was removed again at the user's request (2026-11-24): no `streets` key in `site.toml`, so `build_site()` renders none and deletes old `-streets` folders. The code stays: `streets = ["standard", "nerd"]` in `site.toml` brings it back, and `streifen.html` shows its "Straßen" button (`?st=1`) only when such variants exist.
 
 ## Streets only

@@ -921,11 +921,11 @@ def build_site(a):
         cat = meta.get("category", "standard")
         if meta.get("family") in cfg.get("exclude", []):  # nur README, nicht auf der öffentlichen Vorschau
             continue
-        # Schriften der Gruppe, dazu für Gruppen in pixel = [...] eine 8-Bit-Variante (Schalter "8 Bit") und für
+        # Schriften der Gruppe, dazu für Gruppen/Familien in pixel = [...] eine 8-Bit-Variante (Schalter "8 Bit") und für
         # Gruppen in streets = [...] eine Nur-Straßen-Variante (Schalter "Straßen") in der ersten Schrift
         site_fonts = [meta["site_font"]] if "site_font" in meta else cfg["fonts"][cat]  # z. B. Phosphor: VT323
         variants = [(f, False, False) for f in site_fonts]
-        variants += [("Silkscreen", 4, False)] if cat in cfg.get("pixel", []) else []
+        variants += [("Silkscreen", 4, False)] if {cat, meta.get("family")} & set(cfg.get("pixel", [])) else []
         variants += [(site_fonts[0], False, True)] if cat in cfg.get("streets", []) else []
         for font, s.pixel, s.streets_only in variants:
             suffix = "-8bit" if s.pixel else "-streets" if s.streets_only else ""

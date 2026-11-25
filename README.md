@@ -104,7 +104,7 @@ Sie hat die Schalter **Standard | Nerd** und **Hell | Dunkel**. Stile derselben 
 ./make-tiles.py --site [--missing]     # Einstellungen aus site.toml -> site/
 ```
 
-`site.toml` legt Ort (Bielefeld, Sparrenburg), Label, Zoom (15–17), Bereich (1,2 km um die Sparrenburg), Retina (an; mit den 8-Bit-Varianten der Nerd-Stile knapp 700 MB, Pages erlaubt 1 GB) und die Schrift je Gruppe fest (Standard: Fira Sans; Nerd: Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
+`site.toml` legt Ort (Bielefeld, SchücoArena), Label, Zoom (15–17), Bereich (1,2 km um die SchücoArena), Retina (an; Pages erlaubt 1 GB), die Familien, die nur in der README-Galerie stehen (`exclude`), die Familien mit 8-Bit-Variante (`pixel`: Phosphor, Neon Cyberpunk) und die Schrift je Gruppe fest (Standard: Fira Sans; Nerd: Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
 
 Die Streifen-Seite nutzt Tailwind CSS, lokal gebaut (kein CDN): `npm install && npm run css` erzeugt `vendor/streifen.css` aus `src/streifen.css`. Im Querformat sind die Streifen senkrecht, im Hochformat (Handy) waagerecht. Der Dialog „Über“ nennt alle Quellen und Lizenzen.
 
