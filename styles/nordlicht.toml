@@ -1,0 +1,170 @@
+# "Nordlicht": dunkler Partner von Island, Polarnacht unter Nordlicht (Nutzerwunsch 2026-11-25).
+#   - blauschwarzer Grund, Moos, Lupinen und Birken gedämpft, Wasser dunkles Petrol
+#   - Dächer in dunklen Wellblechfarben mit warm leuchtenden Fenstern
+#   - Nordlicht in die Kacheln gebacken (stains blend = "aurora"): grüne Vorhänge mit violettem Saum, nahtlos
+#   - Figuren: die Tiere schlafen, Trolle, Huldufólk, Feen, Weihnachtskatze und Wasserwesen sind wach
+title = "Nordlicht"
+category = "standard"
+mode = "dark"
+family = "Island"
+font = "Alegreya Sans"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Alegreya Sans"   # öffentliche Vorschau (--site)
+text_scale = 1.25
+colors = 64        # Nordlicht-Verläufe zerfallen bei 32 Farben in Ringe (wie Stadtlichter)
+stains = { blend = "aurora", strength = 0.6, color = "#4af0a0", color2 = "#a070f0" }
+hide = ["poi_r20", "road_oneway*"]
+attribution = "Figuren und Kartenstil: eigene Zeichnung nach isländischer Volkskunst und Sage"
+
+[paint."background"]
+background-color = "#0e1626"
+[paint."landuse-*"]
+fill-color = "#111a2b"
+fill-opacity = 1
+[paint."landuse-residential"]
+fill-color = "#131d30"
+[paint."landuse-commercial"]
+fill-color = "#151d2e"
+[paint."landuse-industrial"]
+fill-color = "#141a26"
+[paint."landuse-cemetery"]
+fill-pattern = "moos"
+fill-color = "#1c2c2c"
+[paint."park"]
+fill-pattern = "lupinen"
+fill-color = "#1b2b2c"
+[paint."landcover-*"]
+fill-color = "#1b2b2c"
+fill-opacity = 1
+[paint."landcover-grass*"]
+fill-pattern = "moos"
+[paint."landcover-wood"]
+fill-pattern = "birken"
+fill-color = "#18282a"
+
+[paint."water*"]
+fill-color = "#153440"
+line-color = "#2a5a66"
+
+# Dächer dunkel in den Wellblechfarben von Island, Fenster leuchten warm (Muster fenster je Dachfarbe nach OSM-ID)
+[paint."building"]
+fill-color = "#070b14"
+[paint."building-top"]
+fill-opacity = 1
+fill-pattern = ["match", ["%", ["floor", ["/", ["id"], 10]], 6], 0, "fenster-rot", 1, "fenster-ochs", 2, "fenster-senf", 3, "fenster-petrol", "fenster-grau"]
+fill-outline-color = "#070b14"
+fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 16, ["literal", [-1.5, -1.5]]]
+
+# Straßen in Nachtblau, Hauptstraßen gedämpftes Senf wie Laternenlicht, Autobahn ochsenblut
+[paint."*-minor*"]
+line-color = "#34405a"
+[paint."*-service-track"]
+line-color = "#2a3550"
+[paint."*-link"]
+line-color = "#34405a"
+[paint."*-secondary-tertiary*"]
+line-color = "#4c5874"
+[paint."*-primary*"]
+line-color = "#c8963a"
+[paint."*-trunk*"]
+line-color = "#c8963a"
+[paint."*-motorway*"]
+line-color = "#a8483a"
+[paint."*-casing"]
+line-color = "#080d18"
+[paint."highway-area"]
+fill-color = "#1a2438"
+fill-outline-color = "#2a3550"
+[paint."aeroway-*"]
+fill-color = "#18202f"
+line-color = "#18202f"
+[paint."*-path"]
+line-color = "#8a5a64"
+[paint."*railway*"]
+line-color = "#6c7894"
+
+[paint."label_*"]
+text-color = "#e8eef8"
+text-halo-color = "#0b1220"
+text-halo-width = 2
+[paint."highway-name-*"]
+text-color = "#cfd8e8"
+text-halo-color = "#0b1220"
+[paint."poi_*"]
+text-color = "#f0c070"
+text-halo-color = "#0b1220"
+[paint."water*label"]
+text-color = "#8fd0d6"
+text-halo-color = "#0b1220"
+[layout."label_*"]
+text-font = ["Uncial Antiqua Regular", "Noto Sans Regular"]
+
+[patterns]
+moos = { symbol = "moos", color = "#2f4a40", fill = "#2a4038", bg = "#1b2b2c" }
+lupinen = { symbol = "lupinen", color = "#2f4a40", fill = "#5a4a8a", bg = "#1b2b2c" }
+birken = { symbol = "birken", color = "#3d5a4a", fill = "#24382f", bg = "#18282a" }
+fenster-rot = { symbol = "fenster", color = "#ffc46b", bg = "#4a2420" }
+fenster-ochs = { symbol = "fenster", color = "#ffc46b", bg = "#3a1a18" }
+fenster-senf = { symbol = "fenster", color = "#ffd890", bg = "#4a3a1c" }
+fenster-petrol = { symbol = "fenster", color = "#ffc46b", bg = "#1c3a40" }
+fenster-grau = { symbol = "fenster", color = "#ffc46b", bg = "#2e3444" }
+[water_lines]
+color = "#2f5a66"
+count = 2
+gap = 3
+
+[marker]
+font = "Uncial Antiqua"
+type = "bubble"
+look = "strick"
+color = "#e8eef8"
+color2 = "#4af0a0"
+bg = "#0e1626"
+fg = "#e8eef8"
+
+# Figuren wie in Island; nachts schlafen die Tiere, die Sagenwesen sind wach (poses je Figur, "*" = übrige)
+[figures]
+names = ["islandpferd", "schaf", "papageitaucher", "polarfuchs", "kolkrabe", "rentier",
+         "troll", "huldufolk", "elfenhaus", "fee", "jolakoettur", "jolasveinn", "hotpot",
+         "nykur", "marbendill", "seewurm", "wal", "eiderente"]
+density = 0.45
+density_rich = 0.85
+size = 64
+line = 1.2
+rim = 5
+ink = "#10182a"       # Kontur dunkel, damit die Farben bleiben (Standard: Markerfarbe, hier hell)
+sticker = "#6f86a6"   # Rand im Mondlicht (Marker-bg wäre auf dem dunklen Grund unsichtbar)
+areas = ["water", "farmland"]
+
+[figures.poses]
+"*" = ["schlaeft"]
+troll = ["steht", "winkt"]
+huldufolk = ["steht", "winkt", "verschwindet"]
+elfenhaus = ["offen"]
+fee = ["schwebt", "winkt"]
+jolakoettur = ["sitzt", "faucht"]
+jolasveinn = ["steht", "winkt", "traegt"]
+hotpot = ["badet", "winkt"]
+nykur = ["steht", "taucht"]
+marbendill = ["sitzt", "lacht", "taucht"]
+seewurm = ["schwimmt", "taucht"]
+
+[figures.places]
+islandpferd = ["horse_riding", "farmland", "meadow"]
+schaf = ["farmland", "meadow", "farm"]
+papageitaucher = ["viewpoint", "zoo", "attraction"]
+polarfuchs = ["wood", "forest", "scrub"]
+kolkrabe = ["cemetery", "grave_yard", "ruins"]
+rentier = ["heath", "meadow", "zoo"]
+troll = ["castle", "ruins", "quarry", "rock", "bare_rock"]
+huldufolk = ["rock", "scrub", "heath", "cemetery"]
+elfenhaus = ["allotments", "rock", "scrub"]
+fee = ["playground", "florist", "garden_centre"]
+jolakoettur = ["clothes", "shoes", "fashion", "boutique"]
+jolasveinn = ["bakery", "butcher", "confectionery", "gift"]
+hotpot = ["swimming_pool", "swimming", "water_park", "sauna"]
+nykur = ["water"]
+marbendill = ["water"]
+seewurm = ["water"]
+wal = ["water"]
+eiderente = ["water"]

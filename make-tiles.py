@@ -409,7 +409,10 @@ FIG_CELL = (0.004, 0.006)  # Raster für Figuren in Grad (Breite, Länge), ~450 
 
 
 def fig_poses(name, only=None):
-    """Posen einer Figur, mit only (figures.poses im Stil) nur diese, z. B. ["schlaeft"]."""
+    """Posen einer Figur, mit only (figures.poses im Stil) nur diese, z. B. ["schlaeft"]; als Tabelle je Figur, "*" für
+    alle übrigen (Nordlicht: Tiere schlafen, Trolle sind wach)."""
+    if isinstance(only, dict):
+        only = only.get(name, only.get("*"))
     return sorted(f for f in (ROOT / "vendor" / "figures" / name).glob("*.svg") if not only or f.stem in only)
 
 
@@ -1033,6 +1036,24 @@ def stain_png(data, x, y, cfg):
         rust = (np.clip(1 - np.abs(z + .02) * 45, 0, 1) * np.clip(grain * 2 - .6, 0, 1))[..., None] * .5   # Saum um die Zone
         px = px * (1 - rust) + hexc(cfg.get("rust", "#b0582a")) * rust
         out = np.clip(px * (1 - crust) + green * crust, 0, 255)
+    elif cfg.get("blend") == "aurora":  # Nordlicht (Island-Partner, Nutzerwunsch 2026-11-25): Lichtvorhänge in Bändern alle
+        # ~900 px, die sich schlängeln; unten scharfe helle Kante in color (grün), nach oben ausblassend zu color2
+        # (violett), feine senkrechte Strahlen, nicht überall gleich stark; aufhellend (screen), sonst verschwindet es
+        s = cfg.get("scale", 1)
+        wob = ((noise(gx / (520 * s), np.full_like(gx, 3.5), 11) - .5) * 420 + (noise(gx / (150 * s), np.full_like(gx, 1.5), 13) - .5) * 120) * s
+        v = (gy + wob) / (900 * s)
+        band = np.floor(v)
+        r = v - band                                     # 0 oben … 1 Unterkante
+        ray = noise(gx / (7 * s), band * 7.3, 21) * .6 + noise(gx / (23 * s), band * 5.1, 23) * .4   # Strahlen, 0..1
+        reach = 1.2 + 5 * (1 - ray)                      # helle Strahlen reichen weit nach oben, dunkle kaum
+        glow = (r ** reach + .8 * r ** 14) * np.clip((1 - r) * 18, 0, 1) * (.25 + .75 * ray)   # + heller Saum unten
+        env = np.clip(noise((gx + band * 977) / (650 * s), band * 3.1, 31) * 1.8 - .45, 0, 1)
+        a = (glow * env)[..., None] * cfg.get("strength", .35)
+        hexc = lambda h: np.array([int(h[i:i + 2], 16) for i in (1, 3, 5)], float)
+        t = (r ** 3)[..., None]
+        light = hexc(cfg.get("color", "#4af0a0")) * t + hexc(cfg.get("color2", "#a070f0")) * (1 - t)
+        px = np.asarray(im, float)
+        out = np.clip(255 - (255 - px) * (1 - a * light / 255), 0, 255)
     else:
         out = np.asarray(im, float) * (1 - a * (1 - col))
     buf = io.BytesIO()
@@ -1242,6 +1263,8 @@ def readme_previews(a, mb):
         style = build_style(st, meta.get("preview_font", meta.get("font")), (a.lat, a.lon))[0]
         with tileserver(style, f"readme-{st.stem}", mb) as base:
             data = fetch(f"{base}/static/{a.lon},{a.lat},12/512x512.png")
+        if meta.get("stains"):   # Flecken/Nordlicht wie in den Kacheln (Bild wie eine @2x-Kachel bei 0/0)
+            data = stain_png(data, 0, 0, meta["stains"])
         data = quantize(data, a.colors or meta.get("colors", 32))
         (dest / f"{st.stem}.png").write_bytes(data)
         optimize([dest / f"{st.stem}.png"])
