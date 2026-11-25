@@ -784,11 +784,11 @@ def greif(c, pose):
                         behind=[leg(k, [(18, 32), (12, 36), (7, 36)], 0, ws=(6, 4.5, 3.5), kind="paw", skin="none")],
                         front=[leg(k, [(38, 31), (35, 37), (30, 39)], 0, ws=(5, 4, 3), skin="scales"), leg(k, [(22, 33), (17, 37), (12, 38)], 0, ws=(6.5, 5, 4), kind="paw", skin="none")])
         return FSHADOW + far + tail + body + wings + ghead(f, 42, 21, -5, open_=True)
-    pts = [(38, 28), (35, 37), (28, 45), (18, 50)]
-    ws = [11, 14, 15, 13]
-    tail = tube([(13, 53), (6, 52), (3, 45), (6, 38)], [3, 2.5, 2, 1.5], k["body"]) + tuft(k, 6, 39, 20)
-    wings = featherwing(f, (30, 35), [-160, -145, -130, -115, -100], [20, 24, 26, 25, 20], f["top"])
-    far = featherwing(f, (33, 33), [-95, -80, -65], [20, 20, 16], f["body"])
+    pts = [(38, 27), (37, 34), (32, 42), (24, 47), (16, 50)]
+    ws = [10, 12.5, 14.5, 14, 12]
+    tail = tube([(13, 53), (5, 53), (2, 46), (6, 40), (11, 37)], [3, 2.6, 2.2, 1.8, 1.5], k["body"]) + tuft(k, 11, 38, 70)
+    wings = featherwing(f, (31, 34), [-172, -158, -143, -128, -113, -98], [14, 19, 24, 27, 27, 23], f["top"], w=4)
+    far = featherwing(f, (34, 31), [-92, -76, -60], [21, 21, 17], f["body"], w=4)
     if pose == "schreit":   # aufgerichtet, ein Fang erhoben, Schnabel offen
         fr = [leg(k, [(36, 38), (42, 34), (46, 28)], 220, ws=(5, 4, 3)), leg(k, [(37, 41), (39, 50), (41, 58)], 180, ws=(5, 4, 3))]
         head = ghead(f, 39, 23, -25, open_=True)
@@ -1043,17 +1043,21 @@ def froschkoenig(c, pose):
                 + tube([(42, 34), (48, 40), (52, 46)], [3.5, 3, 2], k["body"]))
         eye = f'<circle cx="40" cy="24" r="3" fill="{k["top"]}" stroke-width="0.6"/><circle cx="41" cy="24" r="1.2" fill="#1f1a14" stroke="none"/>'
         return FSHADOW + legs + body + eye + f'<g transform="translate(40 20) rotate(15)">{crown}</g>' + spots([(18, 28), (30, 26), (42, 28)], [6, 8, 6], k["top"], every=6)
-    body = hat("M14 58 C12 48 16 36 26 32 C34 29 42 32 46 40 C49 46 48 54 46 58 Z", k["body"], region=right(36), ang=60, gap=1.3)
-    belly = hat("M22 58 C22 50 26 44 32 44 C38 44 42 50 42 58 Z", c["white_l"], region=right(36), ang=60, gap=1.5)
-    legs = (f'<path d="M12 58 C10 52 14 48 20 50 L22 58 Z M48 58 C50 52 46 48 40 50 L38 58 Z" fill="{k["body"]}"/>'
-            '<path d="M12 58 l-3 2 M14 58 l-1 3 M48 58 l3 2 M46 58 l1 3" fill="none" stroke-width="0.7"/>')
-    eyes = (f'<circle cx="24" cy="33" r="4" fill="{k["top"]}" stroke-width="0.7"/><circle cx="38" cy="32" r="4" fill="{k["top"]}" stroke-width="0.7"/>'
-            '<ellipse cx="24.5" cy="33" rx="1.6" ry="2" fill="#1f1a14" stroke="none"/><ellipse cx="38.5" cy="32" rx="1.6" ry="2" fill="#1f1a14" stroke="none"/>')
-    mouth = '<path d="M20 40 Q31 45 43 39" fill="none" stroke-width="0.8"/>'
-    sac = hat("M24 42 C24 50 38 50 38 42 C34 44 28 44 24 42 Z", c["white_l"], ang=0, gap=1.3) if pose == "quakt" else ""
+    body = hat("M14 57 C11 49 15 41 23 37 C29 34 37 32 43 33 C48 34 52 38 52 42 C52 46 48 48 43 48 C40 52 37 56 33 57 Z",
+               k["body"], region=below(44), ang=30, gap=1.3)
+    belly = hat("M43 48 C40 52 37 56 33 57 L26 57 C30 54 34 50 38 46 Z", c["white_l"], ang=30, gap=1.5)
+    thigh = hat("M14 57 C13 50 18 45 25 47 C30 49 31 54 28 57 Z", k["body"], region=below(51), ang=30, gap=1.2)
+    foot = (f'<path d="M24 57 L36 57 L40 59 L35 59 L37 61 L31 59.5 L24 59.5 Z" fill="{k["body"]}" stroke-width="0.6"/>'
+            + leg(dict(k, body=k["body"]), [(41, 46), (42, 52), (43, 57)], 0, ws=(3.4, 2.8, 2.4), kind="", skin="none")["back"]
+            + leg(dict(k, body=k["body"]), [(41, 46), (42, 52), (43, 57)], 0, ws=(3.4, 2.8, 2.4), kind="", skin="none")["front"]
+            + '<path d="M43 57 l-2 2 M43 57 l0.5 2.6 M43 57 l3 1.6" fill="none" stroke-width="0.6"/>')
+    eye = (f'<circle cx="44" cy="33" r="3" fill="{k["top"]}" stroke-width="0.6"/><ellipse cx="44.6" cy="33" rx="1.6" ry="1" fill="#1f1a14" stroke="none"/>'
+           '<path d="M41 31 q3 -2.5 6 0" fill="none" stroke-width="0.5"/>')
+    mouth = '<path d="M52 42 C48 44.5 43 44.5 38 42.5" fill="none" stroke-width="0.7"/><circle cx="50.5" cy="38" r="0.5" fill="#1f1a14" stroke="none"/>'
+    sac = hat("M42 44 C42 51 51 51 50 44 C47 46 45 46 42 44 Z", c["white_l"], ang=0, gap=1.3) if pose == "quakt" else ""
     well = hat("M2 60 L2 50 L12 50 L12 60 Z", c["grey_l"], region=right(7), ang=0, gap=1.4) + '<path d="M2 55 H12 M7 50 V55" fill="none" stroke-width="0.5"/>'
-    return (well + body + belly + legs + spots([(16, 50), (20, 38), (30, 34)], [6, 6, 6], k["top"], every=6) + eyes + mouth + sac
-            + f'<g transform="translate(31 30)">{crown}</g>')
+    return (well + body + belly + thigh + foot + spots([(18, 46), (26, 38), (36, 35)], [7, 7, 6], k["top"], every=6) + eye + mouth + sac
+            + f'<g transform="translate(43 29.5) rotate(10)">{crown}</g>')
 
 def kornwolf(c, pose):
     """Kornwolf / Roggenwolf: Feldgeist in Wolfsgestalt, Ähren im Fell (Sage)."""
