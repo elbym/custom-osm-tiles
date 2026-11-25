@@ -949,10 +949,13 @@ def stain_png(data, x, y, cfg):
         top = h(i, j) * (1 - fu) + h(i + 1, j) * fu
         bot = h(i, j + 1) * (1 - fu) + h(i + 1, j + 1) * fu
         return top * (1 - fv) + bot * fv
-    n, tot, amp = 0, 0, 1
-    for cell in (640, 320, 160, 80, 40):  # Fleckengröße in px (× scale), feinere Oktaven fransen die Ränder aus
-        cell *= cfg.get("scale", 1)
-        n, tot, amp = n + amp * noise(gx / cell, gy / cell, round(cell)), tot + amp, amp * .5
+    def fbm(u, v):  # Fleckenfeld 0..1; Fleckengröße in px (× scale), feinere Oktaven fransen die Ränder aus
+        n, tot, amp = 0, 0, 1
+        for cell in (640, 320, 160, 80, 40):
+            cell *= cfg.get("scale", 1)
+            n, tot, amp = n + amp * noise(u / cell, v / cell, round(cell)), tot + amp, amp * .5
+        return n / tot
+    n, tot = fbm(gx, gy), 1
     a = np.clip((n / tot - cfg.get("threshold", .55)) * cfg.get("edge", 4), 0, 1)[..., None] * cfg.get("strength", .35)  # edge: Randschärfe
     col = np.array([int(cfg.get("color", "#8c642d")[i:i + 2], 16) for i in (1, 3, 5)]) / 255
     if cfg.get("blend") == "patina":  # Grünspan (Kupferplatte, nach Fotos oxidierter Kupferplatten): körnige Kruste in hellem
@@ -961,7 +964,17 @@ def stain_png(data, x, y, cfg):
         px = np.asarray(im, float)
         z = n / tot - cfg.get("threshold", .55)          # > 0: Zone
         grain = sum(noise(gx / c, gy / c, round(7 + 10 * c)) * w for c, w in ((1.5, .5), (4, .3), (12, .2)))   # Korn, 0..1
-        crust = np.clip((np.clip(z * cfg.get("edge", 4), 0, 1) * .75 + grain - 1.05) * 6, 0, 1)[..., None] * cfg.get("strength", .35)
+        zone = np.clip(z * cfg.get("edge", 4), 0, 1)
+        if cfg.get("drips"):  # Grünspan läuft in Rinnsalen nach unten (Nutzerfoto 2026-11-25): Zone von weiter oben,
+            # nur in schmalen Spalten (Rauschen über x), je länger, desto dünner; drips = größte Länge in px.
+            # Fleckenfeld einmal mit Rand nach oben berechnet und zeilenweise verschoben (12× fbm kostete 4 min)
+            d = int(cfg["drips"] * size / 256)
+            ey, ex = np.mgrid[-d:size, 0:size] * (256 / size)
+            far = np.clip((fbm(x * 256 + ex, y * 256 + ey) - cfg.get("threshold", .55)) * cfg.get("edge", 4), 0, 1)
+            col = noise(gx / 6, np.full_like(gx, 5.5), 41) * .65 + noise(gx / 2, np.full_like(gx, 3.5), 43) * .35
+            for k in range(1, d + 1, max(1, d // 24)):
+                zone = np.maximum(zone, far[d - k:d - k + size] * (col > .45 + .25 * k / d) * (1.15 - .3 * k / d))
+        crust = np.clip((zone * .75 + grain - 1.05) * 6, 0, 1)[..., None] * cfg.get("strength", .35)
         hue = noise(gx / 30, gy / 30, 99)[..., None]       # Türkis ↔ Grün, fleckig
         hexc = lambda h: np.array([int(h[i:i + 2], 16) for i in (1, 3, 5)], float)
         green = hexc(cfg.get("color", "#40bfae")) * (1 - hue) + hexc(cfg.get("color2", "#6a9a52")) * hue
