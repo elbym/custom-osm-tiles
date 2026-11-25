@@ -192,7 +192,7 @@ paint = { line-color = "#5cff8a", line-blur = 3, line-opacity = 0.45, line-width
 like = "highway-path"
 id = "neon-schein"
 filter = ["==", ["get", "subclass"], "pedestrian"]
-paint = { line-color = "#a040ff", line-blur = 4, line-opacity = 0.55, line-dasharray = [1, 0], line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 4, 20, 20] }
+paint = { line-color = "#a040ff", line-blur = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 6, 20, 20], line-opacity = 0.75, line-dasharray = [1, 0], line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 12, 20, 40] }
 [[layers]]
 like = "highway-path"
 after = "neon-schein"
