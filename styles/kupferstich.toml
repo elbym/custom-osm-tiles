@@ -135,3 +135,33 @@ type = "bubble"
 color = "#6b3a1e"
 bg = "#f0e4c6"
 fg = "#3b2614"
+
+# Fabelwesen an festen Orten (figures(), Nutzerwunsch 2026-11-25), dieselben Wesen wie im anderen alten Stil, nach
+# Wappen, Sagen und Holzschnitten des 16. Jh.; Zeichnungen aus tools/gen_figures.py (FABEL), hier die Sepia-Fassung.
+[figures]
+names = ["lindwurm-sepia", "flugdrache-sepia", "greif-sepia", "einhorn-sepia", "seeschlange-sepia", "nixe-sepia", "wassermann-sepia", "waldschrat-sepia",
+         "roggenmuhme-sepia", "zwerg-sepia", "gespenst-sepia", "irrlicht-sepia", "froschkoenig-sepia", "kornwolf-sepia", "basilisk-sepia", "wolpertinger-sepia"]
+density = 0.45
+density_rich = 0.85
+size = 64        # px im Sprite (Standard 48): Schuppen und Schraffur brauchen Platz
+line = 1.1       # feine Holzschnitt-Kontur statt der kräftigen Comic-Kontur (Standard 2)
+rim = 5          # heller Rand für Lesbarkeit auf der Karte (Standard 7)
+areas = ["water", "farmland", "wetland"]   # außer Grün auch hier; im Wasser stehen nur Wasserwesen
+
+# Wesen passend zum Ort (OpenMapTiles-Klassen/Unterklassen aus poi, landuse, landcover; water = Wasserfläche).
+# Basilisk und Wolpertinger ohne Ort: sie füllen die übrigen Zellen.
+[figures.places]
+"lindwurm-sepia" = ["castle", "ruins", "viewpoint"]
+"flugdrache-sepia" = ["castle", "ruins", "viewpoint"]
+"greif-sepia" = ["castle", "town_hall", "museum"]
+"einhorn-sepia" = ["meadow", "heath", "forest"]
+"seeschlange-sepia" = ["water"]
+"nixe-sepia" = ["water"]
+"wassermann-sepia" = ["water"]
+"waldschrat-sepia" = ["wood", "forest", "scrub"]
+"roggenmuhme-sepia" = ["farmland"]
+"zwerg-sepia" = ["allotments", "garden", "quarry", "mine"]
+"gespenst-sepia" = ["cemetery", "grave_yard", "ruins"]
+"irrlicht-sepia" = ["cemetery", "wetland", "bog", "marsh"]
+"froschkoenig-sepia" = ["fountain", "wetland"]
+"kornwolf-sepia" = ["farmland"]

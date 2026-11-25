@@ -207,7 +207,8 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False, f
     p, accent = t["paint"], t.get("marker", {}).get("color", "#888888")
     fspec = t.get("figures")
     figs = fspec and {"names": fspec["names"], "ink": fspec.get("ink", accent),
-                      "sticker": fspec.get("sticker", t.get("marker", {}).get("bg", "#ffffff"))}
+                      "sticker": fspec.get("sticker", t.get("marker", {}).get("bg", "#ffffff")),
+                      "size": fspec.get("size", FIG), "line": fspec.get("line", 2), "rim": fspec.get("rim", 7)}
     weight = {"mono": "bold", "pixel": "bold", "serif": "light"}.get(fcfg.get("group"), "regular")
     s["sprite"] = poi_sprite(weight, p["background"]["background-color"], accent, p["poi_*"]["text-color"],
                              t.get("mode") == "dark", t.get("patterns"), figs)
@@ -219,7 +220,7 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False, f
         add_layer(s, dict(spec))
     if fspec and figs_at:
         figures(s, figs_at[1], figs_at[0], fspec["names"], fspec.get("places"), fspec.get("density", 0.45),
-                fspec.get("density_rich", 0.85))
+                fspec.get("density_rich", 0.85), fspec.get("areas", ()))
     if t.get("old_railways") and center:
         old_railways(s, center)
     if t.get("graticule") and center:
@@ -402,7 +403,7 @@ def water_lines(s, color, count=3, gap=2, width=0.6, minzoom=13):
 STROKE = {"light": 12, "regular": 16, "bold": 24}  # Phosphor-Strichstärken im 256er-Raster
 
 
-FIG = 48     # Figuren im Sprite: FIG × FIG px (je pixelRatio), Zeichnungen vendor/figures/<figur>/<pose>.svg, viewBox 64×64
+FIG = 48     # Figuren im Sprite: FIG × FIG px (je pixelRatio; figures.size im Stil), Zeichnungen vendor/figures/<figur>/<pose>.svg, viewBox 64×64
 FIG_CELL = (0.004, 0.006)  # Raster für Figuren in Grad (Breite, Länge), ~450 × 410 m bei 52° N
 
 
@@ -609,7 +610,7 @@ def fig_beside(mb, lon, lat, b):
 FIG_SPLIT = 6   # ab so vielen passenden POIs/Wahrzeichen wird die Zelle in 2×2 geteilt (Innenstadt)
 
 
-def fig_cell(mb, key, box, names, fit, density, density_rich):
+def fig_cell(mb, key, box, names, fit, density, density_rich, areas=frozenset()):
     """Figur für eine Zelle oder None, siehe figures(). key: Hash-Schlüssel, box: (süd, west, nord, ost)."""
     south, west, north, east = box
     h = hashlib.sha256(key.encode()).digest()
@@ -620,34 +621,38 @@ def fig_cell(mb, key, box, names, fit, density, density_rich):
     pois = fig_pois(mb, box)
     theme = [p for p in pois if fit(p[0])]
     marks = [p for p in pois if FIG_LANDMARK & set(p[0])]
-    green = [x for x in info if FIG_GREEN & x[1] and "water" not in x[1]]
+    wet = set(fit({"water"}))   # Wasserwesen (places mit "water"): nur im Wasser, sonst nirgends
+    land = [n for n in names if n not in wet]
+    green = [x for x in info if (FIG_GREEN | areas) & x[1] and ("water" not in x[1] or "water" in areas)]
     if h[0] / 256 >= (density_rich if theme or marks or green else density):
         return None
     pool = []
     if theme and (not green or h[1] < 154) or marks and not green:   # Thema gewinnt zu 60 % vor Grün
         ctx, plon, plat = pick(theme or marks, 30)
-        spot, pool = fig_beside(mb, plon, plat, h[31]), fit(ctx)
+        spot, pool = fig_beside(mb, plon, plat, h[31]), [n for n in fit(ctx) if n not in wet]
     elif green:
         spot, ctx, _ = next((x for x in green if x[2]), green[0])
-        pool = fit(ctx) if h[2] < 171 else []
+        pool = [n for n in fit(ctx) if n in wet] if "water" in ctx else fit(ctx) if h[2] < 171 else []
     else:
         dry = [x for x in info if "water" not in x[1]] or info
         spot = next((x for x in dry if x[2]), dry[0])[0]
-    n = pick(pool or names, 3)
+    n = pick(pool or land, 3)
     poses = fig_poses(n)
     img = f"fig-{n}-{poses[h[4] % len(poses)].stem}{'-m' if h[5] & 1 else ''}"
     return {"type": "Feature", "properties": {"f": img},
             "geometry": {"type": "Point", "coordinates": [round(spot[0], 6), round(spot[1], 6)]}}
 
 
-def figures(s, bounds, mb, names, places=None, density=0.45, density_rich=0.85):
+def figures(s, bounds, mb, names, places=None, density=0.45, density_rich=0.85, areas=()):
     """Kleine Figuren an festen Orten (figures im Stil). Stabil: ein weltweit verankertes Raster aus FIG_CELL-Zellen
     (~450 m); alles hängt nur vom SHA-256 der Zellnummer und den mbtiles ab, nicht von Mittelpunkt, Radius oder Stil.
     Zellen mit mindestens FIG_SPLIT passenden POIs/Wahrzeichen (Innenstadt) werden in 2×2 Unterzellen geteilt.
     Je (Unter-)Zelle, in dieser Reihenfolge:
       1. POI mit passender Figur (places: Figur = [OMT-Klassen/Unterklassen]) -> diese Figur daneben (Samurai an der
          Burg); liegt auch Grün in der Zelle, nur zu 60 %, sonst gewinnen häufige POIs (Spielplatz, Sportplatz) überall
-      2. Grünfläche/Wald (FIG_GREEN) unter 12 Kandidatenorten -> dort, Figur zu 2/3 passend zur Fläche (Kitsune im Wald)
+      2. Grünfläche/Wald (FIG_GREEN, dazu areas aus dem Stil, z. B. water, farmland) unter 12 Kandidatenorten -> dort,
+         Figur zu 2/3 passend zur Fläche (Kitsune im Wald); im Wasser immer ein Wasserwesen (places mit "water"),
+         die sonst nirgends stehen
       3. sonstiges Wahrzeichen (FIG_LANDMARK) -> daneben, beliebige Figur
       4. sonst ein Kandidat nicht im Wasser
     Kandidaten mit FIG_ROAD-Abstand zur Straße werden vorgezogen. Zellen mit POI oder Grün bekommen mit density_rich
@@ -670,7 +675,7 @@ def figures(s, bounds, mb, names, places=None, density=0.45, density_rich=0.85):
                                            box[0] + (k // 2 + 1) * dy / 2, box[1] + (k % 2 + 1) * dx / 2))
                     for k in range(4)] if busy else [(f"fig {i} {j}", box)]
             for key, b in subs:
-                f = fig_cell(mb, key, b, names, fit, density, density_rich)
+                f = fig_cell(mb, key, b, names, fit, density, density_rich, frozenset(areas))
                 if f:
                     feats.append(f)
     s["sources"]["figures"] = {"type": "geojson", "data": {"type": "FeatureCollection", "features": feats}}
@@ -690,7 +695,7 @@ def poi_sprite(weight, bg, accent, glyph, dark, patterns=None, figs=None):
     vendor/patterns/<symbol>.svg in color auf bg (fill-pattern ersetzt die Füllfarbe), unten an das Sprite angehängt.
     figs (figures im Stil): {names, ink, sticker} -> Bilder fig-<figur>-<pose>[-m] aus vendor/figures/<figur>/<pose>.svg
     (-m gespiegelt), mit Tuschekontur ink und breitem Sticker-Rand sticker (Lesbarkeit auf jedem Grund), in Zeilen
-    unter den Mustern."""
+    unter den Mustern. size/line/rim: Bildgröße, Kontur- und Randbreite (im 64er-Raster). currentColor in den Zeichnungen = ink (Schraffur, Konturen mit eigener Breite)."""
     hexrgb = lambda h: [int(h[i:i + 2], 16) for i in (1, 3, 5)]
     mix = lambda t: "#%02x%02x%02x" % tuple(round(b + (a - b) * t) for b, a in zip(hexrgb(bg), hexrgb(accent)))
     disc, ring = mix(0.22 if dark else 0.16), mix(0.45)
@@ -722,7 +727,7 @@ def poi_sprite(weight, bg, accent, glyph, dark, patterns=None, figs=None):
             idx[pn] = {"x": x, "y": h, "width": d, "height": d, "pixelRatio": pr}
         h += ph
         if figs:  # Figurenzeilen, jede Pose normal und gespiegelt; Zeichnung zweimal: breiter Sticker-Rand, darüber Tusche
-            fh = FIG * pr
+            fh = figs["size"] * pr
             per = w // fh
             imgs = [(f"fig-{n}-{f.stem}{m}", f, m) for n in figs["names"] for f in fig_poses(n) for m in ("", "-m")]
             rows = -(-len(imgs) // per)
@@ -732,8 +737,8 @@ def poi_sprite(weight, bg, accent, glyph, dark, patterns=None, figs=None):
                 body = re.sub(r"<!--.*?-->|^\s*<svg[^>]*>|</svg>\s*$", "", f.read_text().strip(), flags=re.S | re.M)
                 flip = " translate(64,0) scale(-1,1)" if m else ""
                 svg.append(f'<g transform="translate({x},{y}) scale({fh / 68}) translate(2,2){flip}" stroke-linejoin="round" '
-                           f'stroke-linecap="round"><g stroke="{figs["sticker"]}" stroke-width="7">{body}</g>'
-                           f'<g stroke="{figs["ink"]}" stroke-width="2">{body}</g></g>')
+                           f'stroke-linecap="round"><g stroke="{figs["sticker"]}" color="{figs["sticker"]}" stroke-width="{figs["rim"]}">{body}</g>'
+                           f'<g stroke="{figs["ink"]}" color="{figs["ink"]}" stroke-width="{figs["line"]}">{body}</g></g>')
                 idx[key] = {"x": x, "y": y, "width": fh, "height": fh, "pixelRatio": pr}
             h += fh * rows
         for key, r in idx.items():

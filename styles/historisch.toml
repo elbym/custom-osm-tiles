@@ -136,3 +136,33 @@ type = "bubble"
 color = "#7a2e22"
 bg = "#fbf5e4"
 fg = "#2a1f17"
+
+# Fabelwesen an festen Orten (figures(), Nutzerwunsch 2026-11-25), dieselben Wesen wie im anderen alten Stil, nach
+# Wappen, Sagen und Holzschnitten des 16. Jh.; Zeichnungen aus tools/gen_figures.py (FABEL), hier die kolorierte Fassung.
+[figures]
+names = ["lindwurm", "flugdrache", "greif", "einhorn", "seeschlange", "nixe", "wassermann", "waldschrat",
+         "roggenmuhme", "zwerg", "gespenst", "irrlicht", "froschkoenig", "kornwolf", "basilisk", "wolpertinger"]
+density = 0.45
+density_rich = 0.85
+size = 64        # px im Sprite (Standard 48): Schuppen und Schraffur brauchen Platz
+line = 1.1       # feine Holzschnitt-Kontur statt der kräftigen Comic-Kontur (Standard 2)
+rim = 5          # heller Rand für Lesbarkeit auf der Karte (Standard 7)
+areas = ["water", "farmland", "wetland"]   # außer Grün auch hier; im Wasser stehen nur Wasserwesen
+
+# Wesen passend zum Ort (OpenMapTiles-Klassen/Unterklassen aus poi, landuse, landcover; water = Wasserfläche).
+# Basilisk und Wolpertinger ohne Ort: sie füllen die übrigen Zellen.
+[figures.places]
+"lindwurm" = ["castle", "ruins", "viewpoint"]
+"flugdrache" = ["castle", "ruins", "viewpoint"]
+"greif" = ["castle", "town_hall", "museum"]
+"einhorn" = ["meadow", "heath", "forest"]
+"seeschlange" = ["water"]
+"nixe" = ["water"]
+"wassermann" = ["water"]
+"waldschrat" = ["wood", "forest", "scrub"]
+"roggenmuhme" = ["farmland"]
+"zwerg" = ["allotments", "garden", "quarry", "mine"]
+"gespenst" = ["cemetery", "grave_yard", "ruins"]
+"irrlicht" = ["cemetery", "wetland", "bog", "marsh"]
+"froschkoenig" = ["fountain", "wetland"]
+"kornwolf" = ["farmland"]
