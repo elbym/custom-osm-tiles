@@ -208,7 +208,8 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False, f
     fspec = t.get("figures")
     figs = fspec and {"names": fspec["names"], "ink": fspec.get("ink", accent),
                       "sticker": fspec.get("sticker", t.get("marker", {}).get("bg", "#ffffff")),
-                      "size": fspec.get("size", FIG), "line": fspec.get("line", 2), "rim": fspec.get("rim", 7)}
+                      "size": fspec.get("size", FIG), "line": fspec.get("line", 2), "rim": fspec.get("rim", 7),
+                      "poses": fspec.get("poses")}
     weight = {"mono": "bold", "pixel": "bold", "serif": "light"}.get(fcfg.get("group"), "regular")
     s["sprite"] = poi_sprite(weight, p["background"]["background-color"], accent, p["poi_*"]["text-color"],
                              t.get("mode") == "dark", t.get("patterns"), figs)
@@ -220,7 +221,7 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False, f
         add_layer(s, dict(spec))
     if fspec and figs_at:
         figures(s, figs_at[1], figs_at[0], fspec["names"], fspec.get("places"), fspec.get("density", 0.45),
-                fspec.get("density_rich", 0.85), fspec.get("areas", ()))
+                fspec.get("density_rich", 0.85), fspec.get("areas", ()), fspec.get("poses"))
     if t.get("old_railways") and center:
         old_railways(s, center)
     if t.get("graticule") and center:
@@ -407,8 +408,9 @@ FIG = 48     # Figuren im Sprite: FIG × FIG px (je pixelRatio; figures.size im 
 FIG_CELL = (0.004, 0.006)  # Raster für Figuren in Grad (Breite, Länge), ~450 × 410 m bei 52° N
 
 
-def fig_poses(name):
-    return sorted((ROOT / "vendor" / "figures" / name).glob("*.svg"))
+def fig_poses(name, only=None):
+    """Posen einer Figur, mit only (figures.poses im Stil) nur diese, z. B. ["schlaeft"]."""
+    return sorted(f for f in (ROOT / "vendor" / "figures" / name).glob("*.svg") if not only or f.stem in only)
 
 
 # --- Figuren: Ortswahl aus den eigenen mbtiles (z14, OpenMapTiles) ---------------------------------------------------
@@ -610,7 +612,7 @@ def fig_beside(mb, lon, lat, b):
 FIG_SPLIT = 6   # ab so vielen passenden POIs/Wahrzeichen wird die Zelle in 2×2 geteilt (Innenstadt)
 
 
-def fig_cell(mb, key, box, names, fit, density, density_rich, areas=frozenset()):
+def fig_cell(mb, key, box, names, fit, density, density_rich, areas=frozenset(), only=None):
     """Figur für eine Zelle oder None, siehe figures(). key: Hash-Schlüssel, box: (süd, west, nord, ost)."""
     south, west, north, east = box
     h = hashlib.sha256(key.encode()).digest()
@@ -637,13 +639,13 @@ def fig_cell(mb, key, box, names, fit, density, density_rich, areas=frozenset())
         dry = [x for x in info if "water" not in x[1]] or info
         spot = next((x for x in dry if x[2]), dry[0])[0]
     n = pick(pool or land, 3)
-    poses = fig_poses(n)
+    poses = fig_poses(n, only)
     img = f"fig-{n}-{poses[h[4] % len(poses)].stem}{'-m' if h[5] & 1 else ''}"
     return {"type": "Feature", "properties": {"f": img},
             "geometry": {"type": "Point", "coordinates": [round(spot[0], 6), round(spot[1], 6)]}}
 
 
-def figures(s, bounds, mb, names, places=None, density=0.45, density_rich=0.85, areas=()):
+def figures(s, bounds, mb, names, places=None, density=0.45, density_rich=0.85, areas=(), poses=None):
     """Kleine Figuren an festen Orten (figures im Stil). Stabil: ein weltweit verankertes Raster aus FIG_CELL-Zellen
     (~450 m); alles hängt nur vom SHA-256 der Zellnummer und den mbtiles ab, nicht von Mittelpunkt, Radius oder Stil.
     Zellen mit mindestens FIG_SPLIT passenden POIs/Wahrzeichen (Innenstadt) werden in 2×2 Unterzellen geteilt.
@@ -675,7 +677,7 @@ def figures(s, bounds, mb, names, places=None, density=0.45, density_rich=0.85, 
                                            box[0] + (k // 2 + 1) * dy / 2, box[1] + (k % 2 + 1) * dx / 2))
                     for k in range(4)] if busy else [(f"fig {i} {j}", box)]
             for key, b in subs:
-                f = fig_cell(mb, key, b, names, fit, density, density_rich, frozenset(areas))
+                f = fig_cell(mb, key, b, names, fit, density, density_rich, frozenset(areas), poses)
                 if f:
                     feats.append(f)
     s["sources"]["figures"] = {"type": "geojson", "data": {"type": "FeatureCollection", "features": feats}}
@@ -701,7 +703,7 @@ def poi_sprite(weight, bg, accent, glyph, dark, patterns=None, figs=None):
     disc, ring = mix(0.22 if dark else 0.16), mix(0.45)
     name = f"sprites/{weight}-{bg[1:]}-{accent[1:]}-{glyph[1:]}"
     if patterns or figs:  # Figuren und Muster mit Dateiinhalt im Hash, sonst bliebe nach dem Nachzeichnen das alte Sprite
-        drawn = [f.read_text() for n in (figs or {}).get("names", []) for f in fig_poses(n)]
+        drawn = [f.read_text() for n in (figs or {}).get("names", []) for f in fig_poses(n, (figs or {}).get("poses"))]
         drawn += [(ROOT / "vendor" / "patterns" / f"{s['symbol']}.svg").read_text() for s in (patterns or {}).values()]
         name += "-" + hashlib.sha1(json.dumps([patterns, figs, drawn], sort_keys=True).encode()).hexdigest()[:8]
     icons = tomllib.loads((ROOT / "style" / "icons.toml").read_text())
@@ -730,7 +732,7 @@ def poi_sprite(weight, bg, accent, glyph, dark, patterns=None, figs=None):
         if figs:  # Figurenzeilen, jede Pose normal und gespiegelt; Zeichnung zweimal: breiter Sticker-Rand, darüber Tusche
             fh = figs["size"] * pr
             per = w // fh
-            imgs = [(f"fig-{n}-{f.stem}{m}", f, m) for n in figs["names"] for f in fig_poses(n) for m in ("", "-m")]
+            imgs = [(f"fig-{n}-{f.stem}{m}", f, m) for n in figs["names"] for f in fig_poses(n, figs.get("poses")) for m in ("", "-m")]
             rows = -(-len(imgs) // per)
             px += bytes(w * fh * rows * 4)
             for k, (key, f, m) in enumerate(imgs):
