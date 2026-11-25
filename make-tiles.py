@@ -930,7 +930,7 @@ def parent(url):
 def stain_png(data, x, y, cfg):
     """Altersflecken in die Kachel einbacken (stains im Stil, Versuch): Wertrauschen in globalen Pixelkoordinaten der
     Zoomstufe, daher nahtlos über Kachelgrenzen; je Zoomstufe gleich groß auf dem Bildschirm (andere Stufe = anderes
-    Blatt). Fleckenfarbe multipliziert, Stärke cfg["strength"]; danach wie immer pngquant."""
+    Blatt). Fleckenfarbe multipliziert (blend = "mix": überdeckt), Stärke cfg["strength"]; danach wie immer pngquant."""
     import numpy as np
     from PIL import Image
     im = Image.open(io.BytesIO(data)).convert("RGB")
@@ -954,7 +954,10 @@ def stain_png(data, x, y, cfg):
         n, tot, amp = n + amp * noise(gx / cell, gy / cell, cell), tot + amp, amp * .5
     a = np.clip((n / tot - cfg.get("threshold", .55)) * 4, 0, 1)[..., None] * cfg.get("strength", .35)
     col = np.array([int(cfg.get("color", "#8c642d")[i:i + 2], 16) for i in (1, 3, 5)]) / 255
-    out = np.asarray(im, float) * (1 - a * (1 - col))
+    if cfg.get("blend") == "mix":  # Farbe überdecken statt multiplizieren: Grünspan auf der Kupferplatte (dunkler Grund)
+        out = np.asarray(im, float) * (1 - a) + col * 255 * a
+    else:
+        out = np.asarray(im, float) * (1 - a * (1 - col))
     buf = io.BytesIO()
     Image.fromarray(out.round().astype(np.uint8)).save(buf, "PNG")
     return buf.getvalue()

@@ -1,0 +1,168 @@
+# "Kupferplatte": dunkler Partner von Kupferstich (Nutzerwunsch 2026-11-25): die gestochene Platte selbst statt des Abzugs.
+#   - Grund dunkle Bronze, alle Linien hell wie frisch geritztes Kupfer, Straßen als glatt polierte Bahnen
+#   - Grünspan statt Altersflecken (stains blend = "mix"), Fabelwesen in der Kupfer-Fassung (helle Schraffur)
+title = "Kupferplatte"
+category = "standard"
+mode = "dark"
+family = "Kupferstich"
+font = "IM Fell English"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "IM Fell English"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+stains = { strength = 0.55, color = "#3f7a68", blend = "mix" }
+overlay = "paper"          # Papierkorn und vergilbter Rand im Browser (template.html / src/streifen.css)
+text_scale = 1.4
+hide = ["building-top", "railway-transit-hatching", "poi_r20", "poi_r7", "poi_transit", "road_oneway*", "highway-shield-*", "road_shield_us"]
+[hide_class]
+"poi_*" = ["fuel", "parking", "car", "bicycle", "bicycle_rental", "bicycle_parking", "bus", "mobile_phone", "electronics",
+           "computer", "fast_food", "charging_station", "aerialway", "cinema", "doctors", "dentist", "laundry", "atm",
+           "entrance", "playground", "swimming", "golf", "ice_cream", "car_rental", "car_repair", "taxi"]
+
+[paint."background"]
+background-color = "#2a1810"
+[paint."landuse-*"]
+fill-color = "#2e1b12"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-pattern = "friedhof"
+fill-color = "#33200f"
+[paint."park"]
+fill-pattern = "wiese"
+fill-color = "#33200f"
+[paint."landcover-*"]
+fill-color = "#33200f"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-pattern = "wald"
+fill-color = "#3a2416"
+[paint."landcover-grass*"]
+fill-pattern = "wiese"
+
+[paint."water*"]
+fill-color = "#1d2422"
+line-color = "#b07a4a"
+[paint."building*"]
+fill-color = "#4a2c1c"
+fill-outline-color = "#d89a60"
+[paint."*-minor*"]
+line-color = "#3c2416"
+[paint."*-service-track"]
+line-color = "#3c2416"
+[paint."*-link"]
+line-color = "#3c2416"
+[paint."*-secondary-tertiary*"]
+line-color = "#3c2416"
+[paint."*-primary*"]
+line-color = "#3c2416"
+[paint."*-trunk*"]
+line-color = "#3c2416"
+[paint."*-motorway*"]
+line-color = "#3c2416"
+[paint."*-casing"]
+line-color = "#c8844c"
+[paint."highway-area"]
+fill-color = "#3c2416"
+fill-outline-color = "#c8844c"
+[paint."aeroway-*"]
+fill-color = "#2e1b12"
+line-color = "#2e1b12"
+[paint."*-path"]
+line-color = "#b07a4a"
+[paint."*railway*"]
+line-color = "#e0a868"
+# Eisenbahn wie auf alten Karten: schwarzes Band, innen abwechselnd hell (Hatching-Ebenen als Innenstrich)
+[paint."railway"]
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 1.2, 16, 3, 18, 4.5]
+[paint."bridge-railway"]
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 1.2, 16, 3, 18, 4.5]
+[paint."*railway-hatching"]
+line-color = "#2a1810"
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 0.5, 16, 1.6, 18, 2.6]
+line-dasharray = [3, 3]
+[paint."railway-service"]
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.8, 16, 1.8, 18, 3]
+[paint."railway-service-hatching"]
+line-color = "#2a1810"
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.3, 16, 0.8, 18, 1.6]
+line-dasharray = [3, 3]
+[paint."railway-transit"]
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.6, 18, 1.5]
+[paint."label_*"]
+text-color = "#f0c890"
+text-halo-color = "#2a1810"
+[paint."highway-name-*"]
+text-color = "#e0b07a"
+text-halo-color = "#2a1810"
+[paint."poi_*"]
+text-color = "#e8a060"
+text-halo-color = "#2a1810"
+[paint."water*label"]
+text-color = "#7fb0a0"
+text-halo-color = "#2a1810"
+# Straßennamen größer und mit dem Zoom wachsend (Basis: ab z14 fest 13 × text_scale); feste Größen, text_scale gilt nicht
+[layout."highway-name-major"]
+text-size = ["interpolate", ["linear"], ["zoom"], 13, 17, 15, 21, 17, 26]
+[layout."highway-name-minor"]
+text-size = ["interpolate", ["linear"], ["zoom"], 13, 16, 15, 20, 17, 24]
+[layout."highway-name-path"]
+text-size = ["interpolate", ["linear"], ["zoom"], 14, 14, 17, 19]
+
+# Ortsnamen groß (Fraktur wirkt kleiner als Antiqua; feste Größen, text_scale gilt hier nicht). Orte in Fraktur, Ortsteile gesperrt in Antiqua-Versalien (wie auf alten Stadtplänen)
+[layout."label_other"]
+text-size = ["interpolate", ["linear"], ["zoom"], 12, 12, 14, 14, 17, 18]
+text-transform = "uppercase"
+text-letter-spacing = 0.25
+[layout."label_village"]
+text-size = ["interpolate", ["linear"], ["zoom"], 11, 17, 14, 22, 17, 28]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+[layout."label_town"]
+text-size = ["interpolate", ["linear"], ["zoom"], 11, 22, 14, 29, 17, 37]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+[layout."label_city"]
+text-size = ["interpolate", ["linear"], ["zoom"], 8, 21, 11, 30, 14, 39, 17, 48]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+
+# Signaturen (fill-pattern, Symbole in vendor/patterns/, Bild ersetzt die Füllfarbe) und Wasserlinien am Ufer
+[patterns]
+wald = { symbol = "laubwald", color = "#b07a4a", bg = "#3a2416" }
+wiese = { symbol = "wiese", color = "#8a5a34", bg = "#33200f" }
+friedhof = { symbol = "friedhof", color = "#b07a4a", bg = "#33200f" }
+[water_lines]
+color = "#7a5a3a"
+count = 3
+gap = 2
+
+[marker]
+type = "bubble"
+color = "#e0a060"
+bg = "#2a1810"
+fg = "#f0c890"
+
+# Fabelwesen an festen Orten (figures(), Nutzerwunsch 2026-11-25), dieselben Wesen wie im anderen alten Stil, nach
+# Wappen, Sagen und Holzschnitten des 16. Jh.; Zeichnungen aus tools/gen_figures.py (FABEL), hier die Kupfer-Fassung.
+[figures]
+names = ["lindwurm-kupfer", "flugdrache-kupfer", "greif-kupfer", "einhorn-kupfer", "seeschlange-kupfer", "nixe-kupfer", "wassermann-kupfer", "waldschrat-kupfer",
+         "roggenmuhme-kupfer", "zwerg-kupfer", "gespenst-kupfer", "irrlicht-kupfer", "froschkoenig-kupfer", "kornwolf-kupfer", "basilisk-kupfer", "wolpertinger-kupfer"]
+density = 0.45
+density_rich = 0.85
+size = 64        # px im Sprite (Standard 48): Schuppen und Schraffur brauchen Platz
+line = 1.1       # feine Holzschnitt-Kontur statt der kräftigen Comic-Kontur (Standard 2)
+rim = 5          # heller Rand für Lesbarkeit auf der Karte (Standard 7)
+areas = ["water", "farmland", "wetland"]   # außer Grün auch hier; im Wasser stehen nur Wasserwesen
+
+# Wesen passend zum Ort (OpenMapTiles-Klassen/Unterklassen aus poi, landuse, landcover; water = Wasserfläche).
+# Basilisk und Wolpertinger ohne Ort: sie füllen die übrigen Zellen.
+[figures.places]
+"lindwurm-kupfer" = ["castle", "ruins", "viewpoint"]
+"flugdrache-kupfer" = ["castle", "ruins", "viewpoint"]
+"greif-kupfer" = ["castle", "town_hall", "museum"]
+"einhorn-kupfer" = ["meadow", "heath", "forest"]
+"seeschlange-kupfer" = ["water"]
+"nixe-kupfer" = ["water"]
+"wassermann-kupfer" = ["water"]
+"waldschrat-kupfer" = ["wood", "forest", "scrub"]
+"roggenmuhme-kupfer" = ["farmland"]
+"zwerg-kupfer" = ["allotments", "garden", "quarry", "mine"]
+"gespenst-kupfer" = ["cemetery", "grave_yard", "ruins"]
+"irrlicht-kupfer" = ["cemetery", "wetland", "bog", "marsh"]
+"froschkoenig-kupfer" = ["fountain", "wetland"]
+"kornwolf-kupfer" = ["farmland"]

@@ -510,7 +510,12 @@ PAL = {"": dict(body="#4f8a3c", top="#86b263", light="#f4efd8", belly="#3c6e2e",
        "-sepia": dict(body="#8c6440", top="#b8956a", light="#f0e2c0", belly="#6e4b2e", mouth="#4a2a14", fire="#9a5a32", fire2="#c99a64", claw="#f0e2c0",
                       green="#8c6440", green_l="#b8956a", red="#7a4628", red_l="#a8754e", ochre="#b08452", ochre_l="#d4b282",
                       blue="#9aa592", blue_l="#c4ccb4", brown="#6e4b2e", brown_l="#957049", grey="#a08a6a", grey_l="#c8b490",
-                      white="#e6d4ae", white_l="#f7ecd2", skin="#d9b48a", skin_l="#ead0ac", dark="#3b2614")}
+                      white="#e6d4ae", white_l="#f7ecd2", skin="#d9b48a", skin_l="#ead0ac", dark="#3b2614"),
+       # Kupferplatte: dunkle Kupferflächen, Glanz wie frisch gestochen (Schraffur = helle Tusche), Blau als Grünspan
+       "-kupfer": dict(body="#5a3420", top="#7a4a2c", light="#f0c890", belly="#3e2416", mouth="#1e120a", fire="#c8783c", fire2="#f0b070", claw="#f0c890",
+                       green="#5a3420", green_l="#7a4a2c", red="#6e2e1c", red_l="#94503a", ochre="#7a5424", ochre_l="#a87a3e",
+                       blue="#2f5a50", blue_l="#4f8070", brown="#4a2c1a", brown_l="#6a4428", grey="#4e3e32", grey_l="#6e5a48",
+                       white="#8a6a4a", white_l="#b08a60", skin="#7a5034", skin_l="#9a6a46", dark="#1a0f08")}
 FSHADOW = '<ellipse cx="30" cy="61" rx="13" ry="2" fill="#3b2614" fill-opacity="0.22" stroke="none"/>'
 tint = lambda c, k: dict(c, body=c[k], top=c[k + "_l"])   # Leibfarbe wechseln (body/top), z. B. tint(c, "ochre")
 
@@ -1151,4 +1156,4 @@ for n, (fn, poses, desc) in FABEL.items():
     for sfx, c in PAL.items():
         for p in poses:
             ID.update(p=f"{n}{sfx}-{p}-", n=0)
-            write(n + sfx, p, desc + (", Sepia" if sfx else ", koloriert"), fn(c, p))
+            write(n + sfx, p, desc + {"": ", koloriert", "-sepia": ", Sepia", "-kupfer": ", Kupferplatte"}[sfx], fn(c, p))

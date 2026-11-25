@@ -1,0 +1,196 @@
+# "Gaslicht": dunkler Partner von Historisch (Nutzerwunsch 2026-11-25): derselbe Stadtplan um 1900 bei Nacht.
+#   - blauschwarzes Papier, Häuser tiefes Rotbraun, Wasser fast schwarz mit Wasserlinien
+#   - Hauptstraßen gelb wie Gaslaternen, Nebenstraßen gedämpft; an Nebenstraßen kleine Gaslaternen (Lichthof unter den
+#     Häusern, heller Kern, wie Stadtlichter, aber kleiner und ohne Bloom)
+#   - Fabelwesen koloriert wie in Historisch
+title = "Gaslicht"
+category = "standard"
+mode = "dark"
+family = "Historisch"
+font = "TeX Gyre Schola"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "TeX Gyre Schola"   # öffentliche Vorschau (--site); ohne: Schrift der Gruppe aus site.toml
+old_railways = true       # stillgelegte/abgebaute Strecken aus OSM (Overpass) wie in Betrieb zeichnen
+overlay = "paper"          # Papierkorn und vergilbter Rand im Browser (template.html / src/streifen.css)
+text_scale = 1.3
+hide = ["building-top", "railway-transit-hatching", "poi_r20", "poi_r7", "road_oneway*", "highway-shield-*", "road_shield_us"]
+[hide_class]
+"poi_*" = ["fuel", "parking", "car", "bicycle", "bicycle_rental", "bicycle_parking", "bus", "mobile_phone", "electronics",
+           "computer", "fast_food", "charging_station", "aerialway", "cinema", "doctors", "dentist", "laundry", "atm",
+           "entrance", "playground", "swimming", "golf", "ice_cream", "car_rental", "car_repair", "taxi"]
+
+[paint."background"]
+background-color = "#10141f"
+[paint."landuse-*"]
+fill-color = "#141826"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-pattern = "friedhof"
+fill-color = "#161d1e"
+[paint."park"]
+fill-pattern = "wiese"
+fill-color = "#18221c"
+[paint."landcover-*"]
+fill-color = "#18221c"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-pattern = "wald"
+fill-color = "#142018"
+[paint."landcover-grass*"]
+fill-pattern = "wiese"
+
+[paint."water*"]
+fill-color = "#0b1220"
+line-color = "#3a5678"
+[paint."building*"]
+fill-color = "#4a2420"
+fill-outline-color = "#8a4a36"
+[paint."*-minor*"]
+line-color = "#6a5c40"
+[paint."*-service-track"]
+line-color = "#6a5c40"
+[paint."*-link"]
+line-color = "#6a5c40"
+[paint."*-secondary-tertiary*"]
+line-color = "#6a5c40"
+[paint."*-primary*"]
+line-color = "#e8c070"
+[paint."*-trunk*"]
+line-color = "#e8c070"
+[paint."*-motorway*"]
+line-color = "#e8c070"
+[paint."*-casing"]
+line-color = "#05070c"
+[paint."highway-area"]
+fill-color = "#2a2a2c"
+fill-outline-color = "#05070c"
+[paint."aeroway-*"]
+fill-color = "#141826"
+line-color = "#141826"
+[paint."*-path"]
+line-color = "#5a5040"
+[paint."*railway*"]
+line-color = "#a89878"
+# Eisenbahn wie auf alten Karten: schwarzes Band, innen abwechselnd hell (Hatching-Ebenen als Innenstrich)
+[paint."railway"]
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 1.2, 16, 3, 18, 4.5]
+[paint."bridge-railway"]
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 1.2, 16, 3, 18, 4.5]
+[paint."*railway-hatching"]
+line-color = "#10141f"
+line-width = ["interpolate", ["linear"], ["zoom"], 13, 0.5, 16, 1.6, 18, 2.6]
+line-dasharray = [3, 3]
+[paint."railway-service"]
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.8, 16, 1.8, 18, 3]
+[paint."railway-service-hatching"]
+line-color = "#10141f"
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.3, 16, 0.8, 18, 1.6]
+line-dasharray = [3, 3]
+[paint."railway-transit"]
+line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.6, 18, 1.5]
+[paint."label_*"]
+text-color = "#f0e0b8"
+text-halo-color = "#10141f"
+[paint."highway-name-*"]
+text-color = "#e8d4a0"
+text-halo-color = "#10141f"
+[paint."poi_*"]
+text-color = "#e8a070"
+text-halo-color = "#10141f"
+[paint."water*label"]
+text-color = "#7a9ac0"
+text-halo-color = "#10141f"
+# Straßennamen größer und mit dem Zoom wachsend (Basis: ab z14 fest 13 × text_scale); feste Größen, text_scale gilt nicht
+[layout."highway-name-major"]
+text-size = ["interpolate", ["linear"], ["zoom"], 13, 17, 15, 21, 17, 26]
+[layout."highway-name-minor"]
+text-size = ["interpolate", ["linear"], ["zoom"], 13, 16, 15, 20, 17, 24]
+[layout."highway-name-path"]
+text-size = ["interpolate", ["linear"], ["zoom"], 14, 14, 17, 19]
+
+# Ortsnamen groß (Fraktur wirkt kleiner als Antiqua; feste Größen, text_scale gilt hier nicht). Orte in Fraktur, Ortsteile gesperrt in Antiqua-Versalien (wie auf alten Stadtplänen)
+[layout."label_other"]
+text-size = ["interpolate", ["linear"], ["zoom"], 12, 12, 14, 14, 17, 18]
+text-transform = "uppercase"
+text-letter-spacing = 0.25
+[layout."label_village"]
+text-size = ["interpolate", ["linear"], ["zoom"], 11, 17, 14, 22, 17, 28]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+[layout."label_town"]
+text-size = ["interpolate", ["linear"], ["zoom"], 11, 22, 14, 29, 17, 37]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+[layout."label_city"]
+text-size = ["interpolate", ["linear"], ["zoom"], 8, 21, 11, 30, 14, 39, 17, 48]
+text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
+
+# Signaturen (fill-pattern, Symbole in vendor/patterns/, Bild ersetzt die Füllfarbe) und Wasserlinien am Ufer
+[patterns]
+wald = { symbol = "laubwald", color = "#3a5a3a", bg = "#142018" }
+wiese = { symbol = "wiese", color = "#34503a", bg = "#18221c" }
+friedhof = { symbol = "friedhof", color = "#4a4a44", bg = "#161d1e" }
+[water_lines]
+color = "#3a5678"
+count = 3
+gap = 2
+
+[marker]
+type = "bubble"
+color = "#e8b050"
+bg = "#10141f"
+fg = "#f0e0b8"
+
+# Fabelwesen an festen Orten (figures(), Nutzerwunsch 2026-11-25), dieselben Wesen wie im anderen alten Stil, nach
+# Wappen, Sagen und Holzschnitten des 16. Jh.; Zeichnungen aus tools/gen_figures.py (FABEL), hier die kolorierte Fassung.
+[figures]
+names = ["lindwurm", "flugdrache", "greif", "einhorn", "seeschlange", "nixe", "wassermann", "waldschrat",
+         "roggenmuhme", "zwerg", "gespenst", "irrlicht", "froschkoenig", "kornwolf", "basilisk", "wolpertinger"]
+density = 0.45
+ink = "#1a1410"       # Kontur dunkel, damit die Kolorierung bleibt (Standard: Markerfarbe Gold)
+sticker = "#9a7c4c"   # Rand im Laternenlicht (Standard: Marker-bg, auf dem dunklen Grund unsichtbar)
+density_rich = 0.85
+size = 64        # px im Sprite (Standard 48): Schuppen und Schraffur brauchen Platz
+line = 1.1       # feine Holzschnitt-Kontur statt der kräftigen Comic-Kontur (Standard 2)
+rim = 5          # heller Rand für Lesbarkeit auf der Karte (Standard 7)
+areas = ["water", "farmland", "wetland"]   # außer Grün auch hier; im Wasser stehen nur Wasserwesen
+
+# Wesen passend zum Ort (OpenMapTiles-Klassen/Unterklassen aus poi, landuse, landcover; water = Wasserfläche).
+# Basilisk und Wolpertinger ohne Ort: sie füllen die übrigen Zellen.
+[figures.places]
+"lindwurm" = ["castle", "ruins", "viewpoint"]
+"flugdrache" = ["castle", "ruins", "viewpoint"]
+"greif" = ["castle", "town_hall", "museum"]
+"einhorn" = ["meadow", "heath", "forest"]
+"seeschlange" = ["water"]
+"nixe" = ["water"]
+"wassermann" = ["water"]
+"waldschrat" = ["wood", "forest", "scrub"]
+"roggenmuhme" = ["farmland"]
+"zwerg" = ["allotments", "garden", "quarry", "mine"]
+"gespenst" = ["cemetery", "grave_yard", "ruins"]
+"irrlicht" = ["cemetery", "wetland", "bog", "marsh"]
+"froschkoenig" = ["fountain", "wetland"]
+"kornwolf" = ["farmland"]
+
+# Gaslaternen an Nebenstraßen (ab Leaflet z15): Lichthof mittig unter den Häusern, je Seite ein kleiner Kern.
+# Abstand in Linienbreiten (P / Breite) wie in Stadtlichter, P = 25.2 px
+[[layers]]
+like = "highway-minor"
+id = "gas-hof"
+after = "landcover-sand"
+minzoom = 14
+layout = { line-cap = "round", line-join = "round" }
+paint = { line-color = "#ffd27a", line-blur = 10, line-opacity = 0.35, line-dasharray = [0, 1.26], line-width = 20 }
+[[layers]]
+like = "highway-minor"
+id = "gas-kern-l"
+after = "highway-minor"
+minzoom = 14
+layout = { line-cap = "round", line-join = "round" }
+paint = { line-color = "#fff0c0", line-blur = 0.5, line-dasharray = [0, 21], line-width = 1.2, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, -2.5, 16, -4.5, 19, -9] }
+[[layers]]
+like = "highway-minor"
+id = "gas-kern-r"
+after = "gas-kern-l"
+minzoom = 14
+layout = { line-cap = "round", line-join = "round" }
+paint = { line-color = "#fff0c0", line-blur = 0.5, line-dasharray = [0, 21], line-width = 1.2, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 2.5, 16, 4.5, 19, 9] }
