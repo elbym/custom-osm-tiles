@@ -12,7 +12,7 @@ old_railways = true       # stillgelegte/abgebaute Strecken aus OSM (Overpass) w
 stains = { strength = 0.5 }   # Altersflecken in die Kacheln eingebacken (stain_png), nahtlos über Kachelgrenzen
 overlay = "paper"          # Papierkorn und vergilbter Rand im Browser (template.html / src/streifen.css)
 text_scale = 1.3
-hide = ["railway-transit-hatching", "poi_r20", "poi_r7", "road_oneway*", "highway-shield-*", "road_shield_us"]
+hide = ["building-top", "railway-transit-hatching", "poi_r20", "poi_r7", "road_oneway*", "highway-shield-*", "road_shield_us"]
 [hide_class]
 "poi_*" = ["fuel", "parking", "car", "bicycle", "bicycle_rental", "bicycle_parking", "bus", "mobile_phone", "electronics",
            "computer", "fast_food", "charging_station", "aerialway", "cinema", "doctors", "dentist", "laundry", "atm",
