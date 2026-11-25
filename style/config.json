@@ -8,14 +8,14 @@
       "mbtiles": ""
     },
     "minRendererPoolSizes": [
-      4,
-      4,
-      2
+      2,
+      2,
+      1
     ],
     "maxRendererPoolSizes": [
-      4,
-      4,
-      2
+      2,
+      2,
+      1
     ]
   },
   "styles": {
