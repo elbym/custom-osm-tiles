@@ -97,6 +97,14 @@ text-halo-width = 2
 text-color = "#c2335f"
 text-halo-color = "#ffffff"
 text-halo-width = 2
+# Orts-, Stadtteil- und POI-Namen in Bangers (Comic-Titelschrift, Nutzerwunsch 2026-11-25), Straßen bleiben Kalam
+[layout."label_*"]
+text-font = ["Bangers Regular", "Noto Sans Regular"]
+[layout."poi_*"]
+text-font = ["Bangers Regular", "Noto Sans Regular"]
+[layout."airport"]
+text-font = ["Bangers Regular", "Noto Sans Regular"]
+
 [paint."water*label"]
 text-color = "#1f6fa8"
 text-halo-color = "#ffffff"

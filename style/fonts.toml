@@ -190,6 +190,12 @@ Regular = { file = "unifraktur-maguntia/UnifrakturMaguntia-Book.ttf" }
 Bold    = { file = "unifraktur-maguntia/UnifrakturMaguntia-Book.ttf" }
 Italic  = { file = "unifraktur-maguntia/UnifrakturMaguntia-Book.ttf" }
 
+[Bangers]   # Comic-Titelschrift (nur Orts- und POI-Namen in Anime), Vernon Adams, OFL; ein Schnitt
+group = "comic"
+Regular = { file = "bangers/Bangers-Regular.ttf" }
+Bold    = { file = "bangers/Bangers-Regular.ttf" }
+Italic  = { file = "bangers/Bangers-Regular.ttf" }
+
 [Kalam]   # lockere Handschrift (Anime), Indian Type Foundry, OFL; keine Kursive (Italic = Regular)
 group = "display"
 Regular = { file = "kalam/Kalam-Regular.ttf" }

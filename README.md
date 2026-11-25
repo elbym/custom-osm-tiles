@@ -142,7 +142,7 @@ Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigen
 | **Papier** | Standard | Literata | eigener Stil: warmes Cremeweiß, Sepia-Konturen, Olivgrün, wie eine gedruckte Karte; dunkel wie auf dunklem Karton |
 | **Historisch** | Standard | TeX Gyre Schola, Ortsnamen UnifrakturMaguntia | eigener Stil: kolorierter Stadtplan um 1900 (rosa Häuser, Wald-/Wiesen-/Friedhofs-Signaturen, Wasserlinien, Bahn als Schwarz-Weiß-Band, stillgelegte Strecken aus OSM wie in Betrieb, Altersflecken in den Kacheln, Papierkorn im Browser); nur hell |
 | **Kupferstich** | Standard | IM Fell English, Ortsnamen UnifrakturMaguntia | eigener Stil im Look eines Kupferstichs des 18. Jh.: einfarbig Sepia, sonst wie Historisch; nur hell |
-| **Anime** / Nacht | Standard | Kalam | eigener Stil im allgemeinen Look von Anime-Zeichentrick (keine Studios, Filme oder Figuren): Cel-Shading mit hartem Schlagschatten, Tuschekonturen, Dächer in Pastelltönen, Wolkenbäume, Manga-Grasbüschel, Rasterfolie, Wasser mit Glanzlinien, Manga-Sprechblase als Marker; Nacht in Tiefblau/Violett mit leuchtenden Fenstern |
+| **Anime** / Nacht | Standard | Kalam, Orts- und POI-Namen Bangers | eigener Stil im allgemeinen Look von Anime-Zeichentrick (keine Studios, Filme oder Figuren): Cel-Shading mit hartem Schlagschatten, Tuschekonturen, Dächer in Pastelltönen, Wolkenbäume, Manga-Grasbüschel, Rasterfolie, Wasser mit Glanzlinien, Manga-Sprechblase als Marker; Nacht in Tiefblau/Violett mit leuchtenden Fenstern |
 | **Stadtlichter** / **Blaue Stunde** | Standard | Fira Sans | eigener Stil: Stadt bei Nacht von oben, nach einem Nachtfoto: Straßen mit hellem Kern und orangem Lichtschein, rote und weiße Lichtspuren auf Hauptstraßen, Laternen als Lichtperlen, Fensterlichter (Hochhäuser kaltweiß), grünes Flutlicht auf Sportplätzen, violettes Neon in Fußgängerzonen; Blaue Stunde dasselbe in der Dämmerung auf Blau |
 | **Protomaps Light** / **Dark** | Standard | Figtree | Protomaps Basemaps (Design CC0) |
 | **Wiki** / Dark | Standard | Work Sans | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
@@ -198,6 +198,7 @@ Ohne Achsenwerte wird die Datei unverändert übernommen, mit Achsenwerten wird 
 | Literata, IM Fell English | serif | OFL |
 | UnifrakturMaguntia | blackletter (nur Ortsnamen in Historisch/Kupferstich) | OFL |
 | Kalam | display (nur Anime) | OFL |
+| Bangers | comic (nur Orts- und POI-Namen in Anime) | OFL |
 | TeX Gyre Schola | serif | GUST Font License |
 | Adwaita Mono, Fantasque Sans Mono, Fira Code, IBM Plex Mono, Intel One Mono, JetBrains Mono, Maple Mono, Space Mono, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
 | Hack | mono (bei `--all-fonts` nur für Nerd-Stile) | MIT + Bitstream-Vera-Lizenz |
