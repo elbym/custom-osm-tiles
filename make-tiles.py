@@ -700,8 +700,9 @@ def poi_sprite(weight, bg, accent, glyph, dark, patterns=None, figs=None):
     mix = lambda t: "#%02x%02x%02x" % tuple(round(b + (a - b) * t) for b, a in zip(hexrgb(bg), hexrgb(accent)))
     disc, ring = mix(0.22 if dark else 0.16), mix(0.45)
     name = f"sprites/{weight}-{bg[1:]}-{accent[1:]}-{glyph[1:]}"
-    if patterns or figs:  # Figuren mit Dateiinhalt im Hash, sonst bliebe nach dem Nachzeichnen das alte Sprite
+    if patterns or figs:  # Figuren und Muster mit Dateiinhalt im Hash, sonst bliebe nach dem Nachzeichnen das alte Sprite
         drawn = [f.read_text() for n in (figs or {}).get("names", []) for f in fig_poses(n)]
+        drawn += [(ROOT / "vendor" / "patterns" / f"{s['symbol']}.svg").read_text() for s in (patterns or {}).values()]
         name += "-" + hashlib.sha1(json.dumps([patterns, figs, drawn], sort_keys=True).encode()).hexdigest()[:8]
     icons = tomllib.loads((ROOT / "style" / "icons.toml").read_text())
     for sfx in ("", "@2x"):
@@ -1159,7 +1160,7 @@ def readme_previews(a, mb):
         style = build_style(st, meta.get("preview_font", meta.get("font")), (a.lat, a.lon))[0]
         with tileserver(style, f"readme-{st.stem}", mb) as base:
             data = fetch(f"{base}/static/{a.lon},{a.lat},12/512x512.png")
-        data = quantize(data, a.colors)
+        data = quantize(data, a.colors or meta.get("colors", 32))
         (dest / f"{st.stem}.png").write_bytes(data)
         optimize([dest / f"{st.stem}.png"])
         data = (dest / f"{st.stem}.png").read_bytes()
@@ -1177,7 +1178,9 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     style, title, attribution, font = build_style(style_file, font, (a.lat, a.lon), a.pixel, a.streets_only, (mb, fb))
     if a.pixel:  # Beschriftung getrennt rendern, dither_tiles() backt sie ein
         style, labels = split_labels(style)
-    stains = tomllib.loads(Path(style_file).read_text()).get("stains")  # Versuch: Flecken eingebacken
+    meta = tomllib.loads(Path(style_file).read_text())
+    stains = meta.get("stains")  # Versuch: Flecken eingebacken
+    colors = a.colors or meta.get("colors", 32)  # colors im Stil: weiche Verläufe (Lichthöfe) brauchen mehr als 32
     crops = []   # --pixel: (Kachel, URL der Beschriftungs-Vorfahrkachel ohne Basis, f, qx, qy)
     with tileserver(style, out.name, mb) as base:
         if not keep:  # keep: vorhandene Kacheln behalten (z. B. nur @2x ergänzen)
@@ -1212,7 +1215,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                 if stains and ext == "png":
                     data = stain_png(data, x, y, stains)
             if ext == "png":  # Palette mit wenigen Farben, ohne Dithering (gemessen: kleiner als WebP, gleiche Qualität)
-                data = quantize(data, a.colors)
+                data = quantize(data, colors)
             f.write_bytes(data)
             return f if ext == "png" else None
 
@@ -1294,8 +1297,8 @@ def main():
     g.add_argument("--out", metavar="ORDNER", help="Zielordner (Standard: out/<stilname>)")
     g.add_argument("--format", choices=["png", "webp"], default="png",
                    help="Bildformat der Kacheln; png ist meist am kleinsten (Standard: png)")
-    g.add_argument("--colors", type=int, default=32, metavar="ANZAHL",
-                   help="Farben je PNG-Kachel; weniger = kleinere Dateien (Standard: 32)")
+    g.add_argument("--colors", type=int, metavar="ANZAHL",
+                   help="Farben je PNG-Kachel; weniger = kleinere Dateien (Standard: colors im Stil, sonst 32)")
     g = p.add_argument_group("Stile vergleichen")
     g.add_argument("--all", action="store_true",
                    help="alle Stile rendern, je in einen eigenen Ordner out/<stil>-<schrift>; Vergleich: out/index.html")
