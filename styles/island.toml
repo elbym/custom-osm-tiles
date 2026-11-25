@@ -3,7 +3,7 @@
 #   - Wasser gletschertürkis mit hellen Wasserlinien
 #   - Häuser wie Wellblechhäuser in Reykjavík: Dächer nach OSM-ID in Rot, Ochsenblut, Senf, Petrol, Weiß, flach mit kleinem Schatten
 #   - Straßen lavagrau mit heller Kante, Hauptstraßen senfgelb (Ringstraße), Autobahn ochsenblut
-#   - Ortsnamen in Uncial Antiqua (wie die Handschriften der Edda), sonst Public Sans (vorläufig, vorher Alegreya Sans); Marker mit Strickborte
+#   - Alles in Public Sans (Nutzerwunsch 2026-11-25; vorher Ortsnamen/Marker in Uncial Antiqua); Marker mit Strickborte
 #   - Figuren als skandinavische Bilderbuch-Volkskunst (tools/gen_figures.py, ISL)
 title = "Island"
 category = "standard"
@@ -29,18 +29,18 @@ fill-color = "#e6e1d2"
 fill-color = "#d9d9d2"
 [paint."landuse-cemetery"]
 fill-pattern = "moos"
-fill-color = "#bccb9c"
+fill-color = "#add289"
 [paint."park"]
 fill-pattern = "lupinen"
-fill-color = "#c3d3a0"
+fill-color = "#b3da8b"
 [paint."landcover-*"]
-fill-color = "#c3d3a0"
+fill-color = "#b3da8b"
 fill-opacity = 1
 [paint."landcover-grass*"]
 fill-pattern = "moos"
 [paint."landcover-wood"]
 fill-pattern = "birken"
-fill-color = "#a9bf86"
+fill-color = "#94c76f"
 
 [paint."water*"]
 fill-color = "#8fd0d6"
@@ -96,21 +96,17 @@ text-halo-color = "#f6f2e6"
 [paint."water*label"]
 text-color = "#2f6b73"
 text-halo-color = "#f6f2e6"
-# Orts- und Stadtteilnamen in der Unziale (Marker auch, [marker] font), Straßen und POIs in Public Sans
-[layout."label_*"]
-text-font = ["Uncial Antiqua Regular", "Noto Sans Regular"]
 
 [patterns]
-moos = { symbol = "moos", color = "#6f8a4a", fill = "#93ab68", bg = "#c3d3a0" }
-lupinen = { symbol = "lupinen", color = "#5a7a3a", fill = "#8a6cc8", bg = "#c3d3a0" }
-birken = { symbol = "birken", color = "#4f6a34", fill = "#7f9e58", bg = "#a9bf86" }
+moos = { symbol = "moos", color = "#52932a", fill = "#7ab448", bg = "#b3da8b" }
+lupinen = { symbol = "lupinen", color = "#358317", fill = "#8a6cc8", bg = "#b3da8b" }
+birken = { symbol = "birken", color = "#317119", fill = "#5fa837", bg = "#94c76f" }
 [water_lines]
 color = "#e8f6f4"
 count = 2
 gap = 3
 
 [marker]
-font = "Uncial Antiqua"
 type = "bubble"
 look = "strick"
 color = "#22304a"

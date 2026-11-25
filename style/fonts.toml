@@ -208,7 +208,7 @@ Regular = { file = "alegreya-sans/AlegreyaSans-Regular.ttf" }
 Bold    = { file = "alegreya-sans/AlegreyaSans-Bold.ttf" }
 Italic  = { file = "alegreya-sans/AlegreyaSans-Italic.ttf" }
 
-["Uncial Antiqua"]   # Unziale wie in alten Handschriften (Ortsnamen und Marker in Island), Astigmatic, OFL; ein Schnitt
+["Uncial Antiqua"]   # Unziale wie in alten Handschriften (früher Ortsnamen und Marker in Island, derzeit ungenutzt), Astigmatic, OFL; ein Schnitt
 group = "uncial"
 Regular = { file = "uncial-antiqua/UncialAntiqua-Regular.ttf" }
 Bold    = { file = "uncial-antiqua/UncialAntiqua-Regular.ttf" }

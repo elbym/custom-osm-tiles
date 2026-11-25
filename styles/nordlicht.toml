@@ -96,8 +96,6 @@ text-halo-color = "#0b1220"
 [paint."water*label"]
 text-color = "#8fd0d6"
 text-halo-color = "#0b1220"
-[layout."label_*"]
-text-font = ["Uncial Antiqua Regular", "Noto Sans Regular"]
 
 [patterns]
 moos = { symbol = "moos", color = "#2f4a40", fill = "#2a4038", bg = "#1b2b2c" }
@@ -114,7 +112,6 @@ count = 2
 gap = 3
 
 [marker]
-font = "Uncial Antiqua"
 type = "bubble"
 look = "strick"
 color = "#e8eef8"
