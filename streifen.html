@@ -118,7 +118,7 @@
     </section>
     <section>
       <h2 class="font-semibold">Schriften</h2>
-      <p>Adwaita Mono, Atkinson Hyperlegible Next, Bangers (Orts- und POI-Namen in Anime), DINish, Fantasque Sans Mono, Figtree, Fira Code, Fira Sans, IBM Plex Mono, IM Fell English (Kupferstich), Intel One Mono, Kalam (Anime), JetBrains Mono, Literata, Maple Mono, Mozilla Text, Overpass, Public Sans, Silkscreen (8 Bit), Space Mono, UnifrakturMaguntia (Ortsnamen in Historisch und Kupferstich), VT323 (Phosphor, Bernstein), Work Sans: SIL Open Font License 1.1. Hack: MIT-Lizenz und Bitstream-Vera-Lizenz. Ubuntu Sans Mono: Ubuntu Font Licence 1.0. TeX Gyre Schola (Historisch): GUST Font License. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
+      <p>Adwaita Mono, Atkinson Hyperlegible Next, Bangers (Orts- und Stadtteilnamen und Marker in Anime), DINish, Fantasque Sans Mono, Figtree, Fira Code, Fira Sans, IBM Plex Mono, IM Fell English (Kupferstich), Intel One Mono, Kalam (Anime), JetBrains Mono, Literata, Maple Mono, Mozilla Text, Overpass, Public Sans, Silkscreen (8 Bit), Space Mono, UnifrakturMaguntia (Ortsnamen in Historisch und Kupferstich), VT323 (Phosphor, Bernstein), Work Sans: SIL Open Font License 1.1. Hack: MIT-Lizenz und Bitstream-Vera-Lizenz. Ubuntu Sans Mono: Ubuntu Font Licence 1.0. TeX Gyre Schola (Historisch): GUST Font License. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
     </section>
     <section>
       <h2 class="font-semibold">Software auf dieser Seite</h2>
@@ -249,12 +249,12 @@ function loadFont(name, url) {
     .then(f => document.fonts.add(f)).catch(() => {});
 }
 function setMarker(cfg) {  // Marker im Stil cfg, nach dem Laden seiner Schrift neu gemessen
-  const draw = () => { marker.setIcon(markerIcon(cfg?.marker, pxu, cfg?.font)); marker.options.title = cfg?.marker?.label; snapMarker(); };
+  const draw = () => { marker.setIcon(markerIcon(cfg?.marker, pxu, cfg?.marker?.font || cfg?.font)); marker.options.title = cfg?.marker?.label; snapMarker(); };
   draw();
-  loadFont(cfg?.font, cfg?.font_url).then(() => { if (markerCfg === cfg) draw(); });
+  loadFont(cfg?.marker?.font || cfg?.font, cfg?.font_url).then(() => { if (markerCfg === cfg) draw(); });
 }
 let markerCfg = mid?.[1];
-const marker = L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker, pxu, mid?.[1].font), title: mid?.[1].marker?.label }).addTo(map);
+const marker = L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker, pxu, mid?.[1].marker?.font || mid?.[1].font), title: mid?.[1].marker?.label }).addTo(map);
 function snapMarker() {  // Raster = pxu * 2^Hochskalierung über die gerenderte Stufe hinaus
   const el = marker.getElement()?.firstChild;
   if (!pxu || !el) return;

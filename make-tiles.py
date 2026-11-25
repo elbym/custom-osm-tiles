@@ -791,8 +791,8 @@ def write_previews(outdir):
     shutil.copytree(ROOT / "vendor" / "leaflet", outdir / "leaflet", dirs_exist_ok=True)
     names = sorted(d.name for d in outdir.iterdir() if (d / "config.json").exists())
     configs = {n: json.loads((outdir / n / "config.json").read_text()) for n in names}
-    for c in configs.values():  # Marker in der Schrift des Stils
-        c["font_url"] = marker_font(c.get("font", ""), outdir)
+    for c in configs.values():  # Marker in der Schrift des Stils (oder [marker] font)
+        c["font_url"] = marker_font(c.get("marker", {}).get("font") or c.get("font", ""), outdir)
     titles = {n: c["title"] for n, c in configs.items()}
     (outdir / "variants.js").write_text(
         f"const VARIANTS = {json.dumps(names)};\n"
@@ -822,7 +822,7 @@ def reindex(outdir, label=None):
                    title=f"{meta.get('title', st.stem)} · {cfg['font']}")
         conf.write_text(json.dumps(cfg, ensure_ascii=False))
         if page.exists():
-            write_page(d, dict(cfg, font_url=marker_font(cfg.get("font", ""), d)))
+            write_page(d, dict(cfg, font_url=marker_font(cfg["marker"].get("font") or cfg.get("font", ""), d)))
     write_previews(outdir)
 
 
@@ -1246,7 +1246,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     (out / "config.json").write_text(json.dumps(cfg, ensure_ascii=False))  # liest write_previews()
     if standalone:  # eigenständige Kartenseite; für die Vorschau-Seite (--site) nicht nötig
         shutil.copytree(ROOT / "vendor" / "leaflet", out / "leaflet", dirs_exist_ok=True)
-        write_page(out, dict(cfg, font_url=marker_font(font, out)))
+        write_page(out, dict(cfg, font_url=marker_font(cfg["marker"].get("font") or font, out)))
     write_previews(out.parent)
     size = sum(f.stat().st_size for f in (out / "tiles").rglob(f"*.{ext}"))
     print(f"{count} Kacheln, {size / 1e6:.1f} MB -> {out}")

@@ -74,9 +74,9 @@ function loadFont(name, url) {
   return fontLoads[name] ??= new FontFace(name, `url("${url}")`, { weight: '100 900' }).load()
     .then(f => document.fonts.add(f)).catch(() => {});
 }
-const marker = L.marker([c.lat, c.lon], { icon: markerIcon(c.marker, c.pixel, c.font), title: c.marker?.label }).addTo(map);
-loadFont(c.font, c.font_url).then(() => {  // nach dem Laden neu messen
-  marker.setIcon(markerIcon(c.marker, c.pixel, c.font));
+const marker = L.marker([c.lat, c.lon], { icon: markerIcon(c.marker, c.pixel, c.marker?.font || c.font), title: c.marker?.label }).addTo(map);
+loadFont(c.marker?.font || c.font, c.font_url).then(() => {  // nach dem Laden neu messen
+  marker.setIcon(markerIcon(c.marker, c.pixel, c.marker?.font || c.font));
   if (c.pixel) snapMarker(marker, c.pixel, Math.min(c.zmax, c.detail_from - 1));
 });
 if (c.pixel) { snapMarker(marker, c.pixel, Math.min(c.zmax, c.detail_from - 1)); map.on('zoomend', () => snapMarker(marker, c.pixel, Math.min(c.zmax, c.detail_from - 1))); }

@@ -90,12 +90,9 @@ text-halo-width = 2
 text-color = "#ffc46b"
 text-halo-color = "#121229"
 text-halo-width = 2
-# Orts-, Stadtteil- und POI-Namen in Bangers (Comic-Titelschrift, Nutzerwunsch 2026-11-25), Straßen bleiben Kalam
+# Orts- und Stadtteilnamen in Bangers (Comic-Titelschrift, Nutzerwunsch 2026-11-25), Straßen und POIs bleiben Kalam;
+# der Marker auch in Bangers ([marker] font)
 [layout."label_*"]
-text-font = ["Bangers Regular", "Noto Sans Regular"]
-[layout."poi_*"]
-text-font = ["Bangers Regular", "Noto Sans Regular"]
-[layout."airport"]
 text-font = ["Bangers Regular", "Noto Sans Regular"]
 
 [paint."water*label"]
@@ -119,6 +116,7 @@ width = ["interpolate", ["linear"], ["zoom"], 15, 0, 15.5, 0.5, 16, 1, 18, 1.8]
 minzoom = 15
 
 [marker]
+font = "Bangers"
 type = "bubble"
 look = "manga"
 color = "#ffc46b"
