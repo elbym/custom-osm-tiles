@@ -1205,3 +1205,503 @@ for n, (fn, poses, desc) in FABEL.items():
         for p in poses:
             ID.update(p=f"{n}{sfx}-{p}-", n=0)
             write(n + sfx, p, desc + {"": ", koloriert", "-sepia": ", Sepia", "-kupfer": ", Kupferplatte"}[sfx], fn(c, p))
+
+# --- Island (Nutzerwunsch 2026-11-25, Probe) ----------------------------------------------------------------------------
+# Skandinavische Bilderbuch-/Volkskunst: flache Flächen ohne Schraffur, Schatten nur als dunklere Fläche, Punktaugen,
+# Ornamente (Lopapeysa-Passe, Zickzack, Punkte) ohne eigene Kontur. Feste Palette aus Wollweiß, Ochsenblut, Moos, Petrol,
+# Senf, Lava. Kontur (nachtblau, dünn) setzt poi_sprite() wie bei allen Figuren.
+ISL = dict(wool="#f3ead8", wool_d="#ddd0b4", ox="#9e3b2f", ox_l="#c9614f", moss="#6f8a4a", moss_l="#93ab68", petrol="#2f6b73",
+           mustard="#d9a53a", lava="#4a4a52", lava_l="#6c6c76", skin="#f1c9a5", cheek="#e8857a", ink="#22304a",
+           horse="#b7773f", horse_d="#8f5a2e", flax="#f0dca8", flax_d="#d6bd82", troll="#9aa58a", troll_d="#7f8a70",
+           nose="#b9ab8c", water="#8fd0d6", deer="#8a6648", deer_d="#6a4c34", bone="#efe4c8", lupin="#8a6cc8", lupin_l="#c4b0ef", wing="#cfeef0",
+           beard="#ddd6c6", nyk="#a4acb4", nyk_d="#7c848e", nyk_m="#54606c", merskin="#c9dcc0", petrol_l="#5a9aa2", whale="#3c4c5c", whale_l="#6f8294",
+           eider="#b8dcb0", eider_b="#c9c0a0", bird="#2a2d36", bird_l="#454a5a", beak="#e0602f", beak_b="#8a9ab0", foot="#e8742f", fish="#8fa8b4")
+N = ' stroke="none"'
+
+def clip(d, inner):
+    """inner auf die Fläche d beschnitten (Ornament ohne Kontur in einer Form)."""
+    ID["n"] += 1
+    i = f'{ID["p"]}{ID["n"]}'
+    return f'<clipPath id="c{i}"><path d="{d}"/></clipPath><g clip-path="url(#c{i})">{inner}</g>'
+
+def zigzag(x0, x1, y, h, fill, step=3.0):
+    """Reihe kleiner Dreiecke (Strickmuster), Spitzen nach oben, Grundlinie y."""
+    return "".join(f'<path d="M{x:.1f} {y} l{step/2:.1f} {-h} l{step/2:.1f} {h} Z" fill="{fill}"{N}/>' for x in [x0 + k * step for k in range(int((x1 - x0) / step))])
+
+def dots(pts, r, fill):
+    return "".join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="{fill}"{N}/>' for x, y in pts)
+
+def zz(x, y):
+    """Schlaf-Z an beliebiger Stelle (ZZ sitzt fest oben rechts)."""
+    return (f'<path d="M{x} {y} h5 l-5 6 h5 M{x+7} {y-7} h3.5 l-3.5 4 h3.5" fill="none" stroke-width="1.4"/>')
+
+def islandpferd(c, pose):
+    """Islandpferd im Profil: gedrungen, kurze Beine, dicke Flachsmähne mit Stirnschopf, Satteldecke mit Zickzack-Borte."""
+    leg = lambda pts, fill: tube(pts, [5.4, 4.6, 4.4], fill) + f'<ellipse cx="{pts[-1][0]}" cy="{pts[-1][1]+1.2}" rx="2.9" ry="1.7" fill="{c["lava"]}"/>'
+    if pose == "toelt":   # Tölt: Vorderbein hoch angewinkelt, Kopf hoch, Hinterbein greift unter den Leib
+        far = leg([(21, 40), (25, 47), (27, 54)], c["horse_d"]) + leg([(42, 40), (40, 47), (41, 54)], c["horse_d"])
+        near = leg([(24, 40), (20, 47), (17, 54)], c["horse"]) + leg([(45, 39), (51, 42), (50, 47)], c["horse"])
+        tilt, tail_a = -8, 18
+    elif pose == "schlaeft":   # döst im Stehen, Kopf unten, ein Hinterhuf aufgekippt
+        far = leg([(21, 40), (21, 47), (21, 54)], c["horse_d"]) + leg([(42, 40), (42, 47), (42, 54)], c["horse_d"])
+        near = leg([(25, 40), (27, 47), (28, 53)], c["horse"]) + leg([(46, 40), (46, 47), (46, 54)], c["horse"])
+        tilt, tail_a = 30, 0
+    else:
+        far = leg([(21, 40), (21, 47), (21, 54)], c["horse_d"]) + leg([(42, 40), (42, 47), (42, 54)], c["horse_d"])
+        near = leg([(25, 40), (25, 47), (25, 54)], c["horse"]) + leg([(46, 40), (46, 47), (46, 54)], c["horse"])
+        tilt, tail_a = 0, 8
+    tail = (f'<g transform="rotate({tail_a} 17 31)"><path d="M18 29 C10 31 8 40 9 51 C11 47 12 45 14 43 C13 47 14 50 16 52 C18 45 19 38 20 32 Z" fill="{c["flax"]}"/>'
+            f'<path d="M15 33 C13 39 13 44 14 48" fill="none" stroke="{c["flax_d"]}" stroke-width="1"/></g>')
+    body = (f'<path d="M16 34 C15 27 22 24 30 25 C37 25.5 42 24.5 46 26.5 C50 29 50 37 47 41 C41 44 22 44 18 42 C16 40 16 37 16 34 Z" fill="{c["horse"]}"/>'
+            f'<path d="M19 40 C26 43 40 43 47 40 C46 42 41 44 32 44 C24 44 20 43 19 40 Z" fill="{c["horse_d"]}"{N}/>')
+    blanket_d = "M26 25.2 C30 25.5 36 25.5 40 25 L41 35 C36 36 30 36 25 35 Z"
+    blanket = (f'<path d="{blanket_d}" fill="{c["ox"]}"/>'
+               + clip(blanket_d, f'<rect x="20" y="32" width="26" height="4" fill="{c["mustard"]}"{N}/>' + zigzag(24, 44, 32.2, 2.2, c["ox"], 2.6)
+                      + dots([(29, 28.5), (33, 28.2), (37, 28.5)], 0.9, c["wool"])))
+    eye = (f'<path d="M52.6 15.6 q1.4 1 2.8 0" fill="none" stroke-width="1"/>' if pose == "schlaeft"
+           else f'<circle cx="54" cy="15.2" r="1.3" fill="{c["ink"]}"{N}/><circle cx="54.4" cy="14.7" r="0.4" fill="#fff"{N}/>')
+    head = (f'<path d="M40 31 C41 23 44 17 49 13 L55 18 C52 22 50 28 48.5 35 Z" fill="{c["horse"]}"/>'
+            f'<path d="M51 11 L51.5 5.5 L54.5 10 Z" fill="{c["horse"]}"/>'
+            f'<path d="M47 15 C49 10 54 9 57 12 C59 15 61 19 62 23 C62.5 26 60 27.5 57.5 26.5 C55 25.5 52 22 49 20 Z" fill="{c["horse"]}"/>'
+            f'<path d="M58 21 C60 22 62 23 62 24.5 C61.5 26.5 59.5 27 57.5 26.4 C58.5 25 58.5 23 58 21 Z" fill="{c["horse_d"]}"{N}/>'
+            f'<ellipse cx="60" cy="22.8" rx="0.8" ry="0.6" fill="{c["ink"]}"{N}/>' + eye
+            + f'<path d="M49 9.5 C44 11 41 17 39.5 24 C38.5 29 36.5 31 34 31.5 C38 32.5 41.5 30.5 42.5 27 C43.5 22 46 17 50.5 13.5 Z" fill="{c["flax"]}"/>'
+            f'<path d="M50 9 C54 7.5 57.5 11 56.5 16.5 C55.5 14 53 13 51 13.5 Z" fill="{c["flax"]}"/>'
+            f'<path d="M45 15 C43 19 42 23 41 27" fill="none" stroke="{c["flax_d"]}" stroke-width="1"/>')
+    head = f'<g transform="rotate({tilt} 43 31)">{head}</g>'
+    z = zz(3, 14) if pose == "schlaeft" else ""
+    dx = -9 if pose == "schlaeft" else -2
+    if not c.get("blanket", True):
+        blanket = ""
+    return f'<g transform="translate({dx} 0)">' + far + tail + near + body + blanket + head + '</g>' + z
+
+def troll(c, pose):
+    """Troll von vorn: moosgraue Haut, Knollennase, Moosbüschel mit Blümchen, Lopapeysa mit Passe; schläft = wird zu Stein."""
+    if pose == "schlaeft":   # im Sonnenlicht versteinert: Felsbrocken mit Moos, Nase und geschlossenen Augen
+        rock = "M8 58 C5 48 9 36 18 30 C24 26 40 25 48 31 C56 37 59 49 56 58 Z"
+        return (f'<path d="{rock}" fill="{c["lava_l"]}"/>'
+                + clip(rock, f'<path d="M30 26 C36 34 50 36 60 40 V70 H40 C44 56 40 42 30 26 Z" fill="{c["lava"]}"{N}/>')
+                + f'<path d="M17 31 C20 25 28 22 33 25 C38 21 46 24 49 31 C42 29 36 31 33 29 C28 31 22 30 17 31 Z" fill="{c["moss"]}"/>'
+                + dots([(26, 26), (41, 26.5)], 1.1, c["wool"]) + dots([(26, 26), (41, 26.5)], 0.45, c["mustard"])
+                + f'<path d="M22 40 q3 2 6 0 M36 40 q3 2 6 0" fill="none" stroke-width="1.3"/>'
+                + f'<path d="M29 41 C27 47 30 51 32.5 51 C35.5 51 37 47 35 41 Z" fill="{c["lava_l"]}"/>'
+                + f'<path d="M27 52 Q32 55 38 52" fill="none" stroke-width="1"/>'
+                + f'<path d="M11 51 C13 49 15 50 16 52 M47 54 C49 52 51 52 52 54" fill="none" stroke="{c["moss"]}" stroke-width="1.6"/>' + ZZ)
+    sk, skd = c["troll"], c["troll_d"]
+    arm_r = [(45, 31), (49, 39), (50, 46)]
+    arm_l = [(19, 31), (11, 23), (10, 14)] if pose == "winkt" else [(19, 31), (15, 39), (14, 46)]
+    sleeve = lambda pts: (tube(pts, [7, 6.5, 6], c["wool_d"]) + tube(pts[-2:], [6.5, 6], c["petrol"], scale=1.0)
+                          + f'<circle cx="{pts[-1][0]}" cy="{pts[-1][1]}" r="3.8" fill="{sk}"/>')
+    arms = sleeve([arm_l[0], arm_l[1], ((arm_l[1][0] * 2 + arm_l[2][0]) / 3, (arm_l[1][1] * 2 + arm_l[2][1]) / 3), arm_l[2]]) \
+        + sleeve([arm_r[0], arm_r[1], ((arm_r[1][0] * 2 + arm_r[2][0]) / 3, (arm_r[1][1] * 2 + arm_r[2][1]) / 3), arm_r[2]])
+    legs = (tube([(25, 49), (25, 56)], [6.5, 6], c["lava"]) + tube([(39, 49), (39, 56)], [6.5, 6], c["lava"])
+            + f'<ellipse cx="23.5" cy="58.5" rx="5.5" ry="2.8" fill="{sk}"/><ellipse cx="40.5" cy="58.5" rx="5.5" ry="2.8" fill="{sk}"/>')
+    sweater_d = "M17 35 C17 28 23 26 32 26 C41 26 47 28 47 35 L48.5 50 C42 53 22 53 15.5 50 Z"
+    hem = f'<rect x="10" y="47.5" width="44" height="6" fill="{c["petrol"]}"{N}/>' + zigzag(12, 52, 47.6, 1.6, c["ox_l"], 2.4)
+    sweater = f'<path d="{sweater_d}" fill="{c["wool"]}"/>' + clip(sweater_d, hem)
+    yoke_d = "M14.5 32 C15 27 22 25 32 25 C42 25 49 27 49.5 32 C49 36 42 38.5 32 38.5 C22 38.5 15 36 14.5 32 Z"
+    yoke = (f'<path d="{yoke_d}" fill="{c["petrol"]}"/>'
+            + clip(yoke_d, zigzag(12, 52, 38.6, 2.6, c["wool"], 3.2) + dots([(x, 31) for x in range(19, 46, 4)], 0.9, c["mustard"])))
+    head = (f'<path d="M20 16 C15 12 11 12 9 14 C11 18 15 21 20 21 Z M44 16 C49 12 53 12 55 14 C53 18 49 21 44 21 Z" fill="{sk}"/>'
+            f'<ellipse cx="32" cy="18" rx="13.5" ry="12" fill="{sk}"/>'
+            f'<path d="M21 23 C24 29 40 29 43 23 C42 28 37 30.5 32 30.5 C27 30.5 22 28 21 23 Z" fill="{skd}"{N}/>'
+            f'<path d="M20 10 C21 4.5 26 6 28 3.5 C30 6.5 34 2.5 36.5 5.5 C39 4 43.5 6.5 44 11 C38 8 27 8 20 10 Z" fill="{c["moss"]}"/>'
+            + dots([(36.5, 5.8)], 1.2, c["wool"]) + dots([(36.5, 5.8)], 0.5, c["mustard"])
+            + f'<path d="M23 13.5 q3 -2 6 0 M35 13.5 q3 -2 6 0" fill="none" stroke="{c["moss"]}" stroke-width="2"/>'
+            + f'<circle cx="26" cy="17" r="1.5" fill="{c["ink"]}"{N}/><circle cx="38" cy="17" r="1.5" fill="{c["ink"]}"{N}/>'
+            f'<ellipse cx="22" cy="22" rx="2.4" ry="1.3" fill="{c["cheek"]}" fill-opacity="0.7"{N}/><ellipse cx="42" cy="22" rx="2.4" ry="1.3" fill="{c["cheek"]}" fill-opacity="0.7"{N}/>'
+            f'<path d="M28 18 C26 23 28 26.5 32 26.5 C36 26.5 38 23 36 18 C35 16 29 16 28 18 Z" fill="{c["nose"]}"/>'
+            f'<path d="M27 27.5 Q32 30 37 27.5" fill="none" stroke-width="1.1"/><path d="M33.5 28.6 v1.8 h1.6 v-2.2" fill="{c["wool"]}" stroke-width="0.6"/>')
+    return legs + sweater + arms + yoke + head
+
+def papageitaucher(c, pose):
+    """Papageitaucher im Profil: schwarzer Rücken, weißes Gesicht und Bauch, bunter Dreiecksschnabel, orange Füße."""
+    feet = (f'<path d="M27 55 l-5 3.5 h9 Z M35 55 l-1 3.5 h8 Z" fill="{c["foot"]}"/>')
+    body = (f'<path d="M22 56 C16 50 16 36 21 28 C24 21 29 16 34 16 C40 16 43.5 20 43.5 27 C44.5 36 44 48 40 56 Z" fill="{c["bird"]}"/>'
+            f'<path d="M32.5 30 C38 30 42.5 35 42.5 43 C42.5 50 40.5 54 38 56 L27 56 C31 50 31 40 32.5 30 Z" fill="{c["wool"]}"/>'
+            f'<path d="M32 19 C37 17.5 42.5 20 43 26 C40.5 28.5 36 28.6 32.5 26.5 C31 24 31 21 32 19 Z" fill="{c["wool"]}"/>')
+    wing = (f'<path d="M20 34 C24 31 30 33 31 40 C31.5 46 28 52 21 54 C18 48 17 40 20 34 Z" fill="{c["bird_l"]}"/>'
+            f'<path d="M22 46 q3 -1 5 1 M21.5 50 q3 -1 5 1" fill="none" stroke-width="0.7"/>')
+    beak = (f'<path d="M42 20.5 C47 20.5 51.5 23.5 52.5 27.5 C49.5 30 45 31 42 31 Z" fill="{c["beak"]}"/>'
+            f'<path d="M42 20.5 C43.6 22 43.6 29.5 42 31 L40.6 31 C41.8 28 41.8 23.5 40.6 20.5 Z" fill="{c["beak_b"]}"/>'
+            f'<path d="M46 21.8 C47.6 24.5 47.6 28 46 30.2 M48.6 23.4 C49.6 25.4 49.6 27.6 48.8 29.2" fill="none" stroke="{c["mustard"]}" stroke-width="1"/>'
+            f'<path d="M42 26.2 C45 26.6 49 27 52.4 27.4" fill="none" stroke-width="0.7"/>')
+    if pose == "schlaeft":
+        eye = f'<path d="M35.2 23 q1.6 1.2 3.2 0" fill="none" stroke-width="1"/>'
+        g = f'<g transform="rotate(14 34 30)">{beak}</g>'
+        return feet + body + wing + g + eye + f'<path d="M33.5 20.5 l2 -1.2 M38.5 20.3 l1.4 1" fill="none" stroke-width="0.6"/>' + zz(46, 12)
+    eye = (f'<circle cx="37" cy="23" r="1.9" fill="{c["ox"]}"{N}/><circle cx="37" cy="23" r="1.2" fill="{c["ink"]}"{N}/>'
+           f'<circle cx="37.4" cy="22.5" r="0.4" fill="#fff"{N}/><path d="M35 20.5 l2 -1.4 l2 1.4 M35.3 25.4 l1.7 1.4 l1.7 -1.4" fill="{c["beak_b"]}" stroke-width="0.4"/>')
+    fish = ""
+    if pose == "fisch":   # drei Sandaale quer im Schnabel
+        fish = "".join(tube([(44 + k * 4, 26), (43.5 + k * 4, 31), (44.5 + k * 4, 37)], [3.8, 3.4, 1.4], c["fish"])
+                       + f'<path d="M{44.5 + k * 4} {36.5} l-2.4 3.4 h4.8 Z" fill="{c["fish"]}"/>' for k in range(2))
+    return feet + body + wing + fish + beak + eye
+
+
+def isl_water(c, y):
+    """Wasser vorn im Bild (Island): Wellenkante, Gletschertürkis, helle Wellenstriche ohne Kontur."""
+    d = f"M-2 {y} " + "".join(f"Q{x + 4} {y - 2.6} {x + 8} {y} " for x in range(-2, 66, 8)) + f"V66 H-2 Z"
+    return (f'<path d="{d}" fill="{c["water"]}"/>'
+            f'<path d="M6 {y+4} q3 -1.6 6 0 M30 {y+6} q3 -1.6 6 0 M50 {y+3.5} q3 -1.6 6 0" fill="none" stroke="#fff" stroke-width="1.1"/>')
+
+def fluff(cx, cy, rx, ry, n=14, k=1.22, rot=0):
+    """Wolliger Umriss: Ellipse aus n nach außen gewölbten Bögen (Schaf, Moos)."""
+    P = lambda t, f: (cx + rx * f * math.cos(t + rot), cy + ry * f * math.sin(t + rot))
+    ts = [2 * math.pi * i / n for i in range(n + 1)]
+    d = "M%.1f %.1f " % P(ts[0], 1)
+    for a, b in zip(ts, ts[1:]):
+        d += "Q%.1f %.1f " % P((a + b) / 2, k) + "%.1f %.1f " % P(b, 1)
+    return d + "Z"
+
+def eye(x, y, c, closed=False, light=False):
+    """Punktauge; light: helles Auge auf dunklem Fell; closed: Schlafbogen."""
+    if closed:
+        return f'<path d="M{x-1.6} {y} q1.6 1.3 3.2 0" fill="none" stroke-width="1"{" stroke=" + chr(34) + c["wool"] + chr(34) if light else ""}/>'
+    ring = f'<circle cx="{x}" cy="{y}" r="1.8" fill="{c["wool"]}"{N}/>' if light else ""
+    return ring + f'<circle cx="{x}" cy="{y}" r="1.25" fill="{c["ink"]}"{N}/><circle cx="{x+0.4}" cy="{y-0.45}" r="0.4" fill="#fff"{N}/>'
+
+def bone(d, fill, w=1.8):
+    """Linie mit Kontur (Geweih, Horn, Löffel): Tusche breit darunter, Farbe darüber."""
+    return (f'<path d="{d}" fill="none" stroke="currentColor" stroke-width="{w + 1.6}" stroke-linecap="round" stroke-linejoin="round"/>'
+            f'<path d="{d}" fill="none" stroke="{fill}" stroke-width="{w}" stroke-linecap="round" stroke-linejoin="round"/>')
+
+def cheeks(x0, x1, y, c):
+    return "".join(f'<ellipse cx="{x}" cy="{y}" rx="2.2" ry="1.2" fill="{c["cheek"]}" fill-opacity="0.7"{N}/>' for x in (x0, x1))
+
+def schaf(c, pose):
+    """Isländisches Schaf im Profil: wolliger Leib, dunkles Gesicht, gebogene Hörner."""
+    lg = lambda x0, x1, f: tube([(x0, 40), (x1, 55)], [3.6, 3.2], f) + f'<ellipse cx="{x1}" cy="56" rx="2.2" ry="1.3" fill="{c["ink"]}"{N}/>'
+    head = (f'<path d="M45 24 C47 19 53 18 56 21 C59 24 59 30 56 32 C53 33.5 48 32 46 30 Z" fill="{c["lava"]}"/>'
+            f'<path d="M47 24 l-6 1.6 l5 2 Z" fill="{c["lava"]}"/>' + f'<path d="{fluff(48, 21, 5, 3.6, 8)}" fill="{c["wool"]}"/>'
+            + bone("M48 20 C44 16 40 19 41.5 23 C42.5 26 46 25.5 45.5 22.5", c["wool_d"], 1.6)
+            + eye(52, 24.5, c, closed=pose == "schlaeft", light=True) + f'<ellipse cx="57" cy="29" rx="0.8" ry="0.6" fill="{c["wool"]}"{N}/>')
+    if pose == "schlaeft":
+        body = f'<path d="{fluff(31, 46, 19, 10, 16)}" fill="{c["wool"]}"/>'
+        feet = f'<ellipse cx="22" cy="56.5" rx="3" ry="1.4" fill="{c["ink"]}"{N}/><ellipse cx="42" cy="56.5" rx="3" ry="1.4" fill="{c["ink"]}"{N}/>'
+        return feet + body + f'<g transform="translate(-2 18) rotate(10 50 26)">{head}</g>' + zz(44, 12)
+    body = f'<path d="{fluff(31, 34, 17, 11.5, 16)}" fill="{c["wool"]}"/>' + f'<path d="{fluff(31, 37, 13, 6, 10)}" fill="{c["wool_d"]}" fill-opacity="0.5"{N}/>'
+    legs_far, legs_near = lg(20, 20, c["lava_l"]) + lg(40, 40, c["lava_l"]), lg(24, 24, c["lava"]) + lg(44, 44, c["lava"])
+    if pose == "grast":
+        head = f'<g transform="rotate(48 45 30)">{head}</g>' + '<path d="M54 56 l1 -4 M57 56 l-0.5 -5 M60 56 l-1.5 -4" fill="none" stroke="#6f8a4a" stroke-width="1.2"/>'
+    return legs_far + legs_near + body + head
+
+def polarfuchs(c, pose):
+    """Polarfuchs (Winterfell) im Profil: weiß, buschiger Schwanz, kleine runde Ohren."""
+    W, D = c["wool"], c["wool_d"]
+    head = (f'<path d="M37 21 L37 14.5 L42 19 Z M41 19.5 L42.5 13.5 L45.5 19 Z" fill="{W}"/>'
+            f'<path d="M33 30 C32 22 38 18 44 19 C48 20 51 22 55 24.5 C56 26.5 54 28 51 28 C47 29.5 41 32 36 33 Z" fill="{W}"/>'
+            f'<circle cx="55" cy="25" r="1.1" fill="{c["ink"]}"{N}/>' + eye(45, 23, c, closed=pose == "schlaeft"))
+    if pose == "schlaeft":
+        body = f'<path d="{fluff(30, 46, 17, 11, 12, 1.12)}" fill="{W}"/>'
+        tail = f'<path d="M14 48 C14 60 46 62 52 52 C46 56 30 58 22 52 C20 50 18 48 14 48 Z" fill="{D}"/>'
+        return body + tail + f'<g transform="translate(-4 20) rotate(8 44 25)">{head}</g>' + zz(44, 10)
+    if pose == "springt":   # Mäusesprung: Bogen in der Luft, Kopf voran nach unten in den Schnee
+        tail = (f'<path d="M17 45 C9 46 2 38 3 26 C5 25 8 28 10 31 C12 34 16 36 19 40 Z" fill="{W}"/>'
+                f'<path d="M3.5 27 C5 26 7 28 8.5 30.5 C7 31.5 5 31 3.8 30 Z" fill="{D}"{N}/>')
+        legs = tube([(22, 40), (16, 46), (10, 50)], [6, 4, 3], W) + tube([(45, 40), (51, 50)], [3.8, 3], W)
+        body = tube([(15, 44), (24, 31), (37, 28), (46, 37)], [7, 11, 10.5, 8], W)
+        head = (f'<path d="M44 39 L39.5 33.5 L46 35 Z M47 36 L45.5 29.5 L50.5 34 Z" fill="{W}"/>'
+                f'<path d="M43 39 C45 34 52 33.5 55 37.5 C57.5 42 57.5 48 55.5 54.5 C53.5 55.5 51.5 54.5 50.5 51.5 C47 48 43.5 44.5 43 39 Z" fill="{W}"/>'
+                f'<circle cx="55.5" cy="54" r="1.1" fill="{c["ink"]}"{N}/>' + eye(52, 42, c))
+        return (legs + tail + body + head + '<ellipse cx="34" cy="60.5" rx="9" ry="1.6" fill="#22304a" fill-opacity="0.18" stroke="none"/>'
+                + '<path d="M50 58 q2 -2 4 0 q2 -2 4 0" fill="none" stroke-width="0.8"/>')
+    tail = f'<path d="M23 54 C10 58 4 48 8 41 C11 36 18 38 18 43 C16 46 17 50 23 50 Z" fill="{W}"/><path d="M9 42 C8 45 9 48 11 50 C10 46 11 43 13 41 Z" fill="{D}"{N}/>'
+    body = f'<path d="M22 56 C18 48 20 36 28 32 C34 29 40 31 41.5 38 C42.5 46 41 52 39 56 Z" fill="{W}"/>'
+    legs = tube([(34, 44), (34, 56)], [4, 3.4], D) + tube([(38, 44), (39.5, 56)], [4, 3.4], W)
+    return tail + body + legs + f'<path d="M23 54 C20 50 22 45 26 46 C28 48 28 53 26 56 Z" fill="{D}"{N}/>' + head
+
+def kolkrabe(c, pose):
+    """Kolkrabe im Profil: schwarz mit blauem Schimmer, dicker Schnabel, struppige Kehle."""
+    B, L = c["bird"], c["bird_l"]
+    legs = tube([(30, 48), (29, 57)], [2, 1.8], c["lava"]) + tube([(35, 48), (36, 57)], [2, 1.8], c["lava"]) + \
+        f'<path d="M25 57.5 h8 M32 57.5 h8" fill="none" stroke-width="1.6"/>'
+    tail = f'<path d="M22 44 L7 52 L10 55.5 L26 49 Z" fill="{B}"/>'
+    body = f'<path d="M18 46 C17 36 25 29 34 29 C42 29 46 33 46.5 39 C47 46 39 50 30 50 C25 50 20 49 18 46 Z" fill="{B}"/>'
+    wing = f'<path d="M20 40 C24 34 34 33 38 38 C38 44 30 48 20 47 Z" fill="{L}"/><path d="M24 44 q4 -1 7 1 M23 41 q5 -1 9 1" fill="none" stroke="{B}" stroke-width="0.8"/>'
+    throat = f'<path d="M40 30 L43 35 L44.5 31 L47 36 L48 31" fill="{B}" stroke-width="0.8"/>'
+    if pose == "ruft":
+        beak = (f'<path d="M48 21 C53 19 58 18 61 19 C58 21 54 23 50 24.5 Z" fill="{c["lava_l"]}"/>'
+                f'<path d="M50 26 C54 27 57 29 59 31 C55 31 52 30 49 28.5 Z" fill="{c["lava_l"]}"/>'
+                f'<path d="M58 12 l3 -3 M60 16 l4 -1.5" fill="none" stroke-width="1.2"/>')
+    else:
+        beak = f'<path d="M49 21 C54 20.5 58.5 22.5 60 26 C56 26.5 53 27 50 28.5 Z" fill="{c["lava_l"]}"/>'
+    head = f'<circle cx="44" cy="25" r="7.5" fill="{B}"/>' + beak + eye(46, 23, c, closed=pose == "schlaeft", light=True)
+    if pose == "schlaeft":
+        head = f'<g transform="translate(-3 6) rotate(28 44 30)">{head}</g>' + zz(48, 10)
+    return tail + legs + body + throat + wing + head
+
+def rentier(c, pose):
+    """Rentier im Profil: braun mit heller Halskrause, Geweih mit Kontur, kurzer Schwanz."""
+    R, Rd, W = c["deer"], c["deer_d"], c["wool"]
+    lg = lambda pts, f: tube(pts, [3.8, 3.2, 3], f) + f'<ellipse cx="{pts[-1][0]}" cy="{pts[-1][1] + 1}" rx="2.4" ry="1.4" fill="{c["lava"]}"/>'
+    antler = bone("M47 15 C45 10 41 7 37 6 M43 9 L44 4 M40 7 L38 2.5 M49 14 C50 9 53 6 57 5 M52 8 L51 3.5 M55 6 L57 2", c["bone"], 1.5)
+    head = (antler + f'<path d="M45 14 l-4 -1 l3 4 Z" fill="{R}"/>'
+            f'<path d="M45 16 C47 12 52 12 54 15 C56 18 58 22 58 25 C57.5 27 55 27.5 53 26 C50 24 47 21 45 19 Z" fill="{R}"/>'
+            f'<ellipse cx="57" cy="24.5" rx="1" ry="0.8" fill="{c["ink"]}"{N}/>' + eye(50, 17, c, closed=pose == "schlaeft"))
+    neck = f'<path d="M38 31 C40 25 43 20 46 16 L52 20 C50 25 48 30 46 36 Z" fill="{W}"/>'
+    if pose == "schlaeft":
+        body = f'<path d="M14 50 C13 43 20 40 30 40 C40 40 46 42 48 47 C50 52 47 56 40 56.5 L18 56.5 C15 56 14 53 14 50 Z" fill="{R}"/>'
+        feet = f'<ellipse cx="22" cy="57" rx="4" ry="1.6" fill="{Rd}"/><ellipse cx="40" cy="57" rx="4" ry="1.6" fill="{Rd}"/>'
+        return feet + body + f'<g transform="translate(-4 14)">{neck}{head}</g>' + zz(4, 16)
+    body = (f'<path d="M16 34 C15 28 21 26 29 26 C36 26 42 26 46 28 C49 30 49 37 46 40 C40 43 22 43 18 41 C16 39 16 37 16 34 Z" fill="{R}"/>'
+            f'<path d="M15 31 l-3 -1 l2 4 Z" fill="{W}"/><path d="M22 41 C28 43 38 43 45 40.5 C42 43 32 44 24 43.5 Z" fill="{W}"{N}/>')
+    legs = (lg([(21, 39), (21, 47), (21, 55)], Rd) + lg([(41, 39), (42, 47), (42, 55)], Rd)
+            + lg([(25, 39), (25, 47), (25, 55)], R) + lg([(45, 39), (45, 47), (46, 55)], R))
+    hn = neck + head
+    if pose == "grast":
+        hn = f'<g transform="rotate(52 42 32)">{hn}</g>' + '<path d="M56 56 l1 -4 M59 56 l-0.5 -5" fill="none" stroke="#6f8a4a" stroke-width="1.2"/>'
+    return legs + body + hn
+
+def huldufolk(c, pose):
+    """Huldufólk (verborgenes Volk): Frau in isländischer Tracht (Peysuföt) mit Skotthúfa und Quaste, Flachszöpfe."""
+    K = c["lava"]
+    arm_r = [(39, 30), (42, 37), (40, 42)]
+    arm_l = [(25, 30), (19, 23), (17, 15)] if pose == "winkt" else [(25, 30), (22, 37), (24, 42)]
+    arms = "".join(tube(a, [4.2, 3.8, 3.6], K) + f'<circle cx="{a[-1][0]}" cy="{a[-1][1]}" r="2.3" fill="{c["skin"]}"/>' for a in (arm_l, arm_r))
+    skirt = f'<path d="M23 39 L41 39 L46 57 L18 57 Z" fill="{K}"/>'
+    apron_d = "M26 40 L38 40 L40 55 L24 55 Z"
+    apron = f'<path d="{apron_d}" fill="{c["ox"]}"/>' + clip(apron_d, "".join(f'<rect x="{x}" y="38" width="1.6" height="20" fill="{col}"{N}/>' for x, col in zip(range(25, 41, 3), [c["mustard"], c["petrol"]] * 3)))
+    jacket = (f'<path d="M24 31 C24 28.5 28 27.5 32 27.5 C36 27.5 40 28.5 40 31 L41.5 40.5 L22.5 40.5 Z" fill="{K}"/>'
+              f'<path d="M30 28 L32 33 L34 28 Z" fill="{c["wool"]}"/>' + dots([(32, 35), (32, 38)], 0.8, c["mustard"]))
+    shoes = f'<ellipse cx="27" cy="58" rx="3" ry="1.5" fill="{K}"/><ellipse cx="37" cy="58" rx="3" ry="1.5" fill="{K}"/>'
+    braids = tube([(24, 17), (23, 24), (24, 31)], [3.4, 3, 2.4], c["flax"]) + tube([(40, 17), (41, 24), (40, 31)], [3.4, 3, 2.4], c["flax"])
+    head = (f'<ellipse cx="32" cy="19" rx="8.5" ry="9" fill="{c["skin"]}"/>'
+            f'<path d="M23.5 18 C23 11 28 9 32 9 C36 9 41 11 40.5 18 C38 14 34 13.5 32 13.5 C30 13.5 26 14 23.5 18 Z" fill="{c["flax"]}"/>'
+            f'<path d="M26 11 C27 7 37 7 38 11 C35 10 29 10 26 11 Z" fill="{K}"/>'
+            + tube([(37.5, 10), (42, 13), (44, 20)], [1.4, 1.2, 1.2], K) + f'<rect x="42" y="13.5" width="2.6" height="3.6" rx="0.6" fill="{c["mustard"]}" transform="rotate(-20 43 15)"/>'
+            + f'<path d="M44 19 l-1.6 5 h3.4 Z" fill="{K}"/>'
+            + eye(29, 19.5, c) + eye(35, 19.5, c) + cheeks(26.5, 37.5, 22.5, c) + '<path d="M30.5 24 q1.5 1 3 0" fill="none" stroke-width="0.9"/>')
+    fig = shoes + skirt + apron + arms + jacket + braids + head
+    if pose == "verschwindet":   # verborgenes Volk: nur halb sichtbar, Funkeln
+        return f'<g opacity="0.45">{fig}</g>' + star4(14, 20, 3, c["wool"]) + star4(50, 34, 2.5, c["wool"]) + star4(48, 12, 2, c["wool"])
+    return fig
+
+def elfenhaus(c, pose):
+    """Álfhóll: Felsbrocken mit Moos, darin ein winziges Giebelhaus (Wohnung des verborgenen Volks)."""
+    rock = "M5 58 C3 46 9 34 21 30 C30 27 43 28 51 34 C59 40 61 50 59 58 Z"
+    lit = pose == "offen"
+    win = c["mustard"] if lit else c["petrol"]
+    house = (f'<path d="M24 58 L24 45 L32 38 L40 45 L40 58 Z" fill="{c["wool"]}"/>'
+             f'<path d="M22 46 L32 36.5 L42 46" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/>'
+             f'<path d="M22 46 L32 36.5 L42 46" fill="none" stroke="{c["ox"]}" stroke-width="2" stroke-linecap="round"/>'
+             f'<path d="M29 58 L29 52 C29 49.5 35 49.5 35 52 L35 58 Z" fill="{c["mustard"] if lit else c["ox"]}"/>'
+             f'<rect x="30" y="42" width="4" height="4" fill="{win}"/>')
+    if lit:
+        house += (f'<path d="M35 58 L35 52 L38.5 50.5 L38.5 58 Z" fill="{c["ox"]}"/>'
+                  f'<circle cx="32" cy="44" r="5" fill="{c["mustard"]}" fill-opacity="0.35"{N}/><circle cx="32" cy="54" r="6" fill="{c["mustard"]}" fill-opacity="0.3"{N}/>')
+    return (f'<path d="{rock}" fill="{c["lava_l"]}"/>'
+            + clip(rock, f'<path d="M36 26 C42 34 54 38 64 42 V70 H44 C48 56 44 40 36 26 Z" fill="{c["lava"]}"{N}/>')
+            + f'<path d="M14 34 C18 27 27 25 32 27 C38 24 47 26 51 33 C44 31 38 32 32 30.5 C26 32 20 32 14 34 Z" fill="{c["moss"]}"/>'
+            + dots([(24, 28.5), (44, 29)], 1.1, c["wool"]) + house
+            + f'<path d="M10 52 C12 50 14 51 15 53 M49 55 C51 53 53 53 54 55" fill="none" stroke="{c["moss"]}" stroke-width="1.6"/>')
+
+def fee(c, pose):
+    """Fee: kleine Gestalt mit Libellenflügeln, Kleid aus Lupinenblüten, Pusteblume als Stab."""
+    V = c["lupin"]
+    wings = (f'<path d="M30 30 C20 18 8 20 10 28 C11 34 22 35 30 32 Z M34 30 C44 18 56 20 54 28 C53 34 42 35 34 32 Z" fill="{c["wing"]}" fill-opacity="0.75"/>'
+             f'<path d="M30 33 C22 36 14 42 18 46 C22 48 28 41 31 35 Z M34 33 C42 36 50 42 46 46 C42 48 36 41 33 35 Z" fill="{c["wing"]}" fill-opacity="0.75"/>')
+    if pose == "schlaeft":   # schläft auf einem Fliegenpilz
+        shroom = (f'<path d="M28 58 L29 46 L35 46 L36 58 Z" fill="{c["wool"]}"/>'
+                  f'<path d="M14 47 C14 37 50 37 50 47 Z" fill="{c["ox_l"]}"/>' + dots([(22, 42), (32, 40), (42, 42.5), (27, 45), (38, 45)], 1.3, c["wool"]))
+        body = (f'<path d="M27 37 C26 31 30 28 33 28 C37 28 39 32 38 37 Z" fill="{V}"/>'
+                f'<circle cx="32" cy="24" r="6" fill="{c["skin"]}"/><circle cx="34" cy="18.5" r="3" fill="{c["flax"]}"/>'
+                f'<path d="M26 23 C26 18 30 17.5 33 18 C30 19 28 21 27.5 25 Z" fill="{c["flax"]}"/>'
+                + eye(30.5, 24.5, c, closed=True) + eye(35, 24.5, c, closed=True))
+        small_w = f'<g transform="translate(16 8) scale(0.5)">{wings}</g>'
+        return small_w + shroom + body + zz(44, 14)
+    dress_d = "M27 31 C25 36 21 44 22 47 C25 45 27 47 29 45 C31 47 33 47 35 45 C37 47 39 45 42 47 C43 44 39 36 37 31 Z"
+    dress = (f'<path d="{dress_d}" fill="{V}"/>' + clip(dress_d, dots([(25, 44), (29, 41), (33, 43), (37, 40), (40, 44), (31, 37)], 1.3, c["lupin_l"])))
+    legs = tube([(29, 46), (28, 53)], [2.4, 2], c["skin"]) + tube([(35, 46), (36, 53)], [2.4, 2], c["skin"])
+    arm_l = [(28, 33), (22, 26), (20, 19)] if pose == "winkt" else [(28, 33), (24, 38), (25, 42)]
+    arm_r = [(36, 33), (41, 30), (45, 26)]
+    arms = "".join(tube(a, [2.4, 2.2, 2], c["skin"]) for a in (arm_l, arm_r))
+    wand = (f'<path d="M45 27 L49 14" fill="none" stroke="{c["moss"]}" stroke-width="1"/>'
+            f'<circle cx="49.5" cy="12" r="4.2" fill="{c["wool"]}" fill-opacity="0.9"/>'
+            + "".join(f'<path d="M49.5 12 l{3.4 * math.cos(a):.1f} {3.4 * math.sin(a):.1f}" fill="none" stroke="{c["wool_d"]}" stroke-width="0.5"/>' for a in [k * math.pi / 4 for k in range(8)]))
+    head = (f'<circle cx="32" cy="24" r="7" fill="{c["skin"]}"/><circle cx="32" cy="15.5" r="3.6" fill="{c["flax"]}"/>'
+            f'<path d="M25 24 C24 17 29 16.5 32 16.5 C35 16.5 40 17 39 24 C37 20 34 19.5 32 19.5 C30 19.5 27 20 25 24 Z" fill="{c["flax"]}"/>'
+            + eye(29.5, 24.5, c) + eye(34.5, 24.5, c) + cheeks(27.5, 36.5, 27, c))
+    fx = ""
+    if pose == "schwebt":
+        fx = '<ellipse cx="32" cy="61" rx="7" ry="1.4" fill="#22304a" fill-opacity="0.18" stroke="none"/>' + star4(12, 44, 2.4, c["mustard"]) + star4(52, 40, 2, c["mustard"])
+    return fx + wings + legs + dress + arms + wand + head
+
+def jolakoettur(c, pose):
+    """Jólakötturinn (Weihnachtskatze der Sage): riesige schwarze Katze mit gelben Augen."""
+    K, Y = c["bird"], c["mustard"]
+    def eyes2(closed=False):
+        if closed:
+            return f'<path d="M23 22 q3.5 2.6 7 0 M34 22 q3.5 2.6 7 0" fill="none" stroke="{Y}" stroke-width="1.4"/>'
+        return "".join(f'<ellipse cx="{x}" cy="21" rx="3.8" ry="4.2" fill="{Y}"{N}/><ellipse cx="{x}" cy="21" rx="1" ry="3.4" fill="{c["ink"]}"{N}/>' for x in (26, 38))
+    whisk = f'<path d="M22 27 L12 25 M22 29 L13 30.5 M42 27 L52 25 M42 29 L51 30.5" fill="none" stroke="{c["wool"]}" stroke-width="0.7"/>'
+    if pose == "schlaeft":
+        body = f'<path d="M8 50 C8 38 22 34 34 34 C48 34 58 40 57 50 C56 58 46 59 32 59 C18 59 8 58 8 50 Z" fill="{K}"/>'
+        tail = tube([(52, 52), (40, 57), (24, 56), (16, 51)], [7, 6, 5, 3.6], K)
+        head = (f'<path d="M14 34 L15 25 L21 31 Z M30 31 L35 24 L36 33 Z" fill="{K}"/><ellipse cx="25" cy="38" rx="12" ry="9" fill="{K}"/>'
+                f'<path d="M17 37 q3 2 6 0 M27 37 q3 2 6 0" fill="none" stroke="{Y}" stroke-width="1.4"/>')
+        return body + head + tail + zz(46, 18)
+    body = f'<path d="M17 58 C13 46 17 34 26 30 L38 30 C47 34 51 46 47 58 Z" fill="{K}"/>'
+    tail = tube([(46, 56), (54, 50), (55, 40), (51, 34)], [5, 5, 4.5, 3.6], K)
+    paws = f'<ellipse cx="27" cy="57.5" rx="4" ry="2.2" fill="{K}"/><ellipse cx="37" cy="57.5" rx="4" ry="2.2" fill="{K}"/>'
+    ears = f'<path d="M19 17 L17 4 L28 11 Z M45 17 L47 4 L36 11 Z" fill="{K}"/><path d="M20 13 L19 7 L24 10.5 Z M44 13 L45 7 L40 10.5 Z" fill="{c["ox_l"]}"{N}/>'
+    head = f'<ellipse cx="32" cy="21" rx="15" ry="12" fill="{K}"/>' + eyes2() + f'<path d="M30.5 26.5 L33.5 26.5 L32 28 Z" fill="{c["ox_l"]}"{N}/>'
+    if pose == "faucht":   # Buckel, gesträubtes Fell, Maul offen
+        spikes = f'<path d="M18 36 L14 31 L19 32 L17 26 L22 29 L23 23 L42 23 L43 29 L48 26 L46 32 L51 31 L46 36 Z" fill="{K}"/>'
+        mouth = f'<path d="M27 28.5 C29 33.5 35 33.5 37 28.5 Z" fill="{c["ox"]}" stroke="{c["wool"]}" stroke-width="0.6"/><path d="M28.5 29 l0.8 2 l0.8 -2 M33.9 29 l0.8 2 l0.8 -2" fill="{c["wool"]}"{N}/>'
+        tail = tube([(46, 56), (55, 46), (56, 30), (52, 22)], [5, 6, 6, 4], K)
+        return tail + spikes + body + paws + ears + head + mouth + whisk
+    return tail + body + paws + ears + head + '<path d="M29 29 q3 2 6 0" fill="none" stroke="#f3ead8" stroke-width="0.9"/>' + whisk
+
+def jolasveinn(c, pose):
+    """Weihnachtskerl (Jólasveinn): alter Kerl in brauner Wolle mit grauer Kapuze und struppigem Bart, Skyr-Schale und Holzlöffel
+    (kein Weihnachtsmann: keine rote Mütze, kein weißer Bommel)."""
+    Br = c["deer_d"]
+    legs = tube([(26, 48), (26, 56)], [5.5, 5], c["lava"]) + tube([(38, 48), (38, 56)], [5.5, 5], c["lava"]) + \
+        f'<ellipse cx="25" cy="58" rx="4.5" ry="2.2" fill="{c["lava_l"]}"/><ellipse cx="39" cy="58" rx="4.5" ry="2.2" fill="{c["lava_l"]}"/>'
+    coat = f'<path d="M20 34 C20 29 25 27 32 27 C39 27 44 29 44 34 L46 50 C40 52 24 52 18 50 Z" fill="{Br}"/>' + \
+        f'<rect x="18.5" y="43" width="27" height="3" fill="{c["mustard"]}"/>'
+    hand = lambda a: f'<circle cx="{a[-1][0]}" cy="{a[-1][1]}" r="2.8" fill="{c["skin"]}"/>'
+    arm_r = [(42, 31), (46, 37), (44, 42)]
+    arm_l = [(22, 31), (15, 24), (13, 16)] if pose == "winkt" else [(22, 31), (18, 37), (20, 42)]
+    arms = tube(arm_l, [5, 4.6, 4.2], Br) + hand(arm_l) + tube(arm_r, [5, 4.6, 4.2], Br) + hand(arm_r)
+    extra_back, extra = "", ""
+    if pose == "traegt":   # Sack über der Schulter
+        extra_back = f'<path d="M40 18 C50 14 58 20 57 30 C56 38 48 40 43 36 C40 30 38 24 40 18 Z" fill="{c["wool_d"]}"/><path d="M42 21 l-3 4" fill="none" stroke-width="1"/>'
+        arm_r = [(42, 31), (46, 26), (43, 21)]
+        arms = tube(arm_l, [5, 4.6, 4.2], Br) + hand(arm_l) + tube(arm_r, [5, 4.6, 4.2], Br) + hand(arm_r)
+    elif pose == "steht":   # Skyr-Schale und Holzlöffel
+        extra = (f'<path d="M15 41 L25 41 C25 46 15 46 15 41 Z" fill="{c["petrol"]}"/><ellipse cx="20" cy="41" rx="5" ry="1.3" fill="{c["wool"]}"/>'
+                 + bone("M45 42 L49 31", c["flax_d"], 1.4) + f'<ellipse cx="49.5" cy="29.5" rx="1.8" ry="2.4" fill="{c["flax_d"]}" transform="rotate(20 49.5 29.5)"/>')
+    head = (f'<ellipse cx="32" cy="19" rx="9.5" ry="9" fill="{c["skin"]}"/>'
+            f'<path d="M22 20 C22 30 25 34 27 38 L29 35 L32 39 L35 35 L37 38 C39 34 42 30 42 20 C38 24 26 24 22 20 Z" fill="{c["beard"]}"/>'
+            f'<path d="M21 21 C19 9 26 4 33 5 C40 5 46 10 47 18 C49 22 50 27 47 31 C46 26 44 22 42.5 19 C40 15 24 15 22 21 Z" fill="{c["lava_l"]}"/>'
+            f'<path d="M47 31 l-1.5 4 l3.4 -0.6 Z" fill="{c["lava_l"]}"/><path d="M22.5 18.5 C25 14.5 39 14.5 42 18.5" fill="none" stroke="{c["lava"]}" stroke-width="1"/>'
+            + eye(28.5, 19.5, c) + eye(35.5, 19.5, c)
+            + f'<ellipse cx="32" cy="23.5" rx="3.2" ry="2.6" fill="{c["cheek"]}"/><path d="M28.5 28 q3.5 2 7 0" fill="none" stroke-width="0.9"/>')
+    return extra_back + legs + coat + arms + extra + head
+
+def hotpot(c, pose):
+    """Heißer Topf (Freibad-Kultur): Badende mit Strickmütze im runden Steinbecken, Dampf."""
+    pool = (f'<ellipse cx="32" cy="50" rx="27" ry="10" fill="{c["lava_l"]}"/>'
+            + "".join(f'<ellipse cx="{32 + 26 * math.cos(a):.1f}" cy="{50 + 9.4 * math.sin(a):.1f}" rx="3.6" ry="2.6" fill="{c["lava_l"]}"/>' for a in [k * math.pi / 7 for k in range(14)])
+            + f'<ellipse cx="32" cy="49" rx="21" ry="6.5" fill="{c["water"]}"/>')
+    hat_d = "M22 20 C22 11 27 8 32 8 C37 8 42 11 42 20 Z"
+    hat = (f'<path d="{hat_d}" fill="{c["petrol"]}"/>' + clip(hat_d, zigzag(20, 44, 18.5, 2.4, c["wool"], 3) + dots([(x, 13.5) for x in range(25, 40, 4)], 0.8, c["mustard"]))
+           + f'<circle cx="32" cy="6.5" r="3.2" fill="{c["ox_l"]}"/><rect x="21" y="18.5" width="22" height="3.6" rx="1.6" fill="{c["wool"]}"/>')
+    body = (f'<path d="M20 50 C20 38 25 33 32 33 C39 33 44 38 44 50 Z" fill="{c["skin"]}"/>'
+            f'<ellipse cx="32" cy="26" rx="9" ry="8" fill="{c["skin"]}"/>' + hat
+            + eye(28.5, 26.5, c, closed=pose == "schlaeft") + eye(35.5, 26.5, c, closed=pose == "schlaeft") + cheeks(26, 38, 29.5, c)
+            + '<path d="M30 31 q2 1.3 4 0" fill="none" stroke-width="0.9"/>')
+    arm = ""
+    if pose == "winkt":
+        arm = tube([(41, 41), (48, 33), (50, 25)], [3.6, 3.2, 3], c["skin"]) + f'<circle cx="50" cy="24" r="2.4" fill="{c["skin"]}"/>'
+    water_front = f'<path d="M11 49 C16 54 48 54 53 49 C52 55 12 55 11 49 Z" fill="{c["water"]}"{N}/>'
+    steam = f'<path d="M10 30 c-2 -3 2 -5 0 -8 c-2 -3 2 -5 0 -8 M54 34 c-2 -3 2 -5 0 -8 c-2 -3 2 -5 0 -8" fill="none" stroke="{c["wool"]}" stroke-width="1.6"/>'
+    z = zz(46, 12) if pose == "schlaeft" else ""
+    return pool + arm + body + water_front + f'<path d="M14 48 q3 -1.5 6 0 M44 48 q3 -1.5 6 0" fill="none" stroke="#fff" stroke-width="1"/>' + steam + z
+
+def nykur(c, pose):
+    """Nykur: graues Wasserpferd der Sage (Hufe verkehrt herum), steht im See; taucht = nur Kopf und Hals."""
+    g = dict(c, horse=c["nyk"], horse_d=c["nyk_d"], flax=c["nyk_m"], flax_d=c["nyk_d"], blanket=False)
+    if pose == "taucht":
+        return f'<g transform="translate(-10 24)">{islandpferd(g, "steht")}</g>' + isl_water(c, 47)
+    return islandpferd(g, "schlaeft" if pose == "schlaeft" else "steht") + isl_water(c, 46)
+
+def marbendill(c, pose):
+    """Marbendill: kleiner Meermann der Sage (lacht dreimal), Seetang-Bart, Fischschwanz, sitzt im Wasser."""
+    S, T = c["merskin"], c["petrol"]
+    if pose == "taucht":   # nur die Schwanzflosse
+        return (tube([(30, 52), (32, 40), (36, 30)], [8, 6.5, 4], T)
+                + f'<path d="M36 30 C34 22 38 16 44 14 C42 20 44 24 48 26 C44 28 40 30 36 30 Z" fill="{c["petrol_l"]}"/>' + isl_water(c, 48)
+                + f'<path d="M18 46 q-3 -3 -6 -2 M46 46 q3 -3 6 -1" fill="none" stroke-width="0.8"/>')
+    tail = tube([(26, 50), (40, 52), (50, 46), (54, 38)], [11, 8, 6, 4], T) + \
+        f'<path d="M54 38 C52 32 54 28 58 26 C58 30 60 32 63 33 C60 36 57 37 54 38 Z" fill="{c["petrol_l"]}"/>'
+    body = f'<path d="M22 48 C21 40 24 34 31 33 C37 33 41 38 41 47 Z" fill="{S}"/>'
+    arms = tube([(23, 37), (18, 43), (21, 47)], [3.6, 3.2, 3], S) + tube([(39, 37), (44, 43), (40, 47)], [3.6, 3.2, 3], S)
+    beard = f'<path d="M24 28 C24 38 28 44 31 45 C34 44 38 38 38 28 C35 31 27 31 24 28 Z" fill="{c["moss"]}"/>' + \
+        f'<path d="M27 33 q1 5 3 8 M33 33 q1 5 2 7" fill="none" stroke="{c["moss_l"]}" stroke-width="0.8"/>'
+    head = (f'<ellipse cx="31" cy="24" rx="8" ry="8" fill="{S}"/>'
+            f'<path d="M23 23 C22 15 27 13 31 13 C35 13 40 15 39 23 C37 18 34 17 31 17 C28 17 25 18 23 23 Z" fill="{c["moss"]}"/>'
+            + eye(28, 23.5, c, closed=pose == "lacht") + eye(34, 23.5, c, closed=pose == "lacht")
+            + f'<ellipse cx="31" cy="27" rx="1.8" ry="1.4" fill="{c["cheek"]}"/>')
+    mouth = (f'<path d="M27.5 30 C28.5 34 33.5 34 34.5 30 Z" fill="{c["ox"]}"/>' + '<path d="M44 16 l3 -2 M45 21 l4 0 M43 11 l2 -3" fill="none" stroke-width="1"/>'
+             if pose == "lacht" else '<path d="M28.5 30.5 q2.5 1 5 0" fill="none" stroke-width="0.9"/>')
+    return tail + body + arms + head + beard + mouth + isl_water(c, 49)
+
+def seewurm(c, pose):
+    """Seewurm (Lagarfljótsormur, isländische Sage): grüne Buckel im See, kleiner Kopf mit Bartfäden."""
+    G = c["moss"]
+    hump = lambda x0, x1, h: tube([(x0, 52), ((x0 + x1) / 2, 52 - h), (x1, 52)], [6, 7, 6], G) + \
+        f'<path d="M{x0 + 2} {52 - h * 0.45} Q{(x0 + x1) / 2} {52 - h * 1.05} {x1 - 2} {52 - h * 0.45}" fill="none" stroke="{c["moss_l"]}" stroke-width="1.4"/>'
+    head = (f'<path d="M40 24 C42 17 50 15 55 18 C59 20 60 25 56 27 C51 29 44 29 40 28 Z" fill="{G}"/>'
+            f'<path d="M45 17 L43 11 L48 15.5 Z M50 16 L50 10 L53 15.5 Z" fill="{c["mustard"]}"/>'
+            f'<path d="M56 26 C58 30 56 33 58 36 M52 28 C53 32 51 35 52 38" fill="none" stroke-width="0.9"/>'
+            + eye(51, 21, c, closed=pose == "schlaeft"))
+    if pose == "taucht":
+        return hump(6, 22, 12) + hump(24, 40, 14) + tube([(42, 52), (48, 44), (54, 40)], [6, 4.5, 2.5], G) + isl_water(c, 50)
+    if pose == "schlaeft":
+        return hump(8, 26, 9) + tube([(30, 52), (38, 46), (46, 46)], [6, 7, 7], G) + f'<g transform="translate(-6 22) rotate(6 48 22)">{head}</g>' + isl_water(c, 50) + zz(14, 18)
+    return hump(4, 18, 10) + hump(19, 33, 12) + tube([(35, 52), (39, 40), (42, 28)], [6.5, 7, 6.5], G) + head + isl_water(c, 50)
+
+def wal(c, pose):
+    """Wal (Buckelwal) vor der Küste: dunkler Rücken, blaest = Fontäne, taucht = Fluke."""
+    D, Dl = c["whale"], c["whale_l"]
+    if pose == "taucht":
+        fluke = (tube([(30, 52), (31, 42), (32, 34)], [10, 6, 4], D)
+                 + f'<path d="M32 34 C26 30 16 30 10 24 C18 23 26 25 32 29 C38 25 46 23 54 24 C48 30 38 30 32 34 Z" fill="{D}"/>'
+                 + f'<path d="M14 25.5 C20 26 26 28 31 31 M50 25.5 C44 26 38 28 33 31" fill="none" stroke="{Dl}" stroke-width="1.2"/>')
+        drops = dots([(12, 30), (18, 34), (48, 33), (54, 29)], 1.1, c["wool"])
+        return fluke + drops + isl_water(c, 48)
+    back = (f'<path d="M4 52 C8 40 20 34 34 34 C46 34 56 40 60 50 L60 54 L4 54 Z" fill="{D}"/>'
+            f'<path d="M30 34.5 L34 28 L37 35 Z" fill="{D}"/>' + dots([(46, 40), (50, 43), (53, 46.5)], 1, Dl)
+            + f'<path d="M12 47 C22 41 36 40 48 44" fill="none" stroke="{Dl}" stroke-width="1.2"/>' + eye(52, 47, c, closed=pose == "schlaeft", light=True))
+    spout = ""
+    if pose == "blaest":
+        spout = (f'<path d="M50 36 C49 28 46 22 42 18 M51 36 C52 28 56 22 60 19 M50.5 36 L50.5 16" fill="none" stroke="{c["water"]}" stroke-width="2.2"/>'
+                 + dots([(41, 16), (61, 17), (50.5, 13), (45, 11), (56, 11)], 1.4, c["water"]))
+    z = zz(10, 24) if pose == "schlaeft" else ""
+    return spout + back + isl_water(c, 50) + z
+
+def eiderente(c, pose):
+    """Eiderente (Erpel) schwimmend: weißer Rücken, schwarzer Bauch und Scheitel, blassgrüner Nacken."""
+    W, K = c["wool"], c["bird"]
+    if pose == "taucht":   # Kopf unter Wasser, Bürzel hoch
+        return (f'<path d="M20 50 C20 40 28 32 36 30 L42 27 L40 34 C44 40 44 48 40 50 Z" fill="{K}"/>'
+                f'<path d="M22 50 C22 42 28 37 34 36 C38 40 38 46 36 50 Z" fill="{W}"/>'
+                + tube([(26, 50), (24, 55)], [2.4, 2], c["foot"]) + isl_water(c, 49)
+                + '<path d="M12 46 q-2 -3 -4 -3 M52 46 q2 -3 4 -3" fill="none" stroke-width="0.8"/>')
+    body = (f'<path d="M10 44 C12 36 22 34 34 35 C42 35.5 48 38 48 44 C48 50 40 52 30 52 C20 52 12 50 10 44 Z" fill="{W}"/>'
+            f'<path d="M12 46 C18 51 40 53 47 47 C46 51 38 53 30 53 C20 53 14 51 12 46 Z" fill="{K}"/>'
+            f'<path d="M10 44 L4 40 L10 47 Z" fill="{K}"/><path d="M18 40 C24 37 32 37 38 40" fill="none" stroke="{c["wool_d"]}" stroke-width="1.2"/>')
+    head = (f'<path d="M38 38 C37 30 40 24 46 23 C51 22 54 26 53 31 C52 35 48 38 44 40 Z" fill="{W}"/>'
+            f'<path d="M40 27 C41 23 45 21.5 49 22.5 C51 23.5 52 25 52 27 C48 25.5 44 25.5 40 27 Z" fill="{K}"/>'
+            f'<path d="M41 33 C44 31 48 32 51 34 C49 37 45 38 41 37 Z" fill="{c["eider"]}"{N}/>'
+            f'<path d="M52 28 C56 28 59 30 60 32 C57 33 54 32.5 52 31.5 Z" fill="{c["eider_b"]}"/>'
+            + eye(48.5, 28.5, c, closed=pose == "schlaeft"))
+    if pose == "schlaeft":
+        head = f'<g transform="translate(-14 10) rotate(-30 46 30)">{head}</g>' + zz(44, 18)
+    return body + head + isl_water(c, 49)
+
+ISLAND = {"islandpferd": (islandpferd, ("steht", "toelt", "schlaeft"), "Islandpferd (Island, Bilderbuch-Volkskunst)"),
+          "troll": (troll, ("steht", "winkt", "schlaeft"), "Troll mit Lopapeysa (isländische Sage)"),
+          "papageitaucher": (papageitaucher, ("steht", "fisch", "schlaeft"), "Papageitaucher (Island)"),
+          "schaf": (schaf, ("steht", "grast", "schlaeft"), "Isländisches Schaf"),
+          "polarfuchs": (polarfuchs, ("sitzt", "springt", "schlaeft"), "Polarfuchs"),
+          "kolkrabe": (kolkrabe, ("steht", "ruft", "schlaeft"), "Kolkrabe"),
+          "rentier": (rentier, ("steht", "grast", "schlaeft"), "Rentier"),
+          "huldufolk": (huldufolk, ("steht", "winkt", "verschwindet"), "Huldufólk, verborgenes Volk in Tracht (isländische Sage)"),
+          "elfenhaus": (elfenhaus, ("zu", "offen"), "Álfhóll, Elfenstein mit Haus (isländische Sage)"),
+          "fee": (fee, ("schwebt", "winkt", "schlaeft"), "Fee mit Pusteblume"),
+          "jolakoettur": (jolakoettur, ("sitzt", "faucht", "schlaeft"), "Jólakötturinn, Weihnachtskatze (isländische Sage)"),
+          "jolasveinn": (jolasveinn, ("steht", "winkt", "traegt"), "Jólasveinn, Weihnachtskerl in alter Wollkleidung (isländische Sage)"),
+          "hotpot": (hotpot, ("badet", "winkt", "schlaeft"), "Badende im heißen Becken (isländische Badekultur)"),
+          "nykur": (nykur, ("steht", "taucht", "schlaeft"), "Nykur, Wasserpferd (isländische Sage)"),
+          "marbendill": (marbendill, ("sitzt", "lacht", "taucht"), "Marbendill, Meermann (isländische Sage)"),
+          "seewurm": (seewurm, ("schwimmt", "taucht", "schlaeft"), "Seewurm nach dem Lagarfljótsormur (isländische Sage)"),
+          "wal": (wal, ("blaest", "taucht", "schlaeft"), "Buckelwal"),
+          "eiderente": (eiderente, ("schwimmt", "taucht", "schlaeft"), "Eiderente (Erpel)")}
+for n, (fn, poses, desc) in ISLAND.items():
+    for p in poses:
+        ID.update(p=f"{n}-{p}-", n=0)
+        write(n, p, desc, fn(ISL, p))

@@ -37,6 +37,10 @@
 .bubble.manga .box { border-width: 3px; border-radius: 16px; box-shadow: 3px 3px 0 var(--c1); }
 .bubble.manga .box::after { content: " !"; color: var(--c2, var(--c1)); }
 .bubble.manga .stem { width: 3px; }
+/* look = "strick" (Island): Sprechblase mit Strickborte (Lopapeysa-Zacken in --c2) unten, kantiger, ohne weichen Schatten */
+.bubble.strick .box { border-radius: 4px; padding-bottom: 11px; box-shadow: 2px 2px 0 var(--c1);
+  background: linear-gradient(135deg, var(--c2) 33%, transparent 33%) 0 100% / 8px 5px repeat-x,
+              linear-gradient(225deg, var(--c2) 33%, transparent 33%) 0 100% / 8px 5px repeat-x, var(--bg); }
 
 /* Terminal-Marker (Nerd-Stile): Kästchen mit Prompt und Block-Cursor, Stiel und Punkt auf der Position */
 .term { display: flex; flex-direction: column; align-items: center; font: 600 13px/1 ui-monospace, "JetBrains Mono", "Fira Code", monospace; }

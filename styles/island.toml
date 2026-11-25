@@ -1,0 +1,152 @@
+# "Island": isländische Sommerlandschaft mit Islandpferden, Trollen, Huldufólk und Feen (Nutzerwunsch 2026-11-25).
+#   - Grund blasses Moosgrau (Flechten auf Lava), Moospolster, Lupinenfelder, niedrige Birkenbüsche statt Wald
+#   - Wasser gletschertürkis mit hellen Wasserlinien
+#   - Häuser wie Wellblechhäuser in Reykjavík: Dächer nach OSM-ID in Rot, Ochsenblut, Senf, Petrol, Weiß, flach mit kleinem Schatten
+#   - Straßen lavagrau mit heller Kante, Hauptstraßen senfgelb (Ringstraße), Autobahn ochsenblut
+#   - Ortsnamen in Uncial Antiqua (wie die Handschriften der Edda), sonst Alegreya Sans; Marker mit Strickborte
+#   - Figuren als skandinavische Bilderbuch-Volkskunst (tools/gen_figures.py, ISL)
+title = "Island"
+category = "standard"
+mode = "light"
+family = "Island"
+font = "Alegreya Sans"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Alegreya Sans"   # öffentliche Vorschau (--site)
+text_scale = 1.25
+hide = ["poi_r20", "road_oneway*"]
+attribution = "Figuren und Kartenstil: eigene Zeichnung nach isländischer Volkskunst und Sage"
+
+[paint."background"]
+background-color = "#e4e8d8"
+[paint."landuse-*"]
+fill-color = "#dfe3d0"
+fill-opacity = 1
+[paint."landuse-residential"]
+fill-color = "#e8e8da"
+[paint."landuse-commercial"]
+fill-color = "#e6e1d2"
+[paint."landuse-industrial"]
+fill-color = "#d9d9d2"
+[paint."landuse-cemetery"]
+fill-pattern = "moos"
+fill-color = "#bccb9c"
+[paint."park"]
+fill-pattern = "lupinen"
+fill-color = "#c3d3a0"
+[paint."landcover-*"]
+fill-color = "#c3d3a0"
+fill-opacity = 1
+[paint."landcover-grass*"]
+fill-pattern = "moos"
+[paint."landcover-wood"]
+fill-pattern = "birken"
+fill-color = "#a9bf86"
+
+[paint."water*"]
+fill-color = "#8fd0d6"
+line-color = "#4f9fa8"
+
+# Häuser flach mit kleinem Schatten (building = Schatten, building-top = Dach 1,5 px versetzt), Dächer nach OSM-ID
+[paint."building"]
+fill-color = "#a8ab9c"
+[paint."building-top"]
+fill-opacity = 1
+fill-color = ["match", ["%", ["floor", ["/", ["id"], 10]], 6], 0, "#c9614f", 1, "#9e3b2f", 2, "#e2b75a", 3, "#4f8c94", 4, "#f6f0e2", 5, "#f6f0e2", "#f6f0e2"]
+fill-outline-color = "#22304a"
+fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 16, ["literal", [-1.5, -1.5]]]
+
+# Straßen lavagrau mit heller Kante, Hauptstraßen senf, Autobahn ochsenblut
+[paint."*-minor*"]
+line-color = "#8c8c94"
+[paint."*-service-track"]
+line-color = "#a4a4aa"
+[paint."*-link"]
+line-color = "#8c8c94"
+[paint."*-secondary-tertiary*"]
+line-color = "#6c6c76"
+[paint."*-primary*"]
+line-color = "#d9a53a"
+[paint."*-trunk*"]
+line-color = "#d9a53a"
+[paint."*-motorway*"]
+line-color = "#9e3b2f"
+[paint."*-casing"]
+line-color = "#f8f4ea"
+[paint."highway-area"]
+fill-color = "#ecebe2"
+fill-outline-color = "#a4a4aa"
+[paint."aeroway-*"]
+fill-color = "#dcdccf"
+line-color = "#dcdccf"
+[paint."*-path"]
+line-color = "#9e3b2f"
+[paint."*railway*"]
+line-color = "#4a4a52"
+
+[paint."label_*"]
+text-color = "#22304a"
+text-halo-color = "#f6f2e6"
+text-halo-width = 2
+[paint."highway-name-*"]
+text-color = "#2e2e36"
+text-halo-color = "#f6f2e6"
+[paint."poi_*"]
+text-color = "#8a3226"
+text-halo-color = "#f6f2e6"
+[paint."water*label"]
+text-color = "#2f6b73"
+text-halo-color = "#f6f2e6"
+# Orts- und Stadtteilnamen in der Unziale (Marker auch, [marker] font), Straßen und POIs in Alegreya Sans
+[layout."label_*"]
+text-font = ["Uncial Antiqua Regular", "Noto Sans Regular"]
+
+[patterns]
+moos = { symbol = "moos", color = "#6f8a4a", fill = "#93ab68", bg = "#c3d3a0" }
+lupinen = { symbol = "lupinen", color = "#5a7a3a", fill = "#8a6cc8", bg = "#c3d3a0" }
+birken = { symbol = "birken", color = "#4f6a34", fill = "#7f9e58", bg = "#a9bf86" }
+[water_lines]
+color = "#e8f6f4"
+count = 2
+gap = 3
+
+[marker]
+font = "Uncial Antiqua"
+type = "bubble"
+look = "strick"
+color = "#22304a"
+color2 = "#9e3b2f"
+bg = "#f6f0e2"
+fg = "#22304a"
+
+# Figuren an festen Orten (figures()): Islandpferde, Schafe, Trolle, Huldufólk, Feen, Wasserwesen; eigene Zeichnungen
+# (tools/gen_figures.py, ISLAND). Kontur = Marker-Farbe (nachtblau), Sticker-Rand = Marker-Grund.
+[figures]
+names = ["islandpferd", "schaf", "papageitaucher", "polarfuchs", "kolkrabe", "rentier",
+         "troll", "huldufolk", "elfenhaus", "fee", "jolakoettur", "jolasveinn", "hotpot",
+         "nykur", "marbendill", "seewurm", "wal", "eiderente"]
+density = 0.45
+density_rich = 0.85
+size = 64        # px im Sprite: Ornamente brauchen Platz
+line = 1.2       # dünne Kontur wie im Bilderbuch
+rim = 5
+areas = ["water", "farmland"]   # Wasser: nur Wasserwesen; Ackerland: Pferde und Schafe
+
+[figures.places]
+islandpferd = ["horse_riding", "farmland", "meadow"]
+schaf = ["farmland", "meadow", "farm"]
+papageitaucher = ["viewpoint", "zoo", "attraction"]
+polarfuchs = ["wood", "forest", "scrub"]
+kolkrabe = ["cemetery", "grave_yard", "ruins"]
+rentier = ["heath", "meadow", "zoo"]
+troll = ["castle", "ruins", "quarry", "rock", "bare_rock"]
+huldufolk = ["rock", "scrub", "heath", "cemetery"]
+elfenhaus = ["allotments", "rock", "scrub"]
+fee = ["playground", "florist", "garden_centre"]
+jolakoettur = ["clothes", "shoes", "fashion", "boutique"]
+jolasveinn = ["bakery", "butcher", "confectionery", "gift"]
+hotpot = ["swimming_pool", "swimming", "water_park", "sauna"]
+nykur = ["water"]
+marbendill = ["water"]
+seewurm = ["water"]
+wal = ["water"]
+eiderente = ["water"]

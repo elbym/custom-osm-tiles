@@ -201,3 +201,15 @@ group = "display"
 Regular = { file = "kalam/Kalam-Regular.ttf" }
 Bold    = { file = "kalam/Kalam-Bold.ttf" }
 Italic  = { file = "kalam/Kalam-Regular.ttf" }
+
+["Alegreya Sans"]   # humanistische Grotesk mit echter Kursive (Island), Huerta Tipográfica, OFL
+group = "display"   # nicht in der sans-Gruppe, sonst rendert --all-fonts sie für jeden Stil
+Regular = { file = "alegreya-sans/AlegreyaSans-Regular.ttf" }
+Bold    = { file = "alegreya-sans/AlegreyaSans-Bold.ttf" }
+Italic  = { file = "alegreya-sans/AlegreyaSans-Italic.ttf" }
+
+["Uncial Antiqua"]   # Unziale wie in alten Handschriften (Ortsnamen und Marker in Island), Astigmatic, OFL; ein Schnitt
+group = "uncial"
+Regular = { file = "uncial-antiqua/UncialAntiqua-Regular.ttf" }
+Bold    = { file = "uncial-antiqua/UncialAntiqua-Regular.ttf" }
+Italic  = { file = "uncial-antiqua/UncialAntiqua-Regular.ttf" }
