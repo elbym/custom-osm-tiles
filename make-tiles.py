@@ -950,9 +950,10 @@ def stain_png(data, x, y, cfg):
         bot = h(i, j + 1) * (1 - fu) + h(i + 1, j + 1) * fu
         return top * (1 - fv) + bot * fv
     n, tot, amp = 0, 0, 1
-    for cell in (640, 320, 160, 80, 40):  # Fleckengröße in px, feinere Oktaven fransen die Ränder aus
-        n, tot, amp = n + amp * noise(gx / cell, gy / cell, cell), tot + amp, amp * .5
-    a = np.clip((n / tot - cfg.get("threshold", .55)) * 4, 0, 1)[..., None] * cfg.get("strength", .35)
+    for cell in (640, 320, 160, 80, 40):  # Fleckengröße in px (× scale), feinere Oktaven fransen die Ränder aus
+        cell *= cfg.get("scale", 1)
+        n, tot, amp = n + amp * noise(gx / cell, gy / cell, round(cell)), tot + amp, amp * .5
+    a = np.clip((n / tot - cfg.get("threshold", .55)) * cfg.get("edge", 4), 0, 1)[..., None] * cfg.get("strength", .35)  # edge: Randschärfe
     col = np.array([int(cfg.get("color", "#8c642d")[i:i + 2], 16) for i in (1, 3, 5)]) / 255
     if cfg.get("blend") == "mix":  # Farbe überdecken statt multiplizieren: Grünspan auf der Kupferplatte (dunkler Grund)
         out = np.asarray(im, float) * (1 - a) + col * 255 * a
