@@ -1328,6 +1328,105 @@ def halftone(img, ox, oy, k, cfg, z=17):
     return out
 
 
+IRIS = ["#00f0ff", "#48b4ff", "#8a8cff", "#b86cff", "#f05ce8", "#ff7ab4", "#ffb894", "#9affd8"]  # Hologrammfolie
+
+
+def holo_split(style):
+    """holo im Stil (Hologramm): Karte ohne Gebäude-Zusatzebenen (nur der dunkle Grundriss "building" bleibt) und ein
+    Gebäude-Durchgang: nur "building" auf Schwarz, Farbe rgb(Höhe in m, 255, 0). Kantenglättung mischt mit Schwarz,
+    daher Deckung = G, Höhe = R / Deckung (holo_light()). Dazu jede Hauskante als Linie mit B = 255: Planetiler fasst
+    Nachbarhäuser zu einem Objekt zusammen, in der Maske allein verschmölzen die Altstadtblöcke zu einer Fläche."""
+    m, b = json.loads(json.dumps(style)), json.loads(json.dumps(style))
+    for l in m["layers"]:
+        if l.get("source-layer") == "building" and l["id"] != "building":
+            l.setdefault("layout", {})["visibility"] = "none"
+    h = ["min", ["coalesce", ["get", "render_height"], 0], 255]
+    for l in b["layers"]:
+        if l["type"] == "background":
+            l["paint"] = {"background-color": "#000000"}
+        elif l["id"] == "building":
+            l["paint"] = {"fill-color": ["rgb", h, 255, 0], "fill-antialias": True}
+        else:
+            l.setdefault("layout", {})["visibility"] = "none"
+    i = next(i for i, l in enumerate(b["layers"]) if l["id"] == "building")
+    b["layers"].insert(i + 1, {"id": "building-kante", "type": "line", "source": b["layers"][i]["source"],
+                               "source-layer": "building", "paint": {"line-color": ["rgb", h, 255, 255], "line-width": .6}})
+    return m, b
+
+
+def holo_light(img, ox, oy, k, cfg, z=16):
+    """Hologramm-Licht (holo im Stil; Nutzerwunsch 2026-11-26): img = Gebäude-Durchgang (holo_split()), Rückgabe RGB-Licht
+    0..1 (Schwarz = nichts), das screen() über die Karte legt. Je Gebäude slices Kopien des Grundrisses, die k-te um
+    k/(slices-1) × Höhe × lean nach oben versetzt (echte Höhe je Pixel, nicht in Klassen); die Neigung schwankt weich mit
+    Rauschen an Weltkoordinaten (spread, Grad), so ist jedes Hologramm etwas anders verzerrt. Farbe aus dem Farbkreis IRIS:
+    Ton = Abstand zur Kante / period (Interferenzringe wie Ölfilm) + Rauschen (shimmer) + Scheibe (slice_shift) + Höhe.
+    Kanten hell (edge), Fläche schwach (fill) mit Ringen (fringe) und Scanlinien (scan). Danach Glitch: waagerechte
+    Bänder seitlich verrutscht (glitch = Anteil, glitch_px = Weite), Farbkanäle um aberration Weltpixel auseinander."""
+    import numpy as np
+    from scipy import ndimage
+    h, w, _ = img.shape
+    cov = img[..., 1]
+    height = np.where(cov > .05, img[..., 0] / np.maximum(cov, 1e-3), 0) * 255
+    mask = cov > .5
+    yy, xx = np.mgrid[0:h, 0:w]
+    gx, gy = ox + xx / k, oy + yy / k
+    lat = math.radians(cfg["lat"]) if "lat" in cfg else math.atan(math.sinh(math.pi * (1 - 2 * (oy + h / k / 2) / (256 * 2 ** z))))
+    mpp = 156543.03 * math.cos(lat) / 2 ** z            # Meter je Weltpixel
+    iris = np.array([[int(c[i:i + 2], 16) for i in (1, 3, 5)] for c in cfg.get("colors", IRIS)], float) / 255
+    def hue(u):  # zyklisch durch den Farbkreis
+        u = (u % 1) * len(iris)
+        i = np.floor(u).astype(int)
+        f = (u - i)[..., None]
+        return iris[i % len(iris)] * (1 - f) + iris[(i + 1) % len(iris)] * f
+    q = lambda v: v[::4, ::4]   # grobes Rauschen auf jedem 4. Pixel
+    up = lambda n: ndimage.zoom(n, 4, order=1)[:h, :w]
+    ang = np.radians(cfg.get("angle", 15) + (up(vnoise(q(gx) / 220, q(gy) / 220, 5)) - .5) * 2 * cfg.get("spread", 25))
+    shim = up(vnoise(q(gx) / 60, q(gy) / 60, 7)) * cfg.get("shimmer", .8)
+    dist = ndimage.distance_transform_edt(mask) / k      # Weltpixel bis zur Kante
+    edge = mask & (~ndimage.binary_erosion(mask, iterations=max(1, round(.6 * k))) | (img[..., 2] > .4))
+    scan = .5 + .5 * ((yy // max(1, round(1.5 * k))) % 2)
+    ring = .55 + .45 * np.cos(2 * np.pi * dist / cfg.get("fringe", 5))
+    n = cfg.get("slices", 6)
+    off = height / mpp * cfg.get("lean", .5) * k        # volle Höhe in Bildpixeln
+    light = np.zeros((h, w, 3))
+    ys, xs = np.nonzero(mask)
+    for j in range(n):
+        t = j / (n - 1)
+        u = dist / cfg.get("period", 14) + shim + j * cfg.get("slice_shift", .12) + height / 60
+        top = j == n - 1
+        a = np.where(edge, cfg.get("edge", .9) * (1.15 if top else .75 + .25 * t), cfg.get("fill", .12) * ring * scan)
+        val = (hue(u) * a[..., None])[ys, xs]
+        if top:  # Deckel: Kante zu Weiß hin
+            val = np.where(edge[ys, xs, None], val * .5 + .5 * a[ys, xs, None], val)
+        s = off[ys, xs] * t
+        ty = np.clip(np.round(ys - s * np.cos(ang[ys, xs])).astype(int), 0, h - 1)
+        tx = np.clip(np.round(xs + s * np.sin(ang[ys, xs])).astype(int), 0, w - 1)
+        layer = np.zeros((h, w, 3))
+        layer[ty, tx] = val
+        light = 1 - (1 - light) * (1 - layer)
+    band = np.floor(gy / cfg.get("band", 4)).astype(np.int64)
+    col = np.floor(gx / 300).astype(np.int64)
+    hit = ihash(band, col, 91) < cfg.get("glitch", .05)
+    shift = np.where(hit, (ihash(band, col, 92) - .5) * 2 * cfg.get("glitch_px", 8) * k, 0).round().astype(int)
+    light = light[yy, np.clip(xx - shift, 0, w - 1)]
+    ab = round(cfg.get("aberration", 1) * k)
+    if ab:
+        light[..., 0] = np.roll(light[..., 0], -ab, 1)
+        light[..., 2] = np.roll(light[..., 2], ab, 1)
+    return light
+
+
+def screen(data, light):
+    """Licht (PNG, Schwarz = nichts) aufhellend über die Kachel legen (Hologramm)."""
+    import numpy as np
+    from PIL import Image
+    a = np.asarray(Image.open(io.BytesIO(data)).convert("RGB"), float) / 255
+    b = np.asarray(Image.open(io.BytesIO(light)).convert("RGB"), float) / 255
+    buf = io.BytesIO()
+    Image.fromarray(((1 - (1 - a) * (1 - b)) * 255).round().astype(np.uint8)).save(buf, "PNG")
+    return buf.getvalue()
+
+
 def wc_tile(base, z, x, y, sfx, post):
     """Kachel mit Pixel-Nachbearbeitung post = (watercolor|halftone, cfg): 3×3 Nachbarn (parent() merkt sie sich, jede wird von bis zu neun Kacheln gebraucht)
     zusammensetzen, mit einem Viertel Kachel Rand bearbeiten, Mitte ausschneiden."""
@@ -1582,13 +1681,19 @@ def readme_previews(a, mb):
         meta = tomllib.loads(st.read_text())
         style = build_style(st, meta.get("preview_font", meta.get("font")), (a.lat, a.lon))[0]
         url = f"/static/{a.lon},{a.lat},12/512x512.png"
-        post = post_of(meta)
-        if post:  # Karte und Beschriftung getrennt, wie in render()
+        post, holo = post_of(meta), meta.get("holo")
+        if holo:
+            style, bld = holo_split(style)
+        if post or holo:  # Karte und Beschriftung getrennt, wie in render()
             style, labels = split_labels(style, shift=False)
         with tileserver(style, f"readme-{st.stem}", mb) as base:
             data = fetch(base + url)
         if post:
             data = wc_static(data, post, 1, 13)
+        if holo:
+            with tileserver(bld, f"readme-{st.stem}-holo", mb) as base:
+                data = screen(data, wc_static(fetch(base + url), (holo_light, dict(holo, lat=a.lat)), 1, 13))
+        if post or holo:
             with tileserver(labels, f"readme-{st.stem}-labels", mb) as base:
                 data = over(data, fetch(base + url))
         if meta.get("stains"):   # Flecken/Nordlicht wie in den Kacheln (Bild wie eine @2x-Kachel bei 0/0)
@@ -1620,8 +1725,11 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
         return
     meta = tomllib.loads(Path(style_file).read_text())
     wc = post_of(meta)  # Wasserfarben/Druckraster: nur die Karte bearbeiten, Beschriftung danach scharf obenauf
-    if a.pixel or wc:  # Beschriftung getrennt rendern, dither_tiles()/over() backt sie ein
-        style, labels = split_labels(style, shift=not wc)
+    holo = meta.get("holo")  # Hologramm: Gebäude als eigener Durchgang, holo_light() legt sie aufhellend über die Karte
+    if holo:
+        style, bld = holo_split(style)
+    if a.pixel or wc or holo:  # Beschriftung getrennt rendern, dither_tiles()/over() backt sie ein
+        style, labels = split_labels(style, shift=not (wc or holo))
     stains = meta.get("stains")  # Versuch: Flecken eingebacken
     colors = a.colors or meta.get("colors", 32)  # colors im Stil: weiche Verläufe (Lichthöfe) brauchen mehr als 32
     crops = []   # --pixel: (Kachel, URL der Beschriftungs-Vorfahrkachel ohne Basis, f, qx, qy)
@@ -1653,10 +1761,10 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                 f.write_bytes(lowres(parent(f"{base}/{z - n}/{x >> n}/{y >> n}@{PIXEL_SS}x.png"),
                                      a.pixel, x % a.pixel, y % a.pixel))
                 return f
-            elif wc:  # Beschriftung und pngquant erst im zweiten Durchgang
+            elif wc or holo:  # Gebäude, Beschriftung und pngquant erst in weiteren Durchgängen
                 if ext != "png":
-                    sys.exit("watercolor/halftone nur mit PNG")
-                f.write_bytes(wc_tile(base, z, x, y, sfx, wc))
+                    sys.exit("watercolor/halftone/holo nur mit PNG")
+                f.write_bytes(wc_tile(base, z, x, y, sfx, wc) if wc else fetch(f"{base}/{z}/{x}/{y}{sfx}.png"))
                 return f
             else:
                 data = fetch(f"{base}/{z}/{x}/{y}{sfx}.{ext}")
@@ -1678,13 +1786,21 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                 list(pool.map(lambda c: c[0].with_suffix(".labels.png").write_bytes(
                     lowres(parent(base + c[1]), *c[2:])), crops))
         written = dither_tiles(written, style_file, a.retina)
-    if wc:
+    def zxy(f):  # Kacheldatei -> z, x, y, Suffix
+        y, sfx = f.stem.split("@") if "@" in f.stem else (f.stem, "")
+        return int(f.parts[-3]), int(f.parts[-2]), int(y), "@" + sfx if sfx else ""
+    if holo:
+        parent.cache_clear()
+        with tileserver(bld, out.name + "-holo", mb) as base:
+            with ThreadPoolExecutor(WORKERS) as pool:
+                list(pool.map(lambda f: f.write_bytes(screen(f.read_bytes(), wc_tile(base, *zxy(f), (holo_light, holo)))),
+                              written))
+    if wc or holo:
         parent.cache_clear()
         with tileserver(labels, out.name + "-labels", mb) as base:
             def lab(f):
-                z, x = f.parts[-3:-1]
-                y, sfx = f.stem.split("@") if "@" in f.stem else (f.stem, "")
-                f.write_bytes(quantize(over(f.read_bytes(), fetch(f"{base}/{z}/{x}/{y}{'@' + sfx if sfx else ''}.png")), colors))
+                z, x, y, sfx = zxy(f)
+                f.write_bytes(quantize(over(f.read_bytes(), fetch(f"{base}/{z}/{x}/{y}{sfx}.png")), colors))
             with ThreadPoolExecutor(WORKERS) as pool:
                 list(pool.map(lab, written))
     optimize(written)  # nach dem Stoppen des Containers
