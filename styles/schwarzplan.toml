@@ -1,0 +1,48 @@
+# "Schwarzplan" (Nutzerwunsch 2026-11-26): Figur-Grund-Plan wie in Architektur und Stadtplanung.
+#   - Gebäude schwarz, alles andere weiße Leere: Straßen und Plätze zeigen sich nur als Lücken zwischen den Häusern
+#   - keine Straßenlinien, keine POIs; nur Orts- und Straßennamen klein in Grau zur Orientierung
+#   - Wasser blassgrau, damit Flüsse und Teiche lesbar bleiben
+#   - Gebäude gibt es in OpenMapTiles erst ab z13: darunter stehen die Siedlungsflächen dunkelgrau (blenden bis z13 aus)
+#   - einzige Farbe: Marker in Signalrot (wie das Projektgrundstück im Lageplan)
+title = "Schwarzplan"
+category = "standard"
+mode = "light"
+family = "Schwarzplan"
+font = "TeX Gyre Heros"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "TeX Gyre Heros"   # öffentliche Vorschau (--site)
+attribution = "Kartenstil: eigener Entwurf nach dem Schwarzplan der Stadtplanung"
+hide = ["highway-area", "highway-*casing", "highway-motorway*", "highway-link", "highway-minor", "highway-secondary-tertiary",
+        "highway-primary", "highway-trunk", "highway-path", "highway-shield-*", "highway-name-path", "road_*",
+        "bridge-*", "tunnel-*", "*railway*", "ferry", "aeroway-*", "cablecar*", "boundary_*", "airport", "poi_*",
+        "park", "landcover-*", "landuse-cemetery", "landuse-hospital", "landuse-school", "landuse-railway", "landuse-suburb",
+        "building-top", "waterway_tunnel", "waterway_line_label", "water_name_*"]
+
+[paint."background"]
+background-color = "#ffffff"
+# Siedlungsflächen nur, solange es noch keine Gebäude gibt
+[paint."landuse-*"]
+fill-color = "#2a2a2a"
+fill-opacity = ["interpolate", ["linear"], ["zoom"], 10, 0.7, 12, 0.45, 13, 0]
+[paint."water*"]
+fill-color = "#dde1e4"
+line-color = "#dde1e4"
+[paint."building"]
+fill-color = "#111111"
+fill-outline-color = "#111111"
+fill-opacity = 1
+
+[paint."label_*"]
+text-color = "#111111"
+text-halo-color = "#ffffff"
+[paint."highway-name-*"]
+text-color = "#8a8a8a"
+text-halo-color = "#ffffff"
+[paint."poi_*"]
+text-color = "#555555"   # unsichtbar (poi_* aus), nur für die Symbolfarben im Sprite
+
+[marker]
+type = "bubble"
+color = "#e0301e"
+bg = "#ffffff"
+fg = "#111111"

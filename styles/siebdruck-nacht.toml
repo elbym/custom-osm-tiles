@@ -1,0 +1,90 @@
+# "Siebdruck Nacht" (dunkler Partner von Siebdruck, Nutzerwunsch 2026-11-26): dieselben Platten in Leuchtfarben auf
+#   schwarzem Karton; Gebäude pink gedeckt, Wasser blaues Raster, Wald blaugrün, Beschriftung gelb.
+title = "Siebdruck Nacht"
+category = "standard"
+mode = "dark"
+family = "Siebdruck"
+font = "Work Sans"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Work Sans"   # öffentliche Vorschau (--site)
+attribution = "Kartenstil: eigener Entwurf nach Schablonen- und Siebdruck"
+text_scale = 1.1
+hide = ["poi_r20", "road_oneway*", "highway-shield-*", "road_shield_us", "building-top", "*-casing", "highway-area"]
+
+[paint."background"]
+background-color = "#16151a"
+[paint."landuse-*"]
+fill-color = "#16151a"
+fill-opacity = 0
+[paint."landuse-cemetery"]
+fill-color = "#1f4a40"
+fill-opacity = 1
+[paint."park"]
+fill-pattern = "gelbraster"
+fill-opacity = 1
+[paint."landcover-*"]
+fill-color = "#2c2a16"
+fill-opacity = 1
+[paint."landcover-grass*"]
+fill-pattern = "gelbraster"
+[paint."landcover-wood"]
+fill-color = "#1d4a42"
+[paint."landcover-sand"]
+fill-color = "#4a4320"
+
+[paint."water*"]
+fill-pattern = "blauraster"
+line-color = "#3fa9f5"
+[paint."building"]
+fill-color = "#6a2650"
+fill-outline-color = "#6a2650"
+fill-translate = [2, 1.5]
+
+[paint."highway-*"]
+line-color = "#2f6f9e"
+[paint."bridge-*"]
+line-color = "#2f6f9e"
+[paint."tunnel-*"]
+line-color = "#244a66"
+[paint."*-secondary-tertiary"]
+line-color = "#3fa9f5"
+[paint."*-primary"]
+line-color = "#3fa9f5"
+[paint."*-trunk*"]
+line-color = "#ff48b0"
+[paint."*-motorway*"]
+line-color = "#ff48b0"
+[paint."*-path"]
+line-color = "#3fa9f5"
+[paint."*railway*"]
+line-color = "#8a93c4"
+[paint."aeroway-*"]
+fill-color = "#16151a"
+line-color = "#2f6f9e"
+[paint."boundary_*"]
+line-color = "#ff48b0"
+
+[paint."label_*"]
+text-color = "#ffe14d"
+text-halo-color = "#16151a"
+[paint."highway-name-*"]
+text-color = "#cfe6fa"
+text-halo-color = "#16151a"
+[paint."poi_*"]
+text-color = "#ff8fc6"
+text-halo-color = "#16151a"
+[paint."water*label"]
+text-color = "#8fcaf5"
+[layout."label_other"]
+text-transform = "uppercase"
+text-letter-spacing = 0.2
+
+[patterns]
+blauraster = { symbol = "raster", color = "#3fa9f5", bg = "#13324a" }
+gelbraster = { symbol = "raster", color = "#d9bf2a", bg = "#2c2a16" }
+
+[marker]
+type = "bubble"
+color = "#ff48b0"
+bg = "#16151a"
+fg = "#ffe14d"

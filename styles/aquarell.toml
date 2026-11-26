@@ -1,0 +1,167 @@
+# "Aquarell" (Nutzerwunsch 2026-11-26): Stadtplan als lavierte Tuschezeichnung.
+#   - Flächen als Lavierung: weicher Hof unter der Fläche (Farbe läuft aus), dunklerer Pigmentrand darüber ([[layers]])
+#   - ungleichmäßiger Farbauftrag als großflächige Wolken (stains), Straßen als feine Federzeichnung
+#   - Hauptstraßen mit Ocker laviert, Autobahn Siena; Alegreya Sans (humanistisch, mit echter Kursive)
+#   - weiche Verläufe brauchen colors = 64, sonst Stufen
+# Erzeugt von einem einmaligen Skript; die Datei ist jetzt Quelle, von Hand bearbeiten.
+title = "Aquarell"
+category = "standard"
+mode = "light"
+family = "Aquarell"
+font = "Alegreya Sans"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Alegreya Sans"   # öffentliche Vorschau (--site)
+attribution = "Kartenstil: eigener Entwurf nach lavierten Federzeichnungen"
+colors = 64
+stains = { strength = 0.35, color = "#b8a07e", threshold = 0.42, edge = 1.6, scale = 0.7 }
+text_scale = 1.15
+hide = ["poi_r20", "road_oneway*", "highway-shield-*", "road_shield_us", "building-top"]
+
+[paint."background"]
+background-color = "#fbf8f1"
+[paint."landuse-*"]
+fill-color = "#f4ece0"
+fill-opacity = 0.6
+[paint."landuse-cemetery"]
+fill-color = "#c8dca4"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#c8dca4"
+fill-opacity = 0.9
+[paint."landcover-*"]
+fill-color = "#c8dca4"
+fill-opacity = 0.9
+fill-outline-color = "#c8dca4"
+[paint."landcover-wood"]
+fill-color = "#a9c98c"
+fill-outline-color = "#a9c98c"
+[paint."water*"]
+fill-color = "#a7cde0"
+line-color = "#6fa3c2"
+[paint."building"]
+fill-color = "#ecccb0"
+fill-outline-color = "#ecccb0"
+fill-opacity = 0.85
+
+# Straßen: Federstrich (Rand) mit Papier bzw. Lavierung innen
+[paint."highway-*"]
+line-color = "#ffffff"
+[paint."bridge-*"]
+line-color = "#ffffff"
+[paint."tunnel-*"]
+line-color = "#ffffff"
+[paint."*-secondary-tertiary"]
+line-color = "#e8b867"
+line-opacity = 0.7
+[paint."*-primary"]
+line-color = "#e8b867"
+[paint."*-trunk*"]
+line-color = "#e8b867"
+[paint."*-motorway*"]
+line-color = "#d98a5f"
+[paint."*-casing"]
+line-color = "#a89886"
+[paint."highway-area"]
+fill-color = "#ffffff"
+fill-outline-color = "#a89886"
+[paint."aeroway-*"]
+fill-color = "#f4ece0"
+line-color = "#ffffff"
+[paint."*-path"]
+line-color = "#a89886"
+[paint."*railway*"]
+line-color = "#a89886"
+
+[paint."label_*"]
+text-color = "#3e4a5c"
+text-halo-color = "#fbf8f1"
+[paint."highway-name-*"]
+text-color = "#5a4c40"
+text-halo-color = "#fbf8f1"
+[paint."poi_*"]
+text-color = "#8a5a3a"
+text-halo-color = "#fbf8f1"
+[paint."water*label"]
+text-color = "#3f6f8c"
+
+[[layers]]
+after = "water"
+id = "wasser-hof"
+type = "line"
+source-layer = "water"
+filter = ["all", ["!=", ["get", "intermittent"], 1], ["!=", ["get", "brunnel"], "tunnel"]]
+minzoom = 0
+layout = { line-join = "round" }
+paint = { line-color = "#a7cde0", line-blur = 3, line-opacity = 0.55, line-width = ["interpolate", ["linear"], ["zoom"], 10, 2, 16, 7] }
+[[layers]]
+after = "wasser-hof"
+id = "wasser-rand"
+type = "line"
+source-layer = "water"
+filter = ["all", ["!=", ["get", "intermittent"], 1], ["!=", ["get", "brunnel"], "tunnel"]]
+minzoom = 0
+layout = { line-join = "round" }
+paint = { line-color = "#6fa3c2", line-blur = 1.5, line-opacity = 0.7, line-width = ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 3] }
+
+[[layers]]
+after = "landcover-wood"
+id = "wald-hof"
+type = "line"
+source-layer = "landcover"
+filter = ["==", ["get", "class"], "wood"]
+minzoom = 0
+layout = { line-join = "round" }
+paint = { line-color = "#a9c98c", line-blur = 3, line-opacity = 0.55, line-width = ["interpolate", ["linear"], ["zoom"], 10, 2, 16, 7] }
+[[layers]]
+after = "wald-hof"
+id = "wald-rand"
+type = "line"
+source-layer = "landcover"
+filter = ["==", ["get", "class"], "wood"]
+minzoom = 0
+layout = { line-join = "round" }
+paint = { line-color = "#7fa865", line-blur = 1.5, line-opacity = 0.7, line-width = ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 3] }
+
+[[layers]]
+after = "park"
+id = "park-hof"
+type = "line"
+source-layer = "park"
+filter = ["match", ["geometry-type"], ["MultiPolygon", "Polygon"], true, false]
+minzoom = 0
+layout = { line-join = "round" }
+paint = { line-color = "#c8dca4", line-blur = 3, line-opacity = 0.55, line-width = ["interpolate", ["linear"], ["zoom"], 10, 2, 16, 7] }
+[[layers]]
+after = "park-hof"
+id = "park-rand"
+type = "line"
+source-layer = "park"
+filter = ["match", ["geometry-type"], ["MultiPolygon", "Polygon"], true, false]
+minzoom = 0
+layout = { line-join = "round" }
+paint = { line-color = "#9dbb78", line-blur = 1.5, line-opacity = 0.7, line-width = ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 3] }
+
+[[layers]]
+after = "building"
+id = "haus-hof"
+type = "line"
+source-layer = "building"
+filter = ["==", ["geometry-type"], "Polygon"]
+minzoom = 14
+layout = { line-join = "round" }
+paint = { line-color = "#ecccb0", line-blur = 3, line-opacity = 0.55, line-width = ["interpolate", ["linear"], ["zoom"], 10, 2, 16, 7] }
+[[layers]]
+after = "haus-hof"
+id = "haus-rand"
+type = "line"
+source-layer = "building"
+filter = ["==", ["geometry-type"], "Polygon"]
+minzoom = 14
+layout = { line-join = "round" }
+paint = { line-color = "#c99a78", line-blur = 1.5, line-opacity = 0.7, line-width = ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 3] }
+
+[marker]
+type = "bubble"
+color = "#c8553d"
+bg = "#fbf8f1"
+fg = "#3e4a5c"

@@ -39,12 +39,15 @@ fill-pattern = "raster"
 fill-color = "#2b3f8f"
 line-color = "#3d56b0"
 
-# Cel-Shading: Schlagschatten fast schwarz, Dachfläche violett mit leuchtenden Fenstern
+# Cel-Shading: Dachfläche violett, darunter der Grundriss als dunkle Hauswand mit leuchtenden Fenstern (Nutzerwunsch
+# 2026-11-26: Fenster lagen "oben auf dem Dach"). Das Dach ist nach links oben versetzt und verdeckt die Fenster, sie
+# zeigen sich nur im Wandstreifen unten/rechts; daher dichtes Raster (wandfenster), sonst fiele kaum eins hinein.
 [paint."building"]
 fill-color = "#121229"
+fill-pattern = "wandfenster"
 [paint."building-top"]
 fill-opacity = 1   # OSM Bright blendet das Dach erst ab z16 ein, sonst scheint der Schatten durch
-fill-pattern = "fenster"
+fill-color = "#3a2f5f"
 fill-outline-color = ["interpolate", ["linear"], ["zoom"], 14, "#2e2f55", 16, "#0d0c1d"]
 fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 16, ["literal", [-3, -3]]]
 
@@ -105,7 +108,7 @@ park = { symbol = "mangagras", color = "#4f8a8a", bg = "#244a55" }
 wald = { symbol = "wolkenbaum", color = "#10122a", fill = "#2f5a6a", bg = "#22424f" }
 raster = { symbol = "raster", color = "#33365f", bg = "#212447" }
 platz = { symbol = "raster", color = "#3a3d6a", bg = "#2a2c52" }
-fenster = { symbol = "fenster", color = "#ffc46b", bg = "#3a2f5f" }
+wandfenster = { symbol = "wandfenster", color = "#ffc46b", bg = "#121229" }
 [water_lines]
 color = "#9fb8ff"
 count = 2

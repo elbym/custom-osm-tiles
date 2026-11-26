@@ -1,0 +1,106 @@
+# "Blaupause" (Nutzerwunsch 2026-11-26): Stadtplan als technische Zeichnung, für Handwerk, Ingenieure, Bau.
+#   - Preußischblau als Papier, alles in hellen Linien gezeichnet, keine Farbflächen
+#   - Straßen hohl: helle Ränder, Füllung im Grund; Wege gestrichelt
+#   - Gebäude als Umriss (outlines, 1 px wäre in @2x zu dünn), Wald als Laubholz-Signatur, Wasser mit Uferlinien
+#   - Normschrift-Anmutung (DINish), keine Schilder (weiße Sprite-Schilder lassen sich nicht umfärben)
+#   - einzige Farbe: Marker wie ein roter Korrekturstift
+title = "Blaupause"
+category = "standard"
+mode = "dark"
+family = "Blaupause"
+font = "DINish"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "DINish"   # öffentliche Vorschau (--site)
+attribution = "Kartenstil: eigener Entwurf nach technischen Zeichnungen (Blaupause)"
+text_scale = 1.1
+hide = ["poi_r20", "road_oneway*", "highway-shield-*", "road_shield_us", "building-top"]
+
+[paint."background"]
+background-color = "#1d4f8c"
+[paint."landuse-*"]
+fill-color = "#1d4f8c"
+fill-opacity = 0
+[paint."park"]
+fill-pattern = "wiese"
+fill-opacity = 1
+[paint."landcover-*"]
+fill-color = "#1d4f8c"
+fill-opacity = 0
+[paint."landcover-wood"]
+fill-pattern = "wald"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-pattern = "friedhof"
+fill-opacity = 1
+
+[paint."water*"]
+fill-color = "#174377"
+line-color = "#b9d0ec"
+[paint."building"]
+fill-color = "#21579a"
+fill-outline-color = "#d9e6f5"
+
+# Straßen hohl: Füllung = Grund, danach die hellen Ränder (spätere Globs gewinnen)
+[paint."highway-*"]
+line-color = "#1d4f8c"
+[paint."bridge-*"]
+line-color = "#1d4f8c"
+[paint."tunnel-*"]
+line-color = "#1d4f8c"
+[paint."*-casing"]
+line-color = "#d9e6f5"
+[paint."*-motorway*-casing"]
+line-color = "#ffffff"
+[paint."*-trunk*-casing"]
+line-color = "#ffffff"
+[paint."*-primary*-casing"]
+line-color = "#ffffff"
+[paint."tunnel-*-casing"]
+line-color = "#8fb0d8"
+[paint."highway-area"]
+fill-color = "#1d4f8c"
+fill-outline-color = "#d9e6f5"
+[paint."aeroway-*"]
+fill-color = "#1d4f8c"
+line-color = "#d9e6f5"
+[paint."*-path"]
+line-color = "#b9d0ec"
+[paint."*railway*"]
+line-color = "#d9e6f5"
+[paint."*railway*-hatching"]
+line-color = "#d9e6f5"
+[paint."boundary_*"]
+line-color = "#8fb0d8"
+
+[paint."label_*"]
+text-color = "#ffffff"
+text-halo-color = "#1d4f8c"
+[paint."highway-name-*"]
+text-color = "#e3edf8"
+text-halo-color = "#1d4f8c"
+[paint."poi_*"]
+text-color = "#c4d7ee"
+text-halo-color = "#1d4f8c"
+[paint."water*label"]
+text-color = "#b9d0ec"
+text-halo-color = "#174377"
+
+[outlines.building]
+color = "#d9e6f5"
+width = 0.8
+minzoom = 14
+
+[patterns]
+wald = { symbol = "laubwald", color = "#9fbde2", bg = "#1d4f8c" }
+wiese = { symbol = "wiese", color = "#7fa4d2", bg = "#1d4f8c" }
+friedhof = { symbol = "friedhof", color = "#9fbde2", bg = "#1d4f8c" }
+[water_lines]
+color = "#b9d0ec"
+count = 3
+gap = 2
+
+[marker]
+type = "bubble"
+color = "#ff6a4d"
+bg = "#1d4f8c"
+fg = "#ffffff"

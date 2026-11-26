@@ -56,12 +56,16 @@ fill-color = "#0e1018"
 fill-color = "#030409"
 line-color = "#0d1426"
 
-# Gebäude: Seiten fast schwarz, Dächer mit Fensterlichtern
+# Gebäude (Mittelweg, Nutzerwunsch 2026-11-26): die Fenster leuchten voll in den Hauswänden, also im Streifen
+# unten/rechts, den das nach links oben versetzte Dach frei lässt; auf dem Dach nur ein schwaches Glimmen desselben
+# Rasters (dach_*, Farbe zu 35 % über dem Dach), damit die Blöcke von oben nicht dunkel werden. Versatz 3 px.
 [paint."building"]
 fill-color = "#05040a"
-[paint."building-top"]
 # je Gebäude (OSM-ID) ein Fensterraster: halb fast dunkel, sonst warm belebt, jedes sechste kalt (Büro)
 fill-pattern = ["match", ["%", ["floor", ["/", ["to-number", ["id"], 0], 10]], 6], [0, 1, 2], "lichter_spaerlich", 5, "lichter_kalt", "lichter"]
+[paint."building-top"]
+fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 16, ["literal", [-3, -3]]]
+fill-pattern = ["match", ["%", ["floor", ["/", ["to-number", ["id"], 0], 10]], 6], [0, 1, 2], "dach_spaerlich", 5, "dach_kalt", "dach"]
 fill-color = "#100d18"
 fill-outline-color = "#2a2030"
 
@@ -162,20 +166,28 @@ text-halo-color = "#07060d"
 text-halo-width = 1.5
 
 [patterns]
-lichter = { symbol = "fenster-dicht", color = "#a87840", bg = "#100d18" }
-lichter_spaerlich = { symbol = "fenster-spaerlich", color = "#c08a48", bg = "#100d18" }
+lichter = { symbol = "fenster-dicht", color = "#a87840", bg = "#05040a" }
+dach = { symbol = "fenster-dicht-dach", color = "#453226", bg = "#100d18" }
+lichter_spaerlich = { symbol = "fenster-spaerlich", color = "#c08a48", bg = "#05040a" }
+dach_spaerlich = { symbol = "fenster-spaerlich-dach", color = "#4e3929", bg = "#100d18" }
 streulicht = { symbol = "stadtlichter", color = "#9a6a34", bg = "#0b0a13" }
 streulicht_gewerbe = { symbol = "stadtlichter", color = "#d08a3a", bg = "#0e0b12" }
 streulicht_kalt = { symbol = "stadtlichter", color = "#8fb0ff", bg = "#0b0c16" }
-lichter_kalt = { symbol = "fenster-dicht", color = "#7d93b8", bg = "#0e1020" }
+lichter_kalt = { symbol = "fenster-dicht", color = "#7d93b8", bg = "#05040a" }
+dach_kalt = { symbol = "fenster-dicht-dach", color = "#353e55", bg = "#0e1020" }
 
 # >>> Zusatzebenen (Nutzerwunsch 2026-11-25) ------------------------------------------------------------------------
 # Hochhäuser (ab ~6 Geschosse) mit kaltweißen Bürolichtern
 [[layers]]
+like = "building"
+id = "building-hoch"
+filter = [">=", ["get", "render_height"], 18]
+paint = { fill-pattern = "lichter_kalt" }
+[[layers]]
 like = "building-top"
 id = "building-top-hoch"
 filter = [">=", ["get", "render_height"], 18]
-paint = { fill-pattern = "lichter_kalt" }
+paint = { fill-pattern = "dach_kalt" }
 
 # Sportplätze und Stadien im grünen Flutlicht
 [[layers]]

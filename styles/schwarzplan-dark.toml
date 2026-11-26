@@ -1,0 +1,44 @@
+# "Weißplan" (dunkler Partner von Schwarzplan, Nutzerwunsch 2026-11-26): derselbe Figur-Grund-Plan umgekehrt,
+#   weiße Gebäude auf Fast-Schwarz, Wasser dunkles Schiefergrau, Marker in Signalrot.
+title = "Weißplan"
+category = "standard"
+mode = "dark"
+family = "Schwarzplan"
+font = "TeX Gyre Heros"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "TeX Gyre Heros"   # öffentliche Vorschau (--site)
+attribution = "Kartenstil: eigener Entwurf nach dem Schwarzplan der Stadtplanung"
+hide = ["highway-area", "highway-*casing", "highway-motorway*", "highway-link", "highway-minor", "highway-secondary-tertiary",
+        "highway-primary", "highway-trunk", "highway-path", "highway-shield-*", "highway-name-path", "road_*",
+        "bridge-*", "tunnel-*", "*railway*", "ferry", "aeroway-*", "cablecar*", "boundary_*", "airport", "poi_*",
+        "park", "landcover-*", "landuse-cemetery", "landuse-hospital", "landuse-school", "landuse-railway", "landuse-suburb",
+        "building-top", "waterway_tunnel", "waterway_line_label", "water_name_*"]
+
+[paint."background"]
+background-color = "#141414"
+# Siedlungsflächen nur, solange es noch keine Gebäude gibt
+[paint."landuse-*"]
+fill-color = "#dcdcdc"
+fill-opacity = ["interpolate", ["linear"], ["zoom"], 10, 0.7, 12, 0.45, 13, 0]
+[paint."water*"]
+fill-color = "#3a4046"
+line-color = "#3a4046"
+[paint."building"]
+fill-color = "#e8e8e8"
+fill-outline-color = "#e8e8e8"
+fill-opacity = 1
+
+[paint."label_*"]
+text-color = "#ffffff"
+text-halo-color = "#141414"
+[paint."highway-name-*"]
+text-color = "#8c8c8c"
+text-halo-color = "#141414"
+[paint."poi_*"]
+text-color = "#aaaaaa"   # unsichtbar (poi_* aus), nur für die Symbolfarben im Sprite
+
+[marker]
+type = "bubble"
+color = "#e0301e"
+bg = "#141414"
+fg = "#ffffff"

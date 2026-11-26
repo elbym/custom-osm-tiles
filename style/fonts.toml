@@ -202,7 +202,7 @@ Regular = { file = "kalam/Kalam-Regular.ttf" }
 Bold    = { file = "kalam/Kalam-Bold.ttf" }
 Italic  = { file = "kalam/Kalam-Regular.ttf" }
 
-["Alegreya Sans"]   # humanistische Grotesk mit echter Kursive (Island), Huerta Tipográfica, OFL
+["Alegreya Sans"]   # humanistische Grotesk mit echter Kursive (Aquarell), Huerta Tipográfica, OFL
 group = "display"   # nicht in der sans-Gruppe, sonst rendert --all-fonts sie für jeden Stil
 Regular = { file = "alegreya-sans/AlegreyaSans-Regular.ttf" }
 Bold    = { file = "alegreya-sans/AlegreyaSans-Bold.ttf" }

@@ -1,0 +1,88 @@
+# "Marke Dunkel" (dunkel): Markenstil, erzeugt von tools/gen_marke.py aus der Akzentfarbe #2a6fdb.
+#   Grund und Gebäude leicht im Farbton der Marke, Haupt- und Fernstraßen in der Akzentfarbe, Wasser blau, Grün grün;
+#   POI-Schrift in der Akzentfarbe mit Kontrast >= 4,5:1, Marker in der unveränderten Kundenfarbe.
+title = "Marke Dunkel"
+category = "standard"
+mode = "dark"
+family = "Marke"
+font = "Figtree"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Figtree"   # öffentliche Vorschau (--site)
+attribution = "Kartenstil: eigener Entwurf (Markenstil aus #2a6fdb)"
+text_scale = 1.15
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#15181e"
+[paint."landuse-*"]
+fill-color = "#1a1d23"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-color = "#1f3423"
+[paint."park"]
+fill-color = "#1f3423"
+[paint."landcover-*"]
+fill-color = "#1f3423"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#15301b"
+[paint."landcover-sand"]
+fill-color = "#1a1d23"
+[paint."water*"]
+fill-color = "#1b394c"
+line-color = "#1b394c"
+[paint."building*"]
+fill-color = "#272c32"
+fill-outline-color = "#34383f"
+
+[paint."*-minor*"]
+line-color = "#4a4d53"
+[paint."*-service-track"]
+line-color = "#4a4d53"
+[paint."*-secondary-tertiary*"]
+line-color = "#4a4d53"
+[paint."*-link"]
+line-color = "#4a4d53"
+[paint."*-primary*"]
+line-color = "#4c72ae"
+[paint."*-trunk*"]
+line-color = "#4c72ae"
+[paint."*-motorway*"]
+line-color = "#5e8fde"
+[paint."*-casing"]
+line-color = "#212429"
+[paint."*-primary*-casing"]
+line-color = "#213a63"
+[paint."*-trunk*-casing"]
+line-color = "#213a63"
+[paint."*-motorway*-casing"]
+line-color = "#284778"
+[paint."*-path"]
+line-color = "#606369"
+[paint."*railway*"]
+line-color = "#5a5e63"
+[paint."highway-area"]
+fill-color = "#24272b"
+fill-outline-color = "#212429"
+[paint."aeroway-*"]
+fill-color = "#1a1d23"
+line-color = "#4a4d53"
+
+[paint."label_*"]
+text-color = "#e4e8ef"
+text-halo-color = "#15181e"
+[paint."highway-name-*"]
+text-color = "#c0c4cb"
+text-halo-color = "#15181e"
+[paint."poi_*"]
+text-color = "#3a7fec"
+text-halo-color = "#15181e"
+[paint."water*label"]
+text-color = "#82b6d4"
+text-halo-color = "#15181e"
+
+[marker]
+type = "bubble"
+color = "#2a6fdb"
+bg = "#15181e"
+fg = "#e4e8ef"

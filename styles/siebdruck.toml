@@ -1,0 +1,94 @@
+# "Siebdruck" (Nutzerwunsch 2026-11-26, Entwurf "Risographie/Siebdruck"): Plakat aus drei Druckfarben auf Naturpapier.
+#   - Farben wie Schablonendruck-Tinten: Leuchtpink, Blau, Gelb; Grün = Blau über Gelb (Überdruck vorgemischt, MapLibre
+#     kennt kein Multiplizieren)
+#   - Wasser und Wiesen als Punktraster (Muster raster), Flächen sonst vollflächig
+#   - Passer-Versatz: die pinke Gebäudeplatte sitzt 2 px neben der blauen (fill-translate, unter dem Kachelpuffer)
+#   - Straßen als Linien in Blau ohne Ränder, Autobahn/Fernstraße pink; Ortsteile in Versalien, gesperrt
+title = "Siebdruck"
+category = "standard"
+mode = "light"
+family = "Siebdruck"
+font = "Work Sans"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Work Sans"   # öffentliche Vorschau (--site)
+attribution = "Kartenstil: eigener Entwurf nach Schablonen- und Siebdruck"
+text_scale = 1.1
+hide = ["poi_r20", "road_oneway*", "highway-shield-*", "road_shield_us", "building-top", "*-casing", "highway-area"]
+
+[paint."background"]
+background-color = "#f5efe3"
+[paint."landuse-*"]
+fill-color = "#f5efe3"
+fill-opacity = 0
+[paint."landuse-cemetery"]
+fill-color = "#9cc9a2"
+fill-opacity = 1
+[paint."park"]
+fill-pattern = "gelbraster"
+fill-opacity = 1
+[paint."landcover-*"]
+fill-color = "#fbf0a8"
+fill-opacity = 1
+[paint."landcover-grass*"]
+fill-pattern = "gelbraster"
+[paint."landcover-wood"]
+fill-color = "#5fae8c"
+[paint."landcover-sand"]
+fill-color = "#fbe68a"
+
+[paint."water*"]
+fill-pattern = "blauraster"
+line-color = "#0078bf"
+[paint."building"]
+fill-color = "#ff8fc6"
+fill-outline-color = "#ff8fc6"
+fill-translate = [2, 1.5]
+
+[paint."highway-*"]
+line-color = "#6fadde"
+[paint."bridge-*"]
+line-color = "#6fadde"
+[paint."tunnel-*"]
+line-color = "#a9cdeb"
+[paint."*-secondary-tertiary"]
+line-color = "#0078bf"
+[paint."*-primary"]
+line-color = "#0078bf"
+[paint."*-trunk*"]
+line-color = "#ff48b0"
+[paint."*-motorway*"]
+line-color = "#ff48b0"
+[paint."*-path"]
+line-color = "#0078bf"
+[paint."*railway*"]
+line-color = "#2c3e8f"
+[paint."aeroway-*"]
+fill-color = "#f5efe3"
+line-color = "#6fadde"
+[paint."boundary_*"]
+line-color = "#ff48b0"
+
+[paint."label_*"]
+text-color = "#004f8c"
+text-halo-color = "#f5efe3"
+[paint."highway-name-*"]
+text-color = "#004f8c"
+text-halo-color = "#f5efe3"
+[paint."poi_*"]
+text-color = "#b8236f"
+text-halo-color = "#f5efe3"
+[paint."water*label"]
+text-color = "#004f8c"
+[layout."label_other"]
+text-transform = "uppercase"
+text-letter-spacing = 0.2
+
+[patterns]
+blauraster = { symbol = "raster", color = "#0078bf", bg = "#c3dcef" }
+gelbraster = { symbol = "raster", color = "#e8c400", bg = "#fbf0a8" }
+
+[marker]
+type = "bubble"
+color = "#ff48b0"
+bg = "#f5efe3"
+fg = "#004f8c"

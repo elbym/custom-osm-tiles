@@ -1,0 +1,88 @@
+# "Marke" (hell): Markenstil, erzeugt von tools/gen_marke.py aus der Akzentfarbe #2a6fdb.
+#   Grund und Gebäude leicht im Farbton der Marke, Haupt- und Fernstraßen in der Akzentfarbe, Wasser blau, Grün grün;
+#   POI-Schrift in der Akzentfarbe mit Kontrast >= 4,5:1, Marker in der unveränderten Kundenfarbe.
+title = "Marke"
+category = "standard"
+mode = "light"
+family = "Marke"
+font = "Figtree"
+preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
+site_font = "Figtree"   # öffentliche Vorschau (--site)
+attribution = "Kartenstil: eigener Entwurf (Markenstil aus #2a6fdb)"
+text_scale = 1.15
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#eef2f9"
+[paint."landuse-*"]
+fill-color = "#e9edf4"
+fill-opacity = 1
+[paint."landuse-cemetery"]
+fill-color = "#b8e1b8"
+[paint."park"]
+fill-color = "#b8e1b8"
+[paint."landcover-*"]
+fill-color = "#b8e1b8"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#a7d6a8"
+[paint."landcover-sand"]
+fill-color = "#e9edf4"
+[paint."water*"]
+fill-color = "#9fcbe6"
+line-color = "#9fcbe6"
+[paint."building*"]
+fill-color = "#d4d9e3"
+fill-outline-color = "#c2c8d1"
+
+[paint."*-minor*"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#ffffff"
+[paint."*-secondary-tertiary*"]
+line-color = "#ffffff"
+[paint."*-link"]
+line-color = "#ffffff"
+[paint."*-primary*"]
+line-color = "#c2d9fe"
+[paint."*-trunk*"]
+line-color = "#c2d9fe"
+[paint."*-motorway*"]
+line-color = "#97bffe"
+[paint."*-casing"]
+line-color = "#bdc1c7"
+[paint."*-primary*-casing"]
+line-color = "#6698e8"
+[paint."*-trunk*-casing"]
+line-color = "#6698e8"
+[paint."*-motorway*-casing"]
+line-color = "#4979c6"
+[paint."*-path"]
+line-color = "#9b9fa5"
+[paint."*railway*"]
+line-color = "#83868c"
+[paint."highway-area"]
+fill-color = "#e7ebf2"
+fill-outline-color = "#bdc1c7"
+[paint."aeroway-*"]
+fill-color = "#e9edf4"
+line-color = "#ffffff"
+
+[paint."label_*"]
+text-color = "#1a2029"
+text-halo-color = "#ffffff"
+[paint."highway-name-*"]
+text-color = "#3a3d42"
+text-halo-color = "#ffffff"
+[paint."poi_*"]
+text-color = "#2369d4"
+text-halo-color = "#ffffff"
+[paint."water*label"]
+text-color = "#1a5b82"
+text-halo-color = "#ffffff"
+
+[marker]
+type = "bubble"
+color = "#2a6fdb"
+bg = "#ffffff"
+fg = "#1a2029"

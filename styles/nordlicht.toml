@@ -46,14 +46,18 @@ fill-color = "#18282a"
 fill-color = "#153440"
 line-color = "#2a5a66"
 
-# Dächer dunkel in den Wellblechfarben von Island, Fenster leuchten warm (Muster fenster je Dachfarbe nach OSM-ID)
+# Dächer dunkel in den Wellblechfarben von Island (je OSM-ID), darunter die Hauswand mit warm leuchtenden Fenstern
+# (Nutzerwunsch 2026-11-26: Fenster lagen auf dem Dach). Das Dach ist nach links oben versetzt und verdeckt die Fenster;
+# sie zeigen sich nur im Wandstreifen unten/rechts (Muster wandfenster, dichtes Raster). Versatz 3 px statt 1,5, sonst
+# fällt kaum ein Fenster in den Streifen.
 [paint."building"]
 fill-color = "#070b14"
+fill-pattern = "wandfenster"
 [paint."building-top"]
 fill-opacity = 1
-fill-pattern = ["match", ["%", ["floor", ["/", ["id"], 10]], 6], 0, "fenster-rot", 1, "fenster-ochs", 2, "fenster-senf", 3, "fenster-petrol", "fenster-grau"]
+fill-color = ["match", ["%", ["floor", ["/", ["id"], 10]], 6], 0, "#4a2420", 1, "#3a1a18", 2, "#4a3a1c", 3, "#1c3a40", "#2e3444"]
 fill-outline-color = "#070b14"
-fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 16, ["literal", [-1.5, -1.5]]]
+fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 16, ["literal", [-3, -3]]]
 
 # Straßen in Nachtblau, Hauptstraßen gedämpftes Senf wie Laternenlicht, Autobahn ochsenblut
 [paint."*-minor*"]
@@ -101,11 +105,7 @@ text-halo-color = "#0b1220"
 moos = { symbol = "moos", color = "#2f4a40", fill = "#2a4038", bg = "#1b2b2c" }
 lupinen = { symbol = "lupinen", color = "#2f4a40", fill = "#5a4a8a", bg = "#1b2b2c" }
 birken = { symbol = "birken", color = "#3d5a4a", fill = "#24382f", bg = "#18282a" }
-fenster-rot = { symbol = "fenster", color = "#ffc46b", bg = "#4a2420" }
-fenster-ochs = { symbol = "fenster", color = "#ffc46b", bg = "#3a1a18" }
-fenster-senf = { symbol = "fenster", color = "#ffd890", bg = "#4a3a1c" }
-fenster-petrol = { symbol = "fenster", color = "#ffc46b", bg = "#1c3a40" }
-fenster-grau = { symbol = "fenster", color = "#ffc46b", bg = "#2e3444" }
+wandfenster = { symbol = "wandfenster", color = "#ffc46b", bg = "#070b14" }
 [water_lines]
 color = "#2f5a66"
 count = 2
