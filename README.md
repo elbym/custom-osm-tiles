@@ -216,6 +216,7 @@ tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffen
 - **CSS:** Die Streifen-Seite nutzt Tailwind CSS, lokal gebaut (kein CDN): `npm install && npm run css` erzeugt `vendor/streifen.css` aus `src/streifen.css`.
 - **Layout:** Im Querformat sind die Streifen senkrecht, im Hochformat (Handy) waagerecht.
 - **Quellen:** Der Dialog „Über“ nennt alle Quellen und Lizenzen.
+- **Tastatur:** <kbd>←</kbd> <kbd>→</kbd> (oder <kbd>J</kbd> <kbd>Ö</kbd>) Stil wechseln, <kbd>↑</kbd> <kbd>↓</kbd> (oder <kbd>L</kbd> <kbd>K</kbd>) Hell/Dunkel, <kbd>N</kbd> Standard/Nerd, <kbd>1</kbd>–<kbd>9</kbd> Stil Nr. n, <kbd>Esc</kbd>/<kbd>A</kbd> alle Stile, <kbd>V</kbd> Vergleich, <kbd>+</kbd> <kbd>−</kbd> zoomen, <kbd>H</kbd> Hilfe („Über“).
 
 ## Stile
 

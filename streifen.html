@@ -108,6 +108,19 @@
     </div>
     <p>Eine Karte, ein Streifen pro Stil. Die Kacheln sind vorab gerendert und liegen statisch auf dieser Seite; es gibt keine Anfragen an Kartendienste oder CDNs. Erzeugt mit <a class="underline" href="https://github.com/elbym/custom-osm-tiles">custom-osm-tiles</a> (MIT).</p>
     <section>
+      <h2 class="font-semibold">Tastatur</h2>
+      <ul class="mt-1 list-disc pl-5">
+        <li><kbd>←</kbd> <kbd>→</kbd> oder <kbd>J</kbd> <kbd>Ö</kbd>: vorheriger / nächster Stil</li>
+        <li><kbd>↑</kbd> <kbd>↓</kbd> oder <kbd>L</kbd> <kbd>K</kbd>: Hell / Dunkel umschalten</li>
+        <li><kbd>N</kbd>: Standard / Nerd umschalten</li>
+        <li><kbd>1</kbd>–<kbd>9</kbd>: Stil Nr. 1–9 einzeln zeigen</li>
+        <li><kbd>Esc</kbd> oder <kbd>A</kbd>: zurück zu allen Stilen</li>
+        <li><kbd>V</kbd>: Vergleich an / aus</li>
+        <li><kbd>+</kbd> <kbd>−</kbd>: zoomen</li>
+        <li><kbd>H</kbd>: diese Hilfe öffnen und schließen</li>
+      </ul>
+    </section>
+    <section>
       <h2 class="font-semibold">Kartendaten</h2>
       <p>© <a class="underline" href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>, Open Database License (ODbL). Vektorschema © <a class="underline" href="https://openmaptiles.org/">OpenMapTiles</a> (CC BY 4.0), erzeugt mit Planetiler; gerendert mit tileserver-gl.</p>
     </section>
@@ -180,9 +193,9 @@ const pick = document.getElementById('pick'), list = document.getElementById('pi
 document.getElementById('pick-count').textContent = `(${shown.length}/${families.length})`;
 for (const fam of families) {
   const label = list.appendChild(document.createElement('label'));
-  label.className = 'flex items-center gap-2';
+  label.className = 'flex cursor-pointer items-center gap-2.5 rounded px-2 py-1.5 hover:bg-black/5 dark:hover:bg-white/10';
   const box = label.appendChild(document.createElement('input'));
-  box.type = 'checkbox'; box.value = fam; box.checked = shown.includes(fam);
+  box.type = 'checkbox'; box.className = 'size-4 cursor-pointer'; box.value = fam; box.checked = shown.includes(fam);
   label.append(fam);
 }
 pick.addEventListener('toggle', () => {
@@ -207,6 +220,27 @@ for (const d of [sheet, jump]) {
   d.addEventListener('click', e => { if (e.target === d || e.target.closest('[data-close]')) d.close(); });
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') pick.open = false; });
+document.addEventListener('click', e => { if (pick.open && !pick.contains(e.target) && !compact.matches) pick.open = false; });  // Klick daneben wendet an
+// Tastatur: ← → bzw. J Ö Stil wechseln, ↑ ↓ bzw. L K Hell/Dunkel, N Standard/Nerd, H Über, Esc/A alle Streifen,
+// V Vergleich, 1–9 Stil Nr. n, + − zoomen ohne Fokus auf der Karte (Liste im Über-Dialog).
+// Capture-Phase und stopPropagation, damit Leaflet die Pfeiltasten nicht zusätzlich zum Verschieben nutzt (+/− zoomen weiter).
+const KEYS = { arrowleft: 'prev', j: 'prev', arrowright: 'next', 'ö': 'next',
+  arrowup: 'mode', arrowdown: 'mode', l: 'mode', k: 'mode', n: 'cat', h: 'about',
+  escape: 'all', a: 'all', v: 'cmp', '+': 'in', '-': 'out', '−': 'out' };
+addEventListener('keydown', e => {
+  const act = /^[1-9]$/.test(e.key) ? 'nr' : KEYS[e.key.toLowerCase()];
+  if (!act || e.ctrlKey || e.altKey || e.metaKey || e.target.closest?.('input, textarea, select')) return;
+  if (document.querySelector('dialog[open]') && act !== 'about') return;  // offener Dialog: nur H (schließt Über), Esc schließt ihn selbst
+  if (act === 'all' && pick.open) return;  // Esc schließt zuerst die Stil-Liste
+  e.preventDefault(); e.stopPropagation();
+  if (act === 'prev' || act === 'next') step(act === 'prev' ? -1 : 1);
+  else if (act === 'all') step(0);
+  else if (act === 'nr') { if (rendered[e.key - 1] !== undefined) { solo = rendered[e.key - 1]; cmp = -1; showSolo(); } }
+  else if (act === 'cmp') document.querySelector('[data-cmp]').click();
+  else if (act === 'in' || act === 'out') act === 'in' ? map.zoomIn() : map.zoomOut();
+  else if (act === 'about') about.open ? about.close() : about.showModal();
+  else document.querySelector(`#${act} button[aria-pressed="false"]`).click();  // wie ein Klick auf den anderen Schalter
+}, true);
 
 const c0 = (strips.find(([, v]) => v)?.[1] || all[0])[1];
 const map = L.map('map', {
@@ -404,12 +438,15 @@ portrait.addEventListener('change', () => { if (!q.get('split')) setSplit(); map
 
 // Stilnamen je Streifen bzw. Hinweis, wenn die Familie diesen Modus/diese Schrift nicht hat
 const head = document.getElementById('titles');
-for (const [fam, v] of strips) {
+strips.forEach(([fam, v], i) => {
   const cell = head.appendChild(document.createElement('div'));
   cell.className = 'flex-1 min-w-0 min-h-0 cols:pt-[env(safe-area-inset-top)] rows:first:pt-[env(safe-area-inset-top)] rows:pl-[env(safe-area-inset-left)] cols:first:pl-[env(safe-area-inset-left)] cols:border-l rows:border-t border-black/30 first:border-0 dark:border-white/30';
-  const tag = cell.appendChild(document.createElement('span'));
-  tag.className = 'inline-block max-w-full truncate bg-white/85 px-2 py-1 font-medium dark:bg-neutral-900/85 cols:w-full rows:rounded-br-md';
-  if (v) {  // Name, darunter klein die Schrift der Kacheln
+  const tag = cell.appendChild(document.createElement(v ? 'button' : 'span'));
+  tag.className = 'inline-block max-w-full truncate bg-white/85 px-2 py-1 text-left font-medium dark:bg-neutral-900/85 cols:w-full rows:rounded-br-md';
+  if (v) {  // Name, darunter klein die Schrift der Kacheln; Klick in der Übersicht öffnet den Stil einzeln
+    tag.classList.add('pointer-events-auto', 'cursor-pointer', 'hover:underline', 'solo:pointer-events-none');
+    tag.title = 'Diesen Stil einzeln zeigen';
+    tag.onclick = () => { solo = i; cmp = -1; showSolo(); };
     const f = document.createElement('span');
     f.className = 'block truncate text-xs font-normal opacity-75';
     f.textContent = v[1].font;
@@ -420,7 +457,7 @@ for (const [fam, v] of strips) {
     tag.textContent = hasMode ? `${fam}: nicht in ${font} gerendert` : `${fam}: nur ${mode === 'dark' ? 'hell' : 'dunkel'}`;
     tag.classList.add('italic', 'text-neutral-500');
   }
-}
+});
 
 showSolo();
 
