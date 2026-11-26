@@ -31,8 +31,8 @@ fill-color = "#bcdebc"
 
 # Wasser in blue-55 (#0074e8), 25 % mit dem Grund gemischt; Flüsse 35 %
 [paint."water*"]
-fill-color = "#bbd8f6"
-line-color = "#a2caf4"
+fill-color = "#7dbdff"   # blue-40 zu 70 % über Weiß; vorher #bbd8f6, Teiche neben Wiesen kaum zu sehen (Nutzerhinweis 2026-11-26)
+line-color = "#45a1ff"   # blue-40
 
 [paint."building*"]
 fill-color = "#e0e0e2"   # grey-25

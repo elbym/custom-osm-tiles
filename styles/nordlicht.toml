@@ -90,16 +90,23 @@ line-color = "#6c7894"
 [paint."label_*"]
 text-color = "#e8eef8"
 text-halo-color = "#0b1220"
-text-halo-width = 2
+text-halo-width = 2.5   # breiter, harter Rand (Nutzerhinweis 2026-11-26: Schrift schwer lesbar)
+text-halo-blur = 0
 [paint."highway-name-*"]
 text-color = "#cfd8e8"
 text-halo-color = "#0b1220"
+text-halo-width = 2.5
+text-halo-blur = 0
 [paint."poi_*"]
 text-color = "#f0c070"
 text-halo-color = "#0b1220"
+text-halo-width = 2.5
+text-halo-blur = 0
 [paint."water*label"]
 text-color = "#8fd0d6"
 text-halo-color = "#0b1220"
+text-halo-width = 2.5
+text-halo-blur = 0
 
 [patterns]
 moos = { symbol = "moos", color = "#2f4a40", fill = "#2a4038", bg = "#1b2b2c" }
@@ -119,11 +126,13 @@ color2 = "#4af0a0"
 bg = "#0e1626"
 fg = "#e8eef8"
 
-# Figuren wie in Island; nachts schlafen die Tiere, die Sagenwesen sind wach (poses je Figur, "*" = übrige)
+# Figuren wie in Island; nachts schlafen alle (Nutzerwunsch 2026-11-26): Menschen unter der Wolldecke, Marbendill im
+# Wasser, das Elfenhaus mit dunklen Fenstern.
 [figures]
 names = ["islandpferd", "schaf", "papageitaucher", "polarfuchs", "kolkrabe", "rentier",
          "troll", "huldufolk", "elfenhaus", "fee", "jolakoettur", "jolasveinn", "hotpot",
          "nykur", "marbendill", "seewurm", "wal", "eiderente"]
+poses = ["schlaeft"]
 density = 0.45
 density_rich = 0.85
 size = 64
@@ -133,14 +142,6 @@ ink = "#10182a"       # Kontur dunkel, damit die Farben bleiben (Standard: Marke
 sticker = "#6f86a6"   # Rand im Mondlicht (Marker-bg wäre auf dem dunklen Grund unsichtbar)
 areas = ["water", "farmland"]
 
-[figures.poses]
-"*" = ["schlaeft"]
-troll = ["steht", "winkt"]
-huldufolk = ["steht", "winkt", "verschwindet"]
-elfenhaus = ["offen"]
-fee = ["schwebt", "winkt"]
-jolakoettur = ["sitzt", "faucht"]
-jolasveinn = ["steht", "winkt", "traegt"]
 hotpot = ["badet", "winkt"]
 nykur = ["steht", "taucht"]
 marbendill = ["sitzt", "lacht", "taucht"]

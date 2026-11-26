@@ -202,6 +202,13 @@ Regular = { file = "kalam/Kalam-Regular.ttf" }
 Bold    = { file = "kalam/Kalam-Bold.ttf" }
 Italic  = { file = "kalam/Kalam-Regular.ttf" }
 
+[Caveat]   # flüssige Handschrift (Aquarell, Nutzerwunsch 2026-11-26), Impallari Type, OFL; variabel 400–700, keine Kursive
+group   = "script"   # nicht bei --all-fonts
+Regular = { file = "caveat/Caveat[wght].ttf", wght = 500 }   # etwas kräftiger als 400, sonst auf den Farbflächen zu dünn
+Bold    = { file = "caveat/Caveat[wght].ttf", wght = 700 }
+Italic  = { file = "caveat/Caveat[wght].ttf", wght = 500 }
+scale   = 1.2        # kleine x-Höhe
+
 ["Alegreya Sans"]   # humanistische Grotesk mit echter Kursive (Aquarell), Huerta Tipográfica, OFL
 group = "display"   # nicht in der sans-Gruppe, sonst rendert --all-fonts sie für jeden Stil
 Regular = { file = "alegreya-sans/AlegreyaSans-Regular.ttf" }

@@ -86,16 +86,23 @@ line-color = "#4a4a52"
 [paint."label_*"]
 text-color = "#22304a"
 text-halo-color = "#f6f2e6"
-text-halo-width = 2
+text-halo-width = 2.5   # breiter, harter Rand (Nutzerhinweis 2026-11-26: Schrift schwer lesbar)
+text-halo-blur = 0
 [paint."highway-name-*"]
 text-color = "#2e2e36"
 text-halo-color = "#f6f2e6"
+text-halo-width = 2.5
+text-halo-blur = 0
 [paint."poi_*"]
 text-color = "#8a3226"
 text-halo-color = "#f6f2e6"
+text-halo-width = 2.5
+text-halo-blur = 0
 [paint."water*label"]
 text-color = "#2f6b73"
 text-halo-color = "#f6f2e6"
+text-halo-width = 2.5
+text-halo-blur = 0
 
 [patterns]
 moos = { symbol = "moos", color = "#52932a", fill = "#7ab448", bg = "#b3da8b" }
@@ -126,6 +133,13 @@ size = 64        # px im Sprite: Ornamente brauchen Platz
 line = 1.2       # dünne Kontur wie im Bilderbuch
 rim = 5
 areas = ["water", "farmland"]   # Wasser: nur Wasserwesen; Ackerland: Pferde und Schafe
+
+# Tagsüber nicht schlafen: die Schlafposen (Futon, Wolldecke) gibt es nur für die Nacht (Nutzerwunsch 2026-11-26)
+[figures.poses]
+huldufolk = ["steht", "verschwindet", "winkt"]
+jolasveinn = ["steht", "traegt", "winkt"]
+marbendill = ["lacht", "sitzt", "taucht"]
+elfenhaus = ["offen", "zu"]
 
 [figures.places]
 islandpferd = ["horse_riding", "farmland", "meadow"]

@@ -123,7 +123,7 @@ text-font = ["UnifrakturMaguntia Regular", "Noto Sans Regular"]
 
 # Signaturen (fill-pattern, Symbole in vendor/patterns/, Bild ersetzt die Füllfarbe) und Wasserlinien am Ufer
 [patterns]
-wald = { symbol = "laubwald", color = "#6f7d45", bg = "#b7c58c" }
+wald = { symbol = "baumsignatur", color = "#4f5a2e", bg = "#b7c58c", fill = "#9aab5f" }   # Bäume wie auf Karten des 18. Jh. (Nutzerwunsch 2026-11-26)
 wiese = { symbol = "wiese", color = "#8a9a5a", bg = "#d3dbac" }
 friedhof = { symbol = "friedhof", color = "#6b5a4a", bg = "#cfd6a8" }
 [water_lines]

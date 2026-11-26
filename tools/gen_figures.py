@@ -40,7 +40,8 @@ def limb(sx, sy, a, w, l, fill, end=None):
 
 MOUTH = {"normal": '<path d="M30 32 Q32 34 34 32" fill="none" stroke-width="1.4"/>',
          "froh": '<path d="M29 31 Q32 36.5 35 31 Z" fill="#d0485a" stroke-width="1.2"/>',
-         "entschlossen": '<path d="M30 33 L34 33" fill="none" stroke-width="1.4"/>'}
+         "entschlossen": '<path d="M30 33 L34 33" fill="none" stroke-width="1.4"/>',
+         "schlaeft": '<path d="M30.5 32.5 Q32 33.8 33.5 32.5" fill="none" stroke-width="1.3"/>'}
 face = lambda skin=SKIN: f'<ellipse cx="32" cy="24" rx="14" ry="13" fill="{skin}"/>'
 FACE = face()
 WAND = lambda hx, hy: f'<path d="M{hx:.1f} {hy:.1f} l5 -12" fill="none" stroke-width="2.2"/>' + star4(round(hx + 5.5, 1), round(hy - 13.5, 1), 4.5)
@@ -116,11 +117,19 @@ POSES = {  # Arme (links, rechts), Beine (links, rechts) in Grad, 0 = nach unten
  "winkt":   dict(arms=(20, -105), legs=(4, -4), face="froh", fx="winken"),
  "laeuft":  dict(arms=(55, -55), legs=(35, -35), face="entschlossen", t="rotate(8 32 58)", fx="tempo"),
  "springt": dict(arms=(105, -105), legs=(40, -40), face="froh", t=JUMP, fx="sprung"),
+ "schlaeft": dict(arms=(6, -6), legs=(2, -2), face="schlaeft", fx="schlaf"),   # liegt auf dem Futon (Anime Nacht)
 }
 SHADOW = '<ellipse cx="32" cy="61" rx="11" ry="2" fill="#2b2a3a" fill-opacity="0.22" stroke="none"/>'
 SPARK = star4(8, 16, 4) + star4(56, 26, 3.5) + star4(11, 40, 2.5)
 TEMPO = '<path d="M2 30 L11 30 M0 38 L10 38 M3 46 L10 46" fill="none" stroke-width="1.6"/>'
 ZZ = '<path d="M48 9 L53 9 L48 15 L53 15 M55 2 L58.5 2 L55 6 L58.5 6" fill="none" stroke-width="1.5"/>'
+
+# Futon: Matratze und Kissen darunter, Decke über Rumpf und Beinen (der Kopf liegt nach dem Drehen bei etwa 24/40)
+FUTON = ('<rect x="3" y="49" width="58" height="9" rx="3" fill="#f4efd8"/>'
+         '<ellipse cx="16" cy="51" rx="10" ry="4.5" fill="#ffffff"/>')
+BLANKET = ('<path d="M34 34 C40 31 56 31 61 35 L61 57 C52 59 40 59 34 57 C32 50 32 41 34 34 Z" fill="#9cc6ee"/>'
+           '<path d="M34.5 38 C41 35.5 55 35.5 61 39 M34 52 C41 54 53 54 61 52" fill="none" stroke="#ffffff" stroke-width="1.6"/>'
+           '<path d="M34 34 C33 42 33 50 34 57" fill="none" stroke-width="1.4"/>')
 
 def human(f, p):
     legl = 8 if p.get("fx") == "sprung" else 9
@@ -132,6 +141,7 @@ def human(f, p):
     ra, hand = limb(39, 38, p["arms"][1], f.get("sleevew", 5), 11, f["sleeve"], f["hand"])
     parts += [la, ra + (f["item"](*hand) if "item" in f else "")]
     ey = f.get("eyes_y", 26)
+    n_body = len(parts)   # Schlafpose: Körper liegt (gedreht), Kopf bleibt aufrecht auf dem Kissen
     parts.append(f["head"])
     parts.append(f["eyes_fn"](p["face"]) if "eyes_fn" in f else eyes(p["face"], [(26, ey), (38, ey)], f.get("iris", "#2b2a3a")))
     if f.get("brows") and p["face"] != "entschlossen":
@@ -144,6 +154,10 @@ def human(f, p):
     if p.get("fx") == "winken":
         x, y = hand
         parts.append(f'<path d="M{x+4:.1f} {y-5:.1f} q3 3 0 6 M{x+7:.1f} {y-8:.1f} q5 5.5 0 11" fill="none" stroke-width="1.4"/>')
+    if p.get("fx") == "schlaf":   # Nutzerwunsch 2026-11-26: nachts schlafen alle; Körper liegt, Kopf aufrecht links auf dem Kissen
+        body, head = "".join(parts[:n_body]), "".join(parts[n_body:])
+        return (FUTON + f'<g transform="translate(0 8) rotate(-90 32 32)">{body}</g>' + BLANKET
+                + f'<g transform="translate(-11 15) rotate(-14 32 24) scale(0.92) translate(2.8 2)">{head}</g>' + ZZ)
     body = "".join(parts)
     if "t" in p:
         body = f'<g transform="{p["t"]}">{body}</g>'
@@ -1453,6 +1467,17 @@ def rentier(c, pose):
         hn = f'<g transform="rotate(52 42 32)">{hn}</g>' + '<path d="M56 56 l1 -4 M59 56 l-0.5 -5" fill="none" stroke="#6f8a4a" stroke-width="1.2"/>'
     return legs + body + hn
 
+def isl_lying(body, head, hc, c):
+    """Schlafende Person (Nordlicht, Nutzerwunsch 2026-11-26): Körper liegt auf einem Moospolster unter einer Wolldecke mit
+    Zickzackborte, der Kopf (Mitte hc) aufrecht und leicht geneigt links auf dem Kissen."""
+    blanket_d = "M33 35 C40 32 55 32 61 36 L61 57 C52 59 40 59 33 57 C31 50 31 42 33 35 Z"
+    return (f'<path d="M2 58 C3 50 12 47 32 47 C52 47 62 50 62 58 Z" fill="{c["moss"]}"/>'
+            f'<ellipse cx="15" cy="51" rx="9" ry="4" fill="{c["wool"]}"/>'
+            f'<g transform="translate(0 6) rotate(-90 32 32)">{body}</g>'
+            f'<path d="{blanket_d}" fill="{c["ox_l"]}"/>' + clip(blanket_d, zigzag(30, 64, 41, 2.4, c["wool"], 3) + zigzag(30, 64, 51, 2.4, c["mustard"], 3))
+            + f'<g transform="translate({20 - hc[0]} {38 - hc[1]}) rotate(-14 {hc[0]} {hc[1]})">{head}</g>'
+            + zz(46, 18))
+
 def huldufolk(c, pose):
     """Huldufólk (verborgenes Volk): Frau in isländischer Tracht (Peysuföt) mit Skotthúfa und Quaste, Flachszöpfe."""
     K = c["lava"]
@@ -1471,8 +1496,10 @@ def huldufolk(c, pose):
             f'<path d="M26 11 C27 7 37 7 38 11 C35 10 29 10 26 11 Z" fill="{K}"/>'
             + tube([(37.5, 10), (42, 13), (44, 20)], [1.4, 1.2, 1.2], K) + f'<rect x="42" y="13.5" width="2.6" height="3.6" rx="0.6" fill="{c["mustard"]}" transform="rotate(-20 43 15)"/>'
             + f'<path d="M44 19 l-1.6 5 h3.4 Z" fill="{K}"/>'
-            + eye(29, 19.5, c) + eye(35, 19.5, c) + cheeks(26.5, 37.5, 22.5, c) + '<path d="M30.5 24 q1.5 1 3 0" fill="none" stroke-width="0.9"/>')
+            + eye(29, 19.5, c, closed=pose == "schlaeft") + eye(35, 19.5, c, closed=pose == "schlaeft") + cheeks(26.5, 37.5, 22.5, c) + '<path d="M30.5 24 q1.5 1 3 0" fill="none" stroke-width="0.9"/>')
     fig = shoes + skirt + apron + arms + jacket + braids + head
+    if pose == "schlaeft":
+        return isl_lying(shoes + skirt + apron + arms + jacket, braids + head, (32, 19), c)
     if pose == "verschwindet":   # verborgenes Volk: nur halb sichtbar, Funkeln
         return f'<g opacity="0.45">{fig}</g>' + star4(14, 20, 3, c["wool"]) + star4(50, 34, 2.5, c["wool"]) + star4(48, 12, 2, c["wool"])
     return fig
@@ -1480,7 +1507,7 @@ def huldufolk(c, pose):
 def elfenhaus(c, pose):
     """Álfhóll: Felsbrocken mit Moos, darin ein winziges Giebelhaus (Wohnung des verborgenen Volks)."""
     rock = "M5 58 C3 46 9 34 21 30 C30 27 43 28 51 34 C59 40 61 50 59 58 Z"
-    lit = pose == "offen"
+    lit = pose == "offen"   # "schlaeft" (Nordlicht) = zu: Lichter aus
     win = c["mustard"] if lit else c["petrol"]
     house = (f'<path d="M24 58 L24 45 L32 38 L40 45 L40 58 Z" fill="{c["wool"]}"/>'
              f'<path d="M22 46 L32 36.5 L42 46" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/>'
@@ -1577,8 +1604,10 @@ def jolasveinn(c, pose):
             f'<path d="M22 20 C22 30 25 34 27 38 L29 35 L32 39 L35 35 L37 38 C39 34 42 30 42 20 C38 24 26 24 22 20 Z" fill="{c["beard"]}"/>'
             f'<path d="M21 21 C19 9 26 4 33 5 C40 5 46 10 47 18 C49 22 50 27 47 31 C46 26 44 22 42.5 19 C40 15 24 15 22 21 Z" fill="{c["lava_l"]}"/>'
             f'<path d="M47 31 l-1.5 4 l3.4 -0.6 Z" fill="{c["lava_l"]}"/><path d="M22.5 18.5 C25 14.5 39 14.5 42 18.5" fill="none" stroke="{c["lava"]}" stroke-width="1"/>'
-            + eye(28.5, 19.5, c) + eye(35.5, 19.5, c)
+            + eye(28.5, 19.5, c, closed=pose == "schlaeft") + eye(35.5, 19.5, c, closed=pose == "schlaeft")
             + f'<ellipse cx="32" cy="23.5" rx="3.2" ry="2.6" fill="{c["cheek"]}"/><path d="M28.5 28 q3.5 2 7 0" fill="none" stroke-width="0.9"/>')
+    if pose == "schlaeft":
+        return isl_lying(legs + coat + arms, head, (32, 19), c)
     return extra_back + legs + coat + arms + extra + head
 
 def hotpot(c, pose):
@@ -1623,10 +1652,12 @@ def marbendill(c, pose):
         f'<path d="M27 33 q1 5 3 8 M33 33 q1 5 2 7" fill="none" stroke="{c["moss_l"]}" stroke-width="0.8"/>'
     head = (f'<ellipse cx="31" cy="24" rx="8" ry="8" fill="{S}"/>'
             f'<path d="M23 23 C22 15 27 13 31 13 C35 13 40 15 39 23 C37 18 34 17 31 17 C28 17 25 18 23 23 Z" fill="{c["moss"]}"/>'
-            + eye(28, 23.5, c, closed=pose == "lacht") + eye(34, 23.5, c, closed=pose == "lacht")
+            + eye(28, 23.5, c, closed=pose in ("lacht", "schlaeft")) + eye(34, 23.5, c, closed=pose in ("lacht", "schlaeft"))
             + f'<ellipse cx="31" cy="27" rx="1.8" ry="1.4" fill="{c["cheek"]}"/>')
     mouth = (f'<path d="M27.5 30 C28.5 34 33.5 34 34.5 30 Z" fill="{c["ox"]}"/>' + '<path d="M44 16 l3 -2 M45 21 l4 0 M43 11 l2 -3" fill="none" stroke-width="1"/>'
              if pose == "lacht" else '<path d="M28.5 30.5 q2.5 1 5 0" fill="none" stroke-width="0.9"/>')
+    if pose == "schlaeft":   # schläft im Wasser, Kopf zur Seite geneigt
+        return tail + body + arms + f'<g transform="rotate(-14 31 34)">{head + beard + mouth}</g>' + isl_water(c, 49) + zz(44, 12)
     return tail + body + arms + head + beard + mouth + isl_water(c, 49)
 
 def seewurm(c, pose):
@@ -1690,14 +1721,14 @@ ISLAND = {"islandpferd": (islandpferd, ("steht", "toelt", "schlaeft"), "Islandpf
           "polarfuchs": (polarfuchs, ("sitzt", "springt", "schlaeft"), "Polarfuchs"),
           "kolkrabe": (kolkrabe, ("steht", "ruft", "schlaeft"), "Kolkrabe"),
           "rentier": (rentier, ("steht", "grast", "schlaeft"), "Rentier"),
-          "huldufolk": (huldufolk, ("steht", "winkt", "verschwindet"), "Huldufólk, verborgenes Volk in Tracht (isländische Sage)"),
-          "elfenhaus": (elfenhaus, ("zu", "offen"), "Álfhóll, Elfenstein mit Haus (isländische Sage)"),
+          "huldufolk": (huldufolk, ("steht", "winkt", "verschwindet", "schlaeft"), "Huldufólk, verborgenes Volk in Tracht (isländische Sage)"),
+          "elfenhaus": (elfenhaus, ("zu", "offen", "schlaeft"), "Álfhóll, Elfenstein mit Haus (isländische Sage)"),
           "fee": (fee, ("schwebt", "winkt", "schlaeft"), "Fee mit Pusteblume"),
           "jolakoettur": (jolakoettur, ("sitzt", "faucht", "schlaeft"), "Jólakötturinn, Weihnachtskatze (isländische Sage)"),
-          "jolasveinn": (jolasveinn, ("steht", "winkt", "traegt"), "Jólasveinn, Weihnachtskerl in alter Wollkleidung (isländische Sage)"),
+          "jolasveinn": (jolasveinn, ("steht", "winkt", "traegt", "schlaeft"), "Jólasveinn, Weihnachtskerl in alter Wollkleidung (isländische Sage)"),
           "hotpot": (hotpot, ("badet", "winkt", "schlaeft"), "Badende im heißen Becken (isländische Badekultur)"),
           "nykur": (nykur, ("steht", "taucht", "schlaeft"), "Nykur, Wasserpferd (isländische Sage)"),
-          "marbendill": (marbendill, ("sitzt", "lacht", "taucht"), "Marbendill, Meermann (isländische Sage)"),
+          "marbendill": (marbendill, ("sitzt", "lacht", "taucht", "schlaeft"), "Marbendill, Meermann (isländische Sage)"),
           "seewurm": (seewurm, ("schwimmt", "taucht", "schlaeft"), "Seewurm nach dem Lagarfljótsormur (isländische Sage)"),
           "wal": (wal, ("blaest", "taucht", "schlaeft"), "Buckelwal"),
           "eiderente": (eiderente, ("schwimmt", "taucht", "schlaeft"), "Eiderente (Erpel)")}

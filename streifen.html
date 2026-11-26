@@ -115,9 +115,11 @@
         <li><kbd>N</kbd>: Standard / Nerd umschalten</li>
         <li><kbd>1</kbd>–<kbd>9</kbd>: Stil Nr. 1–9 einzeln zeigen</li>
         <li><kbd>Esc</kbd> oder <kbd>A</kbd>: zurück zu allen Stilen</li>
-        <li><kbd>V</kbd>: Vergleich an / aus</li>
+        <li><kbd>V</kbd>: Vergleich an / aus, <kbd>X</kbd>: im Vergleich die Seiten tauschen</li>
+        <li><kbd>T</kbd>: Teilung senkrecht / waagerecht, <kbd>B</kbd>: 8 Bit an / aus (wo vorhanden)</li>
+        <li><kbd>0</kbd>: zurück zum Marker</li>
         <li><kbd>+</kbd> <kbd>−</kbd>: zoomen</li>
-        <li><kbd>H</kbd>: diese Hilfe öffnen und schließen</li>
+        <li><kbd>H</kbd> oder <kbd>?</kbd>: diese Hilfe öffnen und schließen</li>
       </ul>
     </section>
     <section>
@@ -131,7 +133,7 @@
     </section>
     <section>
       <h2 class="font-semibold">Schriften</h2>
-      <p>Adwaita Mono, Alegreya Sans (Aquarell), Atkinson Hyperlegible Next, Bangers (Orts- und Stadtteilnamen und Marker in Anime), DINish, Fantasque Sans Mono, Figtree, Fira Code, Fira Sans, IBM Plex Mono, IM Fell English (Kupferstich), Intel One Mono, Kalam (Anime), JetBrains Mono, Literata, Maple Mono, Mozilla Text, Overpass, Public Sans, Silkscreen (8 Bit), Space Mono, UnifrakturMaguntia (Ortsnamen in Historisch und Kupferstich), VT323 (Phosphor, Bernstein), Work Sans: SIL Open Font License 1.1. Hack: MIT-Lizenz und Bitstream-Vera-Lizenz. Ubuntu Sans Mono: Ubuntu Font Licence 1.0. TeX Gyre Schola (Historisch), TeX Gyre Heros (Schwarzplan): GUST Font License. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
+      <p>Adwaita Mono, Atkinson Hyperlegible Next, Bangers (Orts- und Stadtteilnamen und Marker in Anime), Caveat (Aquarell), DINish, Fantasque Sans Mono, Figtree, Fira Code, Fira Sans, IBM Plex Mono, IM Fell English (Kupferstich), Intel One Mono, Kalam (Anime), JetBrains Mono, Literata, Maple Mono, Mozilla Text, Overpass, Public Sans, Silkscreen (8 Bit), Space Mono, UnifrakturMaguntia (Ortsnamen in Historisch und Kupferstich), VT323 (Phosphor, Bernstein), Work Sans: SIL Open Font License 1.1. Hack: MIT-Lizenz und Bitstream-Vera-Lizenz. Ubuntu Sans Mono: Ubuntu Font Licence 1.0. TeX Gyre Schola (Historisch), TeX Gyre Heros (Schwarzplan): GUST Font License. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
     </section>
     <section>
       <h2 class="font-semibold">Software auf dieser Seite</h2>
@@ -222,13 +224,16 @@ for (const d of [sheet, jump]) {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') pick.open = false; });
 document.addEventListener('click', e => { if (pick.open && !pick.contains(e.target) && !compact.matches) pick.open = false; });  // Klick daneben wendet an
 // Tastatur: ← → bzw. J Ö Stil wechseln, ↑ ↓ bzw. L K oder I (invertieren) Hell/Dunkel, N Standard/Nerd, H Über, Esc/A alle Streifen,
-// V Vergleich, 1–9 Stil Nr. n, + − zoomen ohne Fokus auf der Karte (Liste im Über-Dialog).
+// V Vergleich, X Seiten tauschen, B 8 Bit, T Teilung, 0 zurück zum Marker, ? wie H, 1–9 Stil Nr. n,
+// + − zoomen ohne Fokus auf der Karte (Liste im Über-Dialog).
 // Capture-Phase und stopPropagation, damit Leaflet die Pfeiltasten nicht zusätzlich zum Verschieben nutzt (+/− zoomen weiter).
 const KEYS = { arrowleft: 'prev', j: 'prev', arrowright: 'next', 'ö': 'next',
   arrowup: 'mode', arrowdown: 'mode', l: 'mode', k: 'mode', i: 'mode', n: 'cat', h: 'about',
-  escape: 'all', a: 'all', v: 'cmp', '+': 'in', '-': 'out', '−': 'out' };
+  escape: 'all', a: 'all', v: 'cmp', '+': 'in', '-': 'out', '−': 'out',
+  x: 'swap', b: 'px', t: 'split', '?': 'about', 0: 'home' };
 addEventListener('keydown', e => {
   const act = /^[1-9]$/.test(e.key) ? 'nr' : KEYS[e.key.toLowerCase()];
+  if (act === 'px' && pxb.classList.contains('hidden')) return;  // 8 Bit nur, wo es Varianten gibt
   if (!act || e.ctrlKey || e.altKey || e.metaKey || e.target.closest?.('input, textarea, select')) return;
   if (document.querySelector('dialog[open]') && act !== 'about') return;  // offener Dialog: nur H (schließt Über), Esc schließt ihn selbst
   if (act === 'all' && pick.open) return;  // Esc schließt zuerst die Stil-Liste
@@ -239,6 +244,9 @@ addEventListener('keydown', e => {
   else if (act === 'cmp') document.querySelector('[data-cmp]').click();
   else if (act === 'in' || act === 'out') act === 'in' ? map.zoomIn() : map.zoomOut();
   else if (act === 'about') about.open ? about.close() : about.showModal();
+  else if (act === 'swap') { if (cmp >= 0) { [solo, cmp] = [cmp, solo]; showSolo(); } }  // Vergleich: Seiten tauschen
+  else if (act === 'px') pxb.click();
+  else if (act === 'home') map.setView([c0.lat, c0.lon], Math.min(c0.zmax, c0.detail_from - 1));  // zurück zum Marker
   else document.querySelector(`#${act} button[aria-pressed="false"]`).click();  // wie ein Klick auf den anderen Schalter
 }, true);
 

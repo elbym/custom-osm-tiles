@@ -219,6 +219,8 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False, f
         outline(s, lid, **spec)
     for spec in t.get("layers", []):
         add_layer(s, dict(spec))
+    if t.get("floodlights") and figs_at:
+        floodlights(s, figs_at[1], figs_at[0], **t["floodlights"])
     if fspec and figs_at:
         figures(s, figs_at[1], figs_at[0], fspec["names"], fspec.get("places"), fspec.get("density", 0.45),
                 fspec.get("density_rich", 0.85), fspec.get("areas", ()), fspec.get("poses"))
@@ -646,6 +648,62 @@ def fig_cell(mb, key, box, names, fit, density, density_rich, areas=frozenset(),
     img = f"fig-{n}-{poses[h[4] % len(poses)].stem}{'-m' if h[5] & 1 else ''}"
     return {"type": "Feature", "properties": {"f": img},
             "geometry": {"type": "Point", "coordinates": [round(spot[0], 6), round(spot[1], 6)]}}
+
+
+def floodlights(s, bounds, mb, color="#eaffef", opacity=0.4, mast="#ffffff", classes=("pitch",), after="flutlicht", max_r=40, min_diag=25):
+    """Flutlicht aus den Ecken (floodlights im Stil, Stadtlichter, Nutzerwunsch 2026-11-26): Sportplätze nicht ganz
+    erleuchtet, sondern Masten in den Ecken, deren Licht schräg ins Feld fällt. Ecken = Knicke über 50° im Umriss der
+    landuse-Flächen (classes) aus den z14-Daten; Ecken im Kachelpuffer gehören der Nachbarkachel. Je Ecke ein Mast
+    (kleiner heller Punkt) und ein weicher Lichtkegel, 30 % zur Feldmitte versetzt, Radius 55 % der Felddiagonale,
+    höchstens max_r m; Plätze mit Diagonale unter min_diag m bleiben dunkel. Nur Sportplätze (pitch): Stadien haben viele Knicke im Umriss und wurden zum weißen Fleck."""
+    south, west, north, east = bounds
+    (x0, y1), (x1, y0) = fig_xy(west, south), fig_xy(east, north)
+    lat0 = (south + north) / 2
+    unit = 40075016.7 * math.cos(math.radians(lat0)) / 2 ** FIG_Z / FIG_EXT   # m je Kacheleinheit
+    feats = []
+    for tx in range(int(x0), int(x1) + 1):
+        for ty in range(int(y0), int(y1) + 1):
+            with sqlite3.connect(f"file:{mb}?mode=ro", uri=True) as con:
+                r = con.execute("select tile_data from tiles where zoom_level=? and tile_column=? and tile_row=?",
+                                (FIG_Z, tx, 2 ** FIG_Z - 1 - ty)).fetchone()
+            for prop, geom in (mvt(gzip.decompress(r[0]), {"landuse"}).get("landuse", []) if r else []):
+                if prop.get("class") not in classes:
+                    continue
+                for ring in geom:
+                    pts = ring[:-1] if len(ring) > 1 and ring[0] == ring[-1] else ring
+                    if len(pts) < 3:
+                        continue
+                    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+                    diag = math.hypot(max(xs) - min(xs), max(ys) - min(ys)) * unit
+                    if diag < min_diag:   # kleine Plätze ohne Masten
+                        continue
+                    cx, cy = sum(xs) / len(xs), sum(ys) / len(ys)
+                    for i, (px, py) in enumerate(pts):
+                        if not (0 <= px < FIG_EXT and 0 <= py < FIG_EXT):
+                            continue
+                        (ax, ay), (bx, by) = pts[i - 1], pts[(i + 1) % len(pts)]
+                        u, v = (px - ax, py - ay), (bx - px, by - py)
+                        nu, nv = math.hypot(*u), math.hypot(*v)
+                        if not nu or not nv or math.degrees(math.acos(max(-1, min(1, (u[0] * v[0] + u[1] * v[1]) / nu / nv)))) < 50:
+                            continue
+                        ll = lambda X, Y: [round(c, 7) for c in fig_lonlat(tx + X / FIG_EXT, ty + Y / FIG_EXT)]
+                        feats.append({"type": "Feature", "properties": {"k": "mast"},
+                                      "geometry": {"type": "Point", "coordinates": ll(px, py)}})
+                        feats.append({"type": "Feature", "properties": {"k": "kegel", "r": round(min(max_r, 0.55 * diag), 1)},
+                                      "geometry": {"type": "Point", "coordinates": ll(px + 0.3 * (cx - px), py + 0.3 * (cy - py))}})
+    s["sources"]["floodlights"] = {"type": "geojson", "data": {"type": "FeatureCollection", "features": feats}}
+    mpp = lambda z: 40075016.7 * math.cos(math.radians(lat0)) / (512 * 2 ** z)   # m je Pixel (512er-Kacheln)
+    radius = ["interpolate", ["exponential", 2], ["zoom"], 10, ["/", ["get", "r"], mpp(10)], 20, ["/", ["get", "r"], mpp(20)]]
+    i = next(k for k, l in enumerate(s["layers"]) if l["id"] == after) + 1
+    s["layers"][i:i] = [
+        {"id": "flutlicht-kegel", "type": "circle", "source": "floodlights", "minzoom": 13, "filter": ["==", ["get", "k"], "kegel"],
+         "paint": {"circle-color": color, "circle-opacity": opacity, "circle-blur": 1, "circle-radius": radius}},
+        {"id": "flutlicht-mast-schein", "type": "circle", "source": "floodlights", "minzoom": 14, "filter": ["==", ["get", "k"], "mast"],
+         "paint": {"circle-color": color, "circle-opacity": 0.7, "circle-blur": 1,
+                   "circle-radius": ["interpolate", ["exponential", 1.5], ["zoom"], 14, 3, 17, 9]}},
+        {"id": "flutlicht-mast", "type": "circle", "source": "floodlights", "minzoom": 14, "filter": ["==", ["get", "k"], "mast"],
+         "paint": {"circle-color": mast, "circle-blur": 0.3,
+                   "circle-radius": ["interpolate", ["exponential", 1.5], ["zoom"], 14, 0.8, 17, 2]}}]
 
 
 def figures(s, bounds, mb, names, places=None, density=0.45, density_rich=0.85, areas=(), poses=None):

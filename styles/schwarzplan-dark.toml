@@ -1,5 +1,5 @@
 # "Weißplan" (dunkler Partner von Schwarzplan, Nutzerwunsch 2026-11-26): derselbe Figur-Grund-Plan umgekehrt,
-#   knochenweiße Gebäude auf Anthrazit (kein reines Schwarz/Weiß, Nutzerwunsch 2026-11-26; Kontrast 11,5:1 statt 15:1),
+#   knochenweiße Gebäude auf Anthrazit (kein reines Schwarz/Weiß, Nutzerwunsch 2026-11-26; Kontrast ~9:1 statt 15:1, Weiß gedämpft),
 #   Wasser dunkles Schiefergrau, Marker in Signalrot.
 #   Gleicher Aufbau wie schwarzplan.toml (Begründungen dort), nur die Farben getauscht; Änderungen in beiden nachziehen.
 title = "Weißplan"
@@ -20,18 +20,18 @@ hide = ["highway-area", "highway-*casing", "highway-motorway*", "highway-link", 
 background-color = "#24262a"
 # Siedlungsflächen nur, solange es noch keine Gebäude gibt
 [paint."landuse-*"]
-fill-color = "#e4e0d6"
+fill-color = "#cbc6ba"
 fill-opacity = ["interpolate", ["linear"], ["zoom"], 10, 0.7, 12, 0.45, 13, 0]
 [paint."water*"]
 fill-color = "#363d44"
 line-color = "#363d44"
 [paint."building"]
-fill-color = "#e4e0d6"
-fill-outline-color = "#e4e0d6"
+fill-color = "#cbc6ba"
+fill-outline-color = "#cbc6ba"
 fill-opacity = 1
 
 [paint."label_*"]
-text-color = "#e4e0d6"
+text-color = "#cbc6ba"
 text-halo-color = "#24262a"
 [paint."highway-name-*"]
 text-color = "#8f8c85"
@@ -43,4 +43,4 @@ text-color = "#aaaaaa"   # unsichtbar (poi_* aus), nur für die Symbolfarben im 
 type = "bubble"
 color = "#e0301e"
 bg = "#24262a"
-fg = "#e4e0d6"
+fg = "#cbc6ba"

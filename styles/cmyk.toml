@@ -9,13 +9,13 @@ title = "CMYK"
 category = "standard"
 mode = "light"
 family = "CMYK"
-font = "Work Sans"
+font = "Fira Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
-site_font = "Work Sans"   # öffentliche Vorschau (--site)
+site_font = "Fira Sans"   # öffentliche Vorschau (--site)
 attribution = "Kartenstil: eigener Entwurf nach dem CMYK-Druckraster"
 colors = 64
 halftone = { pitch = 6, pitch_step = 1, offset = 1, soft = 0.5, jitter = 0.08, size_jitter = 0.15, ragged = 0.6, grain = 0.25, paper = "#f5efe3" }
-text_scale = 1.1
+text_scale = 1.3   # größer, damit der Schriftrand wachsen kann (MapLibre deckelt ihn), Nutzerhinweis 2026-11-26
 hide = ["poi_r20", "road_oneway*", "highway-shield-*", "road_shield_us", "building-top", "*-casing", "highway-area"]
 
 [paint."background"]
@@ -71,14 +71,23 @@ line-color = "#ff48b0"
 [paint."label_*"]
 text-color = "#004f8c"
 text-halo-color = "#f5efe3"
+text-halo-width = 2.5
+text-halo-blur = 0
 [paint."highway-name-*"]
 text-color = "#004f8c"
 text-halo-color = "#f5efe3"
+text-halo-width = 2.5
+text-halo-blur = 0
 [paint."poi_*"]
 text-color = "#b8236f"
 text-halo-color = "#f5efe3"
+text-halo-width = 2.5
+text-halo-blur = 0
 [paint."water*label"]
 text-color = "#004f8c"
+text-halo-color = "#f5efe3"
+text-halo-width = 2.5
+text-halo-blur = 0
 [layout."label_other"]
 text-transform = "uppercase"
 text-letter-spacing = 0.2

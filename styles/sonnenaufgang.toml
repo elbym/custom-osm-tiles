@@ -1,8 +1,9 @@
-# "Blaue Stunde": helles Gegenstück zu Stadtlichter (Nutzerwunsch 2026-11-25): Dämmerung kurz nach Sonnenuntergang,
-# der Himmel noch tiefblau, die Lichter schon an. Gleiche Ebenen wie Stadtlichter, Grund mittelblau, Schein schwächer
-# (in der Dämmerung überstrahlt Licht weniger), Beschriftung weiß auf Nachtblau.
-#   Fenster wie in Stadtlichter: voll in den Hauswänden, gedimmt auf dem versetzten Dach.
-title = "Blaue Stunde"
+# "Sonnenaufgang": helles Gegenstück zu Stadtlichter (Nutzerwunsch 2026-11-26, ersetzt "Blaue Stunde"; Vorbild ein
+# Foto von Los Angeles im ersten Licht): die Stadt liegt noch im kühlen, violett-blauen Dunst, nur die Hochhäuser
+# fangen die Sonne und glühen golden (Glasfassaden: Fensterraster hellgold auf Orange). Laternen und Lichtspuren
+# sind noch an, aber schwach (der Morgen überstrahlt sie), Flutlicht aus, Neon nur noch ein Hauch.
+# Gleiche Ebenen wie Stadtlichter; Fenster der niedrigen Häuser wenige und warm (die Stadt erwacht).
+title = "Sonnenaufgang"
 category = "standard"
 mode = "light"
 family = "Stadtlichter"
@@ -14,9 +15,9 @@ hide = ["poi_r20", "road_oneway*"]
 colors = 64   # Lichthöfe der Laternen und Lichtspuren: weiche Verläufe zerfallen bei 32 Farben in Ringe
 
 [paint."background"]
-background-color = "#2c3c6c"
+background-color = "#5d5f80"
 [paint."landuse-*"]
-fill-color = "#30416f"
+fill-color = "#62638a"
 fill-opacity = 1
 # Wohn-, Gewerbe- und Industrieflächen: gedämpfte Lichtpunkte, damit die Übersicht (z12–14, noch ohne Nebenstraßen)
 # wie ein Lichterteppich wirkt
@@ -30,149 +31,149 @@ fill-opacity = ["interpolate", ["linear"], ["zoom"], 13, 1, 15, 0]
 fill-pattern = "streulicht_gewerbe"
 fill-opacity = ["interpolate", ["linear"], ["zoom"], 13, 1, 15, 0]
 [paint."landuse-railway"]
-fill-color = "#2f3e66"
+fill-color = "#5a5b7c"
 [paint."park"]
-fill-color = "#2b4664"
+fill-color = "#46624f"
 [paint."landcover-*"]
-fill-color = "#2b4664"
+fill-color = "#46624f"
 fill-opacity = 1
 [paint."landcover-wood"]
-fill-color = "#24405a"
+fill-color = "#36503f"
 [paint."landuse-cemetery"]
-fill-color = "#2b4664"
+fill-color = "#46624f"
 [paint."landcover-sand"]
-fill-color = "#3a4062"
+fill-color = "#a8674a"
 [paint."landcover-glacier"]
-fill-color = "#3a4a78"
+fill-color = "#8a8cb0"
 [paint."landcover-ice-shelf"]
-fill-color = "#3a4a78"
+fill-color = "#8a8cb0"
 
 [paint."water*"]
-fill-color = "#1a2650"
-line-color = "#4f6aa8"
+fill-color = "#4c5d92"
+line-color = "#d39aa8"
 
 # Gebäude (Mittelweg, Nutzerwunsch 2026-11-26): die Fenster leuchten voll in den Hauswänden, also im Streifen
 # unten/rechts, den das nach links oben versetzte Dach frei lässt; auf dem Dach nur ein schwaches Glimmen desselben
 # Rasters (dach_*, Farbe zu 35 % über dem Dach), damit die Blöcke von oben nicht dunkel werden. Versatz 3 px.
 [paint."building"]
-fill-color = "#1d2950"
+fill-color = "#44486a"
 # je Gebäude (OSM-ID) ein Fensterraster: halb fast dunkel, sonst warm belebt, jedes sechste kalt (Büro)
 fill-pattern = ["match", ["%", ["floor", ["/", ["to-number", ["id"], 0], 10]], 6], [0, 1, 2], "lichter_spaerlich", 5, "lichter_kalt", "lichter"]
 [paint."building-top"]
 fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 16, ["literal", [-3, -3]]]
 fill-pattern = ["match", ["%", ["floor", ["/", ["to-number", ["id"], 0], 10]], 6], [0, 1, 2], "dach_spaerlich", 5, "dach_kalt", "dach"]
-fill-color = "#283766"
-fill-outline-color = "#3e4f82"
+fill-color = "#77789c"
+fill-outline-color = "#8a8aac"
 
 [paint."highway-area"]   # Plätze und Fußgängerzonen: violetter Schein der Leuchtreklame
-fill-color = "#3a2e6e"
-fill-outline-color = "#8a6ad8"
+fill-color = "#6a5f88"
+fill-outline-color = "#9a86b8"
 [paint."aeroway-*"]
-fill-color = "#344470"
-line-color = "#5a6a98"
+fill-color = "#64668a"
+line-color = "#8a8cac"
 
 # Straßen: Kern hell (nah abgedunkelt, damit die Lichtspuren leuchten), Ränder als Schein (weichgezeichnet, gut doppelt so breit wie die Straße)
 [paint."*-service-track"]
-line-color = ["interpolate", ["linear"], ["zoom"], 13, "#b0703c", 15, "#24140e"]
+line-color = ["interpolate", ["linear"], ["zoom"], 13, "#b0703c", 15, "#7a7896"]
 [paint."*-minor*"]
-line-color = ["interpolate", ["linear"], ["zoom"], 13, "#b4642a", 15, "#2e1a12"]
+line-color = ["interpolate", ["linear"], ["zoom"], 13, "#b4642a", 15, "#7a7896"]
 [paint."*-link"]
-line-color = ["interpolate", ["linear"], ["zoom"], 13, "#ffb860", 15, "#3a2014"]
+line-color = ["interpolate", ["linear"], ["zoom"], 13, "#ffb860", 15, "#7a7896"]
 [paint."*-secondary-tertiary*"]
-line-color = ["interpolate", ["linear"], ["zoom"], 13, "#ffc070", 15, "#3a2014"]
+line-color = ["interpolate", ["linear"], ["zoom"], 13, "#ffc070", 15, "#7a7896"]
 [paint."*-primary*"]   # nah: dunkler Asphalt, die Lichtspuren tragen das Licht
-line-color = ["interpolate", ["linear"], ["zoom"], 13, "#ffdca0", 15, "#3e2216"]
+line-color = ["interpolate", ["linear"], ["zoom"], 13, "#ffdca0", 15, "#7a7896"]
 [paint."*-trunk*"]   # nah: dunkler Asphalt, die Lichtspuren tragen das Licht
-line-color = ["interpolate", ["linear"], ["zoom"], 13, "#ffe6bf", 15, "#3e2216"]
+line-color = ["interpolate", ["linear"], ["zoom"], 13, "#ffe6bf", 15, "#7a7896"]
 [paint."*-motorway*"]   # nah: dunkler Asphalt, die Lichtspuren tragen das Licht
-line-color = ["interpolate", ["linear"], ["zoom"], 13, "#fff2dc", 15, "#3e2216"]
+line-color = ["interpolate", ["linear"], ["zoom"], 13, "#fff2dc", 15, "#7a7896"]
 [paint."*-path"]
-line-color = "#56659a"
+line-color = "#8a8aa8"
 [paint."*-casing"]
-line-color = "#1c2650"
+line-color = "#4a4c6c"
 [paint."*-minor-casing"]
 line-color = "#a0400f"
 line-blur = 4
-line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.25, 15, 0.12]
+line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.125, 15, 0.06]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, 1, 14, 8, 20, 32]
 [paint."*-service-track-casing"]
 line-color = "#8a5030"
 line-blur = 3
-line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.4, 15, 0.2]
+line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.2, 15, 0.1]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 4, 20, 20]
 [paint."*-link-casing"]
 line-color = "#e0581a"
 line-blur = 5
-line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.4, 15, 0.2]
+line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.2, 15, 0.1]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, 2, 14, 9, 20, 34]
 [paint."*-secondary-tertiary*-casing"]
 line-color = "#e8601a"
 line-blur = 6
-line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.4, 15, 0.2]
+line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.2, 15, 0.1]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 8, 3, 14, 12, 20, 40]
 [paint."*-primary*-casing"]
 line-color = "#ff6a1a"
 line-blur = 8
-line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.45, 15, 0.23]
+line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.225, 15, 0.115]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 8, 3, 14, 16, 20, 52]
 [paint."*-trunk*-casing"]
 line-color = "#ff5a18"
 line-blur = 8
-line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.5, 15, 0.25]
+line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.25, 15, 0.125]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 6, 2, 14, 16, 20, 52]
 [paint."*-motorway*-casing"]
 line-color = "#ff4a1a"
 line-blur = 10
-line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.8, 15, 0.4]
+line-opacity = ["interpolate", ["linear"], ["zoom"], 13, 0.4, 15, 0.2]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 5, 2, 14, 18, 20, 56]
 [paint."*railway*"]
-line-color = "#4a5884"
+line-color = "#8a8aa8"
 [paint."road_area_pier"]
-fill-color = "#2c3c6c"
+fill-color = "#5d5f80"
 [paint."road_pier"]
-line-color = "#2c3c6c"
+line-color = "#5d5f80"
 
 # Beschriftung warmweiß auf dunklem Rand; POIs im Lichtorange
 [paint."*label*"]
-text-color = "#ffffff"
-text-halo-color = "#1c2650"
+text-color = "#fff3e4"
+text-halo-color = "#3e3f5e"
 [paint."label_*"]
-text-color = "#ffffff"
-text-halo-color = "#1c2650"
+text-color = "#fff3e4"
+text-halo-color = "#3e3f5e"
 [paint."highway-name-*"]
-text-color = "#fff1dc"
-text-halo-color = "#1c2650"
+text-color = "#f4e6dc"
+text-halo-color = "#3e3f5e"
 text-halo-width = 1.6
 [paint."poi_*"]
-text-color = "#ffad5c"
-text-halo-color = "#1c2650"
+text-color = "#ffc070"
+text-halo-color = "#3e3f5e"
 [paint."water*label"]
-text-color = "#9fb6e8"
+text-color = "#c8d2f0"
 [paint."airport"]
-text-color = "#ffad5c"
-text-halo-color = "#1c2650"
+text-color = "#ffc070"
+text-halo-color = "#3e3f5e"
 
 # Straßennummern ohne weißes Schild, im Licht der Straße
 [layout."*shield*"]
 icon-image = ""
 [paint."*shield*"]
 text-color = ["match", ["get", "class"], "motorway", "#fff2dc", ["trunk", "primary"], "#ffdca0", "#ffc070"]
-text-halo-color = "#1c2650"
+text-halo-color = "#3e3f5e"
 text-halo-width = 1.5
 
 [patterns]
-lichter = { symbol = "fenster-dicht", color = "#c8955a", bg = "#1d2950" }
-dach = { symbol = "fenster-dicht-dach", color = "#605862", bg = "#283766" }
-lichter_spaerlich = { symbol = "fenster-spaerlich", color = "#e0aa64", bg = "#1d2950" }
-dach_spaerlich = { symbol = "fenster-spaerlich-dach", color = "#685f65", bg = "#283766" }
-streulicht = { symbol = "stadtlichter", color = "#c8955a", bg = "#31426f" }
-streulicht_gewerbe = { symbol = "stadtlichter", color = "#d08a3a", bg = "#34446f" }
-streulicht_kalt = { symbol = "stadtlichter", color = "#8fb0ff", bg = "#30437a" }
-lichter_kalt = { symbol = "fenster-dicht", color = "#9fb4dc", bg = "#1d2950" }
-dach_kalt = { symbol = "fenster-dicht-dach", color = "#536596", bg = "#2a3a70" }
+lichter = { symbol = "fenster-spaerlich", color = "#d8a060", bg = "#44486a" }
+dach = { symbol = "fenster-spaerlich-dach", color = "#8a86a0", bg = "#77789c" }
+lichter_spaerlich = { symbol = "fenster-spaerlich", color = "#b08a6a", bg = "#44486a" }
+dach_spaerlich = { symbol = "fenster-spaerlich-dach", color = "#84809c", bg = "#77789c" }
+streulicht = { symbol = "stadtlichter", color = "#c89a7a", bg = "#62638a" }
+streulicht_gewerbe = { symbol = "stadtlichter", color = "#c08a6a", bg = "#64648a" }
+streulicht_kalt = { symbol = "stadtlichter", color = "#e0a860", bg = "#666890" }
+lichter_kalt = { symbol = "fenster-dicht", color = "#ffd98a", bg = "#d9782a" }   # Hochhäuser: Glas in der Morgensonne
+dach_kalt = { symbol = "fenster-dicht-dach", color = "#cf7a32", bg = "#c8702a" }   # Dach golden fast ohne Fenster; die Fenster nur in der Wand (Nutzerhinweis 2026-11-26)
 
 # >>> Zusatzebenen (Nutzerwunsch 2026-11-25) ------------------------------------------------------------------------
-# Hochhäuser (ab ~6 Geschosse) mit kaltweißen Bürolichtern
+# Hochhäuser (ab ~6 Geschosse) fangen die Sonne: goldene Glasfassaden
 [[layers]]
 like = "building"
 id = "building-hoch"
@@ -190,7 +191,7 @@ after = "landcover-sand"
 id = "flutlicht"
 source-layer = "landuse"
 filter = ["match", ["get", "class"], ["pitch", "stadium", "track"], true, false]
-paint = { fill-color = "#2a5a5a" }
+paint = { fill-color = "#4f6e56" }
 [[layers]]
 after = "flutlicht"
 id = "flutlicht-schein"
@@ -198,7 +199,7 @@ type = "line"
 source-layer = "landuse"
 filter = ["match", ["get", "class"], ["pitch", "stadium", "track"], true, false]
 minzoom = 13
-paint = { line-color = "#5cff8a", line-blur = 3, line-opacity = 0.45, line-width = ["interpolate", ["linear"], ["zoom"], 13, 1, 16, 4] }
+paint = { line-color = "#5cff8a", line-blur = 3, line-opacity = 0, line-width = ["interpolate", ["linear"], ["zoom"], 13, 1, 16, 4] }
 
 # Fußgängerzonen: Neonlinie, Violett zu 40 % mit dem Straßenorange gemischt (Nutzerwunsch 2026-11-25: Unterschied sichtbar, nicht krass)
 [[layers]]
@@ -206,14 +207,14 @@ like = "highway-path"
 id = "neon-schein"
 filter = ["==", ["get", "subclass"], "pedestrian"]
 layout = { line-cap = "round", line-join = "round" }   # runde Enden: der Schein läuft in den Straßenschein aus
-paint = { line-color = "#bc4da3", line-blur = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 6, 20, 20], line-opacity = 0.65, line-dasharray = [1, 0], line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 12, 20, 40] }
+paint = { line-color = "#bc4da3", line-blur = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 6, 20, 20], line-opacity = 0.3, line-dasharray = [1, 0], line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 12, 20, 40] }
 [[layers]]
 like = "highway-path"
 after = "neon-schein"
 id = "neon"
 filter = ["==", ["get", "subclass"], "pedestrian"]
 layout = { line-cap = "round", line-join = "round" }
-paint = { line-color = "#f2b0c6", line-dasharray = [1, 0], line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 1, 20, 3] }
+paint = { line-color = "#f2b0c6", line-opacity = 0.35, line-dasharray = [1, 0], line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 1, 20, 3] }
 
 # Laternen links und rechts der Nebenstraßen (ab Leaflet z15), wie Laternen im Nebel: großer, ganz weicher Lichthof mittig auf
 # der Straße, der zu einem Lichtband verschmilzt (nicht versetzt: breit und versetzt zackt er an Knicken), darüber je
@@ -226,7 +227,7 @@ id = "laterne-hof"
 after = "flutlicht-schein"
 minzoom = 14
 layout = { line-cap = "round", line-join = "round" }
-paint = { line-color = "#ffb440", line-blur = 16, line-opacity = 0.24, line-dasharray = [0, 0.787], line-width = 32 }
+paint = { line-color = "#ffb440", line-blur = 16, line-opacity = 0.108, line-dasharray = [0, 0.787], line-width = 32 }
 # derselbe Hof schwach über Gebäuden und Straße: hellt die Fahrbahn auf und lässt das Licht an den Hauskanten
 # leicht überstrahlen (Bloom), zur Hausmitte hin abnehmend
 [[layers]]
@@ -235,35 +236,35 @@ id = "laterne-bloom"
 after = "highway-minor"
 minzoom = 14
 layout = { line-cap = "round", line-join = "round" }
-paint = { line-color = "#ffb440", line-blur = 16, line-opacity = 0.1, line-dasharray = [0, 0.787], line-width = 32 }
+paint = { line-color = "#ffb440", line-blur = 16, line-opacity = 0.045, line-dasharray = [0, 0.787], line-width = 32 }
 [[layers]]
 like = "highway-minor"
 id = "laterne-schein-l"
 after = "laterne-bloom"
 minzoom = 14
 layout = { line-cap = "round", line-join = "round" }
-paint = { line-color = "#ffc860", line-blur = 4.5, line-opacity = 0.18, line-dasharray = [0, 2.8], line-width = 9, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, -2.5, 16, -4.5, 19, -9] }
+paint = { line-color = "#ffc860", line-blur = 4.5, line-opacity = 0.081, line-dasharray = [0, 2.8], line-width = 9, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, -2.5, 16, -4.5, 19, -9] }
 [[layers]]
 like = "highway-minor"
 id = "laterne-schein-r"
 after = "laterne-schein-l"
 minzoom = 14
 layout = { line-cap = "round", line-join = "round" }
-paint = { line-color = "#ffc860", line-blur = 4.5, line-opacity = 0.18, line-dasharray = [0, 2.8], line-width = 9, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 2.5, 16, 4.5, 19, 9] }
+paint = { line-color = "#ffc860", line-blur = 4.5, line-opacity = 0.081, line-dasharray = [0, 2.8], line-width = 9, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 2.5, 16, 4.5, 19, 9] }
 [[layers]]
 like = "highway-minor"
 id = "laterne-kern-l"
 after = "laterne-schein-r"
 minzoom = 14
 layout = { line-cap = "round", line-join = "round" }
-paint = { line-color = "#fffbea", line-blur = 0.25, line-opacity = 1, line-dasharray = [0, 22.909], line-width = 1.1, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, -2.5, 16, -4.5, 19, -9] }
+paint = { line-color = "#fffbea", line-blur = 0.25, line-opacity = 0.45, line-dasharray = [0, 22.909], line-width = 1.1, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, -2.5, 16, -4.5, 19, -9] }
 [[layers]]
 like = "highway-minor"
 id = "laterne-kern-r"
 after = "laterne-kern-l"
 minzoom = 14
 layout = { line-cap = "round", line-join = "round" }
-paint = { line-color = "#fffbea", line-blur = 0.25, line-opacity = 1, line-dasharray = [0, 22.909], line-width = 1.1, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 2.5, 16, 4.5, 19, 9] }
+paint = { line-color = "#fffbea", line-blur = 0.25, line-opacity = 0.45, line-dasharray = [0, 22.909], line-width = 1.1, line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 14, 2.5, 16, 4.5, 19, 9] }
 
 # Lichtspuren wie auf Langzeitbelichtungen (Nutzervorbilder 2026-11-25): auf dunklem Asphalt je Seite ein Bündel
 # dünner Streifen, rechts der Linienrichtung Rücklichter (rot, orange, pinkrot), links Scheinwerfer (weiß,
@@ -278,7 +279,7 @@ layout = { line-join = "round", line-cap = "round" }
 [layers.paint]
 line-color = "#ff2a14"
 line-blur = 4
-line-opacity = ["*", 0.3, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
+line-opacity = ["*", 0.135, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 3.9, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 15, ["*", 6.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 17, ["*", 9.49, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 19, ["*", 13.65, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]]
 line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 1.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 15, ["*", 2.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 17, ["*", 3.65, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 19, ["*", 5.25, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]]]
 [[layers]]
@@ -291,7 +292,7 @@ layout = { line-join = "round", line-cap = "round" }
 [layers.paint]
 line-color = "#ff2414"
 line-blur = 0.3
-line-opacity = ["*", 1, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
+line-opacity = ["*", 0.45, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 1.08, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 15, ["*", 1.8, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 17, ["*", 2.63, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 19, ["*", 3.78, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]]
 line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 0.6, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 15, ["*", 1.0, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 17, ["*", 1.46, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 19, ["*", 2.1, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]]]
 [[layers]]
@@ -304,7 +305,7 @@ layout = { line-join = "round", line-cap = "round" }
 [layers.paint]
 line-color = "#ff7a1a"
 line-blur = 0.3
-line-opacity = ["*", 0.95, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
+line-opacity = ["*", 0.427, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 0.9, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 15, ["*", 1.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 17, ["*", 2.19, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 19, ["*", 3.15, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]]
 line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 1.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 15, ["*", 2.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 17, ["*", 3.65, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 19, ["*", 5.25, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]]]
 [[layers]]
@@ -317,7 +318,7 @@ layout = { line-join = "round", line-cap = "round" }
 [layers.paint]
 line-color = "#ff2a6a"
 line-blur = 0.3
-line-opacity = ["*", 0.85, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
+line-opacity = ["*", 0.383, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 0.78, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 15, ["*", 1.3, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 17, ["*", 1.9, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 19, ["*", 2.73, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]]
 line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 2.4, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 15, ["*", 4.0, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 17, ["*", 5.84, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 19, ["*", 8.4, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]]]
 [[layers]]
@@ -330,7 +331,7 @@ layout = { line-join = "round", line-cap = "round" }
 [layers.paint]
 line-color = "#fff0d8"
 line-blur = 4
-line-opacity = ["*", 0.3, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
+line-opacity = ["*", 0.135, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 3.9, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 15, ["*", 6.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 17, ["*", 9.49, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 19, ["*", 13.65, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]]
 line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", -1.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 15, ["*", -2.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 17, ["*", -3.65, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 19, ["*", -5.25, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]]]
 [[layers]]
@@ -343,7 +344,7 @@ layout = { line-join = "round", line-cap = "round" }
 [layers.paint]
 line-color = "#ffffff"
 line-blur = 0.3
-line-opacity = ["*", 1, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
+line-opacity = ["*", 0.45, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 1.08, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 15, ["*", 1.8, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 17, ["*", 2.63, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 19, ["*", 3.78, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]]
 line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", -0.6, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 15, ["*", -1.0, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 17, ["*", -1.46, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 19, ["*", -2.1, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]]]
 [[layers]]
@@ -356,7 +357,7 @@ layout = { line-join = "round", line-cap = "round" }
 [layers.paint]
 line-color = "#ffd27a"
 line-blur = 0.3
-line-opacity = ["*", 0.95, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
+line-opacity = ["*", 0.427, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 0.9, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 15, ["*", 1.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 17, ["*", 2.19, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 19, ["*", 3.15, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]]
 line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", -1.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 15, ["*", -2.5, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 17, ["*", -3.65, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 19, ["*", -5.25, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]]]
 [[layers]]
@@ -369,13 +370,118 @@ layout = { line-join = "round", line-cap = "round" }
 [layers.paint]
 line-color = "#9cc4ff"
 line-blur = 0.3
-line-opacity = ["*", 0.85, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
+line-opacity = ["*", 0.383, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]
 line-width = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", 0.78, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 15, ["*", 1.3, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 17, ["*", 1.9, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]], 19, ["*", 2.73, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 0.9, ["secondary", "tertiary"], 0.75, "minor", 0.55, 0.35]]]
 line-offset = ["interpolate", ["exponential", 1.2], ["zoom"], 12, ["*", -2.4, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 15, ["*", -4.0, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 17, ["*", -5.84, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]], 19, ["*", -8.4, ["match", ["get", "class"], ["motorway", "trunk"], 1, "primary", 1, ["secondary", "tertiary"], 0.72, "minor", 0.62, 0.45]]]
 # <<< Zusatzebenen
 
 [marker]
 type = "bubble"
-color = "#ff7a1a"
-bg = "#1c2650"
-fg = "#ffe8c8"
+color = "#f0902a"
+bg = "#3e3f5e"
+fg = "#fff3e4"
+
+# >>> Licht aus Osten (Nutzerwunsch 2026-11-26): die Sonne steht tief im Osten (rechts). Hochhäuser werfen lange Schatten
+# nach Westen, je höher, desto länger (fill-translate kennt keine Daten-Ausdrücke, daher drei Höhenklassen); auf dem
+# Dach (Nutzerwunsch 2026-11-26): die Ostkante leuchtet (helle Kopie nach Osten, darüber das Dach wieder dunkel, es
+# bleibt ein heller Rand), dann sechs schwache Kopien je 1 px weiter östlich: zur Kante hin hell, nach Westen ein Verlauf.
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "laterne-hof"
+id = "schatten-hoch-1"
+filter = ["all", [">=", ["get", "render_height"], 18], ["<", ["get", "render_height"], 40]]
+minzoom = 14
+paint = { fill-color = "#262540", fill-opacity = 0.7, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-6, 2]], 17, ["literal", [-12, 3]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "schatten-hoch-1"
+id = "schatten-hoch-2"
+filter = ["all", [">=", ["get", "render_height"], 40], ["<", ["get", "render_height"], 80]]
+minzoom = 14
+paint = { fill-color = "#262540", fill-opacity = 0.7, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-12, 3]], 17, ["literal", [-24, 6]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "schatten-hoch-2"
+id = "schatten-hoch-3"
+filter = ["all", [">=", ["get", "render_height"], 80], ["<", ["get", "render_height"], 1000]]
+minzoom = 14
+paint = { fill-color = "#262540", fill-opacity = 0.7, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-20, 5]], 17, ["literal", [-40, 10]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "building-top-hoch"
+id = "dach-kante"
+filter = [">=", ["get", "render_height"], 18]
+minzoom = 14
+paint = { fill-color = "#fff4d0", fill-opacity = 1, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-0.3, -1.5]], 16, ["literal", [-1.2, -3]], 17, ["literal", [-0.6, -3]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "dach-kante"
+id = "dach-grund"
+filter = [">=", ["get", "render_height"], 18]
+minzoom = 14
+paint = { fill-color = "#c8702a", fill-opacity = 1, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-1.5, -1.5]], 16, ["literal", [-3, -3]], 17, ["literal", [-3, -3]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "dach-grund"
+id = "dach-licht-1"
+filter = [">=", ["get", "render_height"], 18]
+minzoom = 14
+paint = { fill-color = "#ffcf70", fill-opacity = 0.2, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-0.5, -1.5]], 16, ["literal", [-1.5, -3]], 17, ["literal", [-1, -3]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "dach-licht-1"
+id = "dach-licht-2"
+filter = [">=", ["get", "render_height"], 18]
+minzoom = 14
+paint = { fill-color = "#ffcf70", fill-opacity = 0.2, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.5, -1.5]], 16, ["literal", [0, -3]], 17, ["literal", [1, -3]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "dach-licht-2"
+id = "dach-licht-3"
+filter = [">=", ["get", "render_height"], 18]
+minzoom = 14
+paint = { fill-color = "#ffcf70", fill-opacity = 0.2, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.5, -1.5]], 16, ["literal", [1.5, -3]], 17, ["literal", [3, -3]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "dach-licht-3"
+id = "dach-licht-4"
+filter = [">=", ["get", "render_height"], 18]
+minzoom = 14
+paint = { fill-color = "#ffcf70", fill-opacity = 0.2, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.5, -1.5]], 16, ["literal", [3, -3]], 17, ["literal", [5, -3]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "dach-licht-4"
+id = "dach-licht-5"
+filter = [">=", ["get", "render_height"], 18]
+minzoom = 14
+paint = { fill-color = "#ffcf70", fill-opacity = 0.2, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [3.5, -1.5]], 16, ["literal", [4.5, -3]], 17, ["literal", [7, -3]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "dach-licht-5"
+id = "dach-licht-6"
+filter = [">=", ["get", "render_height"], 18]
+minzoom = 14
+paint = { fill-color = "#ffcf70", fill-opacity = 0.2, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [4.5, -1.5]], 16, ["literal", [6, -3]], 17, ["literal", [9, -3]]] }
+# <<< Licht aus Osten

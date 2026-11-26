@@ -9,9 +9,9 @@ title = "Aquarell"
 category = "standard"
 mode = "light"
 family = "Aquarell"
-font = "Alegreya Sans"
+font = "Caveat"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
-site_font = "Alegreya Sans"   # öffentliche Vorschau (--site)
+site_font = "Caveat"   # öffentliche Vorschau (--site)
 attribution = "Kartenstil: eigener Entwurf nach dem Vorbild von Stamen Watercolor"
 colors = 64
 watercolor = { warp = 3, warp_scale = 30, soft = 0.7, edge_width = 3, edge = 1.4, wash = 0.35, wash_scale = 160, grain = 0.6, paper = 0.06, drops = 0.1, drop_size = [0.15, 0.5] }

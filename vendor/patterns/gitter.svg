@@ -1,0 +1,7 @@
+<!-- Leuchtendes Bodengitter (Bluecron, nach dem Look von Tron Legacy): feine Linie oben und links, die Kacheln setzen sie
+     zum durchgehenden Raster zusammen; dazu ein schwacher Schein beidseits der Linie (32×32, currentColor) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<g fill="currentColor"><rect x="0" y="0" width="32" height="2.4" opacity="0.18"/><rect x="0" y="29.6" width="32" height="2.4" opacity="0.18"/>
+<rect x="0" y="0" width="2.4" height="32" opacity="0.18"/><rect x="29.6" y="0" width="2.4" height="32" opacity="0.18"/>
+<rect x="0" y="0" width="32" height="0.8"/><rect x="0" y="0" width="0.8" height="32"/></g>
+</svg>

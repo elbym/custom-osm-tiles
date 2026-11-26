@@ -108,7 +108,7 @@ park = { symbol = "mangagras", color = "#4f8a8a", bg = "#244a55" }
 wald = { symbol = "wolkenbaum", color = "#10122a", fill = "#2f5a6a", bg = "#22424f" }
 raster = { symbol = "raster", color = "#33365f", bg = "#212447" }
 platz = { symbol = "raster", color = "#3a3d6a", bg = "#2a2c52" }
-wandfenster = { symbol = "wandfenster", color = "#ffc46b", bg = "#121229" }
+wandfenster = { symbol = "wandfenster-glow", color = "#ffc46b", bg = "#121229" }   # mit leichtem Schein (Nutzerwunsch 2026-11-26)
 [water_lines]
 color = "#9fb8ff"
 count = 2
@@ -130,15 +130,45 @@ fg = "#f3ecff"
 # Figuren nachts (Nutzerwunsch 2026-11-25): nur schlafende, also nur die Wesen mit Pose schlaeft, und deutlich
 # seltener als am Tag. Rest wie in anime.toml.
 [figures]
-names = ["kitsune", "neko", "tanuki", "onigiri", "geist", "kappa", "karakasa", "daruma", "mondhase", "drache", "shiba",
-         "panda", "koi", "taiyaki", "dango", "sushi",
-         "umibozu", "amabie", "kawauso", "ruderboot"]
-poses = ["schlaeft"]
+names = ["kitsune", "neko", "tanuki", "onigiri", "geist", "kappa", "karakasa", "daruma", "mondhase", "drache",
+         "shiba", "panda", "koi", "taiyaki", "dango", "sushi", "umibozu", "amabie", "kawauso", "ruderboot",
+         "schulmaedchen", "ninja", "samurai", "miko", "zauberin", "held", "idol", "mecha", "maid", "kendo", "yankee",
+         "schulsprecherin", "lehrer", "baseball", "ramenkoch", "mangaka", "butler", "onmyoji", "moench", "nekomimi",
+         "schwertkaempfer", "magier", "ritterin", "daemonenkoenig", "engel", "vampir", "tengu", "oni"]
+poses = ["schlaeft"]   # nachts schlafen alle, auch die Menschen (Futon, Nutzerwunsch 2026-11-26)
 density = 0.15
 density_rich = 0.35
 areas = ["water"]   # Wasser zählt als Platz; dort stehen nur die Wasserfiguren (places mit "water")
 
 [figures.places]
+schulmaedchen = ["school", "college"]
+ninja = ["castle"]
+samurai = ["castle", "ruins"]
+miko = ["place_of_worship"]
+zauberin = ["playground", "toys"]
+held = ["pitch", "stadium", "playground"]
+idol = ["theatre", "cinema", "nightclub", "music"]
+mecha = ["station", "industrial"]
+maid = ["cafe"]
+kendo = ["sports_centre"]
+yankee = ["school"]
+schulsprecherin = ["school", "college"]
+lehrer = ["school", "college", "university"]
+baseball = ["pitch", "stadium"]
+ramenkoch = ["restaurant", "fast_food"]
+mangaka = ["books", "library", "art_gallery", "arts_centre"]
+butler = ["cafe", "hotel"]
+onmyoji = ["place_of_worship", "cemetery"]
+moench = ["place_of_worship"]
+nekomimi = ["cafe", "cinema"]
+schwertkaempfer = ["viewpoint", "attraction"]
+magier = ["library", "books", "museum"]
+ritterin = ["castle"]
+daemonenkoenig = ["castle", "ruins"]
+engel = ["place_of_worship", "cemetery"]
+vampir = ["cemetery"]
+tengu = ["wood", "forest", "viewpoint"]
+oni = ["quarry", "ruins"]
 drache = ["castle", "viewpoint"]
 geist = ["cemetery"]
 karakasa = ["shelter"]
@@ -159,3 +189,85 @@ umibozu = ["water"]
 amabie = ["water"]
 kawauso = ["water"]
 ruderboot = ["water"]
+
+# >>> Schienen von oben (Nutzerwunsch 2026-11-26): Schotterbett, Holzschwellen, zwei Stahlschienen; ab Leaflet z16.
+# Darunter wie bisher eine Tuschelinie. Je Gleisart (Hauptbahn, Stadtbahn, Nebengleis, Brücke): die Grundebene wird
+# zum Schotterbett, die Schraffur-Ebene zu den Schwellen (Strichmuster in Vielfachen der Linienbreite), dazu zwei
+# Schienen als versetzte Linien. Breiten übertrieben (echte Spurweite wäre bei z16 unter 1 px).
+[paint."railway"]
+line-color = ["interpolate", ["linear"], ["zoom"], 14, "#8a8ab8", 15, "#4a4866"]
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 1.2, 16, 9, 20, 30]
+[paint."railway-hatching"]
+line-color = "#5e4658"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0, 16, 7, 20, 24]
+line-dasharray = [0.28, 0.5]
+[[layers]]
+like = "railway"
+after = "railway-hatching"
+id = "railway-schiene-l"
+minzoom = 14.5
+paint = { line-color = "#c8c8e8", line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0.5, 16, 1.2, 20, 3.5], line-offset = ["interpolate", ["exponential", 1.4], ["zoom"], 14.5, 0, 16, -1.8, 20, -6] }
+[[layers]]
+like = "railway"
+after = "railway-schiene-l"
+id = "railway-schiene-r"
+minzoom = 14.5
+paint = { line-color = "#c8c8e8", line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0.5, 16, 1.2, 20, 3.5], line-offset = ["interpolate", ["exponential", 1.4], ["zoom"], 14.5, 0, 16, 1.8, 20, 6] }
+[paint."railway-transit"]
+line-color = ["interpolate", ["linear"], ["zoom"], 14, "#8a8ab8", 15, "#4a4866"]
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 1.2, 16, 9, 20, 30]
+[paint."railway-transit-hatching"]
+line-color = "#5e4658"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0, 16, 7, 20, 24]
+line-dasharray = [0.28, 0.5]
+[[layers]]
+like = "railway-transit"
+after = "railway-transit-hatching"
+id = "railway-transit-schiene-l"
+minzoom = 14.5
+paint = { line-color = "#c8c8e8", line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0.5, 16, 1.2, 20, 3.5], line-offset = ["interpolate", ["exponential", 1.4], ["zoom"], 14.5, 0, 16, -1.8, 20, -6] }
+[[layers]]
+like = "railway-transit"
+after = "railway-transit-schiene-l"
+id = "railway-transit-schiene-r"
+minzoom = 14.5
+paint = { line-color = "#c8c8e8", line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0.5, 16, 1.2, 20, 3.5], line-offset = ["interpolate", ["exponential", 1.4], ["zoom"], 14.5, 0, 16, 1.8, 20, 6] }
+[paint."railway-service"]
+line-color = ["interpolate", ["linear"], ["zoom"], 14, "#8a8ab8", 15, "#4a4866"]
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0.84, 16, 6.3, 20, 21]
+[paint."railway-service-hatching"]
+line-color = "#5e4658"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0, 16, 4.9, 20, 17]
+line-dasharray = [0.28, 0.5]
+[[layers]]
+like = "railway-service"
+after = "railway-service-hatching"
+id = "railway-service-schiene-l"
+minzoom = 14.5
+paint = { line-color = "#c8c8e8", line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0.35, 16, 0.84, 20, 2.4], line-offset = ["interpolate", ["exponential", 1.4], ["zoom"], 14.5, 0, 16, -1.3, 20, -4.2] }
+[[layers]]
+like = "railway-service"
+after = "railway-service-schiene-l"
+id = "railway-service-schiene-r"
+minzoom = 14.5
+paint = { line-color = "#c8c8e8", line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0.35, 16, 0.84, 20, 2.4], line-offset = ["interpolate", ["exponential", 1.4], ["zoom"], 14.5, 0, 16, 1.3, 20, 4.2] }
+[paint."bridge-railway"]
+line-color = ["interpolate", ["linear"], ["zoom"], 14, "#8a8ab8", 15, "#4a4866"]
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 1.2, 16, 9, 20, 30]
+[paint."bridge-railway-hatching"]
+line-color = "#5e4658"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0, 16, 7, 20, 24]
+line-dasharray = [0.28, 0.5]
+[[layers]]
+like = "bridge-railway"
+after = "bridge-railway-hatching"
+id = "bridge-railway-schiene-l"
+minzoom = 14.5
+paint = { line-color = "#c8c8e8", line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0.5, 16, 1.2, 20, 3.5], line-offset = ["interpolate", ["exponential", 1.4], ["zoom"], 14.5, 0, 16, -1.8, 20, -6] }
+[[layers]]
+like = "bridge-railway"
+after = "bridge-railway-schiene-l"
+id = "bridge-railway-schiene-r"
+minzoom = 14.5
+paint = { line-color = "#c8c8e8", line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 14, 0.5, 16, 1.2, 20, 3.5], line-offset = ["interpolate", ["exponential", 1.4], ["zoom"], 14.5, 0, 16, 1.8, 20, 6] }
+# <<< Schienen von oben

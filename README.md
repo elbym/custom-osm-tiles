@@ -61,7 +61,7 @@ Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bi
 | **Kupferstich**<br><sub>Standard</sub> | <a href="docs/previews/kupferstich.png"><img src="docs/previews/kupferstich.png" width="256" alt="Kupferstich"></a><br>Kupferstich | <a href="docs/previews/kupferplatte.png"><img src="docs/previews/kupferplatte.png" width="256" alt="Kupferplatte"></a><br>Kupferplatte |
 | **Anime**<br><sub>Standard</sub> | <a href="docs/previews/anime.png"><img src="docs/previews/anime.png" width="256" alt="Anime"></a><br>Anime | <a href="docs/previews/anime-nacht.png"><img src="docs/previews/anime-nacht.png" width="256" alt="Anime Nacht"></a><br>Anime Nacht |
 | **Island**<br><sub>Standard</sub> | <a href="docs/previews/island.png"><img src="docs/previews/island.png" width="256" alt="Island"></a><br>Island | <a href="docs/previews/nordlicht.png"><img src="docs/previews/nordlicht.png" width="256" alt="Nordlicht"></a><br>Nordlicht |
-| **Stadtlichter**<br><sub>Standard</sub> | <a href="docs/previews/blaue-stunde.png"><img src="docs/previews/blaue-stunde.png" width="256" alt="Blaue Stunde"></a><br>Blaue Stunde | <a href="docs/previews/stadtlichter.png"><img src="docs/previews/stadtlichter.png" width="256" alt="Stadtlichter"></a><br>Stadtlichter |
+| **Stadtlichter**<br><sub>Standard</sub> | <a href="docs/previews/sonnenaufgang.png"><img src="docs/previews/sonnenaufgang.png" width="256" alt="Sonnenaufgang"></a><br>Sonnenaufgang | <a href="docs/previews/stadtlichter.png"><img src="docs/previews/stadtlichter.png" width="256" alt="Stadtlichter"></a><br>Stadtlichter |
 | **Schwarzplan**<br><sub>Standard</sub> | <a href="docs/previews/schwarzplan.png"><img src="docs/previews/schwarzplan.png" width="256" alt="Schwarzplan"></a><br>Schwarzplan | <a href="docs/previews/schwarzplan-dark.png"><img src="docs/previews/schwarzplan-dark.png" width="256" alt="Weißplan"></a><br>Weißplan |
 | **Blaupause**<br><sub>Standard</sub> | <a href="docs/previews/lichtpause.png"><img src="docs/previews/lichtpause.png" width="256" alt="Lichtpause"></a><br>Lichtpause | <a href="docs/previews/blaupause.png"><img src="docs/previews/blaupause.png" width="256" alt="Blaupause"></a><br>Blaupause |
 | **CMYK**<br><sub>Standard</sub> | <a href="docs/previews/cmyk.png"><img src="docs/previews/cmyk.png" width="256" alt="CMYK"></a><br>CMYK | <a href="docs/previews/cmyk-nacht.png"><img src="docs/previews/cmyk-nacht.png" width="256" alt="CMYK Nacht"></a><br>CMYK Nacht |
@@ -216,7 +216,7 @@ tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffen
 - **CSS:** Die Streifen-Seite nutzt Tailwind CSS, lokal gebaut (kein CDN): `npm install && npm run css` erzeugt `vendor/streifen.css` aus `src/streifen.css`.
 - **Layout:** Im Querformat sind die Streifen senkrecht, im Hochformat (Handy) waagerecht.
 - **Quellen:** Der Dialog „Über“ nennt alle Quellen und Lizenzen.
-- **Tastatur:** <kbd>←</kbd> <kbd>→</kbd> (oder <kbd>J</kbd> <kbd>Ö</kbd>) Stil wechseln, <kbd>↑</kbd> <kbd>↓</kbd> (oder <kbd>L</kbd> <kbd>K</kbd>, <kbd>I</kbd>) Hell/Dunkel, <kbd>N</kbd> Standard/Nerd, <kbd>1</kbd>–<kbd>9</kbd> Stil Nr. n, <kbd>Esc</kbd>/<kbd>A</kbd> alle Stile, <kbd>V</kbd> Vergleich, <kbd>+</kbd> <kbd>−</kbd> zoomen, <kbd>H</kbd> Hilfe („Über“).
+- **Tastatur:** <kbd>←</kbd> <kbd>→</kbd> (oder <kbd>J</kbd> <kbd>Ö</kbd>) Stil wechseln, <kbd>↑</kbd> <kbd>↓</kbd> (oder <kbd>L</kbd> <kbd>K</kbd>, <kbd>I</kbd>) Hell/Dunkel, <kbd>N</kbd> Standard/Nerd, <kbd>1</kbd>–<kbd>9</kbd> Stil Nr. n, <kbd>Esc</kbd>/<kbd>A</kbd> alle Stile, <kbd>V</kbd> Vergleich, <kbd>X</kbd> Seiten tauschen, <kbd>T</kbd> Teilung, <kbd>B</kbd> 8 Bit, <kbd>0</kbd> zurück zum Marker, <kbd>+</kbd> <kbd>−</kbd> zoomen, <kbd>H</kbd>/<kbd>?</kbd> Hilfe („Über“).
 
 ## Stile
 
@@ -235,11 +235,11 @@ tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffen
 | **Kupferstich** / **Kupferplatte** | IM Fell English, Ortsnamen UnifrakturMaguntia | 🟠 heavy | eigener Stil: Kupferstich des 18. Jh. → [Details](#kupferstich--kupferplatte) |
 | **Anime** / Nacht | Kalam, Orts- und POI-Namen Bangers | 🟢 easy | eigener Stil im Look von Anime-Zeichentrick → [Details](#anime--anime-nacht) |
 | **Island** / **Nordlicht** | Public Sans | 🟢 easy / 🟠 heavy | eigener Stil: isländische Sommerlandschaft → [Details](#island--nordlicht) |
-| **Blaue Stunde** / **Stadtlichter** | Fira Sans | 🟠 heavy | eigener Stil: Stadt bei Nacht von oben → [Details](#stadtlichter--blaue-stunde) |
+| **Sonnenaufgang** / **Stadtlichter** | Fira Sans | 🟠 heavy | eigener Stil: Stadt von oben bei Sonnenaufgang bzw. Nacht → [Details](#stadtlichter--sonnenaufgang) |
 | **Schwarzplan** / **Weißplan** | TeX Gyre Heros | 🟢 easy | eigener Stil: Figur-Grund-Plan → [Details](#schwarzplan--weißplan) |
 | **Lichtpause** / **Blaupause** | DINish | 🟢 easy | eigener Stil: technische Zeichnung → [Details](#blaupause--lichtpause) |
-| **CMYK** / Nacht | Work Sans | 🔴 dangerzone | eigener Stil: Plakat im Vierfarb-Druckraster → [Details](#cmyk--cmyk-nacht) |
-| **Aquarell** / Nacht | Alegreya Sans | 🔴 dangerzone | eigener Stil: lavierte Federzeichnung → [Details](#aquarell--aquarell-nacht) |
+| **CMYK** / Nacht | Fira Sans | 🔴 dangerzone | eigener Stil: Plakat im Vierfarb-Druckraster → [Details](#cmyk--cmyk-nacht) |
+| **Aquarell** / Nacht | Caveat | 🔴 dangerzone | eigener Stil: lavierte Federzeichnung → [Details](#aquarell--aquarell-nacht) |
 | **Marke** / Dunkel | Figtree | 🟢 easy | aus einer Kundenfarbe erzeugt → [Details](#marke--marke-dunkel) |
 | **Protomaps Light** / **Dark** | Figtree | 🟢 easy | Protomaps Basemaps (Design CC0) |
 | **Wiki** / Dark | Work Sans | 🟢 easy | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
@@ -257,16 +257,16 @@ tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffen
 | **Gruvbox Light** / **Dark** | IBM Plex Mono | 🟢 easy | Gruvbox (MIT) |
 | **Solarized Light** / **Dark** | Intel One Mono | 🟢 easy | Solarized (MIT) |
 | **Tokyo Night Day** / **Night** | JetBrains Mono | 🟢 easy | tokyonight.nvim (Apache-2.0) |
-| **Bluecron Tag** / **Bluecron** | Mozilla Text | 🟢 easy | eigener Entwurf im Look von Tron → [Details](#bluecron-tag--bluecron) |
+| **Bluecron Tag** / **Bluecron** | Mozilla Text | 🟢 easy | eigener Entwurf im Look von Tron Legacy → [Details](#bluecron-tag--bluecron) |
 | **Bernstein** / **Phosphor** | VT323 | 🟢 easy | eigener Entwurf: Röhrenmonitor → [Details](#bernstein--phosphor) |
 | **Cyberpunk Day** / **Neon Cyberpunk** | Space Mono | 🟢 easy | maptoposter „neon_cyberpunk“ (MIT) → [Details](#cyberpunk-day--neon-cyberpunk) |
 
-**Renderzeit** (gemessen auf einem 8-Kern-Rechner: 154 Retina-Kacheln auf Zoom 16 um die Bielefelder Innenstadt, je Stil ein Lauf. Gemessen sind die in der Tabelle genannten Stile; die übrigen sind nach ihren Effekten eingeordnet, z. B. Blaue Stunde wie Stadtlichter. Bei zwei Angaben gilt die erste für hell, die zweite für dunkel):
+**Renderzeit** (gemessen auf einem 8-Kern-Rechner: 154 Retina-Kacheln auf Zoom 16 um die Bielefelder Innenstadt, je Stil ein Lauf. Gemessen sind die in der Tabelle genannten Stile; die übrigen sind nach ihren Effekten eingeordnet, z. B. Sonnenaufgang wie Stadtlichter. Bei zwei Angaben gilt die erste für hell, die zweite für dunkel):
 
 | Stufe | Zeit | Faktor | Warum |
 |---|---|---|---|
 | 🟢 easy | 8–15 s | 1× | nur Farben, Muster und Figuren; rendert der Kartenserver allein (gemessen: Clear 12 s, Schwarzplan 8 s, Anime 14 s, Island 13 s, Gaslicht 14 s) |
-| 🟠 heavy | 19–41 s | 1,5–3,5× | Stadtlichter/Blaue Stunde: viele weichgezeichnete Lichtebenen (19 s); Historisch, Kupferstich, Kupferplatte, Nordlicht: Flecken bzw. Nordlicht werden in jede Kachel eingerechnet (Historisch 25 s, Nordlicht 41 s) |
+| 🟠 heavy | 19–41 s | 1,5–3,5× | Stadtlichter/Sonnenaufgang: viele weichgezeichnete Lichtebenen (19 s); Historisch, Kupferstich, Kupferplatte, Nordlicht: Flecken bzw. Nordlicht werden in jede Kachel eingerechnet (Historisch 25 s, Nordlicht 41 s) |
 | 🔴 dangerzone | 1–2,5 min | 6–13× | Pixel-Nachbearbeitung jeder Kachel samt ihrer acht Nachbarn: Aquarell (75 s), CMYK-Druckraster (153 s) |
 
 Der 8-Bit-Modus (`--pixel`) kommt bei jedem Stil obendrauf (zwei Durchläufe in dreifacher Auflösung); er ist nicht gemessen.
@@ -284,7 +284,7 @@ Die Stile sind eigene Umsetzungen: Von den Vorbildern sind nur Farbwerte überno
 
 #### Historisch / Gaslicht
 
-- Kolorierter Stadtplan um 1900: rosa Häuser, Wald-, Wiesen- und Friedhofs-Signaturen, Wasserlinien.
+- Kolorierter Stadtplan um 1900: rosa Häuser, Wiesen- und Friedhofs-Signaturen, Wasserlinien; Wald als kleine Bäume mit Schattenseite und Schlagschatten wie auf Karten des 18. Jahrhunderts.
 - Bahn als Schwarz-Weiß-Band; stillgelegte Strecken aus OSM werden wie in Betrieb gezeichnet.
 - Altersflecken in den Kacheln, Papierkorn im Browser.
 - **Gaslicht** (dunkel): derselbe Plan bei Nacht. Blauschwarzes Papier, gelbe Hauptstraßen, Gaslaternen an Nebenstraßen.
@@ -300,8 +300,9 @@ Allgemeiner Look von Anime-Zeichentrick, ohne Studios, Filme oder Figuren.
 
 - Cel-Shading mit hartem Schlagschatten, Tuschekonturen, Dächer in Pastelltönen.
 - Wolkenbäume, Manga-Grasbüschel, Rasterfolie, Wasser mit Glanzlinien.
+- Bahngleise von oben: Schotterbett, Holzschwellen, zwei Stahlschienen.
 - Manga-Sprechblase als Marker.
-- **Nacht:** Tiefblau/Violett mit leuchtenden Fenstern.
+- **Nacht:** Tiefblau/Violett mit leicht schimmernden Fenstern.
 
 #### Island / Nordlicht
 
@@ -310,9 +311,9 @@ Allgemeiner Look von Anime-Zeichentrick, ohne Studios, Filme oder Figuren.
 - Figuren als skandinavische Bilderbuch-Volkskunst:
   - an Land: Islandpferde, Schafe, Papageitaucher, Polarfuchs, Kolkrabe, Rentier, Trolle (schlafend zu Stein), Huldufólk in Tracht, Elfensteine, Feen, Weihnachtskatze und Weihnachtskerl, Badende im heißen Becken
   - im Wasser: Nykur, Marbendill, Seewurm, Wal und Eiderente
-- **Nordlicht** (dunkel): Polarnacht mit grün-violettem Nordlicht (in die Kacheln eingebacken), dunklen Dächern mit leuchtenden Fenstern, schlafenden Tieren und wachen Sagenwesen.
+- **Nordlicht** (dunkel): Polarnacht mit grün-violettem Nordlicht (in die Kacheln eingebacken), dunklen Dächern mit leuchtenden Fenstern; alle Figuren schlafen.
 
-#### Stadtlichter / Blaue Stunde
+#### Stadtlichter / Sonnenaufgang
 
 Stadt bei Nacht von oben, nach einem Nachtfoto:
 
@@ -320,12 +321,12 @@ Stadt bei Nacht von oben, nach einem Nachtfoto:
 - Rote und weiße Lichtspuren auf Hauptstraßen.
 - Laternen als Lichtperlen.
 - Fensterlichter, Hochhäuser kaltweiß.
-- Grünes Flutlicht auf Sportplätzen, violettes Neon in Fußgängerzonen.
-- **Blaue Stunde:** dasselbe in der Dämmerung auf Blau.
+- Flutlicht auf großen Sportplätzen und im Stadion: Masten in den Ecken, kaltweißes Licht fällt schräg ins Feld; violettes Neon in Fußgängerzonen.
+- **Sonnenaufgang** (hell): die Stadt erwacht. Kühler, violett-blauer Morgendunst, nur die Hochhäuser fangen die Sonne und glühen golden; Licht von Osten: Ostkante der Dächer leuchtet, nach Westen ein Verlauf, lange Schatten nach Westen (je höher, desto länger); Laternen und Lichtspuren noch schwach an, Flutlicht aus.
 
 #### Schwarzplan / Weißplan
 
-- Figur-Grund-Plan wie in Architektur und Stadtplanung: schwarze Gebäude auf Weiß, Straßen nur als Lücken.
+- Figur-Grund-Plan wie in Architektur und Stadtplanung: anthrazitfarbene Gebäude auf gedämpftem Papierweiß, Straßen nur als Lücken.
 - Marker signalrot.
 - **Weißplan** (dunkel): umgekehrt.
 
@@ -342,7 +343,7 @@ Stadt bei Nacht von oben, nach einem Nachtfoto:
 
 #### Aquarell / Aquarell Nacht
 
-- Lavierte Federzeichnung: Flächen mit weichem Hof und dunklerem Pigmentrand, ungleichmäßiger Farbauftrag (eingebacken).
+- Lavierte Federzeichnung: Flächen mit weichem Hof und dunklerem Pigmentrand, ungleichmäßiger Farbauftrag und vereinzelte Wassertropfen (eingebacken).
 - **Nacht:** in Indigo.
 
 #### Marke / Marke Dunkel
@@ -356,9 +357,9 @@ Aus einer Kundenfarbe erzeugt: `tools/gen_marke.py "#rrggbb" name`.
 
 #### Bluecron Tag / Bluecron
 
-Eigener Entwurf (Arbeitstitel) im Look von Tron, Schrift Mozilla Text.
+Eigener Entwurf (Arbeitstitel) im Look von Tron Legacy, Schrift Mozilla Text.
 
-- Fast schwarzer Grund, Gebäude als Drahtgitter mit Cyan-Kante.
+- Dunkles Petrol mit leuchtendem Bodengitter, Gebäude als Drahtgitter mit Cyan-Kante.
 - Hauptstraßen weißglühend mit Cyan-Leuchtschein, Autobahn Orange.
 - **Bluecron Tag** (hell): Drahtgitter auf Papier, ohne Leuchten.
 
@@ -466,7 +467,8 @@ streets = "450"    # optional: eigener Schnitt für Straßennamen (muss oben als
 | UnifrakturMaguntia | blackletter (nur Ortsnamen in Historisch/Kupferstich) | OFL |
 | Kalam | display (nur Anime) | OFL |
 | Bangers | comic (nur Orts- und POI-Namen in Anime) | OFL |
-| Alegreya Sans | display (Aquarell) | OFL |
+| Alegreya Sans | display (ungenutzt, früher Aquarell) | OFL |
+| Caveat | script (Aquarell) | OFL |
 | Uncial Antiqua | uncial (ungenutzt, früher Ortsnamen und Marker in Island) | OFL |
 | Adwaita Mono, Fantasque Sans Mono, Fira Code, IBM Plex Mono, Intel One Mono, JetBrains Mono, Maple Mono, Space Mono, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
 | Hack | mono (bei `--all-fonts` nur für Nerd-Stile) | MIT + Bitstream-Vera-Lizenz |
