@@ -901,10 +901,15 @@ def write_previews(outdir):
         (outdir / old).unlink(missing_ok=True)
     shutil.copy(ROOT / "vendor" / "streifen.css", outdir / "streifen.css")  # Tailwind, gebaut mit npm run css
     shutil.copytree(ROOT / "vendor" / "leaflet", outdir / "leaflet", dirs_exist_ok=True)
+    for f in ("manifest.webmanifest", "icon-180.png", "icon-512.png"):  # iPhone: Web-App vom Home-Bildschirm = Vollbild
+        shutil.copy(ROOT / "vendor" / f, outdir / f)
     names = sorted(d.name for d in outdir.iterdir() if (d / "config.json").exists())
     configs = {n: json.loads((outdir / n / "config.json").read_text()) for n in names}
     for c in configs.values():  # Marker in der Schrift des Stils (oder [marker] font)
         c["font_url"] = marker_font(c.get("marker", {}).get("font") or c.get("font", ""), outdir)
+        st = ROOT / "styles" / f"{c['style']}.toml"  # Grundfarbe: färbt in der Einzelansicht die Safari-Leisten
+        if st.exists():
+            c["bg"] = tomllib.loads(st.read_text()).get("paint", {}).get("background", {}).get("background-color")
     colour_order(outdir, configs)
     titles = {n: c["title"] for n, c in configs.items()}
     (outdir / "variants.js").write_text(
