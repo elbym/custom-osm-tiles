@@ -1,20 +1,20 @@
-# "Siebdruck" (Nutzerwunsch 2026-11-26): Plakat im Druckraster auf Naturpapier.
+# "CMYK" (Nutzerwunsch 2026-11-26, bis dahin "Siebdruck"): Plakat im Druckraster auf Naturpapier.
 #   - Die Karte hat nur flache Farben; das Raster entsteht in halftone() (make-tiles.py): jede Farbe in Cyan, Magenta,
 #     Gelb und Schwarz zerlegt, je Farbe ein Punktraster unter eigenem Winkel (Gelb 0°, Cyan 15°, Schwarz 45°,
 #     Magenta 75°, daher Rosetten), Punktgröße nach Farbmenge, Platten je 1 px versetzt (Passer), übereinander gedruckt
 #     (Grün = Cyan- über Gelbpunkten). Rasterweite 6 px bei z17, je Stufe darunter 1 px feiner.
 #   - Flächen in hellen Tönen (lockere Punkte), Straßen in voller Druckfarbe (ab ~100 % volle Fläche, bleiben durchgehend)
 #   - Beschriftung getrennt gerendert und scharf obenauf; Ortsteile in Versalien, gesperrt
-title = "Siebdruck"
+title = "CMYK"
 category = "standard"
 mode = "light"
-family = "Siebdruck"
+family = "CMYK"
 font = "Work Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
 site_font = "Work Sans"   # öffentliche Vorschau (--site)
-attribution = "Kartenstil: eigener Entwurf nach Schablonen- und Siebdruck"
+attribution = "Kartenstil: eigener Entwurf nach dem CMYK-Druckraster"
 colors = 64
-halftone = { pitch = 6, pitch_step = 1, offset = 1, soft = 0.5, paper = "#f5efe3" }
+halftone = { pitch = 6, pitch_step = 1, offset = 1, soft = 0.5, jitter = 0.08, size_jitter = 0.15, ragged = 0.6, grain = 0.25, paper = "#f5efe3" }
 text_scale = 1.1
 hide = ["poi_r20", "road_oneway*", "highway-shield-*", "road_shield_us", "building-top", "*-casing", "highway-area"]
 

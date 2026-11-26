@@ -964,7 +964,7 @@ def build_site(a):
     t0 = time.time()
     for i, (st, out, font, s.pixel, s.streets_only, keep) in enumerate(jobs):
         render(s, st, out, mb, font, standalone=False, keep=keep)  # keep: nur fehlende Kacheln (z. B. @2x)
-        eta = t0 + (time.time() - t0) / (i + 1) * len(jobs)  # ponytail: Mittel über alle Stile, Aquarell/Siebdruck dauern länger
+        eta = t0 + (time.time() - t0) / (i + 1) * len(jobs)  # ponytail: Mittel über alle Stile, Aquarell/CMYK dauern länger
         print(f"== {i + 1} von {len(jobs)} Stilen fertig, ETA {time.strftime('%H:%M', time.localtime(eta))}", flush=True)
     for old in site.glob("*/config.json"):              # Varianten aus früheren site.toml-Ständen (andere Schrift/Ort)
         if old.parent not in wanted:
@@ -1015,6 +1015,13 @@ def parent(url):
     return fetch(url)
 
 
+def ihash(a, b, seed):
+    """Zufallswert 0..1 je ganzzahligem Gitterpunkt (a, b): Grundlage von vnoise(), direkt für Werte je Rasterzelle."""
+    n = (a * 73856093 ^ b * 19349663 ^ seed * 83492791) & 0xFFFFFFFF
+    n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
+    return (n ^ (n >> 16)) / 0xFFFFFFFF
+
+
 def vnoise(u, v, seed):
     """Wertrauschen 0..1 an Weltkoordinaten (u, v in Zellen): Gitterwerte per Integer-Hash, weich interpoliert;
     gleiche Koordinate = gleicher Wert, daher nahtlos über Kachelgrenzen (stain_png, watercolor)."""
@@ -1022,10 +1029,7 @@ def vnoise(u, v, seed):
     i, j = np.floor(u).astype(np.int64), np.floor(v).astype(np.int64)
     fu, fv = u - i, v - j
     fu, fv = fu * fu * (3 - 2 * fu), fv * fv * (3 - 2 * fv)
-    def h(a, b):
-        n = (a * 73856093 ^ b * 19349663 ^ seed * 83492791) & 0xFFFFFFFF
-        n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
-        return (n ^ (n >> 16)) / 0xFFFFFFFF
+    h = lambda a, b: ihash(a, b, seed)
     top = h(i, j) * (1 - fu) + h(i + 1, j) * fu
     bot = h(i, j + 1) * (1 - fu) + h(i + 1, j + 1) * fu
     return top * (1 - fv) + bot * fv
@@ -1165,7 +1169,7 @@ def water_drops(gx, gy, cfg):
 
 
 def halftone(img, ox, oy, k, cfg, z=17):
-    """Druckraster (halftone im Stil, Siebdruck; Nutzerwunsch 2026-11-26 mit CMYK-Rasterbildern): jede Farbe der Karte
+    """Druckraster (halftone im Stil, CMYK; Nutzerwunsch 2026-11-26 mit CMYK-Rasterbildern): jede Farbe der Karte
     in Druckfarben zerlegt, jede Farbe als eigenes Punktraster unter ihrem Winkel (Gelb 0°, Cyan 15°, Schwarz 45°,
     Magenta 75° wie im Offsetdruck, daher Rosetten), Punktgröße nach Farbmenge, volle Fläche ab ~100 % (Straßen in
     kräftigen Farben bleiben durchgehend), Platten je um offset Weltpixel versetzt (Passer), übereinander gedruckt.
@@ -1173,7 +1177,10 @@ def halftone(img, ox, oy, k, cfg, z=17):
     hellen auf (screen). inks = { c, m, y[, k] } ersetzt die Druckfarben. Raster weltfest (ox/oy wie watercolor()), nahtlos;
     Rasterweite pitch (Weltpixel bei z17), je Zoomstufe darunter pitch_step feiner. Volltöne (eine Platte > fine_from)
     im feinen Raster (fine × pitch, Farbmenge höchstens fine_amount), damit auch Straßen aus Punkten bestehen.
-    soft: Punktkante als radialer Verlauf, Breite in Rasterzellen (0 = harte Kante, 1 px)."""
+    soft: Punktkante als radialer Verlauf, Breite in Rasterzellen (0 = harte Kante, 1 px).
+    Unregelmäßig wie gedruckt (Nutzerwunsch 2026-11-26 mit Foto eines Druckrasters; alle Standard 0 = exakt):
+    jitter = Punktmitte verschoben (Anteil der Rasterzelle), size_jitter = Punktgröße ± (Anteil), ragged = ausgefranster
+    Rand (Weltpixel), grain = fleckiger Farbauftrag im Punkt (Anteil). Alles hängt an Weltkoordinaten bzw. Rasterzelle."""
     import numpy as np
     from scipy import ndimage
     h, w, _ = img.shape
@@ -1207,7 +1214,12 @@ def halftone(img, ox, oy, k, cfg, z=17):
     fine = (amt.max(-1) > cfg.get("fine_from", .8)).astype(float)
     fine = ndimage.gaussian_filter(fine, .5 * k) > .5   # Kanten der Linien glätten
     out = np.broadcast_to(paper, img.shape).copy()
+    jit, sjit, rag_px, grain = (cfg.get(n, 0) for n in ("jitter", "size_jitter", "ragged", "grain"))
     for c, val in plates.items():
+        seed = 300 + 10 * "cmyk".index(c)
+        # ein Rauschfeld je Platte für ausgefransten Rand und fleckigen Auftrag (zwei Felder kosteten 3,5× Rechenzeit)
+        nz = vnoise(gx / 1.3, gy / 1.3, seed) * .7 + vnoise(gx / .5, gy / .5, seed + 1) * .3 if rag_px or grain else 0
+        rag = (nz - .5) * 2 * rag_px
         val = ndimage.shift(val, (off[c][1] * k, off[c][0] * k), order=1, mode="nearest")   # Passer-Versatz
         fn = ndimage.shift(fine.astype(float), (off[c][1] * k, off[c][0] * k), order=0, mode="nearest")
         near = ndimage.maximum_filter(fn, size=int(2 * k) * 2 + 1)   # grobe Punkte halten Abstand von Volltönen
@@ -1222,7 +1234,12 @@ def halftone(img, ox, oy, k, cfg, z=17):
             at = lambda arr, o: ndimage.map_coordinates(arr, [cy, cx], order=o, mode="nearest")
             mine = at(fn, 0) > .5 if fine_cell else at(near, 0) <= .5   # Punkt gehört zum feinen bzw. groben Raster
             r = np.sqrt(np.clip(np.minimum(at(val, 1), cap) * gain, 0, 1.6) / np.pi)   # flächentreu; ab ~1,6 voll
-            px, d = pt * k, np.hypot(u - ru, v - rv)
+            sd = seed + 5 * fine_cell   # je Platte und Raster eigene Zufallswerte je Punkt
+            iu, iv = ru.astype(np.int64), rv.astype(np.int64)
+            if sjit:
+                r = r * (1 + (ihash(iu, iv, sd + 2) - .5) * 2 * sjit)
+            ju, jv = ((ihash(iu, iv, sd + 3) - .5) * 2 * jit, (ihash(iu, iv, sd + 4) - .5) * 2 * jit) if jit else (0, 0)
+            px, d = pt * k, np.hypot(u - ru - ju, v - rv - jv) + rag / pt
             # weiche Kante (soft = Breite in Rasterzellen, Nutzerwunsch 2026-11-26): radialer Verlauf um den Rand r,
             # symmetrisch, daher bleibt die Farbmenge etwa gleich; kleine Punkte erreichen nie volle Deckung (blasser Hof)
             e = max(1, soft * px)
@@ -1230,7 +1247,10 @@ def halftone(img, ox, oy, k, cfg, z=17):
             return t * t * (3 - 2 * t) * np.clip(r * px * 2 - .5, 0, 1) * mine   # kein Staub
 
         # Volltöne fein (kleine, getrennte Punkte), sonst grob
-        dot = np.maximum(screen(pitch, False, 9), screen(pitch * cfg.get("fine", .35), True, cfg.get("fine_amount", .85)))[..., None]
+        dot = np.maximum(screen(pitch, False, 9), screen(pitch * cfg.get("fine", .35), True, cfg.get("fine_amount", .85)))
+        if grain:  # Farbe im Punkt nicht ganz gleichmäßig
+            dot = dot * (1 - grain * nz)
+        dot = dot[..., None]
         out = 1 - (1 - out) * (1 - dot * ink[c]) if light else out * (1 - dot * (1 - ink[c] / paper))
     return out
 

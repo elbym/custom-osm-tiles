@@ -64,7 +64,7 @@ Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bi
 | **Stadtlichter**<br><sub>Standard</sub> | <a href="docs/previews/blaue-stunde.png"><img src="docs/previews/blaue-stunde.png" width="256" alt="Blaue Stunde"></a><br>Blaue Stunde | <a href="docs/previews/stadtlichter.png"><img src="docs/previews/stadtlichter.png" width="256" alt="Stadtlichter"></a><br>Stadtlichter |
 | **Schwarzplan**<br><sub>Standard</sub> | <a href="docs/previews/schwarzplan.png"><img src="docs/previews/schwarzplan.png" width="256" alt="Schwarzplan"></a><br>Schwarzplan | <a href="docs/previews/schwarzplan-dark.png"><img src="docs/previews/schwarzplan-dark.png" width="256" alt="Weißplan"></a><br>Weißplan |
 | **Blaupause**<br><sub>Standard</sub> | <a href="docs/previews/lichtpause.png"><img src="docs/previews/lichtpause.png" width="256" alt="Lichtpause"></a><br>Lichtpause | <a href="docs/previews/blaupause.png"><img src="docs/previews/blaupause.png" width="256" alt="Blaupause"></a><br>Blaupause |
-| **Siebdruck**<br><sub>Standard</sub> | <a href="docs/previews/siebdruck.png"><img src="docs/previews/siebdruck.png" width="256" alt="Siebdruck"></a><br>Siebdruck | <a href="docs/previews/siebdruck-nacht.png"><img src="docs/previews/siebdruck-nacht.png" width="256" alt="Siebdruck Nacht"></a><br>Siebdruck Nacht |
+| **CMYK**<br><sub>Standard</sub> | <a href="docs/previews/cmyk.png"><img src="docs/previews/cmyk.png" width="256" alt="CMYK"></a><br>CMYK | <a href="docs/previews/cmyk-nacht.png"><img src="docs/previews/cmyk-nacht.png" width="256" alt="CMYK Nacht"></a><br>CMYK Nacht |
 | **Aquarell**<br><sub>Standard</sub> | <a href="docs/previews/aquarell.png"><img src="docs/previews/aquarell.png" width="256" alt="Aquarell"></a><br>Aquarell | <a href="docs/previews/aquarell-nacht.png"><img src="docs/previews/aquarell-nacht.png" width="256" alt="Aquarell Nacht"></a><br>Aquarell Nacht |
 | **Marke**<br><sub>Standard</sub> | <a href="docs/previews/marke.png"><img src="docs/previews/marke.png" width="256" alt="Marke"></a><br>Marke | <a href="docs/previews/marke-dark.png"><img src="docs/previews/marke-dark.png" width="256" alt="Marke Dunkel"></a><br>Marke Dunkel |
 | **Catppuccin**<br><sub>Nerd</sub> | <a href="docs/previews/catppuccin-latte.png"><img src="docs/previews/catppuccin-latte.png" width="256" alt="Catppuccin Latte"></a><br>Catppuccin Latte | <a href="docs/previews/catppuccin-mocha.png"><img src="docs/previews/catppuccin-mocha.png" width="256" alt="Catppuccin Mocha"></a><br>Catppuccin Mocha |
@@ -238,7 +238,7 @@ tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffen
 | **Blaue Stunde** / **Stadtlichter** | Fira Sans | eigener Stil: Stadt bei Nacht von oben → [Details](#stadtlichter--blaue-stunde) |
 | **Schwarzplan** / **Weißplan** | TeX Gyre Heros | eigener Stil: Figur-Grund-Plan → [Details](#schwarzplan--weißplan) |
 | **Lichtpause** / **Blaupause** | DINish | eigener Stil: technische Zeichnung → [Details](#blaupause--lichtpause) |
-| **Siebdruck** / Nacht | Work Sans | eigener Stil: Plakat aus drei Druckfarben → [Details](#siebdruck--siebdruck-nacht) |
+| **CMYK** / Nacht | Work Sans | eigener Stil: Plakat im Vierfarb-Druckraster → [Details](#cmyk--cmyk-nacht) |
 | **Aquarell** / Nacht | Alegreya Sans | eigener Stil: lavierte Federzeichnung → [Details](#aquarell--aquarell-nacht) |
 | **Marke** / Dunkel | Figtree | aus einer Kundenfarbe erzeugt → [Details](#marke--marke-dunkel) |
 | **Protomaps Light** / **Dark** | Figtree | Protomaps Basemaps (Design CC0) |
@@ -324,11 +324,11 @@ Stadt bei Nacht von oben, nach einem Nachtfoto:
 - Stadtplan als technische Zeichnung: helle Linien auf Preußischblau, hohle Straßen, Gebäude als Umriss, Wald als Signatur.
 - **Lichtpause** (hell): als Diazo-Kopie, blauviolett auf Weiß.
 
-#### Siebdruck / Siebdruck Nacht
+#### CMYK / CMYK Nacht
 
-- Plakat aus drei Druckfarben: Leuchtpink, Blau, Gelb.
-- Wasser und Wiesen als Punktraster, Gebäudeplatte mit Passer-Versatz.
-- **Nacht:** Leuchtfarben auf schwarzem Karton.
+- Plakat im Druckraster auf Naturpapier: jede Farbe in Cyan, Magenta, Gelb und Schwarz zerlegt, je Farbe ein Punktraster unter eigenem Winkel (daher Rosetten), Punktgröße nach Farbmenge.
+- Platten je 1 px versetzt (Passer), Straßen aus feinen Punkten, Beschriftung scharf obenauf.
+- **Nacht:** Leuchtfarben im Raster auf schwarzem Karton, die sich aufhellend überlagern.
 
 #### Aquarell / Aquarell Nacht
 

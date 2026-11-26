@@ -1,17 +1,17 @@
-# "Siebdruck Nacht" (dunkler Partner von Siebdruck, Nutzerwunsch 2026-11-26): Leuchtfarben im Raster auf schwarzem Karton.
-#   Gleicher Aufbau wie siebdruck.toml, aber halftone() mit mode = "light": die Platten sind Rot-, Grün- und Blauanteile
+# "CMYK Nacht" (dunkler Partner von CMYK, bis 2026-11-26 "Siebdruck Nacht"; Nutzerwunsch 2026-11-26): Leuchtfarben im Raster auf schwarzem Karton.
+#   Gleicher Aufbau wie cmyk.toml, aber halftone() mit mode = "light": die Platten sind Rot-, Grün- und Blauanteile
 #   in Leuchtfarben, die sich aufhellend überlagern (auf Schwarz funktioniert Tinte, die abdunkelt, nicht).
 #   Änderungen an Ebenen in beiden Dateien nachziehen.
-title = "Siebdruck Nacht"
+title = "CMYK Nacht"
 category = "standard"
 mode = "dark"
-family = "Siebdruck"
+family = "CMYK"
 font = "Work Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
 site_font = "Work Sans"   # öffentliche Vorschau (--site)
-attribution = "Kartenstil: eigener Entwurf nach Schablonen- und Siebdruck"
+attribution = "Kartenstil: eigener Entwurf nach dem CMYK-Druckraster"
 colors = 64
-halftone = { mode = "light", pitch = 6, pitch_step = 1, offset = 1, soft = 0.5, paper = "#16151a" }
+halftone = { mode = "light", pitch = 6, pitch_step = 1, offset = 1, soft = 0.5, jitter = 0.08, size_jitter = 0.15, ragged = 0.6, grain = 0.25, paper = "#16151a" }
 text_scale = 1.1
 hide = ["poi_r20", "road_oneway*", "highway-shield-*", "road_shield_us", "building-top", "*-casing", "highway-area"]
 
