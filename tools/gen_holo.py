@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 """Erzeugt den Scheiben-Block in styles/hologramm.toml (zwischen den Markern '# >>> Hologramm-Scheiben' und '# <<<').
 Gebäude per OSM-ID und Höhe in 3 Gruppen (fill-translate kennt keine Daten-Ausdrücke, daher je Gruppe eigene Ebenen):
-eigene Neigung, Farbfamilie und Linienart (nicht alle in derselben Farbe enden lassen,
-die oberste Scheibe prägt das Bild). Dazu flackernde Scheiben (Deckkraft je Gebäude und Scheibe per ID),
+eigene Neigung, eigenem Startpunkt im irisierenden Farbkreis IRIS und Linienart (nicht alle in derselben
+Farbe enden lassen, die oberste Scheibe prägt das Bild). Dazu flackernde Scheiben (Deckkraft je Gebäude und Scheibe per ID),
 Neon-Deckel mit Schein erst ab 12 m und ein Glitch-Band (eine Scheibe seitlich verrutscht) bei jedem 7. Hochhaus."""
 import re, sys
 from pathlib import Path
 
 T = [0, 6, 12, 20, 32, 50]  # Schwellen render_height (m) je Scheibe
-GROUPS = [  # Versatz je Scheibe bei Stil-Zoom 15 / 17, Farben unten -> oben, Strichmuster (None = durchgezogen)
-    {"step": {15: (0.6, -1.6), 17: (1.0, -2.0)}, "dash": None,
-     "c": ["#00e5ff", "#22d4ff", "#45c2ff", "#6ab4ff", "#a0d8ff", "#e0f6ff"]},   # Cyan -> Eisweiß, nach rechts
-    {"step": {15: (0, -1.9), 17: (0, -2.5)}, "dash": [3, 1.5],
-     "c": ["#ff2fb0", "#ff3fc8", "#ff55d8", "#ff74e4", "#ff9ae8", "#ffd0f4"]},   # Magenta -> Hellrosa, senkrecht, gestrichelt
-    {"step": {15: (-0.5, -1.4), 17: (-0.8, -1.8)}, "dash": [1, 1],
-     "c": ["#39ff9a", "#5cff7a", "#8cff5c", "#b8ff48", "#e0ff40", "#fff27a"]},   # Säuregrün -> Gelb, nach links, gepunktet
+# Irisierend wie Hologrammfolie (Nutzerwunsch 2026-11-26): ein Farbkreis, jede Gruppe läuft ab einem anderen Startpunkt
+# 6 Schritte weiter, so schillern Nachbarn verschieden, bleiben aber im selben Spektrum
+IRIS = ["#00f0ff", "#48b4ff", "#8a8cff", "#b86cff", "#f05ce8", "#ff7ab4", "#ffb894", "#9affd8"]
+GROUPS = [  # Versatz je Scheibe bei Stil-Zoom 15 / 17, Startpunkt im Farbkreis, Strichmuster (None = durchgezogen)
+    {"step": {15: (0.6, -1.6), 17: (1.0, -2.0)}, "dash": None, "start": 0},     # Cyan -> Rosa, nach rechts
+    {"step": {15: (0, -1.9), 17: (0, -2.5)}, "dash": [3, 1.5], "start": 3},     # Violett -> Cyan, senkrecht, gestrichelt
+    {"step": {15: (-0.5, -1.4), 17: (-0.8, -1.8)}, "dash": [1, 1], "start": 5},  # Rosa -> Periwinkel, nach links, gepunktet
 ]
+for g in GROUPS:
+    g["c"] = [IRIS[(g["start"] + k) % len(IRIS)] for k in range(6)]
 ID = '["to-number", ["id"], 0]'
 H = '["coalesce", ["get", "render_height"], 0]'
 
