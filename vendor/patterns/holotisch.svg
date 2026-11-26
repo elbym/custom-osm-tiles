@@ -1,0 +1,8 @@
+<!-- Leuchtraster (Holotisch, nach einem Referenzbild): enges Quadratraster, zwei Zellen je Kachel, feine Linie mit
+     schwachem Schein (32×32, currentColor) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<g fill="currentColor"><rect x="0" y="0" width="32" height="1.6" opacity="0.25"/><rect x="0" y="16" width="32" height="1.6" opacity="0.25"/>
+<rect x="0" y="0" width="1.6" height="32" opacity="0.25"/><rect x="16" y="0" width="1.6" height="32" opacity="0.25"/>
+<rect x="0" y="0.4" width="32" height="0.7"/><rect x="0" y="16.4" width="32" height="0.7"/>
+<rect x="0.4" y="0" width="0.7" height="32"/><rect x="16.4" y="0" width="0.7" height="32"/></g>
+</svg>

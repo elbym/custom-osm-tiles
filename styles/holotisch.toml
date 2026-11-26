@@ -1,0 +1,164 @@
+# "Holotisch" (Entwurf, Nutzerwunsch 2026-11-26 nach einem Referenzbild: Stadt als Hologramm über einem Kartentisch):
+#   - Grund: blaue Leuchtplatte mit engem, durchgehendem Cyan-Raster (Muster holotisch)
+#   - Gebäude als eigener Durchgang (holo, wie Hologramm), aber nicht irisierend: Farbe nach Höhe, niedrige Häuser cyan
+#     und durchsichtig, hohe zu mintgrünen, fast gefüllten Lichtsäulen; Leuchtschein (bloom); sauber, kaum Glitch
+#   - Straßen als rotes Datennetz: Hauptstraßen schmal in Korallenrot mit Schein, Nebenstraßen kaum sichtbar;
+#     Haltestellen als weiß leuchtende Knoten mit rotem Ring
+#   - fast keine Schrift: nur Orts- und Stadtteilnamen
+#   - Unterschied zu Hologramm (irisierend, violett-schwarz) und Bluecron (Petrol, Drahtgitter-Dächer)
+title = "Holotisch"
+category = "nerd"
+mode = "dark"
+family = "Holotisch"
+order = 95
+font = "Maple Mono"
+preview_font = "Maple Mono"
+site_font = "Maple Mono"
+fonts = ["sans", "mono"]
+text_scale = 1.05
+colors = 64   # Verläufe und Leuchtschein
+hide = ["poi_*", "airport", "road_oneway*", "building-top", "highway-name-*", "*shield*", "water*label"]
+
+[paint."background"]
+background-pattern = "holotisch"
+background-color = "#0b3558"
+[paint."landuse-*"]
+fill-color = "#0b3558"
+fill-opacity = 0
+[paint."park"]
+fill-color = "#0c4a5e"
+fill-opacity = 0.5
+[paint."landcover-*"]
+fill-color = "#0c4a5e"
+fill-opacity = 0.5
+[paint."landuse-cemetery"]
+fill-color = "#0c4a5e"
+fill-opacity = 0.5
+
+[paint."water*"]
+fill-color = "#06213a"
+line-color = "#1a6a9a"
+
+# Grundriss als dunklerer Abdruck auf der Platte, das Licht kommt aus dem Gebäude-Durchgang
+[paint."building"]
+fill-color = "#082a46"
+fill-outline-color = "#082a46"
+
+# Datennetz: Hauptstraßen korallenrot mit Schein, alles andere zurückgenommen
+[paint."*-minor*"]
+line-color = "#14507a"
+[paint."*-service-track"]
+line-color = "#0f4468"
+line-opacity = 0.6
+[paint."*-link"]
+line-color = "#e0405e"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.3, 16, 0.8, 18, 1.4]
+[paint."*-secondary-tertiary*"]
+line-color = "#c8405e"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.3, 16, 0.8, 18, 1.4]
+[paint."*-primary*"]
+line-color = "#ff4a6a"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.4, 16, 1.2, 18, 2]
+[paint."*-trunk*"]
+line-color = "#ff4a6a"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.4, 16, 1.2, 18, 2]
+[paint."*-motorway*"]
+line-color = "#ff7088"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.5, 16, 1.6, 18, 2.6]
+[paint."*-casing"]
+line-opacity = 0
+[paint."*-primary*-casing"]
+line-color = "#ff3a5e"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 1, 16, 4, 18, 6]
+line-blur = 4
+line-opacity = 0.45
+[paint."*-trunk*-casing"]
+line-color = "#ff3a5e"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 1, 16, 4, 18, 6]
+line-blur = 4
+line-opacity = 0.45
+[paint."*-motorway*-casing"]
+line-color = "#ff3a5e"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 1.5, 16, 5, 18, 8]
+line-blur = 5
+line-opacity = 0.55
+[paint."highway-area"]
+fill-color = "#0d3d62"
+fill-outline-color = "#14507a"
+[paint."aeroway-*"]
+fill-color = "#0d3d62"
+line-color = "#0d3d62"
+[paint."*-path"]
+line-color = "#125078"
+[paint."*railway*"]
+line-color = "#8a3a5e"
+[paint."road_area_pier"]
+fill-color = "#0b3558"
+[paint."road_pier"]
+line-color = "#0b3558"
+
+# nur Orts- und Stadtteilnamen, Versalien in hellem Cyan
+[layout."label_*"]
+text-transform = "uppercase"
+text-letter-spacing = 0.2
+[paint."label_*"]
+text-color = "#c8f6ff"
+text-halo-color = "#0b3558"
+text-halo-width = 2
+text-halo-blur = 0
+
+[paint."poi_*"]   # ausgeblendet; die Farbe braucht nur poi_sprite()
+text-color = "#5ff0ff"
+
+[marker]
+type = "terminal"
+color = "#5ff0ff"
+color2 = "#ff4a6a"
+bg = "#06213a"
+fg = "#e6fcff"
+
+[patterns]
+holotisch = { symbol = "holotisch", color = "#2a86c0", bg = "#0b3558" }   # gedämpft, die Gebäude sollen leuchten
+
+# Knoten im Datennetz: Haltestellen als weiß leuchtende Punkte mit rotem Ring (Kreisebene, kein Symbol)
+[[layers]]
+source-layer = "poi"
+like = "poi_transit"
+type = "circle"
+after = "highway-motorway"
+id = "knoten-schein"
+filter = ["in", ["get", "class"], ["literal", ["bus", "railway", "tram"]]]
+minzoom = 14
+paint = { circle-color = "#ff4a6a", circle-radius = 6, circle-blur = 1, circle-opacity = 0.7 }
+[[layers]]
+source-layer = "poi"
+like = "poi_transit"
+type = "circle"
+after = "knoten-schein"
+id = "knoten"
+filter = ["in", ["get", "class"], ["literal", ["bus", "railway", "tram"]]]
+minzoom = 14
+paint = { circle-color = "#ffffff", circle-radius = 2, circle-stroke-color = "#ff4a6a", circle-stroke-width = 1.2 }
+
+# >>> Gebäude-Durchgang (holo_light() in make-tiles.py, Regler siehe hologramm.toml): Farbe nach Höhe (by = "height",
+# Cyan -> Türkis -> Mint bis hmax m), hohe Häuser deckender (fill_top), Leuchtschein (bloom), sauber: kein Farbversatz,
+# kaum Glitch, Scanlinien bleiben
+[holo]
+by = "height"
+colors = ["#1a78d0", "#22b8f0", "#3ff0e0", "#6affc0", "#c8ffe0"]
+hmax = 30
+slices = 10
+lean = 1.0
+angle = 12
+spread = 15
+shimmer = 0.6
+fill = 0.03
+fill_top = 6
+fringe = 1000
+edge = 0.45
+bloom = 0.5
+bloom_r = 5
+glitch = 0.01
+glitch_px = 4
+aberration = 0
+# <<<

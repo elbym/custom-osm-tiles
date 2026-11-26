@@ -1,8 +1,8 @@
 # "Hologramm" (Entwurf, Nutzerwunsch 2026-11-26): die Stadt als Volumen-Hologramm über einer Projektionsplatte, dunkel:
 #   - Grund fast schwarz, leicht violett, mit Messraster ("+"-Marken, Muster holoraster) statt Bluecrons durchgehendem Gitter
-#   - Gebäude als Stapel aus bis zu 6 Leuchtumrissen (Stockwerk-Scheiben) nach render_height, je Scheibe nach oben rechts
-#     versetzt, Farbe von Cyan unten nach Magenta oben, oberste Scheibe je Gebäude mit fast weißem Deckel
-#   - Glitch: Grundriss zusätzlich in Magenta 1 px nach links (chromatische Aberration)
+#   - Gebäude als eigener Render-Durchgang ([holo] unten, holo_light()): je Gebäude Scheiben nach der echten Höhe
+#     (doppelte Höhe, lean = 1.0, Nutzerwahl), Farbe je Pixel aus dem irisierenden Farbkreis, Scanlinien, Glitch-Bänder,
+#     Farbkanäle leicht versetzt (chromatische Aberration)
 #   - Straßen zurückhaltend in gedämpftem Cyan, nur die Autobahn mit Leuchtschein
 #   - Unterschied zu Bluecron: violetter Grund, Raster aus Marken, Gebäude als Volumen statt Drahtgitter-Dach
 title = "Hologramm"
