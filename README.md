@@ -2,9 +2,11 @@
 
 > Ich mag Map Tiles, ich mag Styles, ich mag Webseiten. 
 > Eigene Maptiles mit Leaflet auf der Webseite einbinden. 
-> Tiles für den gewünschten Bereich om gewünschten Stil erstellen,
-> auf der Webseite integrieren. Fertig. 
-> Ohne eigenen Abschnitt im Datenschutz. 
+> Tiles für den gewünschten Bereich im passenden Stil erstellen, auf der Webseite integrieren. 
+> 
+> Fertig. 
+>
+> Ganz ohne eigenen Abschnitt im Datenschutz. 
 
 **Du brauchst eine einfache Karte, die zur Typografie deiner Webseite passt?** Im einfachsten Fall wählst du einen Stil und eine Schrift, gibst Koordinaten an und bekommst eine fertige Slippy Map für deine Webseite oder App. Im schlimmsten Fall kannst du dich nicht entscheiden und vergleichst Stile und Schriften nebeneinander ([Varianten vergleichen](#varianten-vergleichen), [Live-Vorschau](https://elbym.github.io/custom-osm-tiles/)).
 
@@ -103,13 +105,13 @@ Für die Vorschau nutzt jeder Stil seine `preview_font` (Standard-Stile Fira San
 
 Sie hat die Schalter **Standard | Nerd** und **Hell | Dunkel**. Stile derselben Familie sind Gegenstücke: Beim Umschalten wird aus Clear „Clear Dark“, aus Catppuccin Latte „Mocha“. Hat eine Familie einen Modus nicht, bleibt ihr Platz leer und ist beschriftet.
 
-## Öffentliche Vorschau (GitHub Pages)
+## Vorschau alles Stile [Github Pages](https://elbym.github.io/custom-osm-tiles/))
 
 ```sh
 ./make-tiles.py --site [--missing]     # Einstellungen aus site.toml -> site/
 ```
 
-`site.toml` legt Ort (Bielefeld, SchücoArena), Label, Zoom (15–17), Bereich (1,2 km um die SchücoArena), Retina (an; Pages erlaubt 1 GB), die Familien, die nur in der README-Galerie stehen (`exclude`), die Familien mit 8-Bit-Variante (`pixel`: Phosphor, Neon Cyberpunk) und die Schrift je Gruppe fest (Standard: Fira Sans; Nerd: Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
+`site.toml` legt Ort (Bielefeld, SchücoArena), Label, Zoom (15–16), Bereich (1,2 km um die SchücoArena), Retina (an; GH-Pages erlaubt 1 GB), die Familien, die nur in der README-Galerie stehen (`exclude`), die Familien mit 8-Bit-Variante (`pixel`: Phosphor, Neon Cyberpunk) und die Schrift je Gruppe fest (Standard: Fira Sans; Nerd: Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
 
 Die Streifen-Seite nutzt Tailwind CSS, lokal gebaut (kein CDN): `npm install && npm run css` erzeugt `vendor/streifen.css` aus `src/streifen.css`. Im Querformat sind die Streifen senkrecht, im Hochformat (Handy) waagerecht. Der Dialog „Über“ nennt alle Quellen und Lizenzen.
 
