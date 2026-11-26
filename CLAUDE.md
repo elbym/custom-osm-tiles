@@ -16,6 +16,7 @@ pip install -r requirements.txt && cargo install build_pbf_glyphs oxipng   # onc
 ./make-tiles.py --all --all-fonts --missing ...           # full matrix: each style × every font of its groups (slow)
 ./make-tiles.py --all --style styles/wiki.toml ...     # one style (preview_font; add --all-fonts for all);  --font X: one font for all styles, ignoring groups
 ./make-tiles.py --site [--missing]                     # public preview per site.toml (Bielefeld/SchücoArena, z15–17, retina, 8-bit for Phosphor/Neon Cyberpunk) -> site/ for GitHub Pages
+tools/deploy-site.sh [--no-build]                      # --site --missing, then publish site/ as a single-commit gh-pages (force push; git dir in a temp folder)
 npm install && npm run css                             # rebuild vendor/streifen.css (Tailwind v4) after changing streifen.html classes
 ./make-tiles.py --readme-previews                      # docs/previews/<style>.png: 512×512, z12, no marker (README gallery, ~30 s)
 ./make-tiles.py --reindex [--label "Firma"]            # rewrite all out/*/index.html from template + styles, no rendering
