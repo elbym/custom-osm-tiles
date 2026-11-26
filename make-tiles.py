@@ -18,6 +18,9 @@ PLANETILER = "ghcr.io/onthegomap/planetiler:latest"
 TILESERVER = "docker.io/maptiler/tileserver-gl:latest"
 NOTO = "https://github.com/openmaptiles/fonts/releases/download/v2.0/noto-sans.zip"
 WORKERS = 4   # gleichzeitige Kachel-Anfragen; gemessen: mehr bremst (Rendern + WebP nutzen schon mehrere Kerne)
+# Pixel-Nachbearbeitung (watercolor/halftone/stains) ist numpy und gibt die GIL frei: Threads skalieren gemessen linear
+# mit den Kernen (4 Threads = 4,1× auf 4 Kernen), daher dort so viele Threads wie Kerne. ~240 MB je Kachel gleichzeitig.
+POST_WORKERS = max(WORKERS, os.cpu_count() or 1)
 
 
 def tile(lat, lon, z):
@@ -1039,8 +1042,9 @@ def build_site(a):
 
 
 def quantize(data, colors):
-    """PNG auf eine Palette reduzieren (pngquant, ohne Dithering)."""
-    return subprocess.run(["pngquant", str(colors), "--nofs", "--strip", "--speed", "1", "-"],
+    """PNG auf eine Palette reduzieren (pngquant, ohne Dithering). --speed 4 statt 1 (2026-11-26, 248 Kacheln, 32 Farben):
+    38 % schneller, 0,4 % größer, RMSE 0,873 statt 0,860 %."""
+    return subprocess.run(["pngquant", str(colors), "--nofs", "--strip", "--speed", "4", "-"],
                           input=data, capture_output=True, check=True).stdout
 
 
@@ -1664,7 +1668,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
             return f if ext == "png" else None
 
         # tileserver-gl rendert parallel (Renderer-Pools in style/config.json); so viele Anfragen gleichzeitig
-        with ThreadPoolExecutor(WORKERS) as pool:
+        with ThreadPoolExecutor(POST_WORKERS if wc or stains else WORKERS) as pool:
             written = [f for f in pool.map(get, jobs) if f]
         count = len(jobs)
     if a.pixel:
