@@ -1,6 +1,6 @@
-# "Siebdruck Nacht" (dunkler Partner von Siebdruck, Nutzerwunsch 2026-11-26): dieselben Platten in Leuchtfarben auf
-#   schwarzem Karton; Gebäude pink gedeckt, Wasser blaues Raster, Wald blaugrün, Beschriftung gelb.
-#   Gleicher Aufbau wie siebdruck.toml (Begründungen dort: vorgemischter Überdruck, Punktraster, Passer-Versatz);
+# "Siebdruck Nacht" (dunkler Partner von Siebdruck, Nutzerwunsch 2026-11-26): Leuchtfarben im Raster auf schwarzem Karton.
+#   Gleicher Aufbau wie siebdruck.toml, aber halftone() mit mode = "light": die Platten sind Rot-, Grün- und Blauanteile
+#   in Leuchtfarben, die sich aufhellend überlagern (auf Schwarz funktioniert Tinte, die abdunkelt, nicht).
 #   Änderungen an Ebenen in beiden Dateien nachziehen.
 title = "Siebdruck Nacht"
 category = "standard"
@@ -10,6 +10,8 @@ font = "Work Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
 site_font = "Work Sans"   # öffentliche Vorschau (--site)
 attribution = "Kartenstil: eigener Entwurf nach Schablonen- und Siebdruck"
+colors = 64
+halftone = { mode = "light", pitch = 6, pitch_step = 1, offset = 1, paper = "#16151a" }
 text_scale = 1.1
 hide = ["poi_r20", "road_oneway*", "highway-shield-*", "road_shield_us", "building-top", "*-casing", "highway-area"]
 
@@ -19,50 +21,47 @@ background-color = "#16151a"
 fill-color = "#16151a"
 fill-opacity = 0
 [paint."landuse-cemetery"]
-fill-color = "#1f4a40"
+fill-color = "#455f59"
 fill-opacity = 1
 [paint."park"]
-fill-pattern = "gelbraster"
+fill-color = "#685d33"
 fill-opacity = 1
 [paint."landcover-*"]
-fill-color = "#2c2a16"
+fill-color = "#534b2c"
 fill-opacity = 1
-[paint."landcover-grass*"]
-fill-pattern = "gelbraster"
 [paint."landcover-wood"]
-fill-color = "#1d4a42"
+fill-color = "#547469"
 [paint."landcover-sand"]
-fill-color = "#4a4320"
+fill-color = "#4e462b"
 
 [paint."water*"]
-fill-pattern = "blauraster"
-line-color = "#3fa9f5"
+fill-color = "#2b6f8d"
+line-color = "#2b6f8d"
 [paint."building"]
-fill-color = "#6a2650"
-fill-outline-color = "#6a2650"
-fill-translate = [2, 1.5]
+fill-color = "#813364"
+fill-outline-color = "#813364"
 
 [paint."highway-*"]
-line-color = "#2f6f9e"
+line-color = "#2ec8ff"
 [paint."bridge-*"]
-line-color = "#2f6f9e"
+line-color = "#2ec8ff"
 [paint."tunnel-*"]
-line-color = "#244a66"
+line-color = "#286580"
 [paint."*-secondary-tertiary"]
-line-color = "#3fa9f5"
+line-color = "#2ec8ff"
 [paint."*-primary"]
-line-color = "#3fa9f5"
+line-color = "#2ec8ff"
 [paint."*-trunk*"]
 line-color = "#ff48b0"
 [paint."*-motorway*"]
 line-color = "#ff48b0"
 [paint."*-path"]
-line-color = "#3fa9f5"
+line-color = "#2ec8ff"
 [paint."*railway*"]
-line-color = "#8a93c4"
+line-color = "#963972"
 [paint."aeroway-*"]
 fill-color = "#16151a"
-line-color = "#2f6f9e"
+line-color = "#2ec8ff"
 [paint."boundary_*"]
 line-color = "#ff48b0"
 
@@ -81,9 +80,6 @@ text-color = "#8fcaf5"
 text-transform = "uppercase"
 text-letter-spacing = 0.2
 
-[patterns]
-blauraster = { symbol = "raster", color = "#3fa9f5", bg = "#13324a" }
-gelbraster = { symbol = "raster", color = "#d9bf2a", bg = "#2c2a16" }
 
 [marker]
 type = "bubble"

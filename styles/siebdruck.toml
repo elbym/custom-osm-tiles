@@ -1,9 +1,10 @@
-# "Siebdruck" (Nutzerwunsch 2026-11-26, Entwurf "Risographie/Siebdruck"): Plakat aus drei Druckfarben auf Naturpapier.
-#   - Farben wie Schablonendruck-Tinten: Leuchtpink, Blau, Gelb; Grün = Blau über Gelb (Überdruck vorgemischt, MapLibre
-#     kennt kein Multiplizieren)
-#   - Wasser und Wiesen als Punktraster (Muster raster), Flächen sonst vollflächig
-#   - Passer-Versatz: die pinke Gebäudeplatte sitzt 2 px neben der blauen (fill-translate, unter dem Kachelpuffer)
-#   - Straßen als Linien in Blau ohne Ränder, Autobahn/Fernstraße pink; Ortsteile in Versalien, gesperrt
+# "Siebdruck" (Nutzerwunsch 2026-11-26): Plakat im Druckraster auf Naturpapier.
+#   - Die Karte hat nur flache Farben; das Raster entsteht in halftone() (make-tiles.py): jede Farbe in Cyan, Magenta,
+#     Gelb und Schwarz zerlegt, je Farbe ein Punktraster unter eigenem Winkel (Gelb 0°, Cyan 15°, Schwarz 45°,
+#     Magenta 75°, daher Rosetten), Punktgröße nach Farbmenge, Platten je 1 px versetzt (Passer), übereinander gedruckt
+#     (Grün = Cyan- über Gelbpunkten). Rasterweite 6 px bei z17, je Stufe darunter 1 px feiner.
+#   - Flächen in hellen Tönen (lockere Punkte), Straßen in voller Druckfarbe (ab ~100 % volle Fläche, bleiben durchgehend)
+#   - Beschriftung getrennt gerendert und scharf obenauf; Ortsteile in Versalien, gesperrt
 title = "Siebdruck"
 category = "standard"
 mode = "light"
@@ -12,6 +13,8 @@ font = "Work Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
 site_font = "Work Sans"   # öffentliche Vorschau (--site)
 attribution = "Kartenstil: eigener Entwurf nach Schablonen- und Siebdruck"
+colors = 64
+halftone = { pitch = 6, pitch_step = 1, offset = 1, paper = "#f5efe3" }
 text_scale = 1.1
 hide = ["poi_r20", "road_oneway*", "highway-shield-*", "road_shield_us", "building-top", "*-casing", "highway-area"]
 
@@ -21,47 +24,44 @@ background-color = "#f5efe3"
 fill-color = "#f5efe3"
 fill-opacity = 0
 [paint."landuse-cemetery"]
-fill-color = "#9cc9a2"
+fill-color = "#1fd10e"
 fill-opacity = 1
 [paint."park"]
-fill-pattern = "gelbraster"
+fill-color = "#fae905"
 fill-opacity = 1
 [paint."landcover-*"]
-fill-color = "#fbf0a8"
+fill-color = "#f9eb0e"
 fill-opacity = 1
-[paint."landcover-grass*"]
-fill-pattern = "gelbraster"
 [paint."landcover-wood"]
-fill-color = "#5fae8c"
+fill-color = "#0bc404"
 [paint."landcover-sand"]
-fill-color = "#fbe68a"
+fill-color = "#f9d41c"
 
 [paint."water*"]
-fill-pattern = "blauraster"
-line-color = "#0078bf"
+fill-color = "#08c5e1"
+line-color = "#08c5e1"
 [paint."building"]
-fill-color = "#ff8fc6"
-fill-outline-color = "#ff8fc6"
-fill-translate = [2, 1.5]
+fill-color = "#f983c4"
+fill-outline-color = "#f983c4"
 
 [paint."highway-*"]
-line-color = "#6fadde"
+line-color = "#00a3e0"
 [paint."bridge-*"]
-line-color = "#6fadde"
+line-color = "#00a3e0"
 [paint."tunnel-*"]
-line-color = "#a9cdeb"
+line-color = "#0bc9e2"
 [paint."*-secondary-tertiary"]
-line-color = "#0078bf"
+line-color = "#00a3e0"
 [paint."*-primary"]
-line-color = "#0078bf"
+line-color = "#00a3e0"
 [paint."*-trunk*"]
-line-color = "#ff48b0"
+line-color = "#ff3fa4"
 [paint."*-motorway*"]
-line-color = "#ff48b0"
+line-color = "#ff3fa4"
 [paint."*-path"]
-line-color = "#0078bf"
+line-color = "#00a3e0"
 [paint."*railway*"]
-line-color = "#2c3e8f"
+line-color = "#013100"
 [paint."aeroway-*"]
 fill-color = "#f5efe3"
 line-color = "#6fadde"
@@ -83,9 +83,6 @@ text-color = "#004f8c"
 text-transform = "uppercase"
 text-letter-spacing = 0.2
 
-[patterns]
-blauraster = { symbol = "raster", color = "#0078bf", bg = "#c3dcef" }
-gelbraster = { symbol = "raster", color = "#e8c400", bg = "#fbf0a8" }
 
 [marker]
 type = "bubble"

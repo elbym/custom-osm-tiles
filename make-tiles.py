@@ -1113,9 +1113,10 @@ def halftone(img, ox, oy, k, cfg, z=17):
     in Druckfarben zerlegt, jede Farbe als eigenes Punktraster unter ihrem Winkel (Gelb 0°, Cyan 15°, Schwarz 45°,
     Magenta 75° wie im Offsetdruck, daher Rosetten), Punktgröße nach Farbmenge, volle Fläche ab ~100 % (Straßen in
     kräftigen Farben bleiben durchgehend), Platten je um offset Weltpixel versetzt (Passer), übereinander gedruckt.
-    mode = "cmyk": Tinte auf Papier (paper), multipliziert. mode = "light": Leuchtfarben auf schwarzem Karton, die
-    Platten sind Rot/Grün/Blau-Anteile und hellen auf (screen). Raster weltfest (ox/oy wie watercolor()), nahtlos;
-    Rasterweite pitch (Weltpixel bei z17), je Zoomstufe darunter pitch_step feiner."""
+    mode = "cmyk": Tinte auf Papier (paper), multipliziert. mode = "light": drei Leuchtfarben auf schwarzem Karton,
+    hellen auf (screen). inks = { c, m, y[, k] } ersetzt die Druckfarben. Raster weltfest (ox/oy wie watercolor()), nahtlos;
+    Rasterweite pitch (Weltpixel bei z17), je Zoomstufe darunter pitch_step feiner. Volltöne (eine Platte > fine_from)
+    im feinen Raster (fine × pitch, Farbmenge höchstens fine_amount), damit auch Straßen aus Punkten bestehen."""
     import numpy as np
     from scipy import ndimage
     h, w, _ = img.shape
@@ -1125,28 +1126,42 @@ def halftone(img, ox, oy, k, cfg, z=17):
     pitch = max(2, cfg.get("pitch", 6) + cfg.get("pitch_step", 1) * ((z or 17) - 17))
     light = cfg.get("mode", "cmyk") == "light"
     paper = hexc(cfg.get("paper", "#000000" if light else "#ffffff"))
-    if light:  # Lichtanteile über schwarzem Grund
-        plates = {"r": img[..., 0], "g": img[..., 1], "b": img[..., 2]}
-    else:      # Tinte = was dem Papier fehlt; Schwarz aus dem gemeinsamen Anteil (Unterfarbenentfernung)
-        cmy = np.clip(1 - img / paper, 0, 1)
-        kk = cmy.min(-1) * cfg.get("black", 1)
-        cmy = (cmy - kk[..., None]) / np.maximum(1 - kk[..., None], 1e-3)
-        plates = {"c": cmy[..., 0], "m": cmy[..., 1], "y": cmy[..., 2], "k": kk}
-    inks = {"c": "#00a3e0", "m": "#ff3fa4", "y": "#ffe500", "k": "#231f20",
-            "r": "#ff3b5c", "g": "#3dff8a", "b": "#3f8cff", **cfg.get("inks", {})}
-    angle = {"y": 0, "c": 15, "k": 45, "m": 75, "b": 0, "r": 15, "g": 75, **cfg.get("angles", {})}
-    off = {"c": (1, 0), "m": (0, 1), "y": (-1, 0), "k": (0, 0), "r": (1, 0), "g": (0, 1), "b": (-1, 0)}
-    off = {c: [v * cfg.get("offset", 1) for v in o] for c, o in off.items()}
+    names = ("c", "m", "y")
+    inks = {**({"c": "#2ec8ff", "m": "#ff48b0", "y": "#ffe14d"} if light else
+               {"c": "#00a3e0", "m": "#ff3fa4", "y": "#ffe500", "k": "#231f20"}), **cfg.get("inks", {})}
+    ink = {c: hexc(v) for c, v in inks.items()}
+    # Farbmengen je Platte aus den echten Druckfarben (3×3-Gleichung je Pixel): Tinte in Dichten (−ln, Papier = 0),
+    # Leuchtfarbe linear über Schwarz; so wird eine Fläche in Druckfarbe nur von ihrer eigenen Platte gedruckt
+    if light:
+        M, rhs = np.stack([ink[c] - paper for c in names], 1), img - paper
+    else:
+        dens = lambda v: -np.log(np.clip(v / paper, 1e-3, 1))
+        M, rhs = np.stack([dens(ink[c]) for c in names], 1), dens(img)
+    amt = np.clip(rhs @ np.linalg.inv(M).T, 0, 1.2)
+    plates = {c: amt[..., n] for n, c in enumerate(names)}
+    if not light:  # Schwarz übernimmt den gemeinsamen Anteil (Unterfarbenentfernung)
+        kk = amt.min(-1) * cfg.get("black", 1)
+        plates = {c: v - kk for c, v in plates.items()} | {"k": kk}
+    angle = {"y": 0, "c": 15, "k": 45, "m": 75, **cfg.get("angles", {})}
+    o = cfg.get("offset", 1)
+    off = {"c": (o, 0), "m": (0, o), "y": (-o, 0), "k": (0, 0)}
+    # Volltöne (Straßen, Wege, Bahn: eine Platte fast voll) im feinen Raster aus kleinen, getrennten Punkten (Nutzerwunsch
+    # 2026-11-26), sonst wären sie durchgehende Flächen; hellere Flächen im groben Raster
+    fine = (amt.max(-1) > cfg.get("fine_from", .8)).astype(float)
+    fine = ndimage.gaussian_filter(fine, .5 * k) > .5   # Kanten der Linien glätten
     out = np.broadcast_to(paper, img.shape).copy()
     for c, val in plates.items():
         val = ndimage.shift(val, (off[c][1] * k, off[c][0] * k), order=1, mode="nearest")   # Passer-Versatz
+        fn = ndimage.shift(fine.astype(float), (off[c][1] * k, off[c][0] * k), order=0, mode="nearest") > .5
+        val = np.where(fn, np.minimum(val, cfg.get("fine_amount", .7)), val)   # feine Punkte bleiben getrennt
         a = np.radians(angle[c])
-        u, v = (gx * np.cos(a) + gy * np.sin(a)) / pitch, (-gx * np.sin(a) + gy * np.cos(a)) / pitch
+        pt = np.where(fn, pitch * cfg.get("fine", .45), pitch)    # Rasterweite je Pixel
+        u, v = (gx * np.cos(a) + gy * np.sin(a)) / pt, (-gx * np.sin(a) + gy * np.cos(a)) / pt
         d = np.hypot(u - np.round(u), v - np.round(v))            # Abstand zum nächsten Rasterpunkt, Zellen
-        r = 0.75 * np.sqrt(np.clip(val * cfg.get("gain", 1.1), 0, 1))   # Punktradius; ab 0,71 ist die Zelle voll
-        dot = np.clip((r - d) * pitch * k + .5, 0, 1)[..., None]   # weiche Kante, 1 Bildpixel
-        ink = hexc(inks[c])
-        out = 1 - (1 - out) * (1 - dot * ink) if light else out * (1 - dot * (1 - ink))
+        r = np.sqrt(np.clip(val * cfg.get("gain", 1.1), 0, 1.6) / np.pi)   # flächentreu: Punktfläche = Farbmenge; ab ~1,6 voll
+        px = pt * k                                                # Zelle in Bildpixeln
+        dot = (np.clip((r - d) * px + .5, 0, 1) * np.clip(r * px * 2 - .5, 0, 1))[..., None]   # Kante 1 px, kein Staub
+        out = 1 - (1 - out) * (1 - dot * ink[c]) if light else out * (1 - dot * (1 - ink[c] / paper))
     return out
 
 
