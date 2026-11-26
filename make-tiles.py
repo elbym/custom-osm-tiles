@@ -1152,14 +1152,20 @@ def water_drops(gx, gy, cfg):
     cell = cfg.get("drop_cell", 140)
     lo, hi = cfg.get("drop_size", [.25, .6])
     rag = (vnoise(gx / 9, gy / 9, 91) - .5) * .35 + (vnoise(gx / 3, gy / 3, 92) - .5) * .12
-    ci, cj = np.floor(gx / cell), np.floor(gy / cell)
+    ci, cj = np.floor(gx / cell).astype(np.int64), np.floor(gy / cell).astype(np.int64)
+    # Zufallswerte je Zelle nur für die wenigen vorkommenden Zellen berechnen, dann aufs Bild verteilen
+    # (vorher je Pixel: 36 Rauschfelder in Bildgröße, 85 % der Zeit von watercolor())
+    ui, ii = np.unique(ci, return_inverse=True)
+    uj, jj = np.unique(cj, return_inverse=True)
+    ii, jj = ii.reshape(ci.shape), jj.reshape(cj.shape)
     f = np.full(gx.shape, 9.0)
     for di in (-1, 0, 1):
         for dj in (-1, 0, 1):
-            i, j = ci + di, cj + dj   # vnoise an ganzzahligen Stellen = Hash der Zelle
-            on = vnoise(i, j, 93) < cfg["drops"]
-            cx, cy = (i + .15 + .7 * vnoise(i, j, 94)) * cell, (j + .15 + .7 * vnoise(i, j, 95)) * cell
-            r = (lo + (hi - lo) * vnoise(i, j, 96)) * cell
+            I, J = np.meshgrid(ui + di, uj + dj)   # kleines Gitter der Nachbarzellen
+            cell_of = lambda v: v[jj, ii]
+            on = cell_of(ihash(I, J, 93) < cfg["drops"])
+            cx, cy = cell_of((I + .15 + .7 * ihash(I, J, 94)) * cell), cell_of((J + .15 + .7 * ihash(I, J, 95)) * cell)
+            r = cell_of((lo + (hi - lo) * ihash(I, J, 96)) * cell)
             f = np.where(on, np.minimum(f, np.hypot(gx - cx, gy - cy) / r), f)
     f = f + rag   # ausgefranster Rand
     inside = np.clip((1 - f) / .15, 0, 1)   # weicher Übergang nach innen

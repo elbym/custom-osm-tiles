@@ -267,7 +267,7 @@ tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffen
 |---|---|---|---|
 | 🟢 easy | 8–15 s | 1× | nur Farben, Muster und Figuren; rendert der Kartenserver allein (gemessen: Clear 12 s, Schwarzplan 8 s, Anime 14 s, Island 13 s, Gaslicht 14 s) |
 | 🟠 heavy | 19–41 s | 1,5–3,5× | Stadtlichter/Blaue Stunde: viele weichgezeichnete Lichtebenen (19 s); Historisch, Kupferstich, Kupferplatte, Nordlicht: Flecken bzw. Nordlicht werden in jede Kachel eingerechnet (Historisch 25 s, Nordlicht 41 s) |
-| 🔴 dangerzone | 2,5–5,5 min | 13–27× | Pixel-Nachbearbeitung jeder Kachel samt ihrer acht Nachbarn: CMYK-Druckraster (153 s), Aquarell (324 s) |
+| 🔴 dangerzone | 1–2,5 min | 6–13× | Pixel-Nachbearbeitung jeder Kachel samt ihrer acht Nachbarn: Aquarell (75 s), CMYK-Druckraster (153 s) |
 
 Der 8-Bit-Modus (`--pixel`) kommt bei jedem Stil obendrauf (zwei Durchläufe in dreifacher Auflösung); er ist nicht gemessen.
 
