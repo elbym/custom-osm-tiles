@@ -905,6 +905,29 @@ def tileserver(style, tag, mb):
         subprocess.run(["podman", "stop", name], capture_output=True)
 
 
+def regenerate(root):
+    """--regenerate (Nutzerwunsch 2026-11-26): gerenderte Stile in root (site/ oder out/) nummeriert auflisten, Nummern
+    einlesen und deren Ordner (alle Schriften/8-Bit-Varianten des Stils) löschen; der folgende Lauf baut sie neu."""
+    by = {}
+    for c in sorted(root.glob("*/config.json")):
+        by.setdefault(json.loads(c.read_text()).get("style", c.parent.name), []).append(c.parent)
+    names = sorted(by)
+    if not names:
+        sys.exit(f"keine gerenderten Stile in {root}")
+    for i, n in enumerate(names, 1):
+        print(f"{i:3}  {n:24} {', '.join(d.name for d in by[n])}")
+    try:
+        nums = [int(x) for x in input("Neu erstellen (Nummern, mit Komma oder Leerzeichen getrennt): ").replace(",", " ").split()]
+    except (ValueError, EOFError):
+        sys.exit("ungültige Eingabe, nur ganze Zahlen")
+    if bad := [n for n in nums if not 1 <= n <= len(names)]:
+        sys.exit(f"keine solche Nummer: {', '.join(map(str, bad))}")
+    for n in dict.fromkeys(nums):
+        for d in by[names[n - 1]]:
+            shutil.rmtree(d)
+        print(f"gelöscht: {names[n - 1]}")
+
+
 def build_site(a):
     """Öffentliche Vorschau nach site/ (GitHub Pages): Einstellungen aus site.toml, je Stil die Schriften seiner Gruppe."""
     cfg = tomllib.loads((ROOT / "site.toml").read_text())
@@ -1084,7 +1107,8 @@ def watercolor(img, ox, oy, k, cfg, z=None):
     1. Ränder ausfransen: Bild um Rauschen verschoben (warp, Weltpixel)
     2. leicht verwaschen, dann als Pigmentdichte A = -ln(Helligkeit) gerechnet (Papier ~ 0, mehr Farbe = mehr A)
     3. Pigment sammelt sich an den Rändern jeder Fläche (edge): A dort höher, beidseits, nach innen auslaufend
-    4. ungleichmäßiger Auftrag (wash) in großen Wolken, Körnung (grain) im Pigment, Papierstruktur (paper)"""
+    4. ungleichmäßiger Auftrag (wash) in großen Wolken, Körnung (grain) im Pigment, Papierstruktur (paper)
+    5. Wassertropfen (drops > 0, water_drops())"""
     import numpy as np
     from scipy import ndimage
     h, w, _ = img.shape
@@ -1110,7 +1134,34 @@ def watercolor(img, ox, oy, k, cfg, z=None):
     grain = (vnoise(gx / 1.3, gy / 1.3, 81) * .6 + vnoise(gx / 4, gy / 4, 82) * .4 - .5)
     A = A * (1 + cfg.get("edge", 1.2) * e) * wash[..., None] * (1 + grain[..., None] * cfg.get("grain", .5))
     A += np.clip(grain, 0, None)[..., None] * cfg.get("paper", .05)
+    if cfg.get("drops"):
+        A = A * water_drops(gx, gy, cfg)[..., None]
     return np.exp(-A)
+
+
+def water_drops(gx, gy, cfg):
+    """Wassertropfen vom Pinsel (drops im watercolor-Stil, Nutzerwunsch 2026-11-26): Faktor auf die Pigmentdichte.
+    Weltfestes Zellraster (drop_cell Weltpixel), je Zelle mit Wahrscheinlichkeit drops ein Tropfen an zufälliger Stelle,
+    Radius drop_size × Zelle (höchstens 1 Zelle, daher reichen die 3×3 Nachbarzellen). Rand mit Rauschen ausgefranst;
+    innen Farbe ausgewaschen (drop_out, fleckig), verdrängtes Pigment als dunkler Saum am Rand (drop_ring)."""
+    import numpy as np
+    cell = cfg.get("drop_cell", 140)
+    lo, hi = cfg.get("drop_size", [.25, .6])
+    rag = (vnoise(gx / 9, gy / 9, 91) - .5) * .35 + (vnoise(gx / 3, gy / 3, 92) - .5) * .12
+    ci, cj = np.floor(gx / cell), np.floor(gy / cell)
+    f = np.full(gx.shape, 9.0)
+    for di in (-1, 0, 1):
+        for dj in (-1, 0, 1):
+            i, j = ci + di, cj + dj   # vnoise an ganzzahligen Stellen = Hash der Zelle
+            on = vnoise(i, j, 93) < cfg["drops"]
+            cx, cy = (i + .15 + .7 * vnoise(i, j, 94)) * cell, (j + .15 + .7 * vnoise(i, j, 95)) * cell
+            r = (lo + (hi - lo) * vnoise(i, j, 96)) * cell
+            f = np.where(on, np.minimum(f, np.hypot(gx - cx, gy - cy) / r), f)
+    f = f + rag   # ausgefranster Rand
+    inside = np.clip((1 - f) / .15, 0, 1)   # weicher Übergang nach innen
+    mottle = .7 + .6 * vnoise(gx / 14, gy / 14, 97)   # nicht gleichmäßig ausgewaschen
+    ring = np.exp(-((f - 1) / cfg.get("drop_rim", .05)) ** 2)
+    return (1 - cfg.get("drop_out", .6) * inside * np.clip(mottle, 0, 1)) * (1 + cfg.get("drop_ring", .8) * ring)
 
 
 def halftone(img, ox, oy, k, cfg, z=17):
@@ -1121,7 +1172,8 @@ def halftone(img, ox, oy, k, cfg, z=17):
     mode = "cmyk": Tinte auf Papier (paper), multipliziert. mode = "light": drei Leuchtfarben auf schwarzem Karton,
     hellen auf (screen). inks = { c, m, y[, k] } ersetzt die Druckfarben. Raster weltfest (ox/oy wie watercolor()), nahtlos;
     Rasterweite pitch (Weltpixel bei z17), je Zoomstufe darunter pitch_step feiner. Volltöne (eine Platte > fine_from)
-    im feinen Raster (fine × pitch, Farbmenge höchstens fine_amount), damit auch Straßen aus Punkten bestehen."""
+    im feinen Raster (fine × pitch, Farbmenge höchstens fine_amount), damit auch Straßen aus Punkten bestehen.
+    soft: Punktkante als radialer Verlauf, Breite in Rasterzellen (0 = harte Kante, 1 px)."""
     import numpy as np
     from scipy import ndimage
     h, w, _ = img.shape
@@ -1159,7 +1211,7 @@ def halftone(img, ox, oy, k, cfg, z=17):
         val = ndimage.shift(val, (off[c][1] * k, off[c][0] * k), order=1, mode="nearest")   # Passer-Versatz
         fn = ndimage.shift(fine.astype(float), (off[c][1] * k, off[c][0] * k), order=0, mode="nearest")
         near = ndimage.maximum_filter(fn, size=int(2 * k) * 2 + 1)   # grobe Punkte halten Abstand von Volltönen
-        a, gain = np.radians(angle[c]), cfg.get("gain", 1.1)
+        a, gain, soft = np.radians(angle[c]), cfg.get("gain", 1.1), cfg.get("soft", 0)
 
         def screen(pt, fine_cell, cap):
             """Punkte der Rasterweite pt: Farbmenge am Punktmittelpunkt abgelesen, damit jeder Punkt ganz oder gar nicht
@@ -1171,7 +1223,11 @@ def halftone(img, ox, oy, k, cfg, z=17):
             mine = at(fn, 0) > .5 if fine_cell else at(near, 0) <= .5   # Punkt gehört zum feinen bzw. groben Raster
             r = np.sqrt(np.clip(np.minimum(at(val, 1), cap) * gain, 0, 1.6) / np.pi)   # flächentreu; ab ~1,6 voll
             px, d = pt * k, np.hypot(u - ru, v - rv)
-            return np.clip((r - d) * px + .5, 0, 1) * np.clip(r * px * 2 - .5, 0, 1) * mine   # Kante 1 px, kein Staub
+            # weiche Kante (soft = Breite in Rasterzellen, Nutzerwunsch 2026-11-26): radialer Verlauf um den Rand r,
+            # symmetrisch, daher bleibt die Farbmenge etwa gleich; kleine Punkte erreichen nie volle Deckung (blasser Hof)
+            e = max(1, soft * px)
+            t = np.clip((r - d) * px / e + .5, 0, 1)
+            return t * t * (3 - 2 * t) * np.clip(r * px * 2 - .5, 0, 1) * mine   # kein Staub
 
         # Volltöne fein (kleine, getrennte Punkte), sonst grob
         dot = np.maximum(screen(pitch, False, 9), screen(pitch * cfg.get("fine", .35), True, cfg.get("fine_amount", .85)))[..., None]
@@ -1612,6 +1668,8 @@ def main():
                    help="alle Stile rendern, je in einen eigenen Ordner out/<stil>-<schrift>; Vergleich: out/index.html")
     g.add_argument("--all-fonts", action="store_true", help="mit --all: jeden Stil in allen passenden Schriften (dauert lange)")
     g.add_argument("--missing", action="store_true", help="mit --all oder --site: schon gerenderte überspringen")
+    g.add_argument("--regenerate", action="store_true", help="mit --all oder --site: gerenderte Stile auflisten, "
+                   "ausgewählte (Nummern) löschen und neu bauen; mit --missing nur diese und fehlende")
     g.add_argument("--force", action="store_true", help="auch unveränderte Stile neu rendern (sonst übersprungen; "
                    "nötig nach Änderungen am Python-Code, z. B. an Flecken oder 8-Bit)")
     g = p.add_argument_group("Wartung")
@@ -1633,6 +1691,10 @@ def main():
     if not (0 <= zmin <= zmax <= 20):
         sys.exit("--zoom ungültig")
 
+    if a.regenerate:
+        if not (a.site or a.all):
+            sys.exit("--regenerate nur mit --all oder --site")
+        regenerate(ROOT / ("site" if a.site else "out"))
     if a.site:
         ensure_noto()
         ensure_glyphs()
