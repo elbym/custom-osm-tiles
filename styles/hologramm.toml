@@ -1,0 +1,296 @@
+# "Hologramm" (Entwurf, Nutzerwunsch 2026-11-26): die Stadt als Volumen-Hologramm über einer Projektionsplatte, dunkel:
+#   - Grund fast schwarz, leicht violett, mit Messraster ("+"-Marken, Muster holoraster) statt Bluecrons durchgehendem Gitter
+#   - Gebäude als Stapel aus bis zu 6 Leuchtumrissen (Stockwerk-Scheiben) nach render_height, je Scheibe nach oben rechts
+#     versetzt, Farbe von Cyan unten nach Magenta oben, oberste Scheibe je Gebäude mit fast weißem Deckel
+#   - Glitch: Grundriss zusätzlich in Magenta 1 px nach links (chromatische Aberration)
+#   - Straßen zurückhaltend in gedämpftem Cyan, nur die Autobahn mit Leuchtschein
+#   - Unterschied zu Bluecron: violetter Grund, Raster aus Marken, Gebäude als Volumen statt Drahtgitter-Dach
+title = "Hologramm"
+category = "nerd"
+mode = "dark"
+family = "Hologramm"
+order = 96
+font = "Maple Mono"
+preview_font = "Maple Mono"
+site_font = "Maple Mono"
+fonts = ["sans", "mono"]
+text_scale = 1.05
+hide = ["poi_r20", "road_oneway*", "building-top"]
+
+[paint."background"]
+background-pattern = "holoraster"
+background-color = "#07060f"
+[paint."landuse-*"]
+fill-color = "#07060f"
+fill-opacity = 0
+[paint."park"]
+fill-color = "#0a2a2a"
+fill-opacity = 0.5
+[paint."landcover-*"]
+fill-color = "#0a2a2a"
+fill-opacity = 0.5
+[paint."landuse-cemetery"]
+fill-color = "#0a2a2a"
+fill-opacity = 0.5
+
+[paint."water*"]
+fill-color = "#04030a"
+line-color = "#1f6f8a"
+
+# Grundriss selbst nur als dunkler Schatten auf der Platte, die Scheiben (unten) tragen das Licht
+[paint."building"]
+fill-color = "#0c0a1c"
+fill-outline-color = "#0c0a1c"
+
+# Straßen: gedämpftes Cyan, keine Konturen; Autobahn Magenta mit Schein
+[paint."*-minor*"]
+line-color = "#1c4756"
+[paint."*-service-track"]
+line-color = "#16343f"
+[paint."*-link"]
+line-color = "#2a6f86"
+[paint."*-secondary-tertiary*"]
+line-color = "#2a6f86"
+[paint."*-primary*"]
+line-color = "#3aa3c2"
+[paint."*-trunk*"]
+line-color = "#3aa3c2"
+[paint."*-motorway*"]
+line-color = "#ff5ce1"
+[paint."*-casing"]
+line-opacity = 0
+[paint."*-motorway*-casing"]
+line-color = "#ff5ce1"
+line-blur = 4
+line-opacity = 0.5
+[paint."highway-area"]
+fill-color = "#0e0c22"
+fill-outline-color = "#2a6f86"
+[paint."aeroway-*"]
+fill-color = "#0e0c22"
+line-color = "#0e0c22"
+[paint."*-path"]
+line-color = "#2a4f66"
+[paint."*railway*"]
+line-color = "#3b3560"
+[paint."road_area_pier"]
+fill-color = "#07060f"
+[paint."road_pier"]
+line-color = "#07060f"
+
+# Beschriftung: Versalien, Cyan, harter dunkler Halo; POIs in der Markerfarbe
+[layout."label_*"]
+text-transform = "uppercase"
+text-letter-spacing = 0.15
+[paint."label_*"]
+text-color = "#bff6ff"
+text-halo-color = "#07060f"
+text-halo-width = 2
+text-halo-blur = 0
+[paint."highway-name-*"]
+text-color = "#7fd8ec"
+text-halo-color = "#07060f"
+[paint."poi_*"]
+text-color = "#4fe3ff"
+text-halo-color = "#07060f"
+[paint."airport"]
+text-color = "#4fe3ff"
+text-halo-color = "#07060f"
+[paint."water*label"]
+text-color = "#3aa3c2"
+
+[marker]
+type = "terminal"
+color = "#4fe3ff"
+color2 = "#ff5ce1"
+bg = "#07060f"
+fg = "#e6fcff"
+
+[patterns]
+holoraster = { symbol = "holoraster", color = "#2a3a66", bg = "#07060f" }
+
+# >>> Hologramm-Scheiben (erzeugt: 6 Schwellen render_height 0/6/12/20/32/50 m, Versatz je Scheibe 0.6/−1.6 px bei
+# Stil-Zoom 15 und 1/−2 px bei 17; je Scheibe Fläche 5 % + Kante, dazu der Deckel für Gebäude, deren oberste Scheibe das ist)
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "building"
+id = "holo-glitch"
+minzoom = 13
+paint = { line-color = "#ff3fd0", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.55, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-1, 0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-glitch"
+id = "holo-0"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 0]
+minzoom = 13
+paint = { fill-color = "#00e5ff", fill-opacity = 0.1, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.0, -0.0]], 17, ["literal", [0.0, -0.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-0"
+id = "holo-0-kante"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 0]
+minzoom = 13
+paint = { line-color = "#00e5ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.0, -0.0]], 17, ["literal", [0.0, -0.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-0-kante"
+id = "holo-0-deckel"
+filter = ["all", [">=", ["coalesce", ["get", "render_height"], 0], 0], ["<", ["coalesce", ["get", "render_height"], 0], 6]]
+minzoom = 13
+paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.0, -0.0]], 17, ["literal", [0.0, -0.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-0-deckel"
+id = "holo-1"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 6]
+minzoom = 13
+paint = { fill-color = "#3fc8ff", fill-opacity = 0.05, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.6, -1.6]], 17, ["literal", [1.0, -2.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1"
+id = "holo-1-kante"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 6]
+minzoom = 13
+paint = { line-color = "#3fc8ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.7, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.6, -1.6]], 17, ["literal", [1.0, -2.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-kante"
+id = "holo-1-deckel"
+filter = ["all", [">=", ["coalesce", ["get", "render_height"], 0], 6], ["<", ["coalesce", ["get", "render_height"], 0], 12]]
+minzoom = 13
+paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.6, -1.6]], 17, ["literal", [1.0, -2.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-1-deckel"
+id = "holo-2"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 12]
+minzoom = 13
+paint = { fill-color = "#7aa8ff", fill-opacity = 0.05, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.2, -3.2]], 17, ["literal", [2.0, -4.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2"
+id = "holo-2-kante"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 12]
+minzoom = 13
+paint = { line-color = "#7aa8ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.7, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.2, -3.2]], 17, ["literal", [2.0, -4.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-kante"
+id = "holo-2-deckel"
+filter = ["all", [">=", ["coalesce", ["get", "render_height"], 0], 12], ["<", ["coalesce", ["get", "render_height"], 0], 20]]
+minzoom = 13
+paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.2, -3.2]], 17, ["literal", [2.0, -4.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-2-deckel"
+id = "holo-3"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 20]
+minzoom = 13
+paint = { fill-color = "#a98cff", fill-opacity = 0.05, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.8, -4.8]], 17, ["literal", [3.0, -6.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-3"
+id = "holo-3-kante"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 20]
+minzoom = 13
+paint = { line-color = "#a98cff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.7, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.8, -4.8]], 17, ["literal", [3.0, -6.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-3-kante"
+id = "holo-3-deckel"
+filter = ["all", [">=", ["coalesce", ["get", "render_height"], 0], 20], ["<", ["coalesce", ["get", "render_height"], 0], 32]]
+minzoom = 13
+paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.8, -4.8]], 17, ["literal", [3.0, -6.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-3-deckel"
+id = "holo-4"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 32]
+minzoom = 13
+paint = { fill-color = "#d670ff", fill-opacity = 0.05, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.4, -6.4]], 17, ["literal", [4.0, -8.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-4"
+id = "holo-4-kante"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 32]
+minzoom = 13
+paint = { line-color = "#d670ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.7, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.4, -6.4]], 17, ["literal", [4.0, -8.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-4-kante"
+id = "holo-4-deckel"
+filter = ["all", [">=", ["coalesce", ["get", "render_height"], 0], 32], ["<", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.4, -6.4]], 17, ["literal", [4.0, -8.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-4-deckel"
+id = "holo-5"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 50]
+minzoom = 13
+paint = { fill-color = "#ff5ce1", fill-opacity = 0.05, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [3.0, -8.0]], 17, ["literal", [5.0, -10.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-5"
+id = "holo-5-kante"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 50]
+minzoom = 13
+paint = { line-color = "#ff5ce1", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.7, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [3.0, -8.0]], 17, ["literal", [5.0, -10.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-5-kante"
+id = "holo-5-deckel"
+filter = [">=", ["coalesce", ["get", "render_height"], 0], 50]
+minzoom = 13
+paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [3.0, -8.0]], 17, ["literal", [5.0, -10.0]]] }
+# <<<
+
+# >>> Akzent-Beschriftung: Straßennummern ohne weißes Schild, Autobahn Magenta, Hauptstraßen Cyan
+[layout."*shield*"]
+icon-image = ""
+text-size = 12
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#ff5ce1", ["trunk", "primary"], "#4fe3ff", "#3aa3c2"]
+text-halo-color = "#07060f"
+text-halo-width = 1.5
+[paint."highway-name-major"]
+text-color = "#4fe3ff"
+# <<<
