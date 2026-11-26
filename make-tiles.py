@@ -915,7 +915,7 @@ def build_site(a):
     s.detail_from, s.detail_radius = 99, cfg["radius"]  # kein Detailbereich
     site = ROOT / "site"
     site.mkdir(exist_ok=True)
-    wanted = set()
+    wanted, jobs = set(), []
     for st in sorted((ROOT / "styles").glob("*.toml")):
         meta = tomllib.loads(st.read_text())
         cat = meta.get("category", "standard")
@@ -937,7 +937,12 @@ def build_site(a):
             z0, z1 = map(int, s.zoom.split("-"))  # neue Zoomstufe/@2x: fehlende Kacheln ergänzen
             if keep and (old.get("retina"), old.get("zmin"), old.get("zmax")) == (s.retina, z0, z1):
                 continue
-            render(s, st, out, mb, font, standalone=False, keep=keep)  # keep: nur fehlende Kacheln (z. B. @2x)
+            jobs.append((st, out, font, s.pixel, s.streets_only, keep))
+    t0 = time.time()
+    for i, (st, out, font, s.pixel, s.streets_only, keep) in enumerate(jobs):
+        render(s, st, out, mb, font, standalone=False, keep=keep)  # keep: nur fehlende Kacheln (z. B. @2x)
+        eta = t0 + (time.time() - t0) / (i + 1) * len(jobs)  # ponytail: Mittel über alle Stile, Aquarell/Siebdruck dauern länger
+        print(f"== {i + 1} von {len(jobs)} Stilen fertig, ETA {time.strftime('%H:%M', time.localtime(eta))}", flush=True)
     for old in site.glob("*/config.json"):              # Varianten aus früheren site.toml-Ständen (andere Schrift/Ort)
         if old.parent not in wanted:
             shutil.rmtree(old.parent)
