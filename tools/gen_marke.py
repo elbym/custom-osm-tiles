@@ -7,13 +7,19 @@
 Alles in OKLCH aus der Akzentfarbe abgeleitet: Grund, Flächen und Gebäude leicht in ihrem Farbton, Haupt- und Fernstraßen
 in der Akzentfarbe, Wasser und Grün bleiben blau und grün (sonst liest man die Karte nicht). POI-Schrift in der
 Akzentfarbe, abgedunkelt/aufgehellt bis Kontrast 4,5:1; der Marker zeigt die Kundenfarbe unverändert. Die erzeugten
-Dateien sind normale Stile und dürfen danach von Hand bearbeitet werden (erneutes Erzeugen überschreibt sie)."""
+Dateien sind normale Stile und dürfen danach von Hand bearbeitet werden (erneutes Erzeugen überschreibt sie).
+
+Goldener Schnitt (Nutzerwunsch 2026-11-26): Die Helligkeiten der Markenfarben bilden eine Leiter, deren Abstände zum
+Grund je Stufe um φ wachsen (hell: Abstand zu Weiß 0,04·φⁿ, dunkel: Abstand zum Grund 0,025·φⁿ); Schrift genauso von der
+anderen Seite (hell: L = φ⁻³ und φ⁻², dunkel: Abstand zu Weiß 0,07 und 0,07·φ). Chroma-Stufen ebenfalls im Verhältnis φ.
+Wasser und Grün bleiben fest, die POI-Schrift richtet sich nach dem Kontrast."""
 import argparse
 import math
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+PHI = (1 + 5 ** .5) / 2
 
 
 def to_oklch(hexc):
@@ -68,24 +74,27 @@ def colours(accent, dark):
     L, C, h = to_oklch(accent)
     t = min(C, 0.02) / 2           # Tönung der neutralen Flächen; graue Marke -> neutrales Grau
     k = min(C, 0.13)                # Straßen nicht greller als die Vorlage Clear
+    tt, kk = t * PHI, k / PHI       # Chroma-Stufen: Gebäude/Schrift kräftiger, Hauptstraßen schwächer als Autobahn
     if not dark:
-        bg = hexc(0.96, t, h)
-        c = dict(bg=bg, land=hexc(0.945, t, h), bld=hexc(0.885, t * 1.4, h), bld_line=hexc(0.83, t * 1.4, h),
+        s = lambda n: 1 - 0.04 * PHI ** n          # Stufe n: Abstand zu Weiß wächst um φ
+        bg = hexc(s(0), t, h)
+        c = dict(bg=bg, land=hexc(s(1), t, h), bld=hexc(s(2), tt, h), bld_line=hexc(s(3), tt, h),
                  water=hexc(0.82, 0.06, 235), water_label=hexc(0.45, 0.09, 240), green=hexc(0.87, 0.07, 145),
-                 wood=hexc(0.83, 0.08, 145), minor="#ffffff", casing=hexc(0.81, t, h), path=hexc(0.70, t, h),
-                 major=hexc(0.88, k * 0.7, h), major_casing=hexc(0.68, k, h), motor=hexc(0.80, k, h),
-                 motor_casing=hexc(0.58, k, h), rail=hexc(0.62, t, h), label=hexc(0.24, t * 2, h),
-                 street=hexc(0.36, t, h), halo="#ffffff", poi=readable(L, C, h, bg, False),
-                 hl_area=hexc(0.94, t, h), mbg="#ffffff")
+                 wood=hexc(0.83, 0.08, 145), minor="#ffffff", casing=hexc(s(3), t, h), path=hexc(s(4), t, h),
+                 major=hexc(s(2), kk, h), major_casing=hexc(s(4), k, h), motor=hexc(s(3), k, h),
+                 motor_casing=hexc(s(5), k, h), rail=hexc(s(5), t, h), label=hexc(PHI ** -3, tt, h),
+                 street=hexc(PHI ** -2, t, h), halo="#ffffff", poi=readable(L, C, h, bg, False),
+                 hl_area=hexc(s(1), t, h), mbg="#ffffff")
     else:
-        bg = hexc(0.21, t * 1.2, h)
-        c = dict(bg=bg, land=hexc(0.23, t * 1.2, h), bld=hexc(0.29, t * 1.4, h), bld_line=hexc(0.34, t * 1.4, h),
+        s = lambda n: 0.21 + 0.025 * PHI ** n      # Stufe n: Abstand zum Grund (0,21) wächst um φ
+        bg = hexc(0.21, t, h)
+        c = dict(bg=bg, land=hexc(s(0), t, h), bld=hexc(s(2), tt, h), bld_line=hexc(s(3), tt, h),
                  water=hexc(0.33, 0.05, 240), water_label=hexc(0.75, 0.07, 235), green=hexc(0.30, 0.04, 150),
-                 wood=hexc(0.28, 0.05, 150), minor=hexc(0.42, t, h), casing=hexc(0.26, t, h), path=hexc(0.50, t, h),
-                 major=hexc(0.55, k * 0.8, h), major_casing=hexc(0.35, k * 0.6, h), motor=hexc(0.65, k, h),
-                 motor_casing=hexc(0.40, k * 0.7, h), rail=hexc(0.48, t, h), label=hexc(0.93, t, h),
-                 street=hexc(0.82, t, h), halo=bg, poi=readable(L, C, h, bg, True),
-                 hl_area=hexc(0.27, t, h), mbg=bg)
+                 wood=hexc(0.28, 0.05, 150), minor=hexc(s(4), t, h), casing=hexc(s(1), t, h), path=hexc(s(5), t, h),
+                 major=hexc(s(5), kk, h), major_casing=hexc(s(4), kk, h), motor=hexc(s(6), k, h),
+                 motor_casing=hexc(s(4), kk, h), rail=hexc(s(5), t, h), label=hexc(1 - 0.07, t, h),
+                 street=hexc(1 - 0.07 * PHI, t, h), halo=bg, poi=readable(L, C, h, bg, True),
+                 hl_area=hexc(s(1), t, h), mbg=bg)
     c["marker"] = accent
     c["fg"] = c["label"]
     return c
@@ -202,6 +211,7 @@ def check():
             assert contrast(c["minor"], c["bld"]) >= 1.1, (accent, dark)   # Straßen heben sich von Gebäuden ab
             assert all(v.startswith("#") and len(v) == 7 for v in c.values()), c
     assert hexc(*to_oklch("#c0392b")) == "#c0392b"
+    assert abs((1 - to_oklch(colours("#c0392b", False)["bld"])[0]) / (1 - to_oklch(colours("#c0392b", False)["land"])[0]) - PHI) < .05
     print("ok")
 
 

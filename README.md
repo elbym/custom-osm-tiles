@@ -222,44 +222,54 @@ tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffen
 
 ### Übersicht: Standard
 
-| Stil (hell / dunkel) | Schrift | Vorbild / Idee |
-|---|---|---|
-| **OSM Americana** / Dark | Overpass | Stil der OSM-US-Community (openstreetmap-americana, CC0); dunkle Variante eigene Ableitung |
-| **Clear** / Clear Dark | Fira Sans | eigener Stil: kühl und reduziert, Farbe nur für Hauptstraßen (Standard) |
-| **Photon** / Dark | Fira Sans | Mozillas Photon-Farbsystem (MPL-2.0) als normale Karte: neutrale Ortsnamen, Straßenschilder, Blasen-Marker |
-| **Cupertino** / Dark | Public Sans | angelehnt an den Gesamteindruck von Apple Maps (eigene Farbwahl) |
-| **North** / Dark | DINish | Farben nach der Palette von Hydda (BSD-3) |
-| **OSM light** / OSM dark | Atkinson Hyperlegible Next | OSM-Standardkarte (openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
-| **Papier** / Papier Dunkel | Literata | eigener Stil: gedruckte Karte → [Details](#papier) |
-| **Historisch** / **Gaslicht** | TeX Gyre Schola, Ortsnamen UnifrakturMaguntia | eigener Stil: kolorierter Stadtplan um 1900 → [Details](#historisch--gaslicht) |
-| **Kupferstich** / **Kupferplatte** | IM Fell English, Ortsnamen UnifrakturMaguntia | eigener Stil: Kupferstich des 18. Jh. → [Details](#kupferstich--kupferplatte) |
-| **Anime** / Nacht | Kalam, Orts- und POI-Namen Bangers | eigener Stil im Look von Anime-Zeichentrick → [Details](#anime--anime-nacht) |
-| **Island** / **Nordlicht** | Public Sans | eigener Stil: isländische Sommerlandschaft → [Details](#island--nordlicht) |
-| **Blaue Stunde** / **Stadtlichter** | Fira Sans | eigener Stil: Stadt bei Nacht von oben → [Details](#stadtlichter--blaue-stunde) |
-| **Schwarzplan** / **Weißplan** | TeX Gyre Heros | eigener Stil: Figur-Grund-Plan → [Details](#schwarzplan--weißplan) |
-| **Lichtpause** / **Blaupause** | DINish | eigener Stil: technische Zeichnung → [Details](#blaupause--lichtpause) |
-| **CMYK** / Nacht | Work Sans | eigener Stil: Plakat im Vierfarb-Druckraster → [Details](#cmyk--cmyk-nacht) |
-| **Aquarell** / Nacht | Alegreya Sans | eigener Stil: lavierte Federzeichnung → [Details](#aquarell--aquarell-nacht) |
-| **Marke** / Dunkel | Figtree | aus einer Kundenfarbe erzeugt → [Details](#marke--marke-dunkel) |
-| **Protomaps Light** / **Dark** | Figtree | Protomaps Basemaps (Design CC0) |
-| **Wiki** / Dark | Work Sans | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
+| Stil (hell / dunkel) | Schrift | Renderzeit | Vorbild / Idee |
+|---|---|---|---|
+| **OSM Americana** / Dark | Overpass | 🟢 easy | Stil der OSM-US-Community (openstreetmap-americana, CC0); dunkle Variante eigene Ableitung |
+| **Clear** / Clear Dark | Fira Sans | 🟢 easy | eigener Stil: kühl und reduziert, Farbe nur für Hauptstraßen (Standard) |
+| **Photon** / Dark | Fira Sans | 🟢 easy | Mozillas Photon-Farbsystem (MPL-2.0) als normale Karte: neutrale Ortsnamen, Straßenschilder, Blasen-Marker |
+| **Cupertino** / Dark | Public Sans | 🟢 easy | angelehnt an den Gesamteindruck von Apple Maps (eigene Farbwahl) |
+| **North** / Dark | DINish | 🟢 easy | Farben nach der Palette von Hydda (BSD-3) |
+| **OSM light** / OSM dark | Atkinson Hyperlegible Next | 🟢 easy | OSM-Standardkarte (openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
+| **Papier** / Papier Dunkel | Literata | 🟢 easy | eigener Stil: gedruckte Karte → [Details](#papier) |
+| **Historisch** / **Gaslicht** | TeX Gyre Schola, Ortsnamen UnifrakturMaguntia | 🟠 heavy / 🟢 easy | eigener Stil: kolorierter Stadtplan um 1900 → [Details](#historisch--gaslicht) |
+| **Kupferstich** / **Kupferplatte** | IM Fell English, Ortsnamen UnifrakturMaguntia | 🟠 heavy | eigener Stil: Kupferstich des 18. Jh. → [Details](#kupferstich--kupferplatte) |
+| **Anime** / Nacht | Kalam, Orts- und POI-Namen Bangers | 🟢 easy | eigener Stil im Look von Anime-Zeichentrick → [Details](#anime--anime-nacht) |
+| **Island** / **Nordlicht** | Public Sans | 🟢 easy / 🟠 heavy | eigener Stil: isländische Sommerlandschaft → [Details](#island--nordlicht) |
+| **Blaue Stunde** / **Stadtlichter** | Fira Sans | 🟠 heavy | eigener Stil: Stadt bei Nacht von oben → [Details](#stadtlichter--blaue-stunde) |
+| **Schwarzplan** / **Weißplan** | TeX Gyre Heros | 🟢 easy | eigener Stil: Figur-Grund-Plan → [Details](#schwarzplan--weißplan) |
+| **Lichtpause** / **Blaupause** | DINish | 🟢 easy | eigener Stil: technische Zeichnung → [Details](#blaupause--lichtpause) |
+| **CMYK** / Nacht | Work Sans | 🔴 dangerzone | eigener Stil: Plakat im Vierfarb-Druckraster → [Details](#cmyk--cmyk-nacht) |
+| **Aquarell** / Nacht | Alegreya Sans | 🔴 dangerzone | eigener Stil: lavierte Federzeichnung → [Details](#aquarell--aquarell-nacht) |
+| **Marke** / Dunkel | Figtree | 🟢 easy | aus einer Kundenfarbe erzeugt → [Details](#marke--marke-dunkel) |
+| **Protomaps Light** / **Dark** | Figtree | 🟢 easy | Protomaps Basemaps (Design CC0) |
+| **Wiki** / Dark | Work Sans | 🟢 easy | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
 
 ### Übersicht: Nerd
 
-| Stil (hell / dunkel) | Schrift | Vorbild / Idee |
-|---|---|---|
-| **Dayfox** / **Nightfox** | Adwaita Mono | Editor-Theme Nightfox (MIT) |
-| **Catppuccin Latte** / **Mocha** | Fantasque Sans Mono | Catppuccin (MIT) |
-| **Alucard** / **Dracula** | Fira Code | Dracula, helle Variante nach der offiziellen Alucard-Palette (MIT) |
-| **Everforest Light** / **Dark** | Ubuntu Sans Mono | Everforest (MIT) |
-| **One Light** / **Dark** | Hack | Atom One (MIT); Regenbogen: Straßenhierarchie durch die sieben Syntaxfarben |
-| **Photon Dev Light** / **Dark** | Fira Code | Theme der Mozilla-Entwicklerwerkzeuge (devtools/client/themes/variables.css, Photon-Farben, MPL-2.0): Hauptstraßen highlight-blue, Autobahn Photon-Orange, Beschriftung in der Akzentfarbe |
-| **Gruvbox Light** / **Dark** | IBM Plex Mono | Gruvbox (MIT) |
-| **Solarized Light** / **Dark** | Intel One Mono | Solarized (MIT) |
-| **Tokyo Night Day** / **Night** | JetBrains Mono | tokyonight.nvim (Apache-2.0) |
-| **Bluecron Tag** / **Bluecron** | Mozilla Text | eigener Entwurf im Look von Tron → [Details](#bluecron-tag--bluecron) |
-| **Bernstein** / **Phosphor** | VT323 | eigener Entwurf: Röhrenmonitor → [Details](#bernstein--phosphor) |
-| **Cyberpunk Day** / **Neon Cyberpunk** | Space Mono | maptoposter „neon_cyberpunk“ (MIT) → [Details](#cyberpunk-day--neon-cyberpunk) |
+| Stil (hell / dunkel) | Schrift | Renderzeit | Vorbild / Idee |
+|---|---|---|---|
+| **Dayfox** / **Nightfox** | Adwaita Mono | 🟢 easy | Editor-Theme Nightfox (MIT) |
+| **Catppuccin Latte** / **Mocha** | Fantasque Sans Mono | 🟢 easy | Catppuccin (MIT) |
+| **Alucard** / **Dracula** | Fira Code | 🟢 easy | Dracula, helle Variante nach der offiziellen Alucard-Palette (MIT) |
+| **Everforest Light** / **Dark** | Ubuntu Sans Mono | 🟢 easy | Everforest (MIT) |
+| **One Light** / **Dark** | Hack | 🟢 easy | Atom One (MIT); Regenbogen: Straßenhierarchie durch die sieben Syntaxfarben |
+| **Photon Dev Light** / **Dark** | Fira Code | 🟢 easy | Theme der Mozilla-Entwicklerwerkzeuge (devtools/client/themes/variables.css, Photon-Farben, MPL-2.0): Hauptstraßen highlight-blue, Autobahn Photon-Orange, Beschriftung in der Akzentfarbe |
+| **Gruvbox Light** / **Dark** | IBM Plex Mono | 🟢 easy | Gruvbox (MIT) |
+| **Solarized Light** / **Dark** | Intel One Mono | 🟢 easy | Solarized (MIT) |
+| **Tokyo Night Day** / **Night** | JetBrains Mono | 🟢 easy | tokyonight.nvim (Apache-2.0) |
+| **Bluecron Tag** / **Bluecron** | Mozilla Text | 🟢 easy | eigener Entwurf im Look von Tron → [Details](#bluecron-tag--bluecron) |
+| **Bernstein** / **Phosphor** | VT323 | 🟢 easy | eigener Entwurf: Röhrenmonitor → [Details](#bernstein--phosphor) |
+| **Cyberpunk Day** / **Neon Cyberpunk** | Space Mono | 🟢 easy | maptoposter „neon_cyberpunk“ (MIT) → [Details](#cyberpunk-day--neon-cyberpunk) |
+
+**Renderzeit** (gemessen auf einem 8-Kern-Rechner: 154 Retina-Kacheln auf Zoom 16 um die Bielefelder Innenstadt, je Stil ein Lauf. Gemessen sind die in der Tabelle genannten Stile; die übrigen sind nach ihren Effekten eingeordnet, z. B. Blaue Stunde wie Stadtlichter. Bei zwei Angaben gilt die erste für hell, die zweite für dunkel):
+
+| Stufe | Zeit | Faktor | Warum |
+|---|---|---|---|
+| 🟢 easy | 8–15 s | 1× | nur Farben, Muster und Figuren; rendert der Kartenserver allein (gemessen: Clear 12 s, Schwarzplan 8 s, Anime 14 s, Island 13 s, Gaslicht 14 s) |
+| 🟠 heavy | 19–41 s | 1,5–3,5× | Stadtlichter/Blaue Stunde: viele weichgezeichnete Lichtebenen (19 s); Historisch, Kupferstich, Kupferplatte, Nordlicht: Flecken bzw. Nordlicht werden in jede Kachel eingerechnet (Historisch 25 s, Nordlicht 41 s) |
+| 🔴 dangerzone | 2,5–5,5 min | 13–27× | Pixel-Nachbearbeitung jeder Kachel samt ihrer acht Nachbarn: CMYK-Druckraster (153 s), Aquarell (324 s) |
+
+Der 8-Bit-Modus (`--pixel`) kommt bei jedem Stil obendrauf (zwei Durchläufe in dreifacher Auflösung); er ist nicht gemessen.
 
 Die Schrift in den Tabellen ist die der öffentlichen Vorschau (`site_font` im Stil, sonst die Gruppenschrift aus `site.toml`); die 8-Bit-Varianten nutzen dort Silkscreen. Mit `--font` lässt sich jeder Stil in jeder Schrift aus `style/fonts.toml` rendern.
 
@@ -342,7 +352,7 @@ Aus einer Kundenfarbe erzeugt: `tools/gen_marke.py "#rrggbb" name`.
 - Grund und Gebäude im Farbton der Marke, Hauptstraßen in der Akzentfarbe.
 - POI-Schrift mit Kontrast ≥ 4,5:1.
 - Marker in der Kundenfarbe.
-- Beispiel in der Galerie: #2a6fdb.
+- Beispiel in der Galerie: #6226d9.
 
 #### Bluecron Tag / Bluecron
 
