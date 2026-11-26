@@ -8,9 +8,39 @@
 >
 > Ganz ohne eigenen Abschnitt im Datenschutz. 
 
-**Du brauchst eine einfache Karte, die zur Typografie deiner Webseite passt?** Im einfachsten Fall wählst du einen Stil und eine Schrift, gibst Koordinaten an und bekommst eine fertige Slippy Map für deine Webseite oder App. Im schlimmsten Fall kannst du dich nicht entscheiden und vergleichst Stile und Schriften nebeneinander ([Varianten vergleichen](#varianten-vergleichen), [Live-Vorschau](https://elbym.github.io/custom-osm-tiles/)).
+## Auf einen Blick
 
-Statische Kartenkacheln (PNG mit 32-Farben-Palette, wahlweise WebP) für Leaflet, nur für einen kleinen Bereich um einen Marker, selbst gehostet. Die Website braucht damit keine Anfragen an Kartendienste; auch Leaflet liegt lokal.
+**WAS:** Ein Skript, das eine fertige, interaktive Karte (Slippy Map mit Leaflet) für eine Website erzeugt: ein kleiner Ausschnitt um einen Ort, mit Marker, im gewünschten Kartenstil und in der Schrift der Website. Heraus kommt ein Ordner mit statischen Kartenkacheln (PNG mit 32-Farben-Palette, wahlweise WebP), einer HTML-Seite und Leaflet, alles selbst gehostet.
+
+**WARUM:**
+- **Datenschutz:** Die Karte liegt komplett auf dem eigenen Server. Keine Anfragen an Google Maps, OpenStreetMap oder andere Kartendienste, also kein Abschnitt in der Datenschutzerklärung nötig.
+- **Gestaltung:** Die Karte passt zur Website: 62 fertige Stile (31 Paare hell/dunkel), jede Schrift kombinierbar, eigene Markenfarbe auf Knopfdruck.
+- **Einfach:** Keine laufenden Kosten, kein API-Schlüssel, kein Kartenserver. Nur statische Dateien.
+
+**WIE:**
+1. Stil, Schrift und Ort wählen.
+2. `./make-tiles.py --place "Sparrenburg, Bielefeld" --style styles/clear.toml --font "Public Sans" --retina --out out/kunde-xy`
+3. Ordner `out/kunde-xy/` auf den Webserver kopieren. Fertig.
+
+Unentschlossen? Alle Stile nebeneinander: **[Live-Vorschau](https://elbym.github.io/custom-osm-tiles/)** oder lokal mit [Varianten vergleichen](#varianten-vergleichen).
+
+---
+
+## Inhalt
+
+1. [Vorschau aller Stile](#vorschau)
+2. [Begriffe](#begriffe)
+3. [Einrichtung](#einrichtung)
+4. [Karte für eine Website](#karte-für-eine-website)
+5. [Häufige Aufgaben](#häufige-aufgaben)
+6. [Varianten vergleichen](#varianten-vergleichen)
+7. [Öffentliche Vorschau (GitHub Pages)](#öffentliche-vorschau-github-pages)
+8. [Stile](#stile)
+9. [Schriften](#schriften)
+10. [Bildformat](#bildformat)
+11. [8-Bit-Modus](#8-bit-modus)
+12. [Wie es technisch funktioniert](#wie-es-technisch-funktioniert)
+13. [Lizenz](#lizenz)
 
 ## Vorschau
 
@@ -50,14 +80,28 @@ Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bi
 | **Phosphor**<br><sub>Nerd</sub> | <a href="docs/previews/bernstein.png"><img src="docs/previews/bernstein.png" width="256" alt="Bernstein"></a><br>Bernstein | <a href="docs/previews/phosphor.png"><img src="docs/previews/phosphor.png" width="256" alt="Phosphor"></a><br>Phosphor |
 | **Neon Cyberpunk**<br><sub>Nerd</sub> | <a href="docs/previews/cyberpunk-day.png"><img src="docs/previews/cyberpunk-day.png" width="256" alt="Cyberpunk Day"></a><br>Cyberpunk Day | <a href="docs/previews/cyberpunk.png"><img src="docs/previews/cyberpunk.png" width="256" alt="Neon Cyberpunk"></a><br>Neon Cyberpunk |
 
+## Begriffe
+
+| Begriff | Bedeutung |
+|---|---|
+| **Kachel** (Tile) | ein 256×256-Bild eines Kartenausschnitts; Leaflet setzt die Karte daraus zusammen |
+| **Zoomstufe** | 10 = Region, 14 = Stadtteil, 18 = Hausnummern; jede Stufe hat viermal so viele Kacheln wie die vorige |
+| **Stil** | eine Datei in `styles/`, legt Farben, Schrift und Marker fest |
+| **Familie** | zwei Stile, die zusammengehören: eine helle und eine dunkle Fassung (z. B. Clear / Clear Dark) |
+| **Gruppe** | **Standard** (normale Karten) oder **Nerd** (Farben von Editor-Themes, Monoschrift, Terminal-Marker) |
+| **Variante** | ein gerenderter Stil in einer bestimmten Schrift, Ordner `out/<stil>-<schrift>` |
+| **Retina / @2x** | zusätzliche Kacheln in doppelter Auflösung für scharfe Darstellung auf Handys |
+
 ## Einrichtung
 
 ```sh
-pip install -r requirements.txt     # fontTools
+pip install -r requirements.txt     # fontTools; für den 8-Bit-Modus numpy, Pillow, scipy
 cargo install build_pbf_glyphs      # Rust-Programm, wandelt Schriften in Karten-Glyphen um
+cargo install oxipng                # optional, komprimiert die PNGs verlustfrei nach
+sudo dnf install pngquant inkscape  # außerdem nötig: podman
 ```
 
-Außerdem nötig: podman, pngquant und Inkscape (`sudo dnf install pngquant inkscape`). Beim ersten Lauf lädt das Skript die OSM-Daten der Region und die Ersatzschrift Noto Sans und erzeugt die Glyphen. Das dauert einmalig einige Minuten.
+Beim ersten Lauf lädt das Skript die OSM-Daten der Region und die Ersatzschrift Noto Sans und erzeugt die Glyphen. Das dauert einmalig einige Minuten.
 
 ## Karte für eine Website
 
@@ -65,30 +109,73 @@ Außerdem nötig: podman, pngquant und Inkscape (`sudo dnf install pngquant inks
 ./make-tiles.py --lat 52.0211 --lon 8.5347 --style styles/clear.toml --font "Public Sans" --retina --out out/kunde-xy
 ```
 
+Das Ergebnis in `out/kunde-xy/` (`tiles/`, `leaflet/`, `index.html`) einfach neben die Website hochladen.
+
+### Optionen
+
+**Ort**
+
 | Option | Bedeutung | Standard |
 |---|---|---|
 | `--lat`, `--lon` | Position des Markers | Bielefeld-Innenstadt |
 | `--place` | Ortsname oder Adresse statt `--lat`/`--lon`, z. B. `"Sparrenburg, Bielefeld"`; per Nominatim (OSM) in Koordinaten übersetzt, erster Treffer | – |
-| `--style` | Stil-Datei aus `styles/` | `styles/clear.toml` |
-| `--font` | Schrift, z. B. `"Inter"`, `"JetBrains Mono"` | `font` im Stil |
-| `--radius` | Bereich in km um den Marker | 5 |
+| `--area` | Geofabrik-Region, muss den Bereich enthalten (https://download.geofabrik.de) | `detmold-regbez` |
+
+**Ausschnitt**
+
+| Option | Bedeutung | Standard |
+|---|---|---|
+| `--radius` | Bereich in km um den Marker (so weit lässt sich die Karte verschieben) | 5 |
 | `--zoom` | Zoomstufen | `10-18` |
-| `--detail-from`, `--detail-radius` | ab dieser Stufe nur dieser Bereich in km | 17, 1 |
+| `--detail-from`, `--detail-radius` | ab dieser Stufe nur dieser Bereich in km (spart Dateien) | 17, 1 |
 | `--viewport` | größte Kartengröße in px, damit niedrige Zoomstufen sie füllen | `2560x1440` |
-| `--retina` | zusätzlich @2x-Kacheln für hochauflösende Bildschirme | aus |
-| `--format` | `png` (Palette über pngquant) oder `webp` | `png` |
-| `--colors` | Farben je PNG-Kachel | 32 |
+
+**Aussehen**
+
+| Option | Bedeutung | Standard |
+|---|---|---|
+| `--style` | Stil-Datei aus `styles/` | `styles/clear.toml` |
+| `--font` | Schrift, z. B. `"Inter"`, `"JetBrains Mono"` (Liste in `style/fonts.toml`) | `font` im Stil |
+| `--label` | Text im Marker (Sprechblase bzw. Terminal `~/<label>`) | `hier` |
+| `--retina` | zusätzlich @2x-Kacheln für hochauflösende Bildschirme (etwa 4× so viel Speicher) | aus |
 | `--pixel [4\|2]` | 8-Bit-Look für jeden Stil (siehe [8-Bit-Modus](#8-bit-modus)), Pixel 4-fach (Schrift Silkscreen) oder 2-fach (VT323) | aus |
 | `--streets-only` | nur Straßennetz, Wasser und Ortsnamen (Poster-Look); mit `--all` nach `out/<stil>-<schrift>-streets` | aus |
-| `--area` | Geofabrik-Region, muss den Bereich enthalten (https://download.geofabrik.de) | `detmold-regbez` |
-| `--label` | Text im Marker (Sprechblase bzw. Terminal `~/<label>`) | `hier` |
+
+**Dateien**
+
+| Option | Bedeutung | Standard |
+|---|---|---|
 | `--out` | Zielordner | `out/<stilname>` |
+| `--format` | `png` (Palette über pngquant) oder `webp` | `png` |
+| `--colors` | Farben je PNG-Kachel | `colors` im Stil, sonst 32 |
 
-Nach Änderungen an Stilen die README-Bilder neu erzeugen: `./make-tiles.py --readme-previews` (gut 30 Sekunden).
+**Vergleichen und Wartung**
 
-Nach Änderungen an `template.html`, am Marker oder am Label reicht `./make-tiles.py --reindex [--label …]`: Das schreibt die `index.html` aller Varianten neu, ohne Kacheln zu rendern.
+| Option | Bedeutung |
+|---|---|
+| `--all` | alle Stile rendern, je nach `out/<stil>-<schrift>`; Vergleichsseite `out/index.html` |
+| `--all-fonts` | mit `--all`: jeden Stil in allen Schriften seiner Gruppen (dauert lange) |
+| `--missing` | mit `--all` oder `--site`: schon gerenderte Varianten überspringen |
+| `--regenerate` | mit `--all` oder `--site`: gerenderte Stile nummeriert auflisten, ausgewählte löschen und neu bauen; mit `--missing` zusätzlich die fehlenden |
+| `--force` | auch unveränderte Varianten neu rendern (nötig nach Änderungen am Python-Code) |
+| `--reindex` | nur die `index.html` aller Varianten neu schreiben, ohne Kacheln zu rendern |
+| `--site` | öffentliche Vorschau nach `site/` bauen (Einstellungen in `site.toml`) |
+| `--readme-previews` | Vorschaubilder für diese README erzeugen |
 
-Das Ergebnis in `out/kunde-xy/` (`tiles/`, `leaflet/`, `index.html`) einfach neben die Website hochladen.
+## Häufige Aufgaben
+
+| Aufgabe | Befehl |
+|---|---|
+| Karte für einen Kunden | `./make-tiles.py --place "…" --style styles/<stil>.toml --font "…" --retina --out out/kunde-xy` |
+| Stil aus einer Markenfarbe | `tools/gen_marke.py "#rrggbb" name`, dann `--style styles/name.toml` |
+| Alle Stile vergleichen | `./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina`, dann `out/index.html` öffnen |
+| Nach Änderung an `template.html`, Marker oder Label | `./make-tiles.py --reindex [--label …]` (schreibt die `index.html` aller Varianten neu, ohne Kacheln zu rendern) |
+| Nach Änderungen an Stilen: README-Bilder | `./make-tiles.py --readme-previews` (gut 30 Sekunden) |
+| Nach Änderungen am Python-Code | `--force` anhängen, sonst werden unveränderte Varianten übersprungen |
+| Einzelne Stile neu bauen | `./make-tiles.py --site --regenerate --missing` (auch mit `--all`) |
+| Öffentliche Vorschau bauen und veröffentlichen | `tools/deploy-site.sh [--no-build]` |
+| OSM-Daten aktualisieren | `data/<area>.mbtiles` löschen, beim nächsten Lauf wird sie neu gebaut |
+| Anime-Figuren neu zeichnen | `tools/gen_figures.py` |
 
 ## Varianten vergleichen
 
@@ -99,23 +186,183 @@ Das Ergebnis in `out/kunde-xy/` (`tiles/`, `leaflet/`, `index.html`) einfach neb
 ./make-tiles.py --all --font "Inter" ...                            # alle Stile in einer bestimmten Schrift
 ```
 
-Für die Vorschau nutzt jeder Stil seine `preview_font` (Standard-Stile Fira Sans, Nerd-Stile Maple Mono); 34 Varianten dauern so etwa 4 Minuten. `--missing` überspringt schon gerenderte Varianten. Unveränderte Varianten (gleicher Stil, gleiche Einstellungen, gleiche OSM-Daten) werden ohnehin übersprungen; `--force` rendert sie trotzdem neu, etwa nach Änderungen am Python-Code.
+- **Schrift:** Für die Vorschau nutzt jeder Stil seine `preview_font` (Standard-Stile Fira Sans, Nerd-Stile Maple Mono). 34 Varianten dauerten so etwa 4 Minuten.
+- **Überspringen:** `--missing` überspringt schon gerenderte Varianten. Unveränderte Varianten (gleicher Stil, gleiche Einstellungen, gleiche OSM-Daten) werden ohnehin übersprungen; `--force` rendert sie trotzdem neu, etwa nach Änderungen am Python-Code.
+- **Vergleichsseite:** `out/index.html` ist dieselbe Seite wie die öffentliche in `site/`: eine durchgehende Karte, senkrecht geteilt in einen Streifen pro Stil, mit Einzelansicht und Vergleich.
+- **Schalter:** **Standard | Nerd** und **Hell | Dunkel**. Stile derselben Familie sind Gegenstücke: Beim Umschalten wird aus Clear „Clear Dark“, aus Catppuccin Latte „Mocha“. Hat eine Familie einen Modus nicht, bleibt ihr Platz leer und ist beschriftet.
 
-`out/index.html` ist dieselbe Vorschauseite wie die öffentliche in `site/`: eine durchgehende Karte, senkrecht geteilt in einen Streifen pro Stil, mit Einzelansicht und Vergleich.
+## Öffentliche Vorschau (GitHub Pages)
 
-Sie hat die Schalter **Standard | Nerd** und **Hell | Dunkel**. Stile derselben Familie sind Gegenstücke: Beim Umschalten wird aus Clear „Clear Dark“, aus Catppuccin Latte „Mocha“. Hat eine Familie einen Modus nicht, bleibt ihr Platz leer und ist beschriftet.
-
-## Vorschau alles Stile [Github Pages](https://elbym.github.io/custom-osm-tiles/))
+Live: **https://elbym.github.io/custom-osm-tiles/**
 
 ```sh
 ./make-tiles.py --site [--missing]     # Einstellungen aus site.toml -> site/
+tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffentlicht site/ als Branch gh-pages
 ```
 
-`site.toml` legt Ort (Bielefeld, SchücoArena), Label, Zoom (15–16), Bereich (1,2 km um die SchücoArena), Retina (an; GH-Pages erlaubt 1 GB), die Familien, die nur in der README-Galerie stehen (`exclude`), die Familien mit 8-Bit-Variante (`pixel`: Phosphor, Neon Cyberpunk) und die Schrift je Gruppe fest (Standard: Fira Sans; Nerd: Maple Mono). Ergebnis ist eine statische Seite in `site/` (`index.html` = Streifen-Ansicht) für GitHub Pages; sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
+`site.toml` legt fest:
 
-Die Streifen-Seite nutzt Tailwind CSS, lokal gebaut (kein CDN): `npm install && npm run css` erzeugt `vendor/streifen.css` aus `src/streifen.css`. Im Querformat sind die Streifen senkrecht, im Hochformat (Handy) waagerecht. Der Dialog „Über“ nennt alle Quellen und Lizenzen.
+| Einstellung | Wert |
+|---|---|
+| Ort und Label | Bielefeld, SchücoArena |
+| Zoom | 15–16 |
+| Bereich | 1,5 km um die SchücoArena |
+| Retina | an (GitHub Pages erlaubt 1 GB) |
+| `exclude` | Familien, die nur in der README-Galerie stehen |
+| `pixel` | Familien mit 8-Bit-Variante: Phosphor, Neon Cyberpunk |
+| Schrift je Gruppe | Standard: Fira Sans; Nerd: Maple Mono |
+
+- **Ergebnis:** eine statische Seite in `site/` (`index.html` = Streifen-Ansicht). Sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
+- **CSS:** Die Streifen-Seite nutzt Tailwind CSS, lokal gebaut (kein CDN): `npm install && npm run css` erzeugt `vendor/streifen.css` aus `src/streifen.css`.
+- **Layout:** Im Querformat sind die Streifen senkrecht, im Hochformat (Handy) waagerecht.
+- **Quellen:** Der Dialog „Über“ nennt alle Quellen und Lizenzen.
 
 ## Stile
+
+### Übersicht: Standard
+
+| Stil (hell / dunkel) | Schrift | Vorbild / Idee |
+|---|---|---|
+| **OSM Americana** / Dark | Overpass | Stil der OSM-US-Community (openstreetmap-americana, CC0); dunkle Variante eigene Ableitung |
+| **Clear** / Clear Dark | Fira Sans | eigener Stil: kühl und reduziert, Farbe nur für Hauptstraßen (Standard) |
+| **Photon** / Dark | Fira Sans | Mozillas Photon-Farbsystem (MPL-2.0) als normale Karte: neutrale Ortsnamen, Straßenschilder, Blasen-Marker |
+| **Cupertino** / Dark | Public Sans | angelehnt an den Gesamteindruck von Apple Maps (eigene Farbwahl) |
+| **North** / Dark | DINish | Farben nach der Palette von Hydda (BSD-3) |
+| **OSM light** / OSM dark | Atkinson Hyperlegible Next | OSM-Standardkarte (openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
+| **Papier** / Papier Dunkel | Literata | eigener Stil: gedruckte Karte → [Details](#papier) |
+| **Historisch** / **Gaslicht** | TeX Gyre Schola, Ortsnamen UnifrakturMaguntia | eigener Stil: kolorierter Stadtplan um 1900 → [Details](#historisch--gaslicht) |
+| **Kupferstich** / **Kupferplatte** | IM Fell English, Ortsnamen UnifrakturMaguntia | eigener Stil: Kupferstich des 18. Jh. → [Details](#kupferstich--kupferplatte) |
+| **Anime** / Nacht | Kalam, Orts- und POI-Namen Bangers | eigener Stil im Look von Anime-Zeichentrick → [Details](#anime--anime-nacht) |
+| **Island** / **Nordlicht** | Public Sans | eigener Stil: isländische Sommerlandschaft → [Details](#island--nordlicht) |
+| **Blaue Stunde** / **Stadtlichter** | Fira Sans | eigener Stil: Stadt bei Nacht von oben → [Details](#stadtlichter--blaue-stunde) |
+| **Schwarzplan** / **Weißplan** | TeX Gyre Heros | eigener Stil: Figur-Grund-Plan → [Details](#schwarzplan--weißplan) |
+| **Lichtpause** / **Blaupause** | DINish | eigener Stil: technische Zeichnung → [Details](#blaupause--lichtpause) |
+| **Siebdruck** / Nacht | Work Sans | eigener Stil: Plakat aus drei Druckfarben → [Details](#siebdruck--siebdruck-nacht) |
+| **Aquarell** / Nacht | Alegreya Sans | eigener Stil: lavierte Federzeichnung → [Details](#aquarell--aquarell-nacht) |
+| **Marke** / Dunkel | Figtree | aus einer Kundenfarbe erzeugt → [Details](#marke--marke-dunkel) |
+| **Protomaps Light** / **Dark** | Figtree | Protomaps Basemaps (Design CC0) |
+| **Wiki** / Dark | Work Sans | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
+
+### Übersicht: Nerd
+
+| Stil (hell / dunkel) | Schrift | Vorbild / Idee |
+|---|---|---|
+| **Dayfox** / **Nightfox** | Adwaita Mono | Editor-Theme Nightfox (MIT) |
+| **Catppuccin Latte** / **Mocha** | Fantasque Sans Mono | Catppuccin (MIT) |
+| **Alucard** / **Dracula** | Fira Code | Dracula, helle Variante nach der offiziellen Alucard-Palette (MIT) |
+| **Everforest Light** / **Dark** | Ubuntu Sans Mono | Everforest (MIT) |
+| **One Light** / **Dark** | Hack | Atom One (MIT); Regenbogen: Straßenhierarchie durch die sieben Syntaxfarben |
+| **Photon Dev Light** / **Dark** | Fira Code | Theme der Mozilla-Entwicklerwerkzeuge (devtools/client/themes/variables.css, Photon-Farben, MPL-2.0): Hauptstraßen highlight-blue, Autobahn Photon-Orange, Beschriftung in der Akzentfarbe |
+| **Gruvbox Light** / **Dark** | IBM Plex Mono | Gruvbox (MIT) |
+| **Solarized Light** / **Dark** | Intel One Mono | Solarized (MIT) |
+| **Tokyo Night Day** / **Night** | JetBrains Mono | tokyonight.nvim (Apache-2.0) |
+| **Bluecron Tag** / **Bluecron** | Mozilla Text | eigener Entwurf im Look von Tron → [Details](#bluecron-tag--bluecron) |
+| **Bernstein** / **Phosphor** | VT323 | eigener Entwurf: Röhrenmonitor → [Details](#bernstein--phosphor) |
+| **Cyberpunk Day** / **Neon Cyberpunk** | Space Mono | maptoposter „neon_cyberpunk“ (MIT) → [Details](#cyberpunk-day--neon-cyberpunk) |
+
+Die Schrift in den Tabellen ist die der öffentlichen Vorschau (`site_font` im Stil, sonst die Gruppenschrift aus `site.toml`); die 8-Bit-Varianten nutzen dort Silkscreen. Mit `--font` lässt sich jeder Stil in jeder Schrift aus `style/fonts.toml` rendern.
+
+Die Stile sind eigene Umsetzungen: Von den Vorbildern sind nur Farbwerte übernommen, keine Stildateien. Jeder Nachbau nennt sein Vorbild in `attribution`; bei Wiki verlangt die Lizenz das.
+
+### Die eigenen Stile im Detail
+
+#### Papier
+
+- Warmes Cremeweiß, Sepia-Konturen, Olivgrün, wie eine gedruckte Karte.
+- Dunkel: wie auf dunklem Karton.
+
+#### Historisch / Gaslicht
+
+- Kolorierter Stadtplan um 1900: rosa Häuser, Wald-, Wiesen- und Friedhofs-Signaturen, Wasserlinien.
+- Bahn als Schwarz-Weiß-Band; stillgelegte Strecken aus OSM werden wie in Betrieb gezeichnet.
+- Altersflecken in den Kacheln, Papierkorn im Browser.
+- **Gaslicht** (dunkel): derselbe Plan bei Nacht. Blauschwarzes Papier, gelbe Hauptstraßen, Gaslaternen an Nebenstraßen.
+
+#### Kupferstich / Kupferplatte
+
+- Look eines Kupferstichs des 18. Jahrhunderts: einfarbig Sepia, sonst wie Historisch.
+- **Kupferplatte** (dunkel): die gestochene Platte selbst. Dunkle Bronze, helle Linien, Grünspan statt Altersflecken.
+
+#### Anime / Anime Nacht
+
+Allgemeiner Look von Anime-Zeichentrick, ohne Studios, Filme oder Figuren.
+
+- Cel-Shading mit hartem Schlagschatten, Tuschekonturen, Dächer in Pastelltönen.
+- Wolkenbäume, Manga-Grasbüschel, Rasterfolie, Wasser mit Glanzlinien.
+- Manga-Sprechblase als Marker.
+- **Nacht:** Tiefblau/Violett mit leuchtenden Fenstern.
+
+#### Island / Nordlicht
+
+- Isländische Sommerlandschaft: Moosgrund, Lupinenfelder, Birkengebüsch, gletschertürkises Wasser, bunte Wellblechdächer, senfgelbe Hauptstraßen.
+- Marker mit Strickborte.
+- Figuren als skandinavische Bilderbuch-Volkskunst:
+  - an Land: Islandpferde, Schafe, Papageitaucher, Polarfuchs, Kolkrabe, Rentier, Trolle (schlafend zu Stein), Huldufólk in Tracht, Elfensteine, Feen, Weihnachtskatze und Weihnachtskerl, Badende im heißen Becken
+  - im Wasser: Nykur, Marbendill, Seewurm, Wal und Eiderente
+- **Nordlicht** (dunkel): Polarnacht mit grün-violettem Nordlicht (in die Kacheln eingebacken), dunklen Dächern mit leuchtenden Fenstern, schlafenden Tieren und wachen Sagenwesen.
+
+#### Stadtlichter / Blaue Stunde
+
+Stadt bei Nacht von oben, nach einem Nachtfoto:
+
+- Straßen mit hellem Kern und orangem Lichtschein.
+- Rote und weiße Lichtspuren auf Hauptstraßen.
+- Laternen als Lichtperlen.
+- Fensterlichter, Hochhäuser kaltweiß.
+- Grünes Flutlicht auf Sportplätzen, violettes Neon in Fußgängerzonen.
+- **Blaue Stunde:** dasselbe in der Dämmerung auf Blau.
+
+#### Schwarzplan / Weißplan
+
+- Figur-Grund-Plan wie in Architektur und Stadtplanung: schwarze Gebäude auf Weiß, Straßen nur als Lücken.
+- Marker signalrot.
+- **Weißplan** (dunkel): umgekehrt.
+
+#### Blaupause / Lichtpause
+
+- Stadtplan als technische Zeichnung: helle Linien auf Preußischblau, hohle Straßen, Gebäude als Umriss, Wald als Signatur.
+- **Lichtpause** (hell): als Diazo-Kopie, blauviolett auf Weiß.
+
+#### Siebdruck / Siebdruck Nacht
+
+- Plakat aus drei Druckfarben: Leuchtpink, Blau, Gelb.
+- Wasser und Wiesen als Punktraster, Gebäudeplatte mit Passer-Versatz.
+- **Nacht:** Leuchtfarben auf schwarzem Karton.
+
+#### Aquarell / Aquarell Nacht
+
+- Lavierte Federzeichnung: Flächen mit weichem Hof und dunklerem Pigmentrand, ungleichmäßiger Farbauftrag (eingebacken).
+- **Nacht:** in Indigo.
+
+#### Marke / Marke Dunkel
+
+Aus einer Kundenfarbe erzeugt: `tools/gen_marke.py "#rrggbb" name`.
+
+- Grund und Gebäude im Farbton der Marke, Hauptstraßen in der Akzentfarbe.
+- POI-Schrift mit Kontrast ≥ 4,5:1.
+- Marker in der Kundenfarbe.
+- Beispiel in der Galerie: #2a6fdb.
+
+#### Bluecron Tag / Bluecron
+
+Eigener Entwurf (Arbeitstitel) im Look von Tron, Schrift Mozilla Text.
+
+- Fast schwarzer Grund, Gebäude als Drahtgitter mit Cyan-Kante.
+- Hauptstraßen weißglühend mit Cyan-Leuchtschein, Autobahn Orange.
+- **Bluecron Tag** (hell): Drahtgitter auf Papier, ohne Leuchten.
+
+#### Bernstein / Phosphor
+
+- Röhrenmonitor in Grün (P1-Phosphor) bzw. Bernstein (P3), Scanlines und Vignette, Schrift VT323.
+- Bernstein ist in der Familie die „helle“ Variante, obwohl das Bild dunkel ist.
+- Die Röhren-Effekte sind eine CSS-Ebene im Browser (`overlay` im Stil) und fehlen daher in den Bildern der Galerie.
+
+#### Cyberpunk Day / Neon Cyberpunk
+
+- **Neon Cyberpunk:** nach maptoposter „neon_cyberpunk“ (MIT).
+- **Cyberpunk Day** (hell): eigener Entwurf in Warnfarben. Gelber Grund, Pink und Cyan, schwarze Konturen, ohne Leuchten.
+
+### Eigenen Stil schreiben
 
 Jeder Stil ist eine kurze Textdatei in `styles/`. Das Skript baut daraus zusammen mit der Grundlage `style/base.json` (OSM Bright) den fertigen Stil.
 
@@ -137,57 +384,47 @@ hide = ["poi_r20"]           # Ebenen ausblenden (poi_r1 = wichtigste Orte, poi_
 line-color = "#e892a2"
 ```
 
-Die Ebenennamen stehen in `style/base.json`. Pro Ebene werden nur passende Eigenschaften gesetzt (`fill-*` auf Flächen, `line-*` auf Linien, `text-*`/`icon-*` auf Beschriftungen), daher sind breite Muster wie `water*` unbedenklich.
+- Die Ebenennamen stehen in `style/base.json`.
+- Pro Ebene werden nur passende Eigenschaften gesetzt (`fill-*` auf Flächen, `line-*` auf Linien, `text-*`/`icon-*` auf Beschriftungen). Breite Muster wie `water*` sind daher unbedenklich.
+- Alle Dateien lassen sich von Hand nachjustieren.
 
-| Stil | Gruppe | Schrift | Vorbild |
-|---|---|---|---|
-| **OSM Americana** / Dark | Standard | Overpass | Stil der OSM-US-Community (openstreetmap-americana, CC0); dunkle Variante eigene Ableitung |
-| **Clear** / Clear Dark | Standard | Fira Sans | eigener Stil: kühl und reduziert, Farbe nur für Hauptstraßen (Standard) |
-| **Photon** / Dark | Standard | Fira Sans | Mozillas Photon-Farbsystem (MPL-2.0) als normale Karte: neutrale Ortsnamen, Straßenschilder, Blasen-Marker |
-| **Cupertino** / Dark | Standard | Public Sans | angelehnt an den Gesamteindruck von Apple Maps (eigene Farbwahl) |
-| **North** / Dark | Standard | DINish | Farben nach der Palette von Hydda (BSD-3) |
-| **OSM light** / OSM dark | Standard | Atkinson Hyperlegible Next | OSM-Standardkarte (openstreetmap-carto, CC0), aufgehellt und aufgeräumt |
-| **Papier** | Standard | Literata | eigener Stil: warmes Cremeweiß, Sepia-Konturen, Olivgrün, wie eine gedruckte Karte; dunkel wie auf dunklem Karton |
-| **Historisch** | Standard | TeX Gyre Schola, Ortsnamen UnifrakturMaguntia | eigener Stil: kolorierter Stadtplan um 1900 (rosa Häuser, Wald-/Wiesen-/Friedhofs-Signaturen, Wasserlinien, Bahn als Schwarz-Weiß-Band, stillgelegte Strecken aus OSM wie in Betrieb, Altersflecken in den Kacheln, Papierkorn im Browser); dunkel: **Gaslicht**, derselbe Plan bei Nacht (blauschwarzes Papier, gelbe Hauptstraßen, Gaslaternen an Nebenstraßen) |
-| **Kupferstich** | Standard | IM Fell English, Ortsnamen UnifrakturMaguntia | eigener Stil im Look eines Kupferstichs des 18. Jh.: einfarbig Sepia, sonst wie Historisch; dunkel: **Kupferplatte**, die gestochene Platte selbst (dunkle Bronze, helle Linien, Grünspan statt Altersflecken) |
-| **Anime** / Nacht | Standard | Kalam, Orts- und POI-Namen Bangers | eigener Stil im allgemeinen Look von Anime-Zeichentrick (keine Studios, Filme oder Figuren): Cel-Shading mit hartem Schlagschatten, Tuschekonturen, Dächer in Pastelltönen, Wolkenbäume, Manga-Grasbüschel, Rasterfolie, Wasser mit Glanzlinien, Manga-Sprechblase als Marker; Nacht in Tiefblau/Violett mit leuchtenden Fenstern |
-| **Island** | Standard | Public Sans | eigener Stil: isländische Sommerlandschaft (Moosgrund, Lupinenfelder, Birkengebüsch, gletschertürkises Wasser, bunte Wellblechdächer, senfgelbe Hauptstraßen), Marker mit Strickborte; Figuren als skandinavische Bilderbuch-Volkskunst: Islandpferde, Schafe, Papageitaucher, Polarfuchs, Kolkrabe, Rentier, Trolle (schlafend zu Stein), Huldufólk in Tracht, Elfensteine, Feen, Weihnachtskatze und Weihnachtskerl, Badende im heißen Becken; im Wasser Nykur, Marbendill, Seewurm, Wal und Eiderente; dunkel: **Nordlicht**, Polarnacht mit grün-violettem Nordlicht (in die Kacheln eingebacken), dunklen Dächern mit leuchtenden Fenstern, schlafenden Tieren und wachen Sagenwesen |
-| **Stadtlichter** / **Blaue Stunde** | Standard | Fira Sans | eigener Stil: Stadt bei Nacht von oben, nach einem Nachtfoto: Straßen mit hellem Kern und orangem Lichtschein, rote und weiße Lichtspuren auf Hauptstraßen, Laternen als Lichtperlen, Fensterlichter (Hochhäuser kaltweiß), grünes Flutlicht auf Sportplätzen, violettes Neon in Fußgängerzonen; Blaue Stunde dasselbe in der Dämmerung auf Blau |
-| **Schwarzplan** / **Weißplan** | Standard | TeX Gyre Heros | eigener Stil: Figur-Grund-Plan wie in Architektur und Stadtplanung, schwarze Gebäude auf Weiß, Straßen nur als Lücken, Marker signalrot; dunkel umgekehrt |
-| **Blaupause** / **Lichtpause** | Standard | DINish | eigener Stil: Stadtplan als technische Zeichnung, helle Linien auf Preußischblau, hohle Straßen, Gebäude als Umriss, Wald als Signatur; hell als Diazo-Kopie (blauviolett auf Weiß) |
-| **Siebdruck** / Nacht | Standard | Work Sans | eigener Stil: Plakat aus drei Druckfarben (Leuchtpink, Blau, Gelb), Wasser und Wiesen als Punktraster, Gebäudeplatte mit Passer-Versatz; Nacht in Leuchtfarben auf schwarzem Karton |
-| **Aquarell** / Nacht | Standard | Alegreya Sans | eigener Stil: lavierte Federzeichnung, Flächen mit weichem Hof und dunklerem Pigmentrand, ungleichmäßiger Farbauftrag (eingebacken); Nacht in Indigo |
-| **Marke** / Dunkel | Standard | Figtree | aus einer Kundenfarbe erzeugt (`tools/gen_marke.py "#rrggbb" name`): Grund und Gebäude im Farbton der Marke, Hauptstraßen in der Akzentfarbe, POI-Schrift mit Kontrast ≥ 4,5:1, Marker in der Kundenfarbe; Beispiel mit #2a6fdb |
-| **Protomaps Light** / **Dark** | Standard | Figtree | Protomaps Basemaps (Design CC0) |
-| **Wiki** / Dark | Standard | Work Sans | Wikimedia Maps (github.com/wikimedia/osm-bright.tm2; Design CC BY 3.0, Namensnennung im Stil) |
-| **Dayfox** / **Nightfox** | Nerd | Adwaita Mono | Editor-Theme Nightfox (MIT) |
-| **Catppuccin Latte** / **Mocha** | Nerd | Fantasque Sans Mono | Catppuccin (MIT) |
-| **Alucard** / **Dracula** | Nerd | Fira Code | Dracula, helle Variante nach der offiziellen Alucard-Palette (MIT) |
-| **Everforest Light** / **Dark** | Nerd | Ubuntu Sans Mono | Everforest (MIT) |
-| **One Light** / **Dark** | Nerd | Hack | Atom One (MIT); Regenbogen: Straßenhierarchie durch die sieben Syntaxfarben |
-| **Photon Dev Light** / **Dark** | Nerd | Fira Code | Theme der Mozilla-Entwicklerwerkzeuge (devtools/client/themes/variables.css, Photon-Farben, MPL-2.0): Hauptstraßen highlight-blue, Autobahn Photon-Orange, Beschriftung in der Akzentfarbe |
-| **Gruvbox Light** / **Dark** | Nerd | IBM Plex Mono | Gruvbox (MIT) |
-| **Solarized Light** / **Dark** | Nerd | Intel One Mono | Solarized (MIT) |
-| **Tokyo Night Day** / **Night** | Nerd | JetBrains Mono | tokyonight.nvim (Apache-2.0) |
-| **Bluecron Tag** / **Bluecron** | Nerd | Mozilla Text | eigener Entwurf (Arbeitstitel) im Look von Tron: fast schwarzer Grund, Gebäude als Drahtgitter mit Cyan-Kante, Hauptstraßen weißglühend mit Cyan-Leuchtschein, Autobahn Orange; hell als Drahtgitter auf Papier ohne Leuchten. Schrift Mozilla Text |
-| **Bernstein** / **Phosphor** | Nerd | VT323 | eigener Entwurf: Röhrenmonitor in Grün (P1-Phosphor) bzw. Bernstein (P3), Scanlines und Vignette, Schrift VT323. Bernstein ist in der Familie die „helle“ Variante, obwohl das Bild dunkel ist. Die Röhren-Effekte sind eine CSS-Ebene im Browser (`overlay` im Stil) und fehlen daher in den Bildern oben |
-| **Cyberpunk Day** / **Neon Cyberpunk** | Nerd | Space Mono | maptoposter „neon_cyberpunk“ (MIT); helle Variante eigener Entwurf in Warnfarben: gelber Grund, Pink und Cyan, schwarze Konturen, ohne Leuchten |
+### Marker
 
-Die Schrift ist die der öffentlichen Vorschau (`site_font` im Stil, sonst die Gruppenschrift aus `site.toml`); die 8-Bit-Varianten nutzen dort Silkscreen. Mit `--font` lässt sich jeder Stil in jeder Schrift aus `style/fonts.toml` rendern.
+| Gruppe | Marker | Aussehen |
+|---|---|---|
+| Standard | **Blasen-Marker** (`[marker]`, `type = "bubble"`) | Das Label in einem abgerundeten Kasten, darunter ein Stiel mit einem Punkt genau auf der Position, damit das Ziel frei bleibt. Bei hellen Stilen weiß, bei dunklen im Grundton; Rahmen, Stiel und Punkt in der Akzentfarbe des Stils. |
+| Nerd | **Terminal-Marker** (`[marker]`, `type = "terminal"`, `color`, `color2`, `bg`, `fg`) | Ein Kästchen `~/<label>` mit Block-Cursor (nicht blinkend) in den Akzentfarben, darunter Stiel und Punkt auf der Position. Der Text nutzt die Monoschrift des Betrachters (`ui-monospace`). |
 
-Die Stile sind eigene Umsetzungen: Von den Vorbildern sind nur Farbwerte übernommen, keine Stildateien. Jeder Nachbau nennt sein Vorbild in `attribution`; bei Wiki verlangt die Lizenz das.
+### POI-Symbole
 
-Die Standard-Stile haben einen **Blasen-Marker**: das Label in einem abgerundeten Kasten, darunter ein Stiel mit einem Punkt genau auf der Position, damit das Ziel frei bleibt. Bei hellen Stilen weiß, bei dunklen im Grundton, Rahmen, Stiel und Punkt in der Akzentfarbe des Stils (Abschnitt `[marker]`, `type = "bubble"`).
+- Symbole sind [Phosphor Icons](https://phosphoricons.com/) (MIT) im Kreis.
+- Kreis in einer dezenten Variante der Akzentfarbe des Stils, Symbol in seiner POI-Farbe.
+- Die Strichstärke folgt der Schrift: Mono fett, Serif leicht, sonst normal.
+- Zuordnung in `style/icons.toml`.
+- Motive, die Phosphor fehlen (Riesenrad, Hubschrauber, Obelisk, Rutsche, Vulkan, Elefant, Amphore, Staudamm), sind im Phosphor-Stil nachgezeichnet (`vendor/phosphor-extra/`).
 
-Die Nerd-Stile haben statt des Leaflet-Markers einen **Terminal-Marker**: ein Kästchen `~/<label>` mit Block-Cursor (nicht blinkend) in den Akzentfarben, darunter Stiel und Punkt auf der Position (Abschnitt `[marker]` in der Stil-Datei: `type = "terminal"`, `color`, `color2`, `bg`, `fg`). Der Text nutzt die Monoschrift des Betrachters (`ui-monospace`).
+### Farbregeln
 
-POI-Symbole sind [Phosphor Icons](https://phosphoricons.com/) (MIT) im Kreis: Kreis in einer dezenten Variante der Akzentfarbe des Stils, Symbol in seiner POI-Farbe. Die Strichstärke folgt der Schrift (Mono fett, Serif leicht, sonst normal). Zuordnung in `style/icons.toml`. Motive, die Phosphor fehlen (Riesenrad, Hubschrauber, Obelisk, Rutsche, Vulkan, Elefant, Amphore, Staudamm), sind im Phosphor-Stil nachgezeichnet (`vendor/phosphor-extra/`).
+**Grünflächen in den Nerd-Stilen.** Parks, Wiesen und Wald erscheinen in der Signaturfarbe des Themes, mit dem Grund gemischt:
 
-Grünflächen (Parks, Wiesen, Wald) erscheinen in den Nerd-Stilen in der Signaturfarbe des Themes, mit dem Grund gemischt: Tokyo Night Neon-Pink, Dracula/Alucard Lila, Catppuccin Peach, Nightfox/Dayfox Cyan, Solarized Gold (bei Solarized Dark in OKLCH bestimmt, weil die Mischung mit dem blaugrünen Grund sonst Grün ergäbe), Gruvbox Orange. One (Regenbogen) zeigt Wald violett, Wiesen grün und Häuser je nach OSM-ID in einer der sieben Farben. Everforest bleibt grün, weil Grün dort die Signaturfarbe ist.
+| Theme | Farbe der Grünflächen |
+|---|---|
+| Tokyo Night | Neon-Pink |
+| Dracula / Alucard | Lila |
+| Catppuccin | Peach |
+| Nightfox / Dayfox | Cyan |
+| Solarized | Gold (bei Solarized Dark in OKLCH bestimmt, weil die Mischung mit dem blaugrünen Grund sonst Grün ergäbe) |
+| Gruvbox | Orange |
+| One (Regenbogen) | Wald violett, Wiesen grün, Häuser je nach OSM-ID in einer der sieben Farben |
+| Everforest | bleibt grün, weil Grün dort die Signaturfarbe ist |
 
-In den Nerd-Stilen erscheinen Straßennummern (A, B, L, K) ohne weißes Schild, dafür in den Akzentfarben des Themes, je nach Straßenart (Block „Akzent-Beschriftung“ am Ende der Datei).
+**Straßennummern in den Nerd-Stilen.** A, B, L, K erscheinen ohne weißes Schild, dafür in den Akzentfarben des Themes, je nach Straßenart (Block „Akzent-Beschriftung“ am Ende der Datei).
 
-Die dunklen Standard-Stile sind nicht invertiert (dann würden weiße Straßen dunkler als der Grund), sondern über Kartenrollen abgeleitet: Aus dem Farbton des hellen Grunds entsteht eine dunkle Graustufenleiter mit demselben Charakter (Clear kühl, Wiki warm); Wasser, Grün und Straßenfarben behalten Farbton und Sättigung und werden nur in der Helligkeit angepasst (OKLCH). Die Editor-Themes ordnen ihre Paletten denselben Rollen zu (Grund, Gebäude, Wasser, Grün, drei Straßenstufen, Schrift). Alle Dateien lassen sich von Hand nachjustieren.
+**Dunkle Standard-Stile.** Sie sind nicht invertiert (dann würden weiße Straßen dunkler als der Grund), sondern über Kartenrollen abgeleitet:
+
+- Aus dem Farbton des hellen Grunds entsteht eine dunkle Graustufenleiter mit demselben Charakter (Clear kühl, Wiki warm).
+- Wasser, Grün und Straßenfarben behalten Farbton und Sättigung und werden nur in der Helligkeit angepasst (OKLCH).
+- Die Editor-Themes ordnen ihre Paletten denselben Rollen zu: Grund, Gebäude, Wasser, Grün, drei Straßenstufen, Schrift.
 
 ## Schriften
 
@@ -203,31 +440,34 @@ scale   = 1.05     # optional: Größenfaktor
 streets = "450"    # optional: eigener Schnitt für Straßennamen (muss oben als Schnitt stehen)
 ```
 
-Ohne Achsenwerte wird die Datei unverändert übernommen, mit Achsenwerten wird aus der variablen Schrift ein fester Schnitt erzeugt. Neue Schrift: Dateien nach `fonts-src/<schrift>/` legen und eine Tabelle in `fonts.toml` ergänzen. Nach einer Änderung an einem bestehenden Schnitt dessen Ordner in `style/fonts/` löschen, damit er neu erzeugt wird.
+- **Ohne Achsenwerte** wird die Datei unverändert übernommen, **mit Achsenwerten** wird aus der variablen Schrift ein fester Schnitt erzeugt.
+- **Neue Schrift:** Dateien nach `fonts-src/<schrift>/` legen und eine Tabelle in `fonts.toml` ergänzen.
+- **Schnitt geändert:** dessen Ordner in `style/fonts/` löschen, damit er neu erzeugt wird.
+- **Kombinieren:** Mit `--font` lässt sich jede Schrift mit jedem Stil kombinieren, auch eine Monoschrift mit einem Standard-Stil. Die Gruppen und `preview_font` legen nur fest, was `--all` bzw. `--all-fonts` automatisch rendert.
+- **Noto Sans** ist keine eigene Variante, sondern nur Ersatz für Zeichen, die einer Schrift fehlen (z. B. Kyrillisch).
 
 | Schrift | Gruppe | Lizenz |
 |---|---|---|
 | Atkinson Hyperlegible Next, DINish, Figtree, Fira Sans, Inter, Mozilla Text, Overpass, Public Sans, Work Sans | sans | OFL |
 | TeX Gyre Heros | sans | GUST Font License |
 | Literata, IM Fell English | serif | OFL |
+| TeX Gyre Schola | serif | GUST Font License |
 | UnifrakturMaguntia | blackletter (nur Ortsnamen in Historisch/Kupferstich) | OFL |
 | Kalam | display (nur Anime) | OFL |
 | Bangers | comic (nur Orts- und POI-Namen in Anime) | OFL |
 | Alegreya Sans | display (Aquarell) | OFL |
 | Uncial Antiqua | uncial (ungenutzt, früher Ortsnamen und Marker in Island) | OFL |
-| TeX Gyre Schola | serif | GUST Font License |
 | Adwaita Mono, Fantasque Sans Mono, Fira Code, IBM Plex Mono, Intel One Mono, JetBrains Mono, Maple Mono, Space Mono, Victor Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | OFL |
 | Hack | mono (bei `--all-fonts` nur für Nerd-Stile) | MIT + Bitstream-Vera-Lizenz |
 | Ubuntu Sans Mono | mono (bei `--all-fonts` nur für Nerd-Stile) | Ubuntu Font Licence 1.0 |
 | Press Start 2P, Silkscreen, VT323 | pixel (nur für `--pixel`) | OFL |
 
-Noto Sans ist keine eigene Variante, sondern nur Ersatz für Zeichen, die einer Schrift fehlen (z. B. Kyrillisch).
-
-Mit `--font` lässt sich jede Schrift mit jedem Stil kombinieren, auch eine Monoschrift mit einem Standard-Stil. Die Gruppen und `preview_font` legen nur fest, was `--all` bzw. `--all-fonts` automatisch rendert.
-
 ## Bildformat
 
-Standard: PNG mit 32-Farben-Palette über pngquant, danach verlustfrei mit oxipng nachkomprimiert (optional, `cargo install oxipng`; ohne oxipng wird der Schritt übersprungen).
+**Kurz:** PNG mit 32 Farben ist der beste Kompromiss aus Größe und Genauigkeit.
+
+- **Standard:** PNG mit 32-Farben-Palette über pngquant, danach verlustfrei mit oxipng nachkomprimiert (optional, `cargo install oxipng`; ohne oxipng wird der Schritt übersprungen).
+- **Ohne Dithering** (`--nofs`), sonst werden die Dateien größer und die Flächen unruhig.
 
 Gemessen an 80 Retina-Kacheln um die Sparrenburg (Zoom 16; Stile Clear, Papier, Protomaps Dark, Dracula, Gruvbox Light):
 
@@ -237,9 +477,9 @@ Gemessen an 80 Retina-Kacheln um die Sparrenburg (Zoom 16; Stile Clear, Papier, 
 | 24 | 3,30 MB | 3,04 MB | 0,88 % |
 | **32** (Standard) | 3,62 MB | **3,37 MB** | **0,70 %** |
 
-oxipng kostet auf einer 2-Kern-VM etwa 0,2 s pro Kachel. Unter 16 Farben verlieren Symbole sichtbar Farbe. Zum Vergleich (ältere Messung, Stil Clear): WebP ist etwa so groß wie 32 Farben ohne oxipng, weicht aber mit 0,91 % stärker ab.
-
-Ohne Dithering (`--nofs`), sonst werden die Dateien größer und die Flächen unruhig.
+- oxipng kostet auf einer 2-Kern-VM etwa 0,2 s pro Kachel.
+- Unter 16 Farben verlieren Symbole sichtbar Farbe.
+- WebP (ältere Messung, Stil Clear) ist etwa so groß wie 32 Farben ohne oxipng, weicht aber mit 0,91 % stärker ab.
 
 ## 8-Bit-Modus
 
@@ -251,13 +491,17 @@ Ohne Dithering (`--nofs`), sonst werden die Dateien größer und die Flächen un
 ./make-tiles.py --style styles/dracula.toml --pixel --font "Press Start 2P"   # andere Pixelschrift
 ```
 
+**Voraussetzung:** numpy, Pillow und scipy (`requirements.txt`).
+
+**So funktioniert es:**
+
 - **Pixel:** Jede Kachel entsteht aus der Kachel zwei Zoomstufen darüber. Deren passendes Sechzehntel (64×64 px) sind die echten 8-Bit-Pixel, die ohne Glättung auf 256 px vergrößert werden, also 4×4-Blöcke (@2x: 8×8). Mit `--pixel 2` eine Stufe darüber, 128×128 px und 2×2-Blöcke.
 - **Farben:** eine Palette mit 16 Farben je Stil, für alle Kacheln gleich. Sie stammt aus den Farben der Stil-Datei: die häufigste, dann die, die sich am stärksten unterscheiden. Jedes Pixel bekommt flach die nächste Palettenfarbe: Leuchtschein und Kanten werden zu harten Stufen, verirrte Einzelpixel verschwinden.
 - **Beschriftung:** wird getrennt von der Karte gerendert (eigene kleine Palette mit den Textfarben), in dreifacher Auflösung, je Beschriftung so verschoben, dass die Striche genau ins 8-Bit-Raster fallen, und dann in die Kachel eingebacken. So bleibt Schrift scharf, auch wenn sie dieselbe Farbe wie eine Straße hat.
 - **Umrisse und Muster:** Flächen neben deutlich helleren Pixeln bekommen einen dunklen Umriss (wie in Sierra-Spielen), außer direkt an der Schrift. Wasser hat Wellenstriche, Parks ein Punktmuster, beide deckungsgleich über Kachelgrenzen.
 - **Schrift:** Ein Schriftpixel ist genau ein 8-Bit-Pixel (`grid` in `fonts.toml`, Silkscreen 8 px, VT323 12,5 px). Bei 4-fachen Pixeln ist jede Beschriftung genau einen Rasterschritt groß und erscheint zwei Zoomstufen früher, weil die Karte zwei Stufen gröber gezeichnet wird. Straßennamen stehen waagerecht, weil schräge Schrift nie ins Raster passt.
 - **Anzeige:** Die Kartenseite zeigt hochgezoomte Kacheln ohne Glättung (`image-rendering: pixelated`).
-- **Voraussetzung:** numpy und Pillow (`requirements.txt`).
+- **Einschränkung:** Da die Karte gröber gezeichnet wird, zeigt sie weniger Beschriftung und Details; die Symbole sind entsprechend größer.
 
 | Schrift | Charakter |
 |---|---|
@@ -265,19 +509,21 @@ Ohne Dithering (`--nofs`), sonst werden die Dateien größer und die Flächen un
 | **VT323** (Standard bei `--pixel 2`) | Terminalschrift (DEC VT320), schmal, gut lesbar |
 | Press Start 2P | Arcade-Klassiker, breit und fett, am deutlichsten „8 Bit“ |
 
-Da die Karte gröber gezeichnet wird, zeigt sie weniger Beschriftung und Details; die Symbole sind entsprechend größer.
-
-## Ablauf
+## Wie es technisch funktioniert
 
 1. **Planetiler** (Podman) baut aus dem Geofabrik-Extrakt einmalig `data/<area>.mbtiles` (OpenMapTiles-Schema). Zum Aktualisieren die Datei löschen.
-2. **tileserver-gl** (Podman) rendert den Stil; das Skript fragt nur die nötigen Kacheln ab, vier gleichzeitig, reduziert sie mit pngquant auf eine Farbpalette und komprimiert sie mit oxipng nach.
+2. **tileserver-gl** (Podman) rendert den Stil. Das Skript fragt nur die nötigen Kacheln ab, vier gleichzeitig, reduziert sie mit pngquant auf eine Farbpalette und komprimiert sie mit oxipng nach.
 3. Der Container wird danach gestoppt. Das Ergebnis ist rein statisch.
 
 Namensnennung auf der Karte: © OpenStreetMap-Mitwirkende (ODbL), © OpenMapTiles, dazu das `attribution` des Stils.
 
 ### Warum OpenMapTiles?
 
-Das Schema legt fest, welche Layer und Felder die Kacheln haben und was bei welchem Zoom wegfällt oder vereinfacht wird (Generalisierung). Planetiler bringt es fertig mit, und der Basis-Stil OSM Bright ist dafür gebaut; alle Stile hier sind nur Farb- und Schrift-Overrides darauf. Der Preis ist die Namensnennung (CC BY 4.0).
+**Kurz:** Es funktioniert, alle Stile bauen darauf auf, und die Alternativen würden nichts Sichtbares verbessern.
+
+- Das Schema legt fest, welche Layer und Felder die Kacheln haben und was bei welchem Zoom wegfällt oder vereinfacht wird (Generalisierung).
+- Planetiler bringt es fertig mit, und der Basis-Stil OSM Bright ist dafür gebaut; alle Stile hier sind nur Farb- und Schrift-Overrides darauf.
+- Der Preis ist die Namensnennung (CC BY 4.0).
 
 Geprüfte Alternativen (Stand 11/2026, aus dem Gedächtnis zusammengefasst):
 
