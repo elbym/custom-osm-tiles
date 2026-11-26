@@ -185,6 +185,8 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - Dark styles need the `highway-area` and `aeroway-*` overrides, otherwise OSM Bright's light grey pedestrian areas glare. They also need lighter minor roads to stand out from buildings.
   - The generator scripts were one-offs and are not in the repo. The TOMLs are now the source of truth; edit them by hand.
 
+The figure style rules for humans (look per style, poses, rejected motifs, how to add a figure) are in `docs/figuren.md` (German, user request 2026-11-26); keep it in sync when figures change.
+
 ## 8-bit mode
 
 - `--pixel [4|2]` (user request 2026-11-23, reworked 2026-11-24 after the user sent Sierra/synthwave pixel-art references: the Bayer version "funktioniert nicht", wanted the character of 8-bit art; user chose 4× + outlines). Default 4: for each tile `render()` fetches the z-2 ancestor (`parent()`, an lru_cache cleared per render, because the URL on port 8089 is the same for every style) and `lowres()` crops its 64 px piece (`--pixel 2`: z-1, 128 px). pngquant is not used.

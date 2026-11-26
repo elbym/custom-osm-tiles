@@ -277,6 +277,8 @@ Die Stile sind eigene Umsetzungen: Von den Vorbildern sind nur Farbwerte überno
 
 ### Die eigenen Stile im Detail
 
+Die Figuren in Anime, Island und den historischen Stilen folgen eigenen Regeln (Look, Posen, No-Gos, neue Figur hinzufügen): [docs/figuren.md](docs/figuren.md).
+
 #### Papier
 
 - Warmes Cremeweiß, Sepia-Konturen, Olivgrün, wie eine gedruckte Karte.
