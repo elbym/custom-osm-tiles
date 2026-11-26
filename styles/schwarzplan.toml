@@ -4,6 +4,7 @@
 #   - Wasser blassgrau, damit Flüsse und Teiche lesbar bleiben
 #   - Gebäude gibt es in OpenMapTiles erst ab z13: darunter stehen die Siedlungsflächen dunkelgrau (blenden bis z13 aus)
 #   - einzige Farbe: Marker in Signalrot (wie das Projektgrundstück im Lageplan)
+#   - kein reines Schwarz/Weiß (Nutzerwunsch 2026-11-26, zu hart): warmes Papierweiß und Anthrazit, Kontrast 12,6:1 statt 19:1
 title = "Schwarzplan"
 category = "standard"
 mode = "light"
@@ -19,30 +20,30 @@ hide = ["highway-area", "highway-*casing", "highway-motorway*", "highway-link", 
         "building-top", "waterway_tunnel", "waterway_line_label", "water_name_*"]
 
 [paint."background"]
-background-color = "#ffffff"
+background-color = "#f3f0e9"
 # Siedlungsflächen nur, solange es noch keine Gebäude gibt
 [paint."landuse-*"]
-fill-color = "#2a2a2a"
+fill-color = "#2b2a27"
 fill-opacity = ["interpolate", ["linear"], ["zoom"], 10, 0.7, 12, 0.45, 13, 0]
 [paint."water*"]
-fill-color = "#dde1e4"
-line-color = "#dde1e4"
+fill-color = "#d5dadb"
+line-color = "#d5dadb"
 [paint."building"]
-fill-color = "#111111"
-fill-outline-color = "#111111"
+fill-color = "#2b2a27"
+fill-outline-color = "#2b2a27"
 fill-opacity = 1
 
 [paint."label_*"]
-text-color = "#111111"
-text-halo-color = "#ffffff"
+text-color = "#2b2a27"
+text-halo-color = "#f3f0e9"
 [paint."highway-name-*"]
-text-color = "#8a8a8a"
-text-halo-color = "#ffffff"
+text-color = "#86837c"
+text-halo-color = "#f3f0e9"
 [paint."poi_*"]
 text-color = "#555555"   # unsichtbar (poi_* aus), nur für die Symbolfarben im Sprite
 
 [marker]
 type = "bubble"
 color = "#e0301e"
-bg = "#ffffff"
-fg = "#111111"
+bg = "#f3f0e9"
+fg = "#2b2a27"

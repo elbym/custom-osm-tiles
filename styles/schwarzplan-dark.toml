@@ -1,5 +1,6 @@
 # "Weißplan" (dunkler Partner von Schwarzplan, Nutzerwunsch 2026-11-26): derselbe Figur-Grund-Plan umgekehrt,
-#   weiße Gebäude auf Fast-Schwarz, Wasser dunkles Schiefergrau, Marker in Signalrot.
+#   knochenweiße Gebäude auf Anthrazit (kein reines Schwarz/Weiß, Nutzerwunsch 2026-11-26; Kontrast 11,5:1 statt 15:1),
+#   Wasser dunkles Schiefergrau, Marker in Signalrot.
 #   Gleicher Aufbau wie schwarzplan.toml (Begründungen dort), nur die Farben getauscht; Änderungen in beiden nachziehen.
 title = "Weißplan"
 category = "standard"
@@ -16,30 +17,30 @@ hide = ["highway-area", "highway-*casing", "highway-motorway*", "highway-link", 
         "building-top", "waterway_tunnel", "waterway_line_label", "water_name_*"]
 
 [paint."background"]
-background-color = "#141414"
+background-color = "#24262a"
 # Siedlungsflächen nur, solange es noch keine Gebäude gibt
 [paint."landuse-*"]
-fill-color = "#dcdcdc"
+fill-color = "#e4e0d6"
 fill-opacity = ["interpolate", ["linear"], ["zoom"], 10, 0.7, 12, 0.45, 13, 0]
 [paint."water*"]
-fill-color = "#3a4046"
-line-color = "#3a4046"
+fill-color = "#363d44"
+line-color = "#363d44"
 [paint."building"]
-fill-color = "#e8e8e8"
-fill-outline-color = "#e8e8e8"
+fill-color = "#e4e0d6"
+fill-outline-color = "#e4e0d6"
 fill-opacity = 1
 
 [paint."label_*"]
-text-color = "#ffffff"
-text-halo-color = "#141414"
+text-color = "#e4e0d6"
+text-halo-color = "#24262a"
 [paint."highway-name-*"]
-text-color = "#8c8c8c"
-text-halo-color = "#141414"
+text-color = "#8f8c85"
+text-halo-color = "#24262a"
 [paint."poi_*"]
 text-color = "#aaaaaa"   # unsichtbar (poi_* aus), nur für die Symbolfarben im Sprite
 
 [marker]
 type = "bubble"
 color = "#e0301e"
-bg = "#141414"
-fg = "#ffffff"
+bg = "#24262a"
+fg = "#e4e0d6"
