@@ -1,5 +1,6 @@
 # "Weißplan" (dunkler Partner von Schwarzplan, Nutzerwunsch 2026-11-26): derselbe Figur-Grund-Plan umgekehrt,
 #   weiße Gebäude auf Fast-Schwarz, Wasser dunkles Schiefergrau, Marker in Signalrot.
+#   Gleicher Aufbau wie schwarzplan.toml (Begründungen dort), nur die Farben getauscht; Änderungen in beiden nachziehen.
 title = "Weißplan"
 category = "standard"
 mode = "dark"

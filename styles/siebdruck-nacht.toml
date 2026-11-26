@@ -1,5 +1,7 @@
 # "Siebdruck Nacht" (dunkler Partner von Siebdruck, Nutzerwunsch 2026-11-26): dieselben Platten in Leuchtfarben auf
 #   schwarzem Karton; Gebäude pink gedeckt, Wasser blaues Raster, Wald blaugrün, Beschriftung gelb.
+#   Gleicher Aufbau wie siebdruck.toml (Begründungen dort: vorgemischter Überdruck, Punktraster, Passer-Versatz);
+#   Änderungen an Ebenen in beiden Dateien nachziehen.
 title = "Siebdruck Nacht"
 category = "standard"
 mode = "dark"

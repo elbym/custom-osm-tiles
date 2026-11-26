@@ -1,5 +1,8 @@
 # "Lichtpause" (heller Partner von Blaupause, Nutzerwunsch 2026-11-26): dieselbe technische Zeichnung als
 #   Diazo-Kopie, blauviolette Linien auf gebrochenem Weiß, Marker als roter Korrekturstift.
+#   Per Farbtausch aus blaupause.toml entstanden: Aufbau und Ebenen dort ändern und hier nachziehen. Die Reihenfolge
+#   der Straßen-Globs zählt (erst highway-*/bridge-*/tunnel-* als Füllung, dann *-casing, weil highway-* auch die
+#   Ränder trifft).
 title = "Lichtpause"
 category = "standard"
 mode = "light"

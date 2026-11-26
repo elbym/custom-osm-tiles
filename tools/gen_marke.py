@@ -94,6 +94,7 @@ def colours(accent, dark):
 TEMPLATE = '''# "{title}" ({mode_de}): Markenstil, erzeugt von tools/gen_marke.py aus der Akzentfarbe {accent}.
 #   Grund und Gebäude leicht im Farbton der Marke, Haupt- und Fernstraßen in der Akzentfarbe, Wasser blau, Grün grün;
 #   POI-Schrift in der Akzentfarbe mit Kontrast >= 4,5:1, Marker in der unveränderten Kundenfarbe.
+#   Erneutes Erzeugen überschreibt diese Datei; Handänderungen also erst nach dem letzten Erzeugen.
 title = "{title}"
 category = "standard"
 mode = "{mode}"

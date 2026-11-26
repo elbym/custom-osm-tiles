@@ -4,8 +4,8 @@
 #   - Straßen leuchten wie Natriumdampflampen, nah dunkler Asphalt mit Lichtspur-Bündeln wie auf Langzeitbelichtungen;
 #     in der Übersicht heller Kern, breiter weichgezeichneter Schein
 #     (Ränder als Glow); Hauptstraßen und Autobahn fast weißglühend, Nebenstraßen gedämpft orange
-#   - Gebäude dunkel mit Fensterraster je Gebäude (fenster-dicht/-spaerlich, nach OSM-ID: halb fast dunkel, sonst warm,
-#     jedes sechste kalt); Streulicht-Muster der Wohnflächen nur in der Übersicht bis z14
+#   - Fensterraster je Gebäude (fenster-dicht/-spaerlich, nach OSM-ID: halb fast dunkel, sonst warm, jedes sechste kalt)
+#     voll in den Hauswänden, auf dem versetzten Dach nur gedimmt (fenster-*-dach); Streulicht-Muster der Wohnflächen nur in der Übersicht bis z14
 #   - Sportplätze im Flutlicht grün
 title = "Stadtlichter"
 category = "standard"

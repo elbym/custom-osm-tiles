@@ -1,6 +1,7 @@
 # "Blaue Stunde": helles Gegenstück zu Stadtlichter (Nutzerwunsch 2026-11-25): Dämmerung kurz nach Sonnenuntergang,
 # der Himmel noch tiefblau, die Lichter schon an. Gleiche Ebenen wie Stadtlichter, Grund mittelblau, Schein schwächer
 # (in der Dämmerung überstrahlt Licht weniger), Beschriftung weiß auf Nachtblau.
+#   Fenster wie in Stadtlichter: voll in den Hauswänden, gedimmt auf dem versetzten Dach.
 title = "Blaue Stunde"
 category = "standard"
 mode = "light"
