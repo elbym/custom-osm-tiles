@@ -4,8 +4,8 @@ area = "detmold-regbez"    # Geofabrik-Extrakt (Bielefeld liegt im Regierungsbez
 lat = 52.0320              # SchücoArena, Bielefeld
 lon = 8.5168               # Stadion laut OSM (Nominatim)
 label = "SchücoArena"      # Text im Marker
-zoom = "15-17"
-radius = 1.2               # km um den Mittelpunkt; kleiner Ausschnitt rund um die Sparrenburg (Kacheln: mindestens
+zoom = "15-16"
+radius = 1.5               # km um den Mittelpunkt; kleiner Ausschnitt rund um die Sparrenburg (Kacheln: mindestens
                            # ein viewport, siehe tiles_for(); größere Fenster sind dann nicht mehr verschiebbar)
 viewport = "1920x1920"     # größte Kartengröße; quadratisch, damit Hoch- und Querformat gefüllt sind
 retina = true              # @2x zusätzlich; bei 1,2 km Radius ca. 350–400 MB (Pages-Limit 1 GB)
