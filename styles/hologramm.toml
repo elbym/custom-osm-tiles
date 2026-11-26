@@ -109,8 +109,9 @@ fg = "#e6fcff"
 [patterns]
 holoraster = { symbol = "holoraster", color = "#2a3a66", bg = "#07060f" }
 
-# >>> Hologramm-Scheiben (erzeugt: 6 Schwellen render_height 0/6/12/20/32/50 m, Versatz je Scheibe 0.6/−1.6 px bei
-# Stil-Zoom 15 und 1/−2 px bei 17; je Scheibe Fläche 5 % + Kante, dazu der Deckel für Gebäude, deren oberste Scheibe das ist)
+# >>> Hologramm-Scheiben: erzeugt von tools/gen_holo.py (nicht von Hand bearbeiten, dort ändern und neu erzeugen).
+# 6 Schwellen render_height, Gebäude per OSM-ID und Höhe in 3 Gruppen mit eigener Neigung, Farbe und Linienart, flackernde Scheiben,
+# Neon-Deckel ab 12 m, Glitch-Band bei jedem 7. Hochhaus. holo-glitch: Grundriss in Magenta 1 px nach links (Aberration).
 [[layers]]
 source-layer = "building"
 like = "building"
@@ -124,163 +125,568 @@ source-layer = "building"
 like = "building"
 type = "fill"
 after = "holo-glitch"
-id = "holo-0"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 0]
+id = "holo-0-0"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 0]]
 minzoom = 13
-paint = { fill-color = "#00e5ff", fill-opacity = 0.1, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.0, -0.0]], 17, ["literal", [0.0, -0.0]]] }
+paint = { fill-color = "#00e5ff", fill-opacity = 0.1, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.0, -0.0]], 17, ["literal", [0.0, -0.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "line"
-after = "holo-0"
-id = "holo-0-kante"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 0]
+after = "holo-0-0"
+id = "holo-0-0-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 0]]
 minzoom = 13
 paint = { line-color = "#00e5ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.0, -0.0]], 17, ["literal", [0.0, -0.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
-type = "line"
-after = "holo-0-kante"
-id = "holo-0-deckel"
-filter = ["all", [">=", ["coalesce", ["get", "render_height"], 0], 0], ["<", ["coalesce", ["get", "render_height"], 0], 6]]
+type = "fill"
+after = "holo-0-0-kante"
+id = "holo-0-1"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 6]]
 minzoom = 13
-paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.0, -0.0]], 17, ["literal", [0.0, -0.0]]] }
+paint = { fill-color = "#22d4ff", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 90]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.6, -1.6]], 17, ["literal", [1.0, -2.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-0-1"
+id = "holo-0-1-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 6]]
+minzoom = 13
+paint = { line-color = "#22d4ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 90]], 5], 0, 0.1, 1, 0.4, 0.8], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.6, -1.6]], 17, ["literal", [1.0, -2.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "fill"
-after = "holo-0-deckel"
-id = "holo-1"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 6]
+after = "holo-0-1-kante"
+id = "holo-0-2"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 12]]
 minzoom = 13
-paint = { fill-color = "#3fc8ff", fill-opacity = 0.05, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.6, -1.6]], 17, ["literal", [1.0, -2.0]]] }
+paint = { fill-color = "#45c2ff", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 270]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.2, -3.2]], 17, ["literal", [2.0, -4.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "line"
-after = "holo-1"
-id = "holo-1-kante"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 6]
+after = "holo-0-2"
+id = "holo-0-2-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 12]]
 minzoom = 13
-paint = { line-color = "#3fc8ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.7, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.6, -1.6]], 17, ["literal", [1.0, -2.0]]] }
+paint = { line-color = "#45c2ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 270]], 5], 0, 0.1, 1, 0.4, 0.8], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.2, -3.2]], 17, ["literal", [2.0, -4.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "line"
-after = "holo-1-kante"
-id = "holo-1-deckel"
-filter = ["all", [">=", ["coalesce", ["get", "render_height"], 0], 6], ["<", ["coalesce", ["get", "render_height"], 0], 12]]
+after = "holo-0-2-kante"
+id = "holo-0-2-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 12], ["<", ["coalesce", ["get", "render_height"], 0], 20]]
 minzoom = 13
-paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.6, -1.6]], 17, ["literal", [1.0, -2.0]]] }
+paint = { line-color = "#45c2ff", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.2, -3.2]], 17, ["literal", [2.0, -4.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-0-2-schein"
+id = "holo-0-2-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 12], ["<", ["coalesce", ["get", "render_height"], 0], 20]]
+minzoom = 13
+paint = { line-color = "#e0f6ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.2, -3.2]], 17, ["literal", [2.0, -4.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "fill"
-after = "holo-1-deckel"
-id = "holo-2"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 12]
+after = "holo-0-2-deckel"
+id = "holo-0-3"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 20]]
 minzoom = 13
-paint = { fill-color = "#7aa8ff", fill-opacity = 0.05, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.2, -3.2]], 17, ["literal", [2.0, -4.0]]] }
+paint = { fill-color = "#6ab4ff", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 810]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.8, -4.8]], 17, ["literal", [3.0, -6.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "line"
-after = "holo-2"
-id = "holo-2-kante"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 12]
+after = "holo-0-3"
+id = "holo-0-3-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 20]]
 minzoom = 13
-paint = { line-color = "#7aa8ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.7, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.2, -3.2]], 17, ["literal", [2.0, -4.0]]] }
+paint = { line-color = "#6ab4ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 810]], 5], 0, 0.1, 1, 0.4, 0.8], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.8, -4.8]], 17, ["literal", [3.0, -6.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "line"
-after = "holo-2-kante"
-id = "holo-2-deckel"
-filter = ["all", [">=", ["coalesce", ["get", "render_height"], 0], 12], ["<", ["coalesce", ["get", "render_height"], 0], 20]]
+after = "holo-0-3-kante"
+id = "holo-0-3-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 20], ["<", ["coalesce", ["get", "render_height"], 0], 32]]
 minzoom = 13
-paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.2, -3.2]], 17, ["literal", [2.0, -4.0]]] }
+paint = { line-color = "#6ab4ff", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.8, -4.8]], 17, ["literal", [3.0, -6.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-0-3-schein"
+id = "holo-0-3-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 20], ["<", ["coalesce", ["get", "render_height"], 0], 32]]
+minzoom = 13
+paint = { line-color = "#e0f6ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.8, -4.8]], 17, ["literal", [3.0, -6.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "fill"
-after = "holo-2-deckel"
-id = "holo-3"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 20]
+after = "holo-0-3-deckel"
+id = "holo-0-4"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 32]]
 minzoom = 13
-paint = { fill-color = "#a98cff", fill-opacity = 0.05, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.8, -4.8]], 17, ["literal", [3.0, -6.0]]] }
+paint = { fill-color = "#a0d8ff", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 2430]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.4, -6.4]], 17, ["literal", [4.0, -8.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "line"
-after = "holo-3"
-id = "holo-3-kante"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 20]
+after = "holo-0-4"
+id = "holo-0-4-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 32]]
 minzoom = 13
-paint = { line-color = "#a98cff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.7, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.8, -4.8]], 17, ["literal", [3.0, -6.0]]] }
+paint = { line-color = "#a0d8ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 2430]], 5], 0, 0.1, 1, 0.4, 0.8], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.4, -6.4]], 17, ["literal", [4.0, -8.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "line"
-after = "holo-3-kante"
-id = "holo-3-deckel"
-filter = ["all", [">=", ["coalesce", ["get", "render_height"], 0], 20], ["<", ["coalesce", ["get", "render_height"], 0], 32]]
+after = "holo-0-4-kante"
+id = "holo-0-4-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 32], ["<", ["coalesce", ["get", "render_height"], 0], 50]]
 minzoom = 13
-paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [1.8, -4.8]], 17, ["literal", [3.0, -6.0]]] }
+paint = { line-color = "#a0d8ff", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.4, -6.4]], 17, ["literal", [4.0, -8.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-0-4-schein"
+id = "holo-0-4-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 32], ["<", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#e0f6ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.4, -6.4]], 17, ["literal", [4.0, -8.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "fill"
-after = "holo-3-deckel"
-id = "holo-4"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 32]
+after = "holo-0-4-deckel"
+id = "holo-0-5"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
 minzoom = 13
-paint = { fill-color = "#d670ff", fill-opacity = 0.05, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.4, -6.4]], 17, ["literal", [4.0, -8.0]]] }
+paint = { fill-color = "#e0f6ff", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 7290]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [3.0, -8.0]], 17, ["literal", [5.0, -10.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "line"
-after = "holo-4"
-id = "holo-4-kante"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 32]
+after = "holo-0-5"
+id = "holo-0-5-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
 minzoom = 13
-paint = { line-color = "#d670ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.7, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.4, -6.4]], 17, ["literal", [4.0, -8.0]]] }
+paint = { line-color = "#e0f6ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 7290]], 5], 0, 0.1, 1, 0.4, 0.8], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [3.0, -8.0]], 17, ["literal", [5.0, -10.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "line"
-after = "holo-4-kante"
-id = "holo-4-deckel"
-filter = ["all", [">=", ["coalesce", ["get", "render_height"], 0], 32], ["<", ["coalesce", ["get", "render_height"], 0], 50]]
+after = "holo-0-5-kante"
+id = "holo-0-5-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
 minzoom = 13
-paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.4, -6.4]], 17, ["literal", [4.0, -8.0]]] }
+paint = { line-color = "#e0f6ff", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [3.0, -8.0]], 17, ["literal", [5.0, -10.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-0-5-schein"
+id = "holo-0-5-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#e0f6ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [3.0, -8.0]], 17, ["literal", [5.0, -10.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-0-5-deckel"
+id = "holo-0-glitch"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 0], [">=", ["coalesce", ["get", "render_height"], 0], 20], ["==", ["%", ["floor", ["/", ["to-number", ["id"], 0], 30]], 7], 0]]
+minzoom = 13
+paint = { line-color = "#ff74e4", line-width = 1.4, line-opacity = 0.85, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [5.8, -4.8]], 17, ["literal", [7.0, -6.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "fill"
-after = "holo-4-deckel"
-id = "holo-5"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 50]
+after = "holo-0-glitch"
+id = "holo-1-0"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 0]]
 minzoom = 13
-paint = { fill-color = "#ff5ce1", fill-opacity = 0.05, fill-antialias = true, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [3.0, -8.0]], 17, ["literal", [5.0, -10.0]]] }
+paint = { fill-color = "#ff2fb0", fill-opacity = 0.1, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -0.0]], 17, ["literal", [0, -0.0]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "line"
-after = "holo-5"
-id = "holo-5-kante"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 50]
+after = "holo-1-0"
+id = "holo-1-0-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 0]]
 minzoom = 13
-paint = { line-color = "#ff5ce1", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.7, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [3.0, -8.0]], 17, ["literal", [5.0, -10.0]]] }
+paint = { line-color = "#ff2fb0", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -0.0]], 17, ["literal", [0, -0.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-1-0-kante"
+id = "holo-1-1"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 6]]
+minzoom = 13
+paint = { fill-color = "#ff3fc8", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 90]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -1.9]], 17, ["literal", [0, -2.5]]] }
 [[layers]]
 source-layer = "building"
 like = "building"
 type = "line"
-after = "holo-5-kante"
-id = "holo-5-deckel"
-filter = [">=", ["coalesce", ["get", "render_height"], 0], 50]
+after = "holo-1-1"
+id = "holo-1-1-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 6]]
 minzoom = 13
-paint = { line-color = "#f4f0ff", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 1.1], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [3.0, -8.0]], 17, ["literal", [5.0, -10.0]]] }
+paint = { line-color = "#ff3fc8", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 90]], 5], 0, 0.1, 1, 0.4, 0.8], line-dasharray = [3, 1.5], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -1.9]], 17, ["literal", [0, -2.5]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-1-1-kante"
+id = "holo-1-2"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 12]]
+minzoom = 13
+paint = { fill-color = "#ff55d8", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 270]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -3.8]], 17, ["literal", [0, -5.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-2"
+id = "holo-1-2-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 12]]
+minzoom = 13
+paint = { line-color = "#ff55d8", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 270]], 5], 0, 0.1, 1, 0.4, 0.8], line-dasharray = [3, 1.5], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -3.8]], 17, ["literal", [0, -5.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-2-kante"
+id = "holo-1-2-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 12], ["<", ["coalesce", ["get", "render_height"], 0], 20]]
+minzoom = 13
+paint = { line-color = "#ff55d8", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -3.8]], 17, ["literal", [0, -5.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-2-schein"
+id = "holo-1-2-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 12], ["<", ["coalesce", ["get", "render_height"], 0], 20]]
+minzoom = 13
+paint = { line-color = "#ffd0f4", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -3.8]], 17, ["literal", [0, -5.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-1-2-deckel"
+id = "holo-1-3"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 20]]
+minzoom = 13
+paint = { fill-color = "#ff74e4", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 810]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -5.7]], 17, ["literal", [0, -7.5]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-3"
+id = "holo-1-3-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 20]]
+minzoom = 13
+paint = { line-color = "#ff74e4", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 810]], 5], 0, 0.1, 1, 0.4, 0.8], line-dasharray = [3, 1.5], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -5.7]], 17, ["literal", [0, -7.5]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-3-kante"
+id = "holo-1-3-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 20], ["<", ["coalesce", ["get", "render_height"], 0], 32]]
+minzoom = 13
+paint = { line-color = "#ff74e4", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -5.7]], 17, ["literal", [0, -7.5]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-3-schein"
+id = "holo-1-3-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 20], ["<", ["coalesce", ["get", "render_height"], 0], 32]]
+minzoom = 13
+paint = { line-color = "#ffd0f4", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -5.7]], 17, ["literal", [0, -7.5]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-1-3-deckel"
+id = "holo-1-4"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 32]]
+minzoom = 13
+paint = { fill-color = "#ff9ae8", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 2430]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -7.6]], 17, ["literal", [0, -10.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-4"
+id = "holo-1-4-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 32]]
+minzoom = 13
+paint = { line-color = "#ff9ae8", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 2430]], 5], 0, 0.1, 1, 0.4, 0.8], line-dasharray = [3, 1.5], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -7.6]], 17, ["literal", [0, -10.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-4-kante"
+id = "holo-1-4-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 32], ["<", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#ff9ae8", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -7.6]], 17, ["literal", [0, -10.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-4-schein"
+id = "holo-1-4-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 32], ["<", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#ffd0f4", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -7.6]], 17, ["literal", [0, -10.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-1-4-deckel"
+id = "holo-1-5"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { fill-color = "#ffd0f4", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 7290]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -9.5]], 17, ["literal", [0, -12.5]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-5"
+id = "holo-1-5-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#ffd0f4", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 7290]], 5], 0, 0.1, 1, 0.4, 0.8], line-dasharray = [3, 1.5], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -9.5]], 17, ["literal", [0, -12.5]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-5-kante"
+id = "holo-1-5-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#ffd0f4", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -9.5]], 17, ["literal", [0, -12.5]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-5-schein"
+id = "holo-1-5-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#ffd0f4", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0, -9.5]], 17, ["literal", [0, -12.5]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-1-5-deckel"
+id = "holo-1-glitch"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 1], [">=", ["coalesce", ["get", "render_height"], 0], 20], ["==", ["%", ["floor", ["/", ["to-number", ["id"], 0], 30]], 7], 0]]
+minzoom = 13
+paint = { line-color = "#b8ff48", line-width = 1.4, line-opacity = 0.85, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [4, -5.7]], 17, ["literal", [4, -7.5]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-1-glitch"
+id = "holo-2-0"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 0]]
+minzoom = 13
+paint = { fill-color = "#39ff9a", fill-opacity = 0.1, fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.0, -0.0]], 17, ["literal", [0.0, -0.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-0"
+id = "holo-2-0-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 0]]
+minzoom = 13
+paint = { line-color = "#39ff9a", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [0.0, -0.0]], 17, ["literal", [0.0, -0.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-2-0-kante"
+id = "holo-2-1"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 6]]
+minzoom = 13
+paint = { fill-color = "#5cff7a", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 90]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-0.5, -1.4]], 17, ["literal", [-0.8, -1.8]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-1"
+id = "holo-2-1-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 6]]
+minzoom = 13
+paint = { line-color = "#5cff7a", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 90]], 5], 0, 0.1, 1, 0.4, 0.8], line-dasharray = [1, 1], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-0.5, -1.4]], 17, ["literal", [-0.8, -1.8]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-2-1-kante"
+id = "holo-2-2"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 12]]
+minzoom = 13
+paint = { fill-color = "#8cff5c", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 270]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-1.0, -2.8]], 17, ["literal", [-1.6, -3.6]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-2"
+id = "holo-2-2-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 12]]
+minzoom = 13
+paint = { line-color = "#8cff5c", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 270]], 5], 0, 0.1, 1, 0.4, 0.8], line-dasharray = [1, 1], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-1.0, -2.8]], 17, ["literal", [-1.6, -3.6]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-2-kante"
+id = "holo-2-2-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 12], ["<", ["coalesce", ["get", "render_height"], 0], 20]]
+minzoom = 13
+paint = { line-color = "#8cff5c", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-1.0, -2.8]], 17, ["literal", [-1.6, -3.6]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-2-schein"
+id = "holo-2-2-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 12], ["<", ["coalesce", ["get", "render_height"], 0], 20]]
+minzoom = 13
+paint = { line-color = "#fff27a", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-1.0, -2.8]], 17, ["literal", [-1.6, -3.6]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-2-2-deckel"
+id = "holo-2-3"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 20]]
+minzoom = 13
+paint = { fill-color = "#b8ff48", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 810]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-1.5, -4.2]], 17, ["literal", [-2.4, -5.4]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-3"
+id = "holo-2-3-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 20]]
+minzoom = 13
+paint = { line-color = "#b8ff48", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 810]], 5], 0, 0.1, 1, 0.4, 0.8], line-dasharray = [1, 1], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-1.5, -4.2]], 17, ["literal", [-2.4, -5.4]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-3-kante"
+id = "holo-2-3-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 20], ["<", ["coalesce", ["get", "render_height"], 0], 32]]
+minzoom = 13
+paint = { line-color = "#b8ff48", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-1.5, -4.2]], 17, ["literal", [-2.4, -5.4]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-3-schein"
+id = "holo-2-3-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 20], ["<", ["coalesce", ["get", "render_height"], 0], 32]]
+minzoom = 13
+paint = { line-color = "#fff27a", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-1.5, -4.2]], 17, ["literal", [-2.4, -5.4]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-2-3-deckel"
+id = "holo-2-4"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 32]]
+minzoom = 13
+paint = { fill-color = "#e0ff40", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 2430]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-2.0, -5.6]], 17, ["literal", [-3.2, -7.2]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-4"
+id = "holo-2-4-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 32]]
+minzoom = 13
+paint = { line-color = "#e0ff40", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 2430]], 5], 0, 0.1, 1, 0.4, 0.8], line-dasharray = [1, 1], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-2.0, -5.6]], 17, ["literal", [-3.2, -7.2]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-4-kante"
+id = "holo-2-4-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 32], ["<", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#e0ff40", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-2.0, -5.6]], 17, ["literal", [-3.2, -7.2]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-4-schein"
+id = "holo-2-4-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 32], ["<", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#fff27a", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-2.0, -5.6]], 17, ["literal", [-3.2, -7.2]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "fill"
+after = "holo-2-4-deckel"
+id = "holo-2-5"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { fill-color = "#fff27a", fill-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 7290]], 5], 0, 0.01, 1, 0.03, 0.06], fill-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-2.5, -7.0]], 17, ["literal", [-4.0, -9.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-5"
+id = "holo-2-5-kante"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#fff27a", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = ["match", ["%", ["floor", ["/", ["+", ["to-number", ["id"], 0], ["*", ["coalesce", ["get", "render_height"], 0], 7]], 7290]], 5], 0, 0.1, 1, 0.4, 0.8], line-dasharray = [1, 1], line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-2.5, -7.0]], 17, ["literal", [-4.0, -9.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-5-kante"
+id = "holo-2-5-schein"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#fff27a", line-width = 4, line-blur = 3, line-opacity = 0.45, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-2.5, -7.0]], 17, ["literal", [-4.0, -9.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-5-schein"
+id = "holo-2-5-deckel"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 50]]
+minzoom = 13
+paint = { line-color = "#fff27a", line-width = ["interpolate", ["linear"], ["zoom"], 14, 0.4, 16, 0.9], line-opacity = 0.9, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [-2.5, -7.0]], 17, ["literal", [-4.0, -9.0]]] }
+[[layers]]
+source-layer = "building"
+like = "building"
+type = "line"
+after = "holo-2-5-deckel"
+id = "holo-2-glitch"
+filter = ["all", ["==", ["%", ["+", ["floor", ["/", ["to-number", ["id"], 0], 10]], ["floor", ["coalesce", ["get", "render_height"], 0]]], 3], 2], [">=", ["coalesce", ["get", "render_height"], 0], 20], ["==", ["%", ["floor", ["/", ["to-number", ["id"], 0], 30]], 7], 0]]
+minzoom = 13
+paint = { line-color = "#6ab4ff", line-width = 1.4, line-opacity = 0.85, line-translate = ["interpolate", ["linear"], ["zoom"], 14, ["literal", [0, 0]], 15, ["literal", [2.5, -4.2]], 17, ["literal", [1.6, -5.4]]] }
 # <<<
 
 # >>> Akzent-Beschriftung: Straßennummern ohne weißes Schild, Autobahn Magenta, Hauptstraßen Cyan
