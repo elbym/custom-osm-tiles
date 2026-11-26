@@ -1,9 +1,10 @@
-# "Aquarell Nacht" (dunkler Partner von Aquarell, Nutzerwunsch 2026-11-26): Indigo laviert, gedeckte Farben.
-#   - Flächen als Lavierung: weicher Hof unter der Fläche (Farbe läuft aus), dunklerer Pigmentrand darüber ([[layers]])
-#   - ungleichmäßiger Farbauftrag als großflächige Wolken (stains), Straßen als feine Federzeichnung
-#   - Hauptstraßen mit Ocker laviert, Autobahn Siena; Alegreya Sans (humanistisch, mit echter Kursive)
-#   - weiche Verläufe brauchen colors = 64, sonst Stufen
-# Erzeugt von einem einmaligen Skript; die Datei ist jetzt Quelle, von Hand bearbeiten.
+# "Aquarell Nacht" (dunkler Partner von Aquarell, Nutzerwunsch 2026-11-26): Wasserfarben auf Indigo.
+#   Nach dem Vorbild von Stamen Watercolor (eigene Umsetzung, nur der Look): MapLibre zeichnet nur einfache Farbflächen
+#   ohne Ränder; die Wasserfarbe entsteht erst in watercolor() (make-tiles.py) aus den Pixeln jeder Kachel samt Nachbarn:
+#   ausgefranste Ränder (warp), Pigment sammelt sich an den Flächenrändern (edge), fleckiger Auftrag (wash), Körnung
+#   (grain) und Papier (paper); alles Rauschen weltfest, daher nahtlos. Die Beschriftung wird getrennt gerendert und
+#   danach scharf obenauf gelegt. Palette wie dort: Ocker-Land, kräftiges Blau, Gelbgrün, helle Straßen ohne Ränder.
+#   colors = 64, sonst stufen die Verläufe.
 title = "Aquarell Nacht"
 category = "standard"
 mode = "dark"
@@ -11,157 +12,85 @@ family = "Aquarell"
 font = "Alegreya Sans"
 preview_font = "Fira Sans"   # Schrift für die Vorschau (--all)
 site_font = "Alegreya Sans"   # öffentliche Vorschau (--site)
-attribution = "Kartenstil: eigener Entwurf nach lavierten Federzeichnungen"
+attribution = "Kartenstil: eigener Entwurf nach dem Vorbild von Stamen Watercolor"
 colors = 64
-stains = { strength = 0.4, color = "#6a7fa8", threshold = 0.42, edge = 1.6, scale = 0.7 }
+watercolor = { warp = 3, warp_scale = 30, soft = 0.7, edge_width = 3, edge = 0.5, wash = 0.25, wash_scale = 160, grain = 0.35, paper = 0.03 }
 text_scale = 1.15
-hide = ["poi_r20", "road_oneway*", "highway-shield-*", "road_shield_us", "building-top"]
+hide = ["poi_r20", "road_oneway*", "highway-shield-*", "road_shield_us", "building-top", "*-casing", "aeroway-*-casing"]
 
 [paint."background"]
-background-color = "#1d2433"
+background-color = "#232a3c"
 [paint."landuse-*"]
-fill-color = "#212938"
-fill-opacity = 0.6
-[paint."landuse-cemetery"]
-fill-color = "#33503f"
+fill-color = "#283046"
 fill-opacity = 1
+[paint."landuse-commercial"]
+fill-color = "#2c3249"
+[paint."landuse-industrial"]
+fill-color = "#2c3249"
+[paint."landuse-cemetery"]
+fill-color = "#3b5c43"
 [paint."park"]
-fill-color = "#33503f"
-fill-opacity = 0.9
+fill-color = "#3b5c43"
+fill-opacity = 1
 [paint."landcover-*"]
-fill-color = "#33503f"
-fill-opacity = 0.9
-fill-outline-color = "#33503f"
+fill-color = "#3b5c43"
+fill-opacity = 1
+fill-outline-color = "#3b5c43"
 [paint."landcover-wood"]
-fill-color = "#2c4a3c"
-fill-outline-color = "#2c4a3c"
+fill-color = "#335441"
+fill-outline-color = "#335441"
+[paint."landcover-sand"]
+fill-color = "#4a4532"
+fill-outline-color = "#4a4532"
 [paint."water*"]
-fill-color = "#2b4a68"
-line-color = "#4a78a0"
+fill-color = "#33618a"
+line-color = "#33618a"
 [paint."building"]
-fill-color = "#3c3546"
-fill-outline-color = "#3c3546"
-fill-opacity = 0.85
+fill-color = "#3a3d55"
+fill-outline-color = "#3a3d55"
+fill-opacity = 0.7
 
-# Straßen: Federstrich (Rand) mit Papier bzw. Lavierung innen
+# Straßen hell ohne Ränder; den Rand malt der Pigmentsaum in watercolor()
 [paint."highway-*"]
-line-color = "#2a3244"
+line-color = "#535b78"
 [paint."bridge-*"]
-line-color = "#2a3244"
+line-color = "#535b78"
 [paint."tunnel-*"]
-line-color = "#2a3244"
-[paint."*-secondary-tertiary"]
-line-color = "#b8965a"
-line-opacity = 0.7
+line-color = "#535b78"
 [paint."*-primary"]
-line-color = "#b8965a"
+line-color = "#8a7856"
 [paint."*-trunk*"]
-line-color = "#b8965a"
+line-color = "#8a7856"
 [paint."*-motorway*"]
-line-color = "#c27a5a"
-[paint."*-casing"]
-line-color = "#5f667e"
+line-color = "#9a6f55"
 [paint."highway-area"]
-fill-color = "#2a3244"
-fill-outline-color = "#5f667e"
+fill-color = "#535b78"
+fill-outline-color = "#535b78"
 [paint."aeroway-*"]
-fill-color = "#212938"
-line-color = "#2a3244"
+fill-color = "#283046"
+line-color = "#535b78"
 [paint."*-path"]
-line-color = "#5f667e"
+line-color = "#6a7090"
 [paint."*railway*"]
-line-color = "#5f667e"
+line-color = "#6a7090"
+[paint."boundary_*"]
+line-color = "#6a7090"
 
 [paint."label_*"]
-text-color = "#e6dccb"
-text-halo-color = "#1d2433"
+text-color = "#efe6d4"
+text-halo-color = "#1d2333"
 [paint."highway-name-*"]
-text-color = "#cfc4b2"
-text-halo-color = "#1d2433"
+text-color = "#d6ccba"
+text-halo-color = "#1d2333"
 [paint."poi_*"]
-text-color = "#d8b48a"
-text-halo-color = "#1d2433"
+text-color = "#e0bc92"
+text-halo-color = "#1d2333"
 [paint."water*label"]
-text-color = "#9cc2e0"
-
-[[layers]]
-after = "water"
-id = "wasser-hof"
-type = "line"
-source-layer = "water"
-filter = ["all", ["!=", ["get", "intermittent"], 1], ["!=", ["get", "brunnel"], "tunnel"]]
-minzoom = 0
-layout = { line-join = "round" }
-paint = { line-color = "#2b4a68", line-blur = 3, line-opacity = 0.55, line-width = ["interpolate", ["linear"], ["zoom"], 10, 2, 16, 7] }
-[[layers]]
-after = "wasser-hof"
-id = "wasser-rand"
-type = "line"
-source-layer = "water"
-filter = ["all", ["!=", ["get", "intermittent"], 1], ["!=", ["get", "brunnel"], "tunnel"]]
-minzoom = 0
-layout = { line-join = "round" }
-paint = { line-color = "#4a78a0", line-blur = 1.5, line-opacity = 0.7, line-width = ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 3] }
-
-[[layers]]
-after = "landcover-wood"
-id = "wald-hof"
-type = "line"
-source-layer = "landcover"
-filter = ["==", ["get", "class"], "wood"]
-minzoom = 0
-layout = { line-join = "round" }
-paint = { line-color = "#2c4a3c", line-blur = 3, line-opacity = 0.55, line-width = ["interpolate", ["linear"], ["zoom"], 10, 2, 16, 7] }
-[[layers]]
-after = "wald-hof"
-id = "wald-rand"
-type = "line"
-source-layer = "landcover"
-filter = ["==", ["get", "class"], "wood"]
-minzoom = 0
-layout = { line-join = "round" }
-paint = { line-color = "#45705a", line-blur = 1.5, line-opacity = 0.7, line-width = ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 3] }
-
-[[layers]]
-after = "park"
-id = "park-hof"
-type = "line"
-source-layer = "park"
-filter = ["match", ["geometry-type"], ["MultiPolygon", "Polygon"], true, false]
-minzoom = 0
-layout = { line-join = "round" }
-paint = { line-color = "#33503f", line-blur = 3, line-opacity = 0.55, line-width = ["interpolate", ["linear"], ["zoom"], 10, 2, 16, 7] }
-[[layers]]
-after = "park-hof"
-id = "park-rand"
-type = "line"
-source-layer = "park"
-filter = ["match", ["geometry-type"], ["MultiPolygon", "Polygon"], true, false]
-minzoom = 0
-layout = { line-join = "round" }
-paint = { line-color = "#4c7458", line-blur = 1.5, line-opacity = 0.7, line-width = ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 3] }
-
-[[layers]]
-after = "building"
-id = "haus-hof"
-type = "line"
-source-layer = "building"
-filter = ["==", ["geometry-type"], "Polygon"]
-minzoom = 14
-layout = { line-join = "round" }
-paint = { line-color = "#3c3546", line-blur = 3, line-opacity = 0.55, line-width = ["interpolate", ["linear"], ["zoom"], 10, 2, 16, 7] }
-[[layers]]
-after = "haus-hof"
-id = "haus-rand"
-type = "line"
-source-layer = "building"
-filter = ["==", ["geometry-type"], "Polygon"]
-minzoom = 14
-layout = { line-join = "round" }
-paint = { line-color = "#62546e", line-blur = 1.5, line-opacity = 0.7, line-width = ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 3] }
+text-color = "#a8cbe8"
+text-halo-color = "#1d2333"
 
 [marker]
 type = "bubble"
 color = "#e08a6a"
-bg = "#1d2433"
-fg = "#e6dccb"
+bg = "#232a3c"
+fg = "#efe6d4"

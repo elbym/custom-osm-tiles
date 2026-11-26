@@ -987,6 +987,22 @@ def parent(url):
     return fetch(url)
 
 
+def vnoise(u, v, seed):
+    """Wertrauschen 0..1 an Weltkoordinaten (u, v in Zellen): Gitterwerte per Integer-Hash, weich interpoliert;
+    gleiche Koordinate = gleicher Wert, daher nahtlos über Kachelgrenzen (stain_png, watercolor)."""
+    import numpy as np
+    i, j = np.floor(u).astype(np.int64), np.floor(v).astype(np.int64)
+    fu, fv = u - i, v - j
+    fu, fv = fu * fu * (3 - 2 * fu), fv * fv * (3 - 2 * fv)
+    def h(a, b):
+        n = (a * 73856093 ^ b * 19349663 ^ seed * 83492791) & 0xFFFFFFFF
+        n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
+        return (n ^ (n >> 16)) / 0xFFFFFFFF
+    top = h(i, j) * (1 - fu) + h(i + 1, j) * fu
+    bot = h(i, j + 1) * (1 - fu) + h(i + 1, j + 1) * fu
+    return top * (1 - fv) + bot * fv
+
+
 def stain_png(data, x, y, cfg):
     """Altersflecken in die Kachel einbacken (stains im Stil, Versuch): Wertrauschen in globalen Pixelkoordinaten der
     Zoomstufe, daher nahtlos über Kachelgrenzen; je Zoomstufe gleich groß auf dem Bildschirm (andere Stufe = anderes
@@ -998,17 +1014,7 @@ def stain_png(data, x, y, cfg):
     yy, xx = np.mgrid[0:size, 0:size] * (256 / size)
     gx, gy = x * 256 + xx, y * 256 + yy
 
-    def noise(u, v, seed):  # Wertrauschen: Gitterwerte per Integer-Hash, weich interpoliert
-        i, j = np.floor(u).astype(np.int64), np.floor(v).astype(np.int64)
-        fu, fv = u - i, v - j
-        fu, fv = fu * fu * (3 - 2 * fu), fv * fv * (3 - 2 * fv)
-        def h(a, b):
-            n = (a * 73856093 ^ b * 19349663 ^ seed * 83492791) & 0xFFFFFFFF
-            n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
-            return (n ^ (n >> 16)) / 0xFFFFFFFF
-        top = h(i, j) * (1 - fu) + h(i + 1, j) * fu
-        bot = h(i, j + 1) * (1 - fu) + h(i + 1, j + 1) * fu
-        return top * (1 - fv) + bot * fv
+    noise = vnoise
     def fbm(u, v):  # Fleckenfeld 0..1; Fleckengröße in px (× scale), feinere Oktaven fransen die Ränder aus
         n, tot, amp = 0, 0, 1
         for cell in (640, 320, 160, 80, 40):
@@ -1066,6 +1072,134 @@ def stain_png(data, x, y, cfg):
     return buf.getvalue()
 
 
+def watercolor(img, ox, oy, k, cfg, z=None):
+    """Wasserfarben (watercolor im Stil, Aquarell; nach dem Vorbild von Stamen Watercolor): img = RGB 0..1 der Karte
+    ohne Beschriftung, ox/oy = Weltkoordinate (256er-Pixel der Zoomstufe) der linken oberen Ecke, k = Bildpixel je
+    Weltpixel (@2x: 2). Alles Rauschen hängt an Weltkoordinaten, daher nahtlos, solange img rundum Rand hat (Nachbarn).
+    1. Ränder ausfransen: Bild um Rauschen verschoben (warp, Weltpixel)
+    2. leicht verwaschen, dann als Pigmentdichte A = -ln(Helligkeit) gerechnet (Papier ~ 0, mehr Farbe = mehr A)
+    3. Pigment sammelt sich an den Rändern jeder Fläche (edge): A dort höher, beidseits, nach innen auslaufend
+    4. ungleichmäßiger Auftrag (wash) in großen Wolken, Körnung (grain) im Pigment, Papierstruktur (paper)"""
+    import numpy as np
+    from scipy import ndimage
+    h, w, _ = img.shape
+    yy, xx = np.mgrid[0:h, 0:w]
+    gx, gy = ox + xx / k, oy + yy / k
+    def fbm(s, seed):  # grobes Rauschen (Ränder, Wolken) auf jedem 4. Pixel, dann hochgerechnet: 16× weniger Arbeit
+        q = lambda v: v[::4, ::4]
+        n = sum(vnoise(q(gx) / (s * f), q(gy) / (s * f), seed + i) * a
+                for i, (f, a) in enumerate(((1, .6), (.4, .28), (.15, .12))))
+        return ndimage.zoom(n, 4, order=1)[:h, :w] if n.shape[0] * 4 >= h and n.shape[1] * 4 >= w else \
+            np.pad(ndimage.zoom(n, 4, order=1), ((0, h), (0, w)), mode="edge")[:h, :w]
+    amp, ws = cfg.get("warp", 3) * k, cfg.get("warp_scale", 30)
+    dx, dy = (fbm(ws, 51) - .5) * 2 * amp, (fbm(ws, 61) - .5) * 2 * amp
+    img = np.stack([ndimage.map_coordinates(img[..., c], [yy + dy, xx + dx], order=1, mode="nearest")
+                    for c in range(3)], -1)
+    img = ndimage.gaussian_filter(img, (cfg.get("soft", .7) * k, cfg.get("soft", .7) * k, 0))
+    A = -np.log(np.clip(img, 1 / 255, 1))
+    # Rand: Farbabstand zur weichgezeichneten Umgebung, groß an Flächenrändern, klingt über ~edge_width aus
+    ew = cfg.get("edge_width", 3) * k
+    e = np.clip(np.abs(img - ndimage.gaussian_filter(img, (ew, ew, 0))).sum(-1) * 6, 0, 1)
+    e = ndimage.gaussian_filter(e, ew / 3)[..., None]
+    wash = 1 + (fbm(cfg.get("wash_scale", 160), 71) - .5) * 2 * cfg.get("wash", .35)
+    grain = (vnoise(gx / 1.3, gy / 1.3, 81) * .6 + vnoise(gx / 4, gy / 4, 82) * .4 - .5)
+    A = A * (1 + cfg.get("edge", 1.2) * e) * wash[..., None] * (1 + grain[..., None] * cfg.get("grain", .5))
+    A += np.clip(grain, 0, None)[..., None] * cfg.get("paper", .05)
+    return np.exp(-A)
+
+
+def halftone(img, ox, oy, k, cfg, z=17):
+    """Druckraster (halftone im Stil, Siebdruck; Nutzerwunsch 2026-11-26 mit CMYK-Rasterbildern): jede Farbe der Karte
+    in Druckfarben zerlegt, jede Farbe als eigenes Punktraster unter ihrem Winkel (Gelb 0°, Cyan 15°, Schwarz 45°,
+    Magenta 75° wie im Offsetdruck, daher Rosetten), Punktgröße nach Farbmenge, volle Fläche ab ~100 % (Straßen in
+    kräftigen Farben bleiben durchgehend), Platten je um offset Weltpixel versetzt (Passer), übereinander gedruckt.
+    mode = "cmyk": Tinte auf Papier (paper), multipliziert. mode = "light": Leuchtfarben auf schwarzem Karton, die
+    Platten sind Rot/Grün/Blau-Anteile und hellen auf (screen). Raster weltfest (ox/oy wie watercolor()), nahtlos;
+    Rasterweite pitch (Weltpixel bei z17), je Zoomstufe darunter pitch_step feiner."""
+    import numpy as np
+    from scipy import ndimage
+    h, w, _ = img.shape
+    yy, xx = np.mgrid[0:h, 0:w]
+    gx, gy = ox + xx / k, oy + yy / k
+    hexc = lambda c: np.array([int(c[i:i + 2], 16) for i in (1, 3, 5)]) / 255
+    pitch = max(2, cfg.get("pitch", 6) + cfg.get("pitch_step", 1) * ((z or 17) - 17))
+    light = cfg.get("mode", "cmyk") == "light"
+    paper = hexc(cfg.get("paper", "#000000" if light else "#ffffff"))
+    if light:  # Lichtanteile über schwarzem Grund
+        plates = {"r": img[..., 0], "g": img[..., 1], "b": img[..., 2]}
+    else:      # Tinte = was dem Papier fehlt; Schwarz aus dem gemeinsamen Anteil (Unterfarbenentfernung)
+        cmy = np.clip(1 - img / paper, 0, 1)
+        kk = cmy.min(-1) * cfg.get("black", 1)
+        cmy = (cmy - kk[..., None]) / np.maximum(1 - kk[..., None], 1e-3)
+        plates = {"c": cmy[..., 0], "m": cmy[..., 1], "y": cmy[..., 2], "k": kk}
+    inks = {"c": "#00a3e0", "m": "#ff3fa4", "y": "#ffe500", "k": "#231f20",
+            "r": "#ff3b5c", "g": "#3dff8a", "b": "#3f8cff", **cfg.get("inks", {})}
+    angle = {"y": 0, "c": 15, "k": 45, "m": 75, "b": 0, "r": 15, "g": 75, **cfg.get("angles", {})}
+    off = {"c": (1, 0), "m": (0, 1), "y": (-1, 0), "k": (0, 0), "r": (1, 0), "g": (0, 1), "b": (-1, 0)}
+    off = {c: [v * cfg.get("offset", 1) for v in o] for c, o in off.items()}
+    out = np.broadcast_to(paper, img.shape).copy()
+    for c, val in plates.items():
+        val = ndimage.shift(val, (off[c][1] * k, off[c][0] * k), order=1, mode="nearest")   # Passer-Versatz
+        a = np.radians(angle[c])
+        u, v = (gx * np.cos(a) + gy * np.sin(a)) / pitch, (-gx * np.sin(a) + gy * np.cos(a)) / pitch
+        d = np.hypot(u - np.round(u), v - np.round(v))            # Abstand zum nächsten Rasterpunkt, Zellen
+        r = 0.75 * np.sqrt(np.clip(val * cfg.get("gain", 1.1), 0, 1))   # Punktradius; ab 0,71 ist die Zelle voll
+        dot = np.clip((r - d) * pitch * k + .5, 0, 1)[..., None]   # weiche Kante, 1 Bildpixel
+        ink = hexc(inks[c])
+        out = 1 - (1 - out) * (1 - dot * ink) if light else out * (1 - dot * (1 - ink))
+    return out
+
+
+def wc_tile(base, z, x, y, sfx, post):
+    """Kachel mit Pixel-Nachbearbeitung post = (watercolor|halftone, cfg): 3×3 Nachbarn (parent() merkt sie sich, jede wird von bis zu neun Kacheln gebraucht)
+    zusammensetzen, mit einem Viertel Kachel Rand bearbeiten, Mitte ausschneiden."""
+    import numpy as np
+    from PIL import Image
+    n = 2 ** z
+    def get(i, j):
+        try:
+            return np.asarray(Image.open(io.BytesIO(parent(f"{base}/{z}/{(x + i) % n}/{y + j}{sfx}.png"))).convert("RGB"))
+        except OSError:  # außerhalb der Welt (Pol): Mitte wiederholen
+            return get(0, 0)
+    big = np.concatenate([np.concatenate([get(i, j) for i in (-1, 0, 1)], 1) for j in (-1, 0, 1)], 0)
+    s = big.shape[0] // 3
+    m = s // 4
+    img = big[s - m:2 * s + m, s - m:2 * s + m] / 255
+    k = s / 256
+    out = post[0](img, x * 256 - m / k, y * 256 - m / k, k, post[1], z)[m:m + s, m:m + s]
+    buf = io.BytesIO()
+    Image.fromarray((out * 255).round().astype(np.uint8)).save(buf, "PNG")
+    return buf.getvalue()
+
+
+def wc_static(data, post, k=1, z=17):
+    """Wasserfarben auf einem einzelnen Bild (README-Vorschau, Static-API; k = Bildpixel je Weltpixel), ohne Nachbarn."""
+    import numpy as np
+    from PIL import Image
+    img = np.asarray(Image.open(io.BytesIO(data)).convert("RGB")) / 255
+    buf = io.BytesIO()
+    Image.fromarray((post[0](img, 0, 0, k, post[1], z) * 255).round().astype(np.uint8)).save(buf, "PNG")
+    return buf.getvalue()
+
+
+def post_of(meta):
+    """Pixel-Nachbearbeitung eines Stils: (Funktion, Einstellungen) aus watercolor = {…} oder halftone = {…}, sonst None."""
+    for key, fn in (("watercolor", watercolor), ("halftone", halftone)):
+        if key in meta:
+            return fn, meta[key]
+    return None
+
+
+def over(data, labels):
+    """Beschriftung (RGBA, transparenter Grund) über die Kachel legen."""
+    from PIL import Image
+    im = Image.open(io.BytesIO(data)).convert("RGBA")
+    im.alpha_composite(Image.open(io.BytesIO(labels)).convert("RGBA"))
+    buf = io.BytesIO()
+    im.convert("RGB").save(buf, "PNG")
+    return buf.getvalue()
+
+
 PIXEL_TEXT = 11  # --pixel 4 mit normaler Schrift: Geviert in Rasterpixeln (9 unlesbar; Regel in CLAUDE.md)
 PIXEL_SS = 3  # --pixel: Vorfahrkachel in 3-facher Auflösung, je 3×3 = ein 8-Bit-Pixel (Schrift rastet ins Pixelraster)
 
@@ -1120,11 +1254,12 @@ def pixel_palette(px, cand, force=(), n=PIXEL_COLORS):
     return np.array(pal)
 
 
-def split_labels(style):
+def split_labels(style, shift=True):
     """--pixel: Stil in Karte ohne Beschriftung und Beschriftung allein (transparenter Grund) teilen. MapLibre richtet
     Beschriftungen nur nach anderen Beschriftungen aus. Die Beschriftung wird eine Stufe feiner gerendert als die Karte
     (OpenMapTiles hat POIs erst ab z14, zwei Stufen gröber fehlten sie ganz): Zoomverschiebung eine Stufe zurück,
-    Schrift und Rand doppelt so groß, dither_tiles() fasst doppelt so große Blöcke zusammen."""
+    Schrift und Rand doppelt so groß, dither_tiles() fasst doppelt so große Blöcke zusammen.
+    shift=False (watercolor): nur teilen, die Beschriftung bleibt, wie sie ist."""
     m, lab = json.loads(json.dumps(style)), json.loads(json.dumps(style))
     for l in m["layers"]:
         if l["type"] == "symbol":
@@ -1133,6 +1268,8 @@ def split_labels(style):
         lay, paint = l.setdefault("layout", {}), l.setdefault("paint", {})
         if l["type"] != "symbol":
             lay["visibility"] = "none"
+            continue
+        if not shift:
             continue
         for kind in (lay, paint):
             for k, v in kind.items():
@@ -1266,8 +1403,16 @@ def readme_previews(a, mb):
     for st in sorted((ROOT / "styles").glob("*.toml")):
         meta = tomllib.loads(st.read_text())
         style = build_style(st, meta.get("preview_font", meta.get("font")), (a.lat, a.lon))[0]
+        url = f"/static/{a.lon},{a.lat},12/512x512.png"
+        post = post_of(meta)
+        if post:  # Karte und Beschriftung getrennt, wie in render()
+            style, labels = split_labels(style, shift=False)
         with tileserver(style, f"readme-{st.stem}", mb) as base:
-            data = fetch(f"{base}/static/{a.lon},{a.lat},12/512x512.png")
+            data = fetch(base + url)
+        if post:
+            data = wc_static(data, post, 1, 13)
+            with tileserver(labels, f"readme-{st.stem}-labels", mb) as base:
+                data = over(data, fetch(base + url))
         if meta.get("stains"):   # Flecken/Nordlicht wie in den Kacheln (Bild wie eine @2x-Kachel bei 0/0)
             data = stain_png(data, 0, 0, meta["stains"])
         data = quantize(data, a.colors or meta.get("colors", 32))
@@ -1295,9 +1440,10 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     if not a.force and done.exists() and json.loads(done.read_text()).get("hash") == fp:
         print(f"unverändert, übersprungen: {out}")
         return
-    if a.pixel:  # Beschriftung getrennt rendern, dither_tiles() backt sie ein
-        style, labels = split_labels(style)
     meta = tomllib.loads(Path(style_file).read_text())
+    wc = post_of(meta)  # Wasserfarben/Druckraster: nur die Karte bearbeiten, Beschriftung danach scharf obenauf
+    if a.pixel or wc:  # Beschriftung getrennt rendern, dither_tiles()/over() backt sie ein
+        style, labels = split_labels(style, shift=not wc)
     stains = meta.get("stains")  # Versuch: Flecken eingebacken
     colors = a.colors or meta.get("colors", 32)  # colors im Stil: weiche Verläufe (Lichthöfe) brauchen mehr als 32
     crops = []   # --pixel: (Kachel, URL der Beschriftungs-Vorfahrkachel ohne Basis, f, qx, qy)
@@ -1329,6 +1475,11 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                 f.write_bytes(lowres(parent(f"{base}/{z - n}/{x >> n}/{y >> n}@{PIXEL_SS}x.png"),
                                      a.pixel, x % a.pixel, y % a.pixel))
                 return f
+            elif wc:  # Beschriftung und pngquant erst im zweiten Durchgang
+                if ext != "png":
+                    sys.exit("watercolor/halftone nur mit PNG")
+                f.write_bytes(wc_tile(base, z, x, y, sfx, wc))
+                return f
             else:
                 data = fetch(f"{base}/{z}/{x}/{y}{sfx}.{ext}")
                 if stains and ext == "png":
@@ -1349,6 +1500,15 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                 list(pool.map(lambda c: c[0].with_suffix(".labels.png").write_bytes(
                     lowres(parent(base + c[1]), *c[2:])), crops))
         written = dither_tiles(written, style_file, a.retina)
+    if wc:
+        parent.cache_clear()
+        with tileserver(labels, out.name + "-labels", mb) as base:
+            def lab(f):
+                z, x = f.parts[-3:-1]
+                y, sfx = f.stem.split("@") if "@" in f.stem else (f.stem, "")
+                f.write_bytes(quantize(over(f.read_bytes(), fetch(f"{base}/{z}/{x}/{y}{'@' + sfx if sfx else ''}.png")), colors))
+            with ThreadPoolExecutor(WORKERS) as pool:
+                list(pool.map(lab, written))
     optimize(written)  # nach dem Stoppen des Containers
 
     cfg = dict(lat=a.lat, lon=a.lon, zmin=zmin, zmax=zmax, retina=a.retina,
