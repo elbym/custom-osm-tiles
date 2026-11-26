@@ -1152,15 +1152,24 @@ def halftone(img, ox, oy, k, cfg, z=17):
     out = np.broadcast_to(paper, img.shape).copy()
     for c, val in plates.items():
         val = ndimage.shift(val, (off[c][1] * k, off[c][0] * k), order=1, mode="nearest")   # Passer-Versatz
-        fn = ndimage.shift(fine.astype(float), (off[c][1] * k, off[c][0] * k), order=0, mode="nearest") > .5
-        val = np.where(fn, np.minimum(val, cfg.get("fine_amount", .7)), val)   # feine Punkte bleiben getrennt
-        a = np.radians(angle[c])
-        pt = np.where(fn, pitch * cfg.get("fine", .45), pitch)    # Rasterweite je Pixel
-        u, v = (gx * np.cos(a) + gy * np.sin(a)) / pt, (-gx * np.sin(a) + gy * np.cos(a)) / pt
-        d = np.hypot(u - np.round(u), v - np.round(v))            # Abstand zum nächsten Rasterpunkt, Zellen
-        r = np.sqrt(np.clip(val * cfg.get("gain", 1.1), 0, 1.6) / np.pi)   # flächentreu: Punktfläche = Farbmenge; ab ~1,6 voll
-        px = pt * k                                                # Zelle in Bildpixeln
-        dot = (np.clip((r - d) * px + .5, 0, 1) * np.clip(r * px * 2 - .5, 0, 1))[..., None]   # Kante 1 px, kein Staub
+        fn = ndimage.shift(fine.astype(float), (off[c][1] * k, off[c][0] * k), order=0, mode="nearest")
+        near = ndimage.maximum_filter(fn, size=int(2 * k) * 2 + 1)   # grobe Punkte halten Abstand von Volltönen
+        a, gain = np.radians(angle[c]), cfg.get("gain", 1.1)
+
+        def screen(pt, fine_cell, cap):
+            """Punkte der Rasterweite pt: Farbmenge am Punktmittelpunkt abgelesen, damit jeder Punkt ganz oder gar nicht
+            gedruckt wird (Kanten schneiden keine Punkte an, Punkte ragen wie im Druck etwas über die Kante)."""
+            u, v = (gx * np.cos(a) + gy * np.sin(a)) / pt, (-gx * np.sin(a) + gy * np.cos(a)) / pt
+            ru, rv = np.round(u), np.round(v)
+            cx, cy = ((ru * np.cos(a) - rv * np.sin(a)) * pt - ox) * k, ((ru * np.sin(a) + rv * np.cos(a)) * pt - oy) * k
+            at = lambda arr, o: ndimage.map_coordinates(arr, [cy, cx], order=o, mode="nearest")
+            mine = at(fn, 0) > .5 if fine_cell else at(near, 0) <= .5   # Punkt gehört zum feinen bzw. groben Raster
+            r = np.sqrt(np.clip(np.minimum(at(val, 1), cap) * gain, 0, 1.6) / np.pi)   # flächentreu; ab ~1,6 voll
+            px, d = pt * k, np.hypot(u - ru, v - rv)
+            return np.clip((r - d) * px + .5, 0, 1) * np.clip(r * px * 2 - .5, 0, 1) * mine   # Kante 1 px, kein Staub
+
+        # Volltöne fein (kleine, getrennte Punkte), sonst grob
+        dot = np.maximum(screen(pitch, False, 9), screen(pitch * cfg.get("fine", .35), True, cfg.get("fine_amount", .85)))[..., None]
         out = 1 - (1 - out) * (1 - dot * ink[c]) if light else out * (1 - dot * (1 - ink[c] / paper))
     return out
 
