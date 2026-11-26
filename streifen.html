@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kartenstile im Vergleich</title>
 <meta name="description" content="Selbst gerenderte OpenStreetMap-Kartenstile für Leaflet im Vergleich: eine Karte, ein Streifen pro Stil.">
+<!-- iPhone: Safari blendet seine Leisten auf einer nicht scrollenden Seite nie aus. Vom Home-Bildschirm gestartet
+     läuft die Seite als Web-App ohne Leisten; die Statusleiste ist durchsichtig, die Karte reicht bis an den Rand. -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kartenstile">
+<meta name="theme-color" content="#a3a3a3">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
 <link rel="stylesheet" href="leaflet/leaflet.css">
 <link rel="stylesheet" href="streifen.css">
 </head>
@@ -106,6 +115,7 @@
       <h1 class="text-lg font-semibold">Kartenstile im Vergleich</h1>
       <button id="about-close" class="rounded-md border border-neutral-400 px-2 py-0.5 dark:border-neutral-600" aria-label="Schließen">✕</button>
     </div>
+    <p class="hidden compact:block">Vollbild auf dem iPhone: in Safari <em>Teilen → Zum Home-Bildschirm</em>, dann von dort öffnen. Safari selbst blendet seine Leisten auf dieser Seite nicht aus.</p>
     <p>Eine Karte, ein Streifen pro Stil. Die Kacheln sind vorab gerendert und liegen statisch auf dieser Seite; es gibt keine Anfragen an Kartendienste oder CDNs. Erzeugt mit <a class="underline" href="https://github.com/elbym/custom-osm-tiles">custom-osm-tiles</a> (MIT).</p>
     <section>
       <h2 class="font-semibold">Tastatur</h2>
@@ -319,6 +329,13 @@ let cmp = strips.findIndex(([fam, v]) => v && fam === q.get('vs'));
 if (solo < 0 || cmp === solo) cmp = -1;
 let frac = 0.5;
 const visible = i => solo < 0 || i === solo || i === cmp;
+// Safari-Leisten (theme-color, ab iOS 26 die Seitenfarbe am Rand) in der Grundfarbe des gezeigten Stils statt grau
+function tint(bg) {
+  const c = bg || getComputedStyle(document.body).backgroundColor;
+  document.documentElement.style.background = bg || '';
+  document.body.style.background = bg || '';
+  document.querySelector('meta[name="theme-color"]').content = c;
+}
 function showSolo() {
   layers.forEach((ls, i) => ls.forEach(l => visible(i) ? l.addTo(map) : l.remove()));
   [...document.getElementById('titles').children].forEach((cell, i) => cell.hidden = !visible(i));
@@ -326,6 +343,7 @@ function showSolo() {
   setMarker(markerCfg);
   document.querySelector('#solo [data-step="0"]').setAttribute('aria-pressed', solo < 0);
   document.documentElement.toggleAttribute('data-solo', solo >= 0);
+  tint(cmp >= 0 ? null : strips[solo]?.[1]?.[1]?.bg);
   document.getElementById('titles').hidden = cmp >= 0;
   document.getElementById('divider').hidden = cmp < 0;
   for (const b of document.querySelectorAll('[data-cmp]')) b.setAttribute('aria-pressed', cmp >= 0);
