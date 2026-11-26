@@ -111,7 +111,7 @@
       <h2 class="font-semibold">Tastatur</h2>
       <ul class="mt-1 list-disc pl-5">
         <li><kbd>←</kbd> <kbd>→</kbd> oder <kbd>J</kbd> <kbd>Ö</kbd>: vorheriger / nächster Stil</li>
-        <li><kbd>↑</kbd> <kbd>↓</kbd> oder <kbd>L</kbd> <kbd>K</kbd>: Hell / Dunkel umschalten</li>
+        <li><kbd>↑</kbd> <kbd>↓</kbd>, <kbd>L</kbd> <kbd>K</kbd> oder <kbd>I</kbd> (invertieren): Hell / Dunkel umschalten</li>
         <li><kbd>N</kbd>: Standard / Nerd umschalten</li>
         <li><kbd>1</kbd>–<kbd>9</kbd>: Stil Nr. 1–9 einzeln zeigen</li>
         <li><kbd>Esc</kbd> oder <kbd>A</kbd>: zurück zu allen Stilen</li>
@@ -221,11 +221,11 @@ for (const d of [sheet, jump]) {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') pick.open = false; });
 document.addEventListener('click', e => { if (pick.open && !pick.contains(e.target) && !compact.matches) pick.open = false; });  // Klick daneben wendet an
-// Tastatur: ← → bzw. J Ö Stil wechseln, ↑ ↓ bzw. L K Hell/Dunkel, N Standard/Nerd, H Über, Esc/A alle Streifen,
+// Tastatur: ← → bzw. J Ö Stil wechseln, ↑ ↓ bzw. L K oder I (invertieren) Hell/Dunkel, N Standard/Nerd, H Über, Esc/A alle Streifen,
 // V Vergleich, 1–9 Stil Nr. n, + − zoomen ohne Fokus auf der Karte (Liste im Über-Dialog).
 // Capture-Phase und stopPropagation, damit Leaflet die Pfeiltasten nicht zusätzlich zum Verschieben nutzt (+/− zoomen weiter).
 const KEYS = { arrowleft: 'prev', j: 'prev', arrowright: 'next', 'ö': 'next',
-  arrowup: 'mode', arrowdown: 'mode', l: 'mode', k: 'mode', n: 'cat', h: 'about',
+  arrowup: 'mode', arrowdown: 'mode', l: 'mode', k: 'mode', i: 'mode', n: 'cat', h: 'about',
   escape: 'all', a: 'all', v: 'cmp', '+': 'in', '-': 'out', '−': 'out' };
 addEventListener('keydown', e => {
   const act = /^[1-9]$/.test(e.key) ? 'nr' : KEYS[e.key.toLowerCase()];

@@ -82,8 +82,10 @@ text-halo-color = "#232327"
 text-color = "#75bfff"
 text-halo-color = "#232327"
 [paint."highway-name-*"]
-text-color = "#b1b1b3"   # body-color
+text-color = "#cfcfd2"   # heller als body-color, wie Photon Dark
 text-halo-color = "#232327"
+text-halo-width = 2      # breiter, harter Rand: sonst schneiden Gleise und Straßenränder durch die Schrift (Nutzerhinweis 2026-11-26)
+text-halo-blur = 0
 [paint."poi_*"]
 text-color = "#639dcf"
 text-halo-color = "#232327"
