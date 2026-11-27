@@ -897,9 +897,6 @@ def colour_order(outdir, configs):
 
 def write_previews(outdir):
     """Vorschauseite (index.html = streifen.html) + variants.js (Titel und Konfiguration aller Varianten) nach outdir."""
-    index = outdir / "index.html"
-    if not index.exists() or "variants.js" in index.read_text():  # fremde index.html (--out in eine Website) nie überschreiben
-        shutil.copy(ROOT / "streifen.html", index)
     for old in ("compare.html", "streifen.html"):  # frühere Vorschauseiten
         (outdir / old).unlink(missing_ok=True)
     shutil.copy(ROOT / "vendor" / "streifen.css", outdir / "streifen.css")  # Tailwind, gebaut mit npm run css
@@ -919,6 +916,13 @@ def write_previews(outdir):
         f"const VARIANTS = {json.dumps(names)};\n"
         f"const TITLES = {json.dumps(titles, ensure_ascii=False)};\n"
         f"const CONFIGS = {json.dumps(configs, ensure_ascii=False)};\n")
+    index = outdir / "index.html"
+    if not index.exists() or "variants.js" in index.read_text():  # fremde index.html (--out in eine Website) nie überschreiben
+        html = (ROOT / "streifen.html").read_text()
+        for f in ("streifen.css", "variants.js"):  # Inhalts-Hash in der URL: sonst mischt Safari neue Seite mit altem Cache
+            v = hashlib.sha256((outdir / f).read_bytes()).hexdigest()[:8]
+            html = html.replace(f'"{f}"', f'"{f}?v={v}"')
+        index.write_text(html)
 
 
 def reindex(outdir, label=None):
