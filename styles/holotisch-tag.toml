@@ -1,6 +1,6 @@
 # "Holotisch Tag" (Arbeitstitel, Entwurf, Nutzerwunsch 2026-11-27): heller Partner von Holotisch, der Kartentisch bei
 # Tageslicht:
-#   - Grund kühles helles Blaugrau, dasselbe enge Raster (holotisch) etwas dunkler
+#   - Grund kühles helles Blaugrau, dasselbe Geländeraster wie Holotisch ([holo.terrain]) in kühlem Blau
 #   - Gebäude im selben Durchgang (holo_light(), by = "height"), aber blend = "folie": halbtransparente Glasblöcke, die
 #     den Grund einfärben, niedrig blau, hoch petrol bis grün und deckender (fill_top)
 #   - Straßen als korallrotes Datennetz ohne Leuchtschein, Nebenstraßen hellblau
@@ -10,6 +10,7 @@ category = "nerd"
 mode = "light"
 family = "Holotisch"
 order = 95
+attribution = "Höhendaten: Terrain Tiles (AWS Open Data); Europe terrain data produced using Copernicus data and information funded by the European Union - EU-DEM layers; SRTM and GMTED2010 terrain data courtesy of the U.S. Geological Survey"
 font = "Maple Mono"
 preview_font = "Maple Mono"
 site_font = "Maple Mono"
@@ -19,7 +20,6 @@ colors = 64
 hide = ["poi_*", "airport", "road_oneway*", "building-top", "highway-name-*", "*shield*", "water*label"]
 
 [paint."background"]
-background-pattern = "holotisch"
 background-color = "#e3edf5"
 [paint."landuse-*"]
 fill-color = "#e3edf5"
@@ -98,9 +98,6 @@ color2 = "#d8304e"
 bg = "#e3edf5"
 fg = "#0a2238"
 
-[patterns]
-holotisch = { symbol = "holotisch", color = "#9dbcd6", bg = "#e3edf5" }
-
 # Knoten im Datennetz: weiße Punkte mit rotem Ring, der Schein nur schwach (auf hellem Grund ein Hof statt Leuchten)
 [[layers]]
 source-layer = "poi"
@@ -144,4 +141,36 @@ bloom_r = 5
 glitch = 0.01
 glitch_px = 4
 aberration = 0
+# Geländeraster statt Hintergrundmuster (Nutzerwunsch 2026-11-27, terrain_grid() in make-tiles.py): Linien um die
+# Geländehöhe über der Umgebung nach oben versetzt (scale Weltpixel je m, Höhen aus Terrain Tiles, relief_m = Radius der
+# Umgebung), auf bebauten Flächen flach, damit die Stadt mit den Gebäuden nicht noch unruhiger wird
+[holo.terrain]
+blend = "overlay"   # Screen kann nur aufhellen und verschwände auf dem hellen Tisch; Overlay dunkelt helle Stellen ab
+color = "#0a2a6a"
+cell = 16
+width = 0.7
+glow = 0.25
+glow_width = 1.6
+scale = 0.25
+max_px = 40
+angle = 12
+relief_m = 2500
+fade = 20
+pad_m = 25
+# Unregelmäßigkeit (Nutzerwunsch 2026-11-27, "Differenz-Wolken", Vorbilder Partikelraster und Raster mit Leuchtknoten):
+# Deckung nach |fbm1 - fbm2| (clouds = Stärke, cloud_scale Weltpixel, cloud_gain), in schwachen Zonen Partikel statt
+# Linie (sparkle); Segmente seg_low … 1 hell, Anteil lit voll mit Schein; Knoten als Lichtpunkte, Anteil nodes hell
+# (node_glow = Schein); Anteil cells der Zellen schwach gefüllt (cell_fill); Werte wie Holotisch außer clouds
+clouds = 0.6   # schwächer als Holotisch: Overlay auf hellem Grund wirkt ohnehin zart, sonst verschwände das Raster
+cloud_scale = 300
+cloud_gain = 3.5
+sparkle = 0.8
+seg_low = 0.35
+lit = 0.06
+nodes = 0.08
+node_glow = 1.5
+star_color = "#04184a"   # Leuchtpunkte als vierstrahliger Stern (star_kernel()), heller als das Raster
+star_r = 9
+cells = 0.04
+cell_fill = 0.12
 # <<<

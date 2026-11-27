@@ -1,0 +1,181 @@
+# "Cyberspace Hell" (Arbeitstitel, Entwurf, Nutzerwunsch 2026-11-27): heller Partner von Cyberspace, das Beste aus
+# Holotisch Tag, Hologrammfolie und Cyberspace:
+#   - aus Holotisch Tag: heller Tisch, Geländeraster im Overlay (Differenz-Wolken, Partikel, Sterne an den Knoten, in der
+#     Stadt flach); Gebäude als Glasblöcke, die per Farbfilter (blend = "folie") einfärben, unten durchsichtig
+#   - aus Hologrammfolie: perlweißer, leicht violetter Grund, gesättigte Folienfarben (nach Höhe statt Farbkreis:
+#     Violett -> Blau -> Cyan -> Türkis; Pink unten färbte die vielen niedrigen Häuser zu grell), halber Farbversatz,
+#     wenig Glitch, kein Schein (macht den Filter blass)
+#   - aus Cyberspace: Neon-Straße in Magenta mit Neon-Namen, Bahnlinien als Einschienenbahn (hier Petrol), Haltestellen
+#     als Knoten, Rauschen (static), Versalien, Terminal-Marker; kein CRT-Overlay (gehört zum dunklen Bildschirm)
+title = "Cyberspace Hell"
+category = "nerd"
+mode = "light"
+family = "Cyberspace"
+order = 94
+attribution = "Höhendaten: Terrain Tiles (AWS Open Data); Europe terrain data produced using Copernicus data and information funded by the European Union - EU-DEM layers; SRTM and GMTED2010 terrain data courtesy of the U.S. Geological Survey"
+font = "Maple Mono"
+preview_font = "Maple Mono"
+site_font = "Maple Mono"
+fonts = ["sans", "mono"]
+text_scale = 1.05
+colors = 64
+hide = ["poi_*", "airport", "road_oneway*", "building-top", "highway-name-minor", "highway-name-path", "*shield*", "water*label"]
+
+[paint."background"]
+background-color = "#ecebf3"
+[paint."landuse-*"]
+fill-color = "#ecebf3"
+fill-opacity = 0
+[paint."park"]
+fill-color = "#d6e8e4"
+fill-opacity = 0.6
+[paint."landcover-*"]
+fill-color = "#d6e8e4"
+fill-opacity = 0.6
+[paint."landuse-cemetery"]
+fill-color = "#d6e8e4"
+fill-opacity = 0.6
+
+[paint."water*"]
+fill-color = "#d2d8ec"
+line-color = "#8fa0cc"
+
+[paint."building"]
+fill-color = "#dddbe8"
+fill-outline-color = "#dddbe8"
+
+# Neon-Straße: Hauptstraßen Magenta, Nebenstraßen Violett, der Rest hell im Grund; kein Schein (auf hellem Grund schmutzig)
+[paint."*-minor*"]
+line-color = "#bdbbd6"
+[paint."*-service-track"]
+line-color = "#cfcde2"
+line-opacity = 0.7
+[paint."*-link"]
+line-color = "#6a4ad8"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.3, 16, 0.9, 18, 1.5]
+[paint."*-secondary-tertiary*"]
+line-color = "#6a4ad8"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.3, 16, 0.9, 18, 1.5]
+[paint."*-primary*"]
+line-color = "#d0237f"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.4, 16, 1.4, 18, 2.2]
+[paint."*-trunk*"]
+line-color = "#d0237f"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.4, 16, 1.4, 18, 2.2]
+[paint."*-motorway*"]
+line-color = "#e0308f"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.5, 16, 1.8, 18, 2.8]
+[paint."*-casing"]
+line-opacity = 0
+[paint."highway-area"]
+fill-color = "#e2e0ee"
+fill-outline-color = "#bdbbd6"
+[paint."aeroway-*"]
+fill-color = "#e2e0ee"
+line-color = "#e2e0ee"
+[paint."*-path"]
+line-color = "#c6c3de"
+# Einschienenbahn in Petrol
+[paint."*railway*"]
+line-color = "#1a8aa8"
+[paint."road_area_pier"]
+fill-color = "#ecebf3"
+[paint."road_pier"]
+line-color = "#ecebf3"
+
+[layout."label_*"]
+text-transform = "uppercase"
+text-letter-spacing = 0.2
+[paint."label_*"]
+text-color = "#1e1a3a"
+text-halo-color = "#ecebf3"
+text-halo-width = 2
+text-halo-blur = 0
+[layout."highway-name-major"]
+text-transform = "uppercase"
+text-letter-spacing = 0.15
+[paint."highway-name-major"]
+text-color = "#b01c6e"
+text-halo-color = "#ecebf3"
+text-halo-width = 2
+text-halo-blur = 0
+
+[paint."poi_*"]   # ausgeblendet; die Farbe braucht nur poi_sprite()
+text-color = "#1a6f8f"
+
+[marker]
+type = "terminal"
+color = "#1a6f8f"
+color2 = "#d0237f"
+bg = "#ecebf3"
+fg = "#141030"
+
+# Knoten: Haltestellen als weiße Punkte mit magentafarbenem Ring, schwacher Hof
+[[layers]]
+source-layer = "poi"
+like = "poi_transit"
+type = "circle"
+after = "highway-motorway"
+id = "knoten-schein"
+filter = ["in", ["get", "class"], ["literal", ["bus", "railway", "tram"]]]
+minzoom = 14
+paint = { circle-color = "#d0237f", circle-radius = 6, circle-blur = 1, circle-opacity = 0.3 }
+[[layers]]
+source-layer = "poi"
+like = "poi_transit"
+type = "circle"
+after = "knoten-schein"
+id = "knoten"
+filter = ["in", ["get", "class"], ["literal", ["bus", "railway", "tram"]]]
+minzoom = 14
+paint = { circle-color = "#ffffff", circle-radius = 2, circle-stroke-color = "#d0237f", circle-stroke-width = 1.2 }
+
+# >>> Gebäude-Durchgang (holo_light()): Farbfilter (blend = "folie") nach Höhe in gesättigten Folienfarben, unten
+# durchsichtig (edge_low), oben deckend (fill_top), kein bloom, wenig Glitch, halber Farbversatz
+[holo]
+blend = "folie"
+by = "height"
+colors = ["#8a5cff", "#5a6cf0", "#3ab4ff", "#1ec8c0", "#0a9a70"]
+hmax = 40
+slices = 8
+lean = 1.0
+angle = 12
+spread = 20
+shimmer = 0.7
+fill = 0.03
+fill_top = 8
+fringe = 1000
+edge = 0.5
+soft = 0.35   # weichere Kanten (Nutzerwunsch 2026-11-27): Unschärfe am Ende, auch über die Farbsäume
+edge_low = 0.25
+glitch = 0.025
+glitch_px = 6
+aberration = 0.5
+# Geländeraster wie Holotisch Tag (Overlay), dazu Rauschen wie Cyberspace
+[holo.terrain]
+blend = "overlay"   # dunkelt hellen Grund nur wenig ab, daher dunkle Farbe und etwas breitere Linien
+color = "#000a3a"
+cell = 16
+width = 0.9
+glow = 0.35
+glow_width = 1.6
+scale = 0.3
+max_px = 40
+angle = 12
+relief_m = 2500
+fade = 20
+pad_m = 25
+clouds = 0.6
+cloud_scale = 300
+cloud_gain = 3.5
+sparkle = 0.8
+seg_low = 0.35
+lit = 0.05
+nodes = 0.07
+node_glow = 1.5
+star_color = "#000000"
+star_r = 9
+cells = 0.03
+cell_fill = 0.1
+static = 0.06
+# <<<

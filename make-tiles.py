@@ -1336,7 +1336,11 @@ def halftone(img, ox, oy, k, cfg, z=17):
 IRIS = ["#00f0ff", "#48b4ff", "#8a8cff", "#b86cff", "#f05ce8", "#ff7ab4", "#ffb894", "#9affd8"]  # Hologrammfolie
 
 
-def holo_split(style):
+BEBAUT = ["residential", "neighbourhood", "suburb", "commercial", "industrial", "retail", "garages", "railway", "hospital",
+          "school", "university", "college", "kindergarten", "stadium"]   # OMT-landuse-Klassen, in denen das Geländeraster flach bleibt
+
+
+def holo_split(style, terrain=False):
     """holo im Stil (Hologramm): Karte ohne Gebäude-Zusatzebenen (nur der dunkle Grundriss "building" bleibt) und ein
     Gebäude-Durchgang: nur "building" auf Schwarz, Farbe rgb(Höhe in m, 255, 0). Kantenglättung mischt mit Schwarz,
     daher Deckung = G, Höhe = R / Deckung (holo_light()). Dazu jede Hauskante als Linie mit B = 255: Planetiler fasst
@@ -1354,6 +1358,10 @@ def holo_split(style):
         else:
             l.setdefault("layout", {})["visibility"] = "none"
     i = next(i for i, l in enumerate(b["layers"]) if l["id"] == "building")
+    if terrain:  # bebaute Flächen in Blau unter die Gebäude (terrain_grid() hält das Raster dort flach)
+        b["layers"].insert(i, {"id": "bebaut", "type": "fill", "source": b["layers"][i]["source"], "source-layer": "landuse",
+                               "filter": ["in", ["get", "class"], ["literal", BEBAUT]], "paint": {"fill-color": "#0000ff"}})
+        i += 1
     b["layers"].insert(i + 1, {"id": "building-kante", "type": "line", "source": b["layers"][i]["source"],
                                "source-layer": "building", "paint": {"line-color": ["rgb", h, 255, 255], "line-width": .6}})
     return m, b
@@ -1370,7 +1378,8 @@ def holo_light(img, ox, oy, k, cfg, z=16):
     by = "height" (Holotisch, nach einem Referenzbild): Farbe als Verlauf durch colors nach Höhe (0 … hmax m) statt
     Farbkreis, shimmer verschiebt dann nur leicht; fill_top macht die Fläche nach oben und bei hohen Gebäuden deckender
     (Lichtsäulen); edge_low = Kantenstärke der untersten Scheibe relativ zu edge (Standard 0.75), steigt linear bis
-    zur obersten; bloom = Stärke eines weichen Leuchtscheins (Radius bloom_r Weltpixel) um alles Licht."""
+    zur obersten; bloom = Stärke eines weichen Leuchtscheins (Radius bloom_r Weltpixel) um alles Licht; soft = Unschärfe in Weltpixeln am Ende (weiche Kanten,
+    auch der Farbsäume), hellt anders als bloom nicht auf."""
     import numpy as np
     from scipy import ndimage
     h, w, _ = img.shape
@@ -1432,18 +1441,208 @@ def holo_light(img, ox, oy, k, cfg, z=16):
     if ab:
         light[..., 0] = np.roll(light[..., 0], -ab, 1)
         light[..., 2] = np.roll(light[..., 2], ab, 1)
+    if cfg.get("soft"):  # weiche Kanten (Cyberspace Hell): Unschärfe soft Weltpixel, hellt anders als bloom nicht auf
+        light = ndimage.gaussian_filter(light, (cfg["soft"] * k, cfg["soft"] * k, 0))
     return light
 
 
+@functools.lru_cache(maxsize=None)
+def star_kernel(r):
+    """Vierstrahliger Stern (Leuchtpunkt auf dem Raster, nach der Vorlage des Nutzers 2026-11-27): je Achse ein Strahl,
+    der zur Spitze (r Bildpixel) schmaler und dunkler wird, dazu ein kleiner heller Kern; Maximum 1."""
+    import numpy as np
+    n = max(1, math.ceil(r))
+    y, x = np.mgrid[-n:n + 1, -n:n + 1].astype(float)
+    def arm(a, b):  # Strahl entlang a, Breite quer dazu (b) verjüngt sich zur Spitze
+        f = np.clip(1 - np.abs(a) / r, 0, 1)
+        return f ** 1.5 * np.exp(-(b / (r * .06 * f + .45)) ** 2)
+    core = np.exp(-(np.hypot(x, y) / (r * .12 + .5)) ** 2)
+    v = np.maximum(arm(x, y), arm(y, x)) + .6 * core
+    return v / v.max()
+
+
+def terrain_light(img, ox, oy, k, cfg, z=16):
+    """Geländeraster als eigene Ebene (holo.terrain, eigene Mischart blend, siehe screen()): post-Funktion für wc_tile()/
+    wc_static() auf dem Gebäude-Durchgang. screen: Licht auf Schwarz; overlay: auf neutralem Grau 0.5 (dort keine Wirkung).
+    README-Vorschau (lat, keine Weltposition): flach."""
+    import numpy as np
+    h = img.shape[0]
+    lat = math.radians(cfg["lat"]) if "lat" in cfg else math.atan(math.sinh(math.pi * (1 - 2 * (oy + h / k / 2) / (256 * 2 ** z))))
+    mpp = 156543.03 * math.cos(lat) / 2 ** z
+    alpha, col, sa, scol = terrain_grid(img, ox, oy, k, z, cfg, mpp, flat="lat" in cfg)
+    a, sa = alpha[..., None], sa[..., None]
+    if cfg.get("blend") == "overlay":  # Sterne normal über das Raster, beides auf Grau 0.5
+        lay = .5 + (col - .5) * a
+        return lay + (scol - lay) * sa
+    return 1 - (1 - col * a) * (1 - scol * sa)
+
+
+TERRAIN_URL = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"   # Terrain Tiles, AWS Open Data
+
+
+@functools.lru_cache(maxsize=None)
+def dem_tile(z, x, y):
+    """Höhen in m einer Terrarium-Kachel (256×256; Europa: EU-DEM/Copernicus), zwischengespeichert in data/terrain/."""
+    import numpy as np
+    from PIL import Image
+    f = ROOT / "data" / "terrain" / str(z) / str(x) / f"{y}.png"
+    if not f.exists():
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_bytes(fetch(TERRAIN_URL.format(z=z, x=x % 2 ** z, y=y)))
+    a = np.asarray(Image.open(f).convert("RGB"), float)
+    return a[..., 0] * 256 + a[..., 1] + a[..., 2] / 256 - 32768
+
+
+def relief(gx, gy, z, cfg):
+    """Geländehöhe über der Umgebung (m) an Weltpixeln gx, gy der Zoomstufe z: DEM der Stufe dem_zoom minus dasselbe weich
+    gezeichnet (relief_m), so zählen nur Hügel und Täler, nicht die absolute Höhe. Eine DEM-Kachel Rand für die Unschärfe,
+    daher an jeder Stelle gleich, egal welche Kartenkachel fragt."""
+    import numpy as np
+    from scipy import ndimage
+    zt = cfg.get("dem_zoom", 12)
+    u, v = gx * 2.0 ** (zt - z), gy * 2.0 ** (zt - z)
+    tx0, tx1 = int(u.min() // 256) - 1, int(u.max() // 256) + 1
+    ty0, ty1 = int(v.min() // 256) - 1, int(v.max() // 256) + 1
+    dem = np.concatenate([np.concatenate([dem_tile(zt, tx, ty) for tx in range(tx0, tx1 + 1)], 1)
+                          for ty in range(ty0, ty1 + 1)], 0)
+    lat = math.atan(math.sinh(math.pi * (1 - 2 * (ty0 + ty1 + 1) / 2 / 2 ** zt)))
+    mpp = 156543.03 * math.cos(lat) / 2 ** zt
+    rel = dem - ndimage.gaussian_filter(dem, cfg.get("relief_m", 2500) / mpp, mode="nearest")
+    return ndimage.map_coordinates(rel, [v - ty0 * 256, u - tx0 * 256], order=3, mode="nearest")
+
+
+def terrain_grid(img, ox, oy, k, z, cfg, mpp, flat=False):
+    """Geländeraster (terrain im holo-Block, Holotisch; Nutzerwunsch 2026-11-27): Quadratraster (cell Weltpixel, also
+    gleich groß auf dem Bildschirm wie das alte Muster), jede Linie um die Geländehöhe (relief(), m × scale Weltpixel,
+    höchstens max_px) in Richtung angle nach oben versetzt, wie die Gebäudescheiben. Auf bebauten Flächen (Blau im
+    Gebäude-Durchgang, BEBAUT) und um Gebäude (pad_m) flach, weich ausgeblendet (fade Weltpixel, ≤ 24 wegen des Kachelrands).
+    Unter Gebäudegrundrissen kein Raster (wie vorher das Hintergrundmuster). Rückgabe (Deckung, Farbe, Deckung der Sterne,
+    Sternfarbe), terrain_light() macht daraus die Ebene für screen()."""
+    import numpy as np
+    from PIL import Image, ImageDraw
+    from scipy import ndimage
+    h, w, _ = img.shape
+    cov = img[..., 1]
+    cell, cap = cfg.get("cell", 16), cfg.get("max_px", 40)
+    ang = math.radians(cfg.get("angle", 12))
+    if flat:
+        flatness = np.ones((h, w))
+    else:
+        built = img[..., 2] > .5
+        bld = cov > .3
+        if bld.any():
+            built |= ndimage.distance_transform_edt(~bld) <= cfg.get("pad_m", 25) / mpp * k
+        sig = min(cfg.get("fade", 20), 24) * k
+        flatness = np.clip(2 * ndimage.gaussian_filter(built.astype(float), sig, mode="nearest"), 0, 1)
+    ss = 2   # Linien doppelt so fein zeichnen und verkleinern = Kantenglättung
+    W, H = w * ss, h * ss
+    core, glow, cells = (Image.new("L", (W, H)) for _ in range(3))
+    dc, dg, dz = (ImageDraw.Draw(im) for im in (core, glow, cells))
+    stars = np.zeros((2, h, w))   # Knoten: [hell, schwach] als Einzelpunkte, danach mit star_kernel() gefaltet
+    wc = max(1, round(cfg.get("width", .7) * k * ss))
+    wg = max(1, round(cfg.get("glow_width", 1.6) * k * ss))
+    x0, x1 = ox - cap - cell, ox + w / k + cap + cell          # Weltpixel; Linien von unterhalb können hereinragen
+    y0, y1 = oy - cap - cell, oy + h / k + cap + cell
+    cxs = np.arange(math.ceil(x0 / cell) * cell, x1, cell)
+    cys = np.arange(math.ceil(y0 / cell) * cell, y1, cell)
+    def lift(gx, gy):  # Weltpixel -> versetzte Bildpixel (× ss)
+        px, py = (gx - ox) * k, (gy - oy) * k
+        f = ndimage.map_coordinates(flatness, [py, px], order=1, mode="nearest")
+        d = 0 if flat else np.clip(relief(gx, gy, z, cfg) * cfg.get("scale", .25), -cap, cap) * (1 - f) * k
+        return (px + d * math.sin(ang)) * ss, (py - d * math.cos(ang)) * ss
+    # Unregelmäßigkeit (Nutzerwunsch 2026-11-27, Vorbilder: Partikelraster und Raster mit Leuchtknoten), alles per ihash an
+    # ganzzahligen Rasterindizes, daher nahtlos: Segmente (zwischen zwei Knoten) in zufälliger Helligkeit seg_low … 1,
+    # ein Anteil lit davon voll mit stärkerem Schein; Knoten als Lichtpunkte, ein Anteil nodes hell mit Schein; ein Anteil
+    # cells der Zellen schwach gefüllt (cell_fill)
+    rnd = lambda a, b, sd: float(ihash(np.int64(a), np.int64(b), sd))
+    lo, lit = cfg.get("seg_low", 1), cfg.get("lit", 0)
+    step = 1 / k                                               # ein Bildpixel Abstand zwischen den Stützpunkten
+    lines = [(vertical, c, t) for vertical, consts, t in ((True, cxs, np.arange(y0, y1, step)), (False, cys, np.arange(x0, x1, step)))
+             for c in consts]
+    QX, QY = lift(np.concatenate([np.full_like(t, c) if v else t for v, c, t in lines]),
+                  np.concatenate([t if v else np.full_like(t, c) for v, c, t in lines]))   # ein relief()-Aufruf für alle
+    o = 0
+    for vertical, c, t in lines:
+        qx, qy = QX[o:o + len(t)], QY[o:o + len(t)]
+        o += len(t)
+        seg = np.floor(t / cell).astype(np.int64)
+        cuts = np.flatnonzero(np.diff(seg)) + 1
+        ci = round(c / cell)
+        for a, b in zip(np.r_[0, cuts], np.r_[cuts, len(t) - 1]):
+            sj = int(seg[a])
+            key = (ci, sj) if vertical else (sj + 100003, ci)
+            on = rnd(*key, 61) < lit
+            v = 1 if on else lo + (1 - lo) * rnd(*key, 62)
+            pts = list(zip(qx[a:b + 1].tolist(), qy[a:b + 1].tolist()))
+            dg.line(pts, fill=int(255 * min(1, v * (2.5 if on else 1))), width=wg * (2 if on else 1))
+            dc.line(pts, fill=int(255 * v), width=wc)
+    if cfg.get("nodes") or cfg.get("cells"):
+        GX, GY = np.meshgrid(cxs, cys)
+        NX, NY = lift(GX.ravel(), GY.ravel())
+        NX, NY = NX.reshape(GX.shape), NY.reshape(GX.shape)
+        II, JJ = np.round(GX / cell).astype(np.int64), np.round(GY / cell).astype(np.int64)
+        for x, y, a, b in zip(NX.ravel() / ss, NY.ravel() / ss, II.ravel(), JJ.ravel()):
+            xi, yi = int(round(x)), int(round(y))
+            if 0 <= xi < w and 0 <= yi < h:
+                stars[0 if rnd(a, b, 63) < cfg.get("nodes", 0) else 1, yi, xi] += 1
+        for yy in range(GX.shape[0] - 1):
+            for xx in range(GX.shape[1] - 1):
+                if rnd(II[yy, xx], JJ[yy, xx], 64) < cfg.get("cells", 0):
+                    dz.polygon([(NX[yy, xx], NY[yy, xx]), (NX[yy, xx + 1], NY[yy, xx + 1]),
+                                (NX[yy + 1, xx + 1], NY[yy + 1, xx + 1]), (NX[yy + 1, xx], NY[yy + 1, xx])], fill=255)
+    small = lambda im: np.asarray(im.resize((w, h), Image.BOX), float) / 255
+    c_, g_ = small(core), small(glow)
+    alpha = c_ + cfg.get("glow", .25) * g_
+    sa = np.zeros((h, w))
+    if stars.any():  # Leuchtpunkte als vierstrahliger Stern (Nutzervorlage star-grid-corner.svg), Strahlen auf den Linien;
+        from scipy.signal import fftconvolve   # eigene Lage in star_color, sonst nie heller als die Linie darunter
+        r = cfg.get("star_r", 9) * k
+        sa = cfg.get("node_glow", 1) * fftconvolve(stars[0], star_kernel(r), mode="same")
+        sa += .55 * fftconvolve(stars[1], star_kernel(r * .35), mode="same")
+    alpha += cfg.get("cell_fill", .08) * small(cells)
+    if cfg.get("clouds"):  # Differenz-Wolken: |fbm1 - fbm2| an Weltkoordinaten, Adern mit geringer Deckung
+        yy, xx = np.mgrid[0:h:4, 0:w:4]
+        u, v = ox + xx / k, oy + yy / k
+        sc = cfg.get("cloud_scale", 300)
+        fbm = lambda sd: sum(wt * vnoise(u / (sc * f), v / (sc * f), sd + o) for o, (wt, f) in enumerate(((.55, 1), (.3, .5), (.15, .25))))
+        cover = np.clip(np.abs(fbm(71) - fbm(81)) * cfg.get("cloud_gain", 3.5), 0, 1)
+        cover = ndimage.zoom(cover, 4, order=1)[:h, :w]
+        floor = 1 - cfg["clouds"]
+        mod = floor + (1 - floor) * cover
+        if cfg.get("sparkle"):  # Partikel: in schwachen Zonen zerfallen die Linien in Pünktchen, im Schein funkelt es
+            ix = np.round(ox * k).astype(np.int64) + np.arange(w)[None, :]
+            iy = np.round(oy * k).astype(np.int64) + np.arange(h)[:, None]
+            grain = ihash(ix, iy, 91)
+            keep = grain < .3 + .7 * cover
+            alpha = alpha * np.where(keep, 1, .12)
+            alpha += cfg["sparkle"] * (ihash(ix, iy, 92) < .06 * cover) * np.clip(g_ * 3, 0, 1)
+        alpha = alpha * mod
+        sa = sa * mod
+    if cfg.get("static"):  # Rauschen wie ein toter Fernsehkanal (Cyberspace): Körnung je Bildpixel, an Weltkoordinaten
+        ix = np.round(ox * k).astype(np.int64) + np.arange(w)[None, :]
+        iy = np.round(oy * k).astype(np.int64) + np.arange(h)[:, None]
+        alpha = alpha + cfg["static"] * ihash(ix, iy, 93) ** 3
+    free = 1 - np.clip(cov / .5, 0, 1)
+    rgb = lambda c: np.array([int(c[i:i + 2], 16) for i in (1, 3, 5)]) / 255
+    col = rgb(cfg.get("color", "#1f5a80"))
+    return np.clip(alpha, 0, 1) * free, col, np.clip(sa, 0, 1) * free, rgb(cfg.get("star_color", cfg.get("color", "#1f5a80")))
+
+
 def screen(data, light, blend=None):
-    """Licht (PNG, Schwarz = nichts) aufhellend über die Kachel legen (Hologramm). blend = "folie" (helle Partner,
+    """Licht (PNG, Schwarz = nichts) aufhellend über die Kachel legen (Hologramm). blend = "overlay": Ebene auf Grau 0.5
+    (Geländeraster). blend = "folie" (helle Partner,
     2026-11-27): als Farbfilter multiplizieren, Filter = 1 - max(Licht) + Licht, also färbt Licht im Farbton ein und
     dunkelt ab, Schwarz bleibt ohne Wirkung. Fast weißes Licht (Deckelkanten) verschwindet dabei auf hellem Grund."""
     import numpy as np
     from PIL import Image
     a = np.asarray(Image.open(io.BytesIO(data)).convert("RGB"), float) / 255
     b = np.asarray(Image.open(io.BytesIO(light)).convert("RGB"), float) / 255
-    out = a * (1 - b.max(-1, keepdims=True) + b) if blend == "folie" else 1 - (1 - a) * (1 - b)
+    if blend == "folie":
+        out = a * (1 - b.max(-1, keepdims=True) + b)
+    elif blend == "overlay":  # Ebene mit neutralem Grau 0.5 (terrain_light()); Kontrast steigt, Farbton der Karte bleibt
+        out = np.where(a < .5, 2 * a * b, 1 - 2 * (1 - a) * (1 - b))
+    else:
+        out = 1 - (1 - a) * (1 - b)
     buf = io.BytesIO()
     Image.fromarray((out * 255).round().astype(np.uint8)).save(buf, "PNG")
     return buf.getvalue()
@@ -1705,7 +1904,7 @@ def readme_previews(a, mb):
         url = f"/static/{a.lon},{a.lat},12/512x512.png"
         post, holo = post_of(meta), meta.get("holo")
         if holo:
-            style, bld = holo_split(style)
+            style, bld = holo_split(style, "terrain" in holo)
         if post or holo:  # Karte und Beschriftung getrennt, wie in render()
             style, labels = split_labels(style, shift=False)
         with tileserver(style, f"readme-{st.stem}", mb) as base:
@@ -1714,7 +1913,11 @@ def readme_previews(a, mb):
             data = wc_static(data, post, 1, 13)
         if holo:
             with tileserver(bld, f"readme-{st.stem}-holo", mb) as base:
-                data = screen(data, wc_static(fetch(base + url), (holo_light, dict(holo, lat=a.lat)), 1, 13), holo.get("blend"))
+                bimg = fetch(base + url)
+                if "terrain" in holo:
+                    data = screen(data, wc_static(bimg, (terrain_light, dict(holo["terrain"], lat=a.lat)), 1, 13),
+                                  holo["terrain"].get("blend"))
+                data = screen(data, wc_static(bimg, (holo_light, dict(holo, lat=a.lat)), 1, 13), holo.get("blend"))
         if post or holo:
             with tileserver(labels, f"readme-{st.stem}-labels", mb) as base:
                 data = over(data, fetch(base + url))
@@ -1749,7 +1952,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     wc = post_of(meta)  # Wasserfarben/Druckraster: nur die Karte bearbeiten, Beschriftung danach scharf obenauf
     holo = meta.get("holo")  # Hologramm: Gebäude als eigener Durchgang, holo_light() legt sie aufhellend über die Karte
     if holo:
-        style, bld = holo_split(style)
+        style, bld = holo_split(style, "terrain" in holo)
     if a.pixel or wc or holo:  # Beschriftung getrennt rendern, dither_tiles()/over() backt sie ein
         style, labels = split_labels(style, shift=not (wc or holo))
     stains = meta.get("stains")  # Versuch: Flecken eingebacken
@@ -1815,8 +2018,12 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
         parent.cache_clear()
         with tileserver(bld, out.name + "-holo", mb) as base:
             with ThreadPoolExecutor(WORKERS) as pool:
-                list(pool.map(lambda f: f.write_bytes(screen(f.read_bytes(), wc_tile(base, *zxy(f), (holo_light, holo)), holo.get("blend"))),
-                              written))
+                def holo_tile(f):
+                    data = f.read_bytes()
+                    if "terrain" in holo:  # Geländeraster zuerst, mit eigener Mischart, Gebäude darüber
+                        data = screen(data, wc_tile(base, *zxy(f), (terrain_light, holo["terrain"])), holo["terrain"].get("blend"))
+                    f.write_bytes(screen(data, wc_tile(base, *zxy(f), (holo_light, holo)), holo.get("blend")))
+                list(pool.map(holo_tile, written))
     if wc or holo:
         parent.cache_clear()
         with tileserver(labels, out.name + "-labels", mb) as base:

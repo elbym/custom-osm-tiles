@@ -1,5 +1,5 @@
 # "Holotisch" (Entwurf, Nutzerwunsch 2026-11-26 nach einem Referenzbild: Stadt als Hologramm über einem Kartentisch):
-#   - Grund: blaue Leuchtplatte mit engem, durchgehendem Cyan-Raster (Muster holotisch)
+#   - Grund: blaue Leuchtplatte mit engem Cyan-Raster, das sich außerhalb der Stadt mit dem Gelände wölbt ([holo.terrain])
 #   - Gebäude als eigener Durchgang (holo, wie Hologramm), aber nicht irisierend: Farbe nach Höhe, niedrige Häuser cyan
 #     und durchsichtig, hohe zu mintgrünen, fast gefüllten Lichtsäulen; Leuchtschein (bloom); sauber, kaum Glitch
 #   - Straßen als rotes Datennetz: Hauptstraßen schmal in Korallenrot mit Schein, Nebenstraßen kaum sichtbar;
@@ -11,6 +11,7 @@ category = "nerd"
 mode = "dark"
 family = "Holotisch"
 order = 95
+attribution = "Höhendaten: Terrain Tiles (AWS Open Data); Europe terrain data produced using Copernicus data and information funded by the European Union - EU-DEM layers; SRTM and GMTED2010 terrain data courtesy of the U.S. Geological Survey"
 font = "Maple Mono"
 preview_font = "Maple Mono"
 site_font = "Maple Mono"
@@ -20,7 +21,6 @@ colors = 64   # Verläufe und Leuchtschein
 hide = ["poi_*", "airport", "road_oneway*", "building-top", "highway-name-*", "*shield*", "water*label"]
 
 [paint."background"]
-background-pattern = "holotisch"
 background-color = "#0b3558"
 [paint."landuse-*"]
 fill-color = "#0b3558"
@@ -117,9 +117,6 @@ color2 = "#ff4a6a"
 bg = "#06213a"
 fg = "#e6fcff"
 
-[patterns]
-holotisch = { symbol = "holotisch", color = "#2a86c0", bg = "#0b3558" }   # gedämpft, die Gebäude sollen leuchten
-
 # Knoten im Datennetz: Haltestellen als weiß leuchtende Punkte mit rotem Ring (Kreisebene, kein Symbol)
 [[layers]]
 source-layer = "poi"
@@ -163,4 +160,36 @@ bloom_r = 5
 glitch = 0.01
 glitch_px = 4
 aberration = 0
+# Geländeraster statt Hintergrundmuster (Nutzerwunsch 2026-11-27, terrain_grid() in make-tiles.py): Linien um die
+# Geländehöhe über der Umgebung nach oben versetzt (scale Weltpixel je m, Höhen aus Terrain Tiles, relief_m = Radius der
+# Umgebung), auf bebauten Flächen flach, damit die Stadt mit den Gebäuden nicht noch unruhiger wird
+[holo.terrain]
+blend = "screen"   # Licht auf dem dunklen Tisch; "overlay" wäre die Alternative (Ebene auf Grau, verstärkt den Kontrast)
+color = "#20669f"
+cell = 16
+width = 0.7
+glow = 0.25
+glow_width = 1.6
+scale = 0.25
+max_px = 40
+angle = 12
+relief_m = 2500
+fade = 20
+pad_m = 25
+# Unregelmäßigkeit (Nutzerwunsch 2026-11-27, "Differenz-Wolken", Vorbilder Partikelraster und Raster mit Leuchtknoten):
+# Deckung nach |fbm1 - fbm2| (clouds = Stärke, cloud_scale Weltpixel, cloud_gain), in schwachen Zonen Partikel statt
+# Linie (sparkle); Segmente seg_low … 1 hell, Anteil lit voll mit Schein; Knoten als Lichtpunkte, Anteil nodes hell
+# (node_glow = Schein); Anteil cells der Zellen schwach gefüllt (cell_fill)
+clouds = 0.85
+cloud_scale = 300
+cloud_gain = 3.5
+sparkle = 0.8
+seg_low = 0.35
+lit = 0.06
+nodes = 0.08
+node_glow = 1.5
+star_color = "#9ff0ff"   # Leuchtpunkte als vierstrahliger Stern (star_kernel()), heller als das Raster
+star_r = 9
+cells = 0.04
+cell_fill = 0.12
 # <<<

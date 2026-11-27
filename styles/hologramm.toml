@@ -115,6 +115,7 @@ holoraster = { symbol = "holoraster", color = "#2a3a66", bg = "#07060f" }
 # schwankt weich (angle ± spread Grad), Farbe aus dem irisierenden Farbkreis nach Abstand zur Kante (period), Rauschen
 # (shimmer), Scheibe (slice_shift); Fläche schwach (fill) mit Ringen (fringe, groß = aus) und Scanlinien; Glitch-Bänder
 # (glitch = Anteil, glitch_px), Farbkanäle um aberration Weltpixel versetzt. Aufhellend über der Karte, Beschriftung darüber.
+# Dezenter (Nutzerwunsch 2026-11-27, die Kanten "brannten" im Auge): edge 0.5 statt 0.9, untere Scheiben halb so hell (edge_low)
 [holo]
 slices = 6
 lean = 1.0
@@ -125,7 +126,8 @@ shimmer = 0.8
 slice_shift = 0.22
 fill = 0.05
 fringe = 1000
-edge = 0.9
+edge = 0.5
+edge_low = 0.5
 glitch = 0.05
 glitch_px = 8
 aberration = 1

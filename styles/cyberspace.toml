@@ -1,0 +1,199 @@
+# "Cyberspace" (Arbeitstitel, Entwurf, Nutzerwunsch 2026-11-27): das Beste aus Holotisch und Hologramm, gewürzt mit
+# Cyberpunk-Romanen der 80er/90er (nur Motive, keine Namen, Figuren oder Zitate):
+#   - aus Holotisch: Geländeraster mit Differenz-Wolken, Partikeln und Leuchtknoten (in der Stadt flach); Gebäude mit
+#     Farbe nach Höhe, unten durchsichtig, oben leuchtend; Haltestellen als Lichtknoten
+#   - aus Hologramm: gestapelte Scheiben mit Neigung, Scanlinien, etwas Glitch, dezenter Farbversatz
+#   - Datenraum: fast schwarzer Grund mit Rauschen wie ein toter Fernsehkanal (terrain static) und CRT-Overlay;
+#     niedrige Häuser violett/blau, hohe als eisweiße Datentürme
+#   - Metaversum: Hauptstraßen als leuchtende Neon-Straße in Magenta, Bahnlinien als helle Einschienenbahn
+#   - Unterschied zu Bluecron (Petrol, Drahtgitter-Dächer, kein Raster) und Neon Cyberpunk (keine Gebäude-Volumen)
+title = "Cyberspace"
+category = "nerd"
+mode = "dark"
+family = "Cyberspace"
+order = 94
+attribution = "Höhendaten: Terrain Tiles (AWS Open Data); Europe terrain data produced using Copernicus data and information funded by the European Union - EU-DEM layers; SRTM and GMTED2010 terrain data courtesy of the U.S. Geological Survey"
+font = "Maple Mono"
+preview_font = "Maple Mono"
+site_font = "Maple Mono"
+fonts = ["sans", "mono"]
+text_scale = 1.05
+colors = 64
+overlay = "crt"
+hide = ["poi_*", "airport", "road_oneway*", "building-top", "highway-name-minor", "highway-name-path", "*shield*", "water*label"]
+
+[paint."background"]
+background-color = "#05070b"
+[paint."landuse-*"]
+fill-color = "#05070b"
+fill-opacity = 0
+[paint."park"]
+fill-color = "#0a2a2e"
+fill-opacity = 0.4
+[paint."landcover-*"]
+fill-color = "#0a2a2e"
+fill-opacity = 0.4
+[paint."landuse-cemetery"]
+fill-color = "#0a2a2e"
+fill-opacity = 0.4
+
+[paint."water*"]
+fill-color = "#020306"
+line-color = "#123a4a"
+
+[paint."building"]
+fill-color = "#070a12"
+fill-outline-color = "#070a12"
+
+# Neon-Straße: Hauptstraßen Magenta mit Schein, Nebenstraßen Violett, der Rest tief im Dunkel
+[paint."*-minor*"]
+line-color = "#142a44"
+[paint."*-service-track"]
+line-color = "#0f2236"
+line-opacity = 0.6
+[paint."*-link"]
+line-color = "#8a5cff"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.3, 16, 0.9, 18, 1.5]
+[paint."*-secondary-tertiary*"]
+line-color = "#7a4cf0"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.3, 16, 0.9, 18, 1.5]
+[paint."*-primary*"]
+line-color = "#ff3fa8"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.4, 16, 1.4, 18, 2.2]
+[paint."*-trunk*"]
+line-color = "#ff3fa8"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.4, 16, 1.4, 18, 2.2]
+[paint."*-motorway*"]
+line-color = "#ff6cc8"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.5, 16, 1.8, 18, 2.8]
+[paint."*-casing"]
+line-opacity = 0
+[paint."*-primary*-casing"]
+line-color = "#ff2a9a"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 1, 16, 5, 18, 7]
+line-blur = 4
+line-opacity = 0.45
+[paint."*-trunk*-casing"]
+line-color = "#ff2a9a"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 1, 16, 5, 18, 7]
+line-blur = 4
+line-opacity = 0.45
+[paint."*-motorway*-casing"]
+line-color = "#ff2a9a"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 1.5, 16, 6, 18, 9]
+line-blur = 5
+line-opacity = 0.55
+[paint."highway-area"]
+fill-color = "#0a0f1a"
+fill-outline-color = "#142a44"
+[paint."aeroway-*"]
+fill-color = "#0a0f1a"
+line-color = "#0a0f1a"
+[paint."*-path"]
+line-color = "#12304a"
+# Einschienenbahn: Bahnlinien hell und kühl
+[paint."*railway*"]
+line-color = "#7fe8ff"
+[paint."road_area_pier"]
+fill-color = "#05070b"
+[paint."road_pier"]
+line-color = "#05070b"
+
+# Schrift: Orts- und Stadtteilnamen in Eisblau, Namen der Hauptstraßen in Neon
+[layout."label_*"]
+text-transform = "uppercase"
+text-letter-spacing = 0.2
+[paint."label_*"]
+text-color = "#bff6ff"
+text-halo-color = "#05070b"
+text-halo-width = 2
+text-halo-blur = 0
+[layout."highway-name-major"]
+text-transform = "uppercase"
+text-letter-spacing = 0.15
+[paint."highway-name-major"]
+text-color = "#ff8ad2"
+text-halo-color = "#05070b"
+text-halo-width = 2
+text-halo-blur = 0
+
+[paint."poi_*"]   # ausgeblendet; die Farbe braucht nur poi_sprite()
+text-color = "#5ff0ff"
+
+[marker]
+type = "terminal"
+color = "#5ff0ff"
+color2 = "#ff3fa8"
+bg = "#05070b"
+fg = "#e6fcff"
+
+# Knoten: Haltestellen als weiße Lichtpunkte mit magentafarbenem Ring und Schein
+[[layers]]
+source-layer = "poi"
+like = "poi_transit"
+type = "circle"
+after = "highway-motorway"
+id = "knoten-schein"
+filter = ["in", ["get", "class"], ["literal", ["bus", "railway", "tram"]]]
+minzoom = 14
+paint = { circle-color = "#ff3fa8", circle-radius = 6, circle-blur = 1, circle-opacity = 0.6 }
+[[layers]]
+source-layer = "poi"
+like = "poi_transit"
+type = "circle"
+after = "knoten-schein"
+id = "knoten"
+filter = ["in", ["get", "class"], ["literal", ["bus", "railway", "tram"]]]
+minzoom = 14
+paint = { circle-color = "#ffffff", circle-radius = 2, circle-stroke-color = "#ff3fa8", circle-stroke-width = 1.2 }
+
+# >>> Gebäude-Durchgang (holo_light(), Regler siehe hologramm.toml/holotisch.toml): Farbe nach Höhe wie Holotisch
+# (violett -> blau -> cyan -> Eisweiß bis hmax m), unten durchsichtig (edge_low), oben deckend (fill_top), Schein;
+# dazu von Hologramm Glitch und halber Farbversatz
+[holo]
+by = "height"
+colors = ["#3a2a8a", "#2a5fd0", "#20b8e8", "#7ff0ff", "#e8ffff"]
+hmax = 40
+slices = 8
+lean = 1.0
+angle = 12
+spread = 20
+shimmer = 0.6
+fill = 0.02
+fill_top = 8
+fringe = 1000
+edge = 0.5
+edge_low = 0.25
+bloom = 0.35
+bloom_r = 4
+glitch = 0.03
+glitch_px = 6
+aberration = 0.5
+# Geländeraster wie Holotisch (terrain_grid()), kühles Cyan, dazu Rauschen (static) wie ein toter Fernsehkanal
+[holo.terrain]
+blend = "screen"
+color = "#1a5f78"
+cell = 16
+width = 0.7
+glow = 0.25
+glow_width = 1.6
+scale = 0.3
+max_px = 40
+angle = 12
+relief_m = 2500
+fade = 20
+pad_m = 25
+clouds = 0.85
+cloud_scale = 300
+cloud_gain = 3.5
+sparkle = 0.8
+seg_low = 0.35
+lit = 0.05
+nodes = 0.07
+node_glow = 1.5
+star_color = "#bff6ff"   # Leuchtpunkte als vierstrahliger Stern (star_kernel()), heller als das Raster
+star_r = 9
+cells = 0.03
+cell_fill = 0.1
+static = 0.08
+# <<<
