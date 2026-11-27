@@ -3,7 +3,8 @@
 #   - aus Holotisch Tag: heller Tisch, Geländeraster im Overlay (Differenz-Wolken, Partikel, Sterne an den Knoten, in der
 #     Stadt flach); Gebäude als Glasblöcke, die per Farbfilter (blend = "folie") einfärben, unten durchsichtig
 #   - aus Hologrammfolie: perlweißer, leicht violetter Grund, gesättigte Folienfarben (nach Höhe statt Farbkreis:
-#     Violett -> Blau -> Cyan -> Türkis; Pink unten färbte die vielen niedrigen Häuser zu grell), halber Farbversatz,
+#     Violett -> Purpur -> Magenta -> Karminrot, passend zur Neon-Straße; Pink unten färbte die vielen niedrigen Häuser
+#     zu grell), halber Farbversatz,
 #     wenig Glitch, kein Schein (macht den Filter blass)
 #   - aus Cyberspace: Neon-Straße in Magenta mit Neon-Namen, Bahnlinien als Einschienenbahn (hier Petrol), Haltestellen
 #     als Knoten, Rauschen (static), Versalien, Terminal-Marker; kein CRT-Overlay (gehört zum dunklen Bildschirm)
@@ -135,8 +136,8 @@ paint = { circle-color = "#ffffff", circle-radius = 2, circle-stroke-color = "#d
 [holo]
 blend = "folie"
 by = "height"
-colors = ["#8a5cff", "#5a6cf0", "#3ab4ff", "#1ec8c0", "#0a9a70"]
-hmax = 40
+colors = ["#8a5cff", "#7a5cf0", "#b04ad8", "#e03a8a", "#e8283c"]   # nach oben in Rot (Nutzerwunsch 2026-11-27, vorher Cyan)
+hmax = 25   # volles Rot schon ab 25 m, bei 40 m blieben fast alle Häuser violett
 slices = 8
 lean = 1.0
 angle = 12

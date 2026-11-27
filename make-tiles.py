@@ -6,7 +6,7 @@ Beispiel:
   ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --out out/kunde-xy
   ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # jeder Stil × jede Schrift zum Vergleichen
 """
-import argparse, fnmatch, functools, gzip, hashlib, os, re, io, sqlite3, struct, tempfile, json, math, shutil, subprocess, sys, time, tomllib, urllib.parse, urllib.request, zipfile
+import argparse, fnmatch, functools, gzip, hashlib, os, re, io, sqlite3, struct, tempfile, threading, json, math, shutil, subprocess, sys, time, tomllib, urllib.parse, urllib.request, zipfile
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
@@ -183,8 +183,9 @@ def build_style(toml_path, font=None, center=None, pixel=False, streets=False, f
         for kind in ("paint", "layout"):
             for glob, props in t.get(kind, {}).items():
                 if fnmatch.fnmatch(l["id"], glob):
-                    l.setdefault(kind, {}).update(
-                        {k: v for k, v in props.items() if k.startswith(prefixes) or k == "visibility"})
+                    l.setdefault(kind, {}).update(   # 8 Bit mit Pixelschrift: eigene text-font (Orbitron …) nicht, sonst
+                        {k: v for k, v in props.items()   # stünden Ortsnamen in einer glatten Schrift im Pixelraster
+                         if (k.startswith(prefixes) or k == "visibility") and not (k == "text-font" and pixel and "grid" in fcfg)})
         if streets and (any(fnmatch.fnmatch(l["id"], g) for g in STREETS_DROP)
                         or not any(fnmatch.fnmatch(l["id"], g) for g in STREETS_KEEP)):
             lay["visibility"] = "none"
@@ -1401,8 +1402,8 @@ def holo_light(img, ox, oy, k, cfg, z=16):
     ang = np.radians(cfg.get("angle", 15) + (up(vnoise(q(gx) / 220, q(gy) / 220, 5)) - .5) * 2 * cfg.get("spread", 25))
     shim = up(vnoise(q(gx) / 60, q(gy) / 60, 7)) * cfg.get("shimmer", .8)
     dist = ndimage.distance_transform_edt(mask) / k      # Weltpixel bis zur Kante
-    edge = mask & (~ndimage.binary_erosion(mask, iterations=max(1, round(.6 * k))) | (img[..., 2] > .4))
-    scan = .5 + .5 * ((yy // max(1, round(1.5 * k))) % 2)
+    edge = mask & (~ndimage.binary_erosion(mask, iterations=max(1, round(cfg.get("edge_w", .6) * k))) | (img[..., 2] > .4))
+    scan = .5 + .5 * ((yy // max(1, round(1.5 * k))) % 2) if cfg.get("scan", 1) else 1
     ring = .55 + .45 * np.cos(2 * np.pi * dist / cfg.get("fringe", 5))
     n = cfg.get("slices", 6)
     off = height / mpp * cfg.get("lean", .5) * k        # volle Höhe in Bildpixeln
@@ -1531,7 +1532,6 @@ def glitch(img, ox, oy, k, cfg, z=None):
     a[gy[:, 0] % 4 == 1] *= cfg.get("scan", .8)
     return (a / 255).clip(0, 1)
 
-
 @functools.lru_cache(maxsize=None)
 def star_kernel(r):
     """Vierstrahliger Stern (Leuchtpunkt auf dem Raster, nach der Vorlage des Nutzers 2026-11-27): je Achse ein Strahl,
@@ -1572,9 +1572,11 @@ def dem_tile(z, x, y):
     import numpy as np
     from PIL import Image
     f = ROOT / "data" / "terrain" / str(z) / str(x) / f"{y}.png"
-    if not f.exists():
+    if not f.exists():  # erst fertig schreiben, dann umbenennen: parallele Kacheln fragen dieselbe DEM-Kachel gleichzeitig an
         f.parent.mkdir(parents=True, exist_ok=True)
-        f.write_bytes(fetch(TERRAIN_URL.format(z=z, x=x % 2 ** z, y=y)))
+        tmp = f.with_suffix(f".{os.getpid()}.{threading.get_ident()}.tmp")
+        tmp.write_bytes(fetch(TERRAIN_URL.format(z=z, x=x % 2 ** z, y=y)))
+        tmp.replace(f)
     a = np.asarray(Image.open(f).convert("RGB"), float)
     return a[..., 0] * 256 + a[..., 1] + a[..., 2] / 256 - 32768
 
@@ -1632,7 +1634,8 @@ def terrain_grid(img, ox, oy, k, z, cfg, mpp, flat=False):
     cxs = np.arange(math.ceil(x0 / cell) * cell, x1, cell)
     cys = np.arange(math.ceil(y0 / cell) * cell, y1, cell)
     def lift(gx, gy):  # Weltpixel -> versetzte Bildpixel (× ss)
-        px, py = (gx - ox) * k, (gy - oy) * k
+        sh = cfg.get("line_shift", 0)   # 8-Bit: halbes Weltpixel, damit eine 1 px breite Linie genau einen Block füllt
+        px, py = (gx + sh - ox) * k, (gy + sh - oy) * k
         f = ndimage.map_coordinates(flatness, [py, px], order=1, mode="nearest")
         d = 0 if flat else np.clip(relief(gx, gy, z, cfg) * cfg.get("scale", .25), -cap, cap) * (1 - f) * k
         return (px + d * math.sin(ang)) * ss, (py - d * math.cos(ang)) * ss
@@ -2043,7 +2046,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     # Beschriftung scharf obenauf, außer bei glitch: dort trifft der Fehler auch die Schrift (Nutzerwunsch 2026-11-27)
     crisp = holo or (wc and wc[0] is not glitch)
     if a.pixel or crisp:  # Beschriftung getrennt rendern, dither_tiles()/over() backt sie ein
-        style, labels = split_labels(style, shift=not (wc or holo))
+        style, labels = split_labels(style, shift=bool(a.pixel) or not (wc or holo))  # 8-Bit: eine Stufe feiner
     stains = meta.get("stains")  # Versuch: Flecken eingebacken
     colors = a.colors or meta.get("colors", 32)  # colors im Stil: weiche Verläufe (Lichthöfe) brauchen mehr als 32
     crops = []   # --pixel: (Kachel, URL der Beschriftungs-Vorfahrkachel ohne Basis, f, qx, qy)
@@ -2094,6 +2097,37 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
         with ThreadPoolExecutor(POST_WORKERS if wc or stains else WORKERS) as pool:
             written = [f for f in pool.map(get, jobs) if f]
         count = len(jobs)
+    if a.pixel and holo:  # 8-Bit-Hologramm: Licht auf der ganzen Vorfahrkachel, jedes Kind schneidet sich sein Stück heraus,
+        # dann pixelt dither_tiles() alles zusammen. Eine Stufe feiner als die Karte (wie die Beschriftung): Planetiler
+        # hat in z13 fast keine Gebäude (Innenstadt: 1 statt 216 in z14), z15 in 8 Bit kommt sonst aus z13
+        fl = a.pixel // 2
+        hp, n = pixel_holo(holo, fl, line=a.pixel / fl), a.pixel.bit_length() - 2
+        def tz(f):
+            return int(f.parts[-3]), int(f.parts[-2]), int(f.stem)
+        parent.cache_clear()
+        with tileserver(bld, out.name + "-holo", mb) as base:
+            def anc(key):  # (Raster, Gebäude) als PNG für eine Vorfahrkachel in PIXEL_SS-facher Auflösung
+                z, x, y = key
+                sfx = f"@{PIXEL_SS}x"
+                ter = wc_tile(base, z, x, y, sfx, (terrain_light, hp["terrain"])) if "terrain" in hp else None
+                return key, ter, wc_tile(base, z, x, y, sfx, (holo_light, hp))
+            keys = sorted({(z - n, x >> n, y >> n) for z, x, y in map(tz, written)})
+            with ThreadPoolExecutor(WORKERS) as pool:
+                lights = {k_: (t_, h_) for k_, t_, h_ in pool.map(anc, keys)}
+        from PIL import Image
+        side = 256 * PIXEL_SS // a.pixel   # Größe des Kartenstücks
+        def cut(d, x, y):  # Stück der feineren Vorfahrkachel, auf die Größe des Kartenstücks verkleinert
+            im = Image.open(io.BytesIO(lowres(d, fl, x % fl, y % fl))).convert("RGB").resize((side, side), Image.BOX)
+            buf = io.BytesIO()
+            im.save(buf, "PNG")
+            return buf.getvalue()
+        for f in written:
+            z, x, y = tz(f)
+            ter, hol = lights[(z - n, x >> n, y >> n)]
+            data = f.read_bytes()
+            if ter:
+                data = screen(data, cut(ter, x, y), hp["terrain"].get("blend"))
+            f.write_bytes(screen(data, cut(hol, x, y), hp.get("blend")))
     if a.pixel:
         parent.cache_clear()
         with tileserver(labels, out.name + "-labels", mb) as base:
@@ -2104,7 +2138,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     def zxy(f):  # Kacheldatei -> z, x, y, Suffix
         y, sfx = f.stem.split("@") if "@" in f.stem else (f.stem, "")
         return int(f.parts[-3]), int(f.parts[-2]), int(y), "@" + sfx if sfx else ""
-    if holo:
+    if holo and not a.pixel:
         parent.cache_clear()
         with tileserver(bld, out.name + "-holo", mb) as base:
             with ThreadPoolExecutor(WORKERS) as pool:
@@ -2114,7 +2148,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                         data = screen(data, wc_tile(base, *zxy(f), (terrain_light, holo["terrain"])), holo["terrain"].get("blend"))
                     f.write_bytes(screen(data, wc_tile(base, *zxy(f), (holo_light, holo)), holo.get("blend")))
                 list(pool.map(holo_tile, written))
-    if crisp:
+    if crisp and not a.pixel:  # 8-Bit: Beschriftung hat dither_tiles() schon eingebacken
         parent.cache_clear()
         with tileserver(labels, out.name + "-labels", mb) as base:
             def lab(f):

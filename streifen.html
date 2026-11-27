@@ -145,7 +145,7 @@
     </section>
     <section>
       <h2 class="font-semibold">Schriften</h2>
-      <p>Adwaita Mono, Atkinson Hyperlegible Next, Bangers (Orts- und Stadtteilnamen und Marker in Anime), Caveat (Aquarell), DINish, Fantasque Sans Mono, Figtree, Fira Code, Fira Sans, IBM Plex Mono, IM Fell English (Kupferstich), Intel One Mono, Kalam (Anime), JetBrains Mono, Literata, Maple Mono, Mozilla Text, Overpass, Public Sans, Silkscreen (8 Bit), Space Mono, UnifrakturMaguntia (Ortsnamen in Historisch und Kupferstich), VT323 (Phosphor, Bernstein), Work Sans: SIL Open Font License 1.1. Hack: MIT-Lizenz und Bitstream-Vera-Lizenz. Ubuntu Sans Mono: Ubuntu Font Licence 1.0. TeX Gyre Schola (Historisch), TeX Gyre Heros (Schwarzplan): GUST Font License. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
+      <p>Adwaita Mono, Atkinson Hyperlegible Next, Bangers (Orts- und Stadtteilnamen und Marker in Anime), Caveat (Aquarell), DINish, Fantasque Sans Mono, Figtree, Fira Code, Fira Sans, IBM Plex Mono, IM Fell English (Kupferstich), Intel One Mono, Kalam (Anime), JetBrains Mono, Literata, Maple Mono, Mozilla Text, Orbitron (Orts- und Stadtteilnamen in Cyberspace), Overpass, Public Sans, Silkscreen (8 Bit), Space Mono, UnifrakturMaguntia (Ortsnamen in Historisch und Kupferstich), VT323 (Phosphor, Bernstein), Work Sans: SIL Open Font License 1.1. Hack: MIT-Lizenz und Bitstream-Vera-Lizenz. Ubuntu Sans Mono: Ubuntu Font Licence 1.0. TeX Gyre Schola (Historisch), TeX Gyre Heros (Schwarzplan): GUST Font License. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
     </section>
     <section>
       <h2 class="font-semibold">Software auf dieser Seite</h2>
@@ -179,7 +179,8 @@ const fonts = [...new Set(all.filter(([, c]) => inSet(c)).map(([, c]) => c.font)
 const font = fonts.includes(q.get('font')) ? q.get('font') : fonts[0];
 // Reihenfolge der Streifen: order aus der Stil-Datei (Standard 50, höher = weiter rechts), dann alphabetisch
 const orderOf = fam => Math.min(...all.filter(([, c]) => c.family === fam).map(([, c]) => c.order ?? 50));
-const families = [...new Set(all.filter(([, c]) => c.category === cat).map(([, c]) => c.family))]
+const families = [...new Set(all.filter(([, c]) => c.category === cat && !!c.pixel === px && !!c.streets === st)  // 8 Bit/Straßen: nur Familien mit solchen Varianten (beide Modi, damit Hell/Dunkel nicht umsortiert)
+  .map(([, c]) => c.family))]
   .sort((a, b) => orderOf(a) - orderOf(b) || a.localeCompare(b));
 // Ausgeblendete Familien (?aus=…); mindestens ein Streifen bleibt
 const off = new Set((q.get('aus') || '').split(',').filter(Boolean));

@@ -196,6 +196,13 @@ Regular = { file = "bangers/Bangers-Regular.ttf" }
 Bold    = { file = "bangers/Bangers-Regular.ttf" }
 Italic  = { file = "bangers/Bangers-Regular.ttf" }
 
+[Orbitron]   # geometrische Display-Schrift (nur Orts- und Stadtteilnamen in Cyberspace, Nutzerwunsch 2026-11-27), Matt McInerney /
+             # The League of Moveable Type, OFL (reservierter Name "Orbitron"); variabel 400–900, keine Kursive
+group = "display"
+Regular = { file = "orbitron/Orbitron[wght].ttf", wght = 600 }
+Bold    = { file = "orbitron/Orbitron[wght].ttf", wght = 800 }
+Italic  = { file = "orbitron/Orbitron[wght].ttf", wght = 600 }
+
 [Kalam]   # lockere Handschrift (Anime), Indian Type Foundry, OFL; keine Kursive (Italic = Regular)
 group = "display"
 Regular = { file = "kalam/Kalam-Regular.ttf" }

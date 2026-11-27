@@ -2,7 +2,7 @@
 # Cyberpunk-Romanen der 80er/90er (nur Motive, keine Namen, Figuren oder Zitate):
 #   - aus Holotisch: Geländeraster mit Differenz-Wolken, Partikeln und Leuchtknoten (in der Stadt flach); Gebäude mit
 #     Farbe nach Höhe, unten durchsichtig, oben leuchtend; Haltestellen als Lichtknoten
-#   - aus Hologramm: gestapelte Scheiben mit Neigung, Scanlinien, etwas Glitch, dezenter Farbversatz
+#   - aus Hologramm: gestapelte Scheiben mit Neigung, Scanlinien, etwas Glitch, leichter Farbversatz (aberration 1)
 #   - Datenraum: fast schwarzer Grund mit Rauschen wie ein toter Fernsehkanal (terrain static) und CRT-Overlay;
 #     niedrige Häuser violett/blau, hohe als eisweiße Datentürme
 #   - Metaversum: Hauptstraßen als leuchtende Neon-Straße in Magenta, Bahnlinien als helle Einschienenbahn
@@ -100,7 +100,9 @@ fill-color = "#05070b"
 line-color = "#05070b"
 
 # Schrift: Orts- und Stadtteilnamen in Eisblau, Namen der Hauptstraßen in Neon
+# Orts- und Stadtteilnamen in Orbitron (Nutzerwunsch 2026-11-27); im 8-Bit-Modus bleibt Silkscreen (build_style())
 [layout."label_*"]
+text-font = ["Orbitron Regular", "Noto Sans Regular"]
 text-transform = "uppercase"
 text-letter-spacing = 0.2
 [paint."label_*"]
@@ -149,7 +151,7 @@ paint = { circle-color = "#ffffff", circle-radius = 2, circle-stroke-color = "#f
 
 # >>> Gebäude-Durchgang (holo_light(), Regler siehe hologramm.toml/holotisch.toml): Farbe nach Höhe wie Holotisch
 # (violett -> blau -> cyan -> Eisweiß bis hmax m), unten durchsichtig (edge_low), oben deckend (fill_top), Schein;
-# dazu von Hologramm Glitch und halber Farbversatz
+# dazu von Hologramm Glitch und Farbversatz
 [holo]
 by = "height"
 colors = ["#3a2a8a", "#2a5fd0", "#20b8e8", "#7ff0ff", "#e8ffff"]
@@ -168,7 +170,7 @@ bloom = 0.35
 bloom_r = 4
 glitch = 0.03
 glitch_px = 6
-aberration = 0.5
+aberration = 1   # leichter Farbversatz wie Hologramm (Nutzerwunsch 2026-11-27)
 # Geländeraster wie Holotisch (terrain_grid()), kühles Cyan, dazu Rauschen (static) wie ein toter Fernsehkanal
 [holo.terrain]
 blend = "screen"
