@@ -1047,6 +1047,7 @@ def build_site(a):
             jobs.append((st, out, font, s.pixel, s.streets_only, keep))
     t0 = time.time()
     for i, (st, out, font, s.pixel, s.streets_only, keep) in enumerate(jobs):
+        status(stil=f"Stil {i + 1} von {len(jobs)}" + (f", ETA {time.strftime('%H:%M', time.localtime(eta))}" if i else ""))
         render(s, st, out, mb, font, standalone=False, keep=keep)  # keep: nur fehlende Kacheln (z. B. @2x)
         eta = t0 + (time.time() - t0) / (i + 1) * len(jobs)  # ponytail: Mittel über alle Stile, Aquarell/CMYK dauern länger
         print(f"== {i + 1} von {len(jobs)} Stilen fertig, ETA {time.strftime('%H:%M', time.localtime(eta))}", flush=True)
@@ -2049,9 +2050,40 @@ def readme_previews(a, mb):
         print(f"{st.stem}: {len(data) / 1e3:.0f} kB", flush=True)
 
 
+STATUS = {"stil": "", "kacheln": ""}
+_status_lock = threading.Lock()
+
+
+def status(**kw):
+    """Statuszeile unten im Terminal (Nutzerwunsch 2026-11-27): Stilfortschritt mit ETA und Kacheln des aktuellen Stils.
+    Scrollbereich ohne die letzte Zeile, so scrollt auch die Ausgabe von podman & Co. darüber weg. Nur auf einem Terminal."""
+    if not sys.stdout.isatty():
+        return
+    with _status_lock:
+        STATUS.update(kw)
+        cols, rows = shutil.get_terminal_size()  # ponytail: Größenänderung während des Laufs wird erst beim nächsten Aufruf beachtet
+        if not getattr(status, "rows", None) == rows:
+            if not getattr(status, "rows", None):
+                import atexit
+                atexit.register(lambda: sys.stdout.write("\0337\033[r\0338\n") and sys.stdout.flush())
+            sys.stdout.write(f"\n\033[1A\0337\033[1;{rows - 1}r\0338")   # Platz schaffen, dann Bereich setzen
+            status.rows = rows
+        text = "  ·  ".join(v for v in STATUS.values() if v)[:cols - 1]
+        sys.stdout.write(f"\0337\033[{rows};1H\033[2K\033[7m{text}\033[0m\0338")
+        sys.stdout.flush()
+
+
+def progress(it, n, phase):
+    """pool.map-Ergebnisse durchreichen und dabei die Kachelzahl in der Statuszeile zählen."""
+    for i, r in enumerate(it, 1):
+        status(kacheln=f"{phase} {i}/{n} ({100 * i // max(n, 1)} %)")
+        yield r
+
+
 def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     """Kacheln + config.json nach out/; standalone: zusätzlich eigene index.html mit Leaflet (Website-Karte)."""
     zmin, zmax = map(int, a.zoom.split("-"))
+    status(kacheln=f"{out.name}: Stil bauen")
     vw, vh = map(int, a.viewport.split("x"))
     b = bbox(a.lat, a.lon, a.radius)
     # ponytail: high zooms only near the marker; Leaflet upscales z(detail_from-1) outside
@@ -2124,7 +2156,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
 
         # tileserver-gl rendert parallel (Renderer-Pools in style/config.json); so viele Anfragen gleichzeitig
         with ThreadPoolExecutor(POST_WORKERS if wc or stains else WORKERS) as pool:
-            written = [f for f in pool.map(get, jobs) if f]
+            written = [f for f in progress(pool.map(get, jobs), len(jobs), f"{out.name}: Kacheln") if f]
         count = len(jobs)
     if a.pixel and holo:  # 8-Bit-Hologramm: Licht auf der ganzen Vorfahrkachel, jedes Kind schneidet sich sein Stück heraus,
         # dann pixelt dither_tiles() alles zusammen. Eine Stufe feiner als die Karte (wie die Beschriftung): Planetiler
@@ -2142,7 +2174,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                 return key, ter, wc_tile(base, z, x, y, sfx, (holo_light, hp))
             keys = sorted({(z - n, x >> n, y >> n) for z, x, y in map(tz, written)})
             with ThreadPoolExecutor(WORKERS) as pool:
-                lights = {k_: (t_, h_) for k_, t_, h_ in pool.map(anc, keys)}
+                lights = {k_: (t_, h_) for k_, t_, h_ in progress(pool.map(anc, keys), len(keys), f"{out.name}: Hologramm")}
         from PIL import Image
         side = 256 * PIXEL_SS // a.pixel   # Größe des Kartenstücks
         def cut(d, x, y):  # Stück der feineren Vorfahrkachel, auf die Größe des Kartenstücks verkleinert
@@ -2161,8 +2193,9 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
         parent.cache_clear()
         with tileserver(labels, out.name + "-labels", mb) as base:
             with ThreadPoolExecutor(WORKERS) as pool:
-                list(pool.map(lambda c: c[0].with_suffix(".labels.png").write_bytes(
-                    lowres(parent(base + c[1]), *c[2:])), crops))
+                list(progress(pool.map(lambda c: c[0].with_suffix(".labels.png").write_bytes(
+                    lowres(parent(base + c[1]), *c[2:])), crops), len(crops), f"{out.name}: Beschriftung"))
+        status(kacheln=f"{out.name}: 8 Bit, {len(written)} Kacheln")
         written = dither_tiles(written, style_file, a.retina)
     def zxy(f):  # Kacheldatei -> z, x, y, Suffix
         y, sfx = f.stem.split("@") if "@" in f.stem else (f.stem, "")
@@ -2176,7 +2209,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                     if "terrain" in holo:  # Geländeraster zuerst, mit eigener Mischart, Gebäude darüber
                         data = screen(data, wc_tile(base, *zxy(f), (terrain_light, holo["terrain"])), holo["terrain"].get("blend"))
                     f.write_bytes(screen(data, wc_tile(base, *zxy(f), (holo_light, holo)), holo.get("blend")))
-                list(pool.map(holo_tile, written))
+                list(progress(pool.map(holo_tile, written), len(written), f"{out.name}: Hologramm"))
     if crisp and not a.pixel:  # 8-Bit: Beschriftung hat dither_tiles() schon eingebacken
         parent.cache_clear()
         with tileserver(labels, out.name + "-labels", mb) as base:
@@ -2184,7 +2217,8 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                 z, x, y, sfx = zxy(f)
                 f.write_bytes(quantize(over(f.read_bytes(), fetch(f"{base}/{z}/{x}/{y}{sfx}.png")), colors))
             with ThreadPoolExecutor(WORKERS) as pool:
-                list(pool.map(lab, written))
+                list(progress(pool.map(lab, written), len(written), f"{out.name}: Beschriftung"))
+    status(kacheln=f"{out.name}: oxipng, {len(written)} Kacheln")
     optimize(written)  # nach dem Stoppen des Containers
 
     cfg = dict(lat=a.lat, lon=a.lon, zmin=zmin, zmax=zmax, retina=a.retina,
