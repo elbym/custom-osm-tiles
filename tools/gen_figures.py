@@ -131,7 +131,9 @@ BLANKET = ('<path d="M34 34 C40 31 56 31 61 35 L61 57 C52 59 40 59 34 57 C32 50 
            '<path d="M34.5 38 C41 35.5 55 35.5 61 39 M34 52 C41 54 53 54 61 52" fill="none" stroke="#ffffff" stroke-width="1.6"/>'
            '<path d="M34 34 C33 42 33 50 34 57" fill="none" stroke-width="1.4"/>')
 
-def human(f, p):
+def human(f, p, look=None):
+    """look (tools/gen_stickers.py): eigene eyes/blush/mouth, head_t (Transform für den Kopf), head_only; sonst Karten-Look."""
+    lk = look or {}
     legl = 8 if p.get("fx") == "sprung" else 9
     parts = [f.get("back", "")]
     for (hx, a) in ((28, p["legs"][0]), (36, p["legs"][1])):
@@ -143,13 +145,13 @@ def human(f, p):
     ey = f.get("eyes_y", 26)
     n_body = len(parts)   # Schlafpose: Körper liegt (gedreht), Kopf bleibt aufrecht auf dem Kissen
     parts.append(f["head"])
-    parts.append(f["eyes_fn"](p["face"]) if "eyes_fn" in f else eyes(p["face"], [(26, ey), (38, ey)], f.get("iris", "#2b2a3a")))
+    parts.append(f["eyes_fn"](p["face"]) if "eyes_fn" in f else lk.get("eyes", eyes)(p["face"], [(26, ey), (38, ey)], f.get("iris", "#2b2a3a")))
     if f.get("brows") and p["face"] != "entschlossen":
         parts.append(f'<path d="M22 {ey-6} L28 {ey-4.5} M42 {ey-6} L36 {ey-4.5}" fill="none" stroke-width="1.6"/>')
     if f.get("blush", True):
-        parts.append(f'<ellipse cx="20.5" cy="30" rx="3" ry="1.6" fill="{BLUSH}" stroke="none"/><ellipse cx="43.5" cy="30" rx="3" ry="1.6" fill="{BLUSH}" stroke="none"/>')
+        parts.append(lk.get("blush", f'<ellipse cx="20.5" cy="30" rx="3" ry="1.6" fill="{BLUSH}" stroke="none"/><ellipse cx="43.5" cy="30" rx="3" ry="1.6" fill="{BLUSH}" stroke="none"/>'))
     if f.get("mouth", True):
-        parts.append(f["mouth_fn"](p["face"]) if "mouth_fn" in f else MOUTH[p["face"]])
+        parts.append(f["mouth_fn"](p["face"]) if "mouth_fn" in f else lk.get("mouth", MOUTH)[p["face"]])
     parts.append(f.get("top", ""))
     if p.get("fx") == "winken":
         x, y = hand
@@ -158,6 +160,10 @@ def human(f, p):
         body, head = "".join(parts[:n_body]), "".join(parts[n_body:])
         return (FUTON + f'<g transform="translate(0 8) rotate(-90 32 32)">{body}</g>' + BLANKET
                 + f'<g transform="translate(-11 15) rotate(-14 32 24) scale(0.92) translate(2.8 2)">{head}</g>' + ZZ)
+    if "head_t" in lk:
+        parts[n_body:] = [f'<g transform="{lk["head_t"]}">' + "".join(parts[n_body:]) + "</g>"]
+    if lk.get("head_only"):   # Kopf-Sticker: nur Haar hinten und Kopf
+        return parts[0] + "".join(parts[n_body:])
     body = "".join(parts)
     if "t" in p:
         body = f'<g transform="{p["t"]}">{body}</g>'

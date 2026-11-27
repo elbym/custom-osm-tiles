@@ -141,6 +141,22 @@ Einige Stile zeigen kleine Figuren auf der Karte: Anime, Island und die historis
 
 Anime hat einen eigenen `drache`, deshalb heißt der geflügelte hier `flugdrache`.
 
+## Sticker (WhatsApp)
+
+Aus den Figuren von Anime und Island entstehen Sticker im Chibi-Sticker-Look, vom Nutzer an der Miko freigegeben (2026-11-26).
+
+```sh
+tools/gen_stickers.py   # ~2 min -> stickers/<figur>/<pose>.png/.webp, stickers/packs/ (nicht im Git)
+```
+
+- **Look:** Kopf um 30 % größer, Mochi-Gesicht (unten am breitesten), kleine Punktaugen tiefer im Gesicht, große rosa Wangen, winziger Mund, dünne dunkelbraune Kontur, Pony aus spitzen Strähnen mit Glanzlinien, gerade Haarenden werden zu Strähnenspitzen.
+- **Ganzkörper:** weißer gestanzter Rand mit leichtem Schatten, alle Posen außer „schläft“ (Futon).
+- **Kopf:** farbiger Rand in der kräftigsten Kleidungsfarbe (abgedunkelt), vier Gesichter: normal, froh, entschlossen, schläft. Umhänge, Flügel und Schwänze fallen weg.
+- **Anime-Tiere:** Kartenzeichnung mit Wangen, dünner Kontur und weißem Rand.
+- **Island:** bleibt im Bilderbuch-Volkskunst-Look, nur als Sticker gerahmt.
+- **Technik:** Die Sticker werden aus denselben Bauteilen wie die Kartenfiguren gebaut (`human(f, p, look)` in `tools/gen_figures.py`), neue Figuren und Posen kommen also automatisch mit. Den Strähnen-Pony bekommt eine Figur über `BANGS` in `tools/gen_stickers.py` (ersetzt den ersten Haarpfad nach dem Gesicht); Teile, die das tiefere Auge verdecken, verschiebt `STICKER_FIX`.
+- **WhatsApp:** 512×512, transparent, 16 px Luft, WebP unter 100 KB. `stickers/packs/` teilt alles in Packs zu höchstens 30 Stickern, jedes mit `tray.png` (96×96), dazu je Pack ein ZIP mit den PNGs fürs iPhone (in „Dateien“ entpacken, in Fotos sichern, in einer Sticker-App wie „Sticker Maker Studio“ zum Pack machen).
+
 ## Neue Figur hinzufügen
 
 1. **Idee prüfen:** Archetyp, Volksmotiv, Tier oder Essen? Erinnert sie an eine bestimmte Figur, ein Studio oder ein Spiel? Dann verwerfen.
@@ -149,3 +165,4 @@ Anime hat einen eigenen `drache`, deshalb heißt der geflügelte hier `flugdrach
 4. **Im Stil eintragen:** Name in `names`, passende Orte in `[figures.places]`; für Nachtstile ebenso. Menschen tagsüber in `[figures.poses]` ohne „schläft“ eintragen.
 5. **Verteilung prüfen:** einen Probelauf von `figures()` machen und zählen, wie oft jede Figur vorkommt. Keine Figur sollte die Karte beherrschen.
 6. **Ansehen:** Stil rendern und die Figur auf der Karte bei Zoom 15 und 16 prüfen, hell und dunkel.
+7. **Sticker:** `tools/gen_stickers.py` laufen lassen; bei Menschen mit Pony einen Eintrag in `BANGS` anlegen.

@@ -22,6 +22,7 @@ npm install && npm run css                             # rebuild vendor/streifen
 ./make-tiles.py --readme-previews                      # docs/previews/<style>.png: 512×512, z12, no marker (README gallery, ~30 s)
 ./make-tiles.py --reindex [--label "Firma"]            # rewrite all out/*/index.html from template + styles, no rendering
 tools/gen_figures.py                                   # redraw all vendor/figures/<figur>/<pose>.svg (Anime figures)
+tools/gen_stickers.py                                  # WhatsApp stickers from the Anime/Island figures -> stickers/ (gitignored, ~2 min)
 tools/gen_marke.py "#c0392b" kunde [--title X]        # brand style from one colour -> styles/kunde.toml + kunde-dark.toml; --check = self-test
 ```
 
@@ -188,6 +189,8 @@ There are no tests. To check a rendering change, re-render and look at a tile ne
   - The `*-dark` standard styles were derived in OKLCH, not by inversion (inversion makes white roads darker than the ground). The light background's hue becomes a dark neutral ramp, and accents are relit.
   - Dark styles need the `highway-area` and `aeroway-*` overrides, otherwise OSM Bright's light grey pedestrian areas glare. They also need lighter minor roads to stand out from buildings.
   - The generator scripts were one-offs and are not in the repo. The TOMLs are now the source of truth; edit them by hand.
+
+Stickers (user request 2026-11-26, look approved on the Miko): `tools/gen_stickers.py` builds chibi stickers from the same parts via `human(f, p, look)` (`look` = sticker eyes/blush/mouth, `head_t` scales the head 1.3×, `head_only` returns hair + head). Full body = white rim, head = rim in the strongest clothing colour; strand fringe via `BANGS`; animals get blush, Island stays folk art. Rim = art stroked wide via a CSS rule (beats the parts' stroke attributes). Inkscape runs in parallel batches with `DBUS_SESSION_BUS_ADDRESS=disabled:` (parallel instances otherwise abort with `Gio::DBus::Error`, `--app-id-tag` did not help). Packs of ≤ 30 in `stickers/packs/` with a 96×96 `tray.png`, plus one ZIP of PNGs per pack for the iPhone (sticker apps read from Photos). Rules in `docs/figuren.md`.
 
 The figure style rules for humans (look per style, poses, rejected motifs, how to add a figure) are in `docs/figuren.md` (German, user request 2026-11-26); keep it in sync when figures change.
 
