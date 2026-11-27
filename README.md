@@ -205,12 +205,12 @@ tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffen
 
 | Einstellung | Wert |
 |---|---|
-| Ort und Label | Bielefeld, SchücoArena |
+| Ort und Label | Köln, Kölner Dom (bis 2026-11-27 Bielefeld, SchücoArena) |
 | Zoom | 15–16 |
-| Bereich | 1,5 km um die SchücoArena |
+| Bereich | 1,5 km um den Kölner Dom |
 | Retina | an (GitHub Pages erlaubt 1 GB) |
 | `exclude` | Familien, die nur in der README-Galerie stehen |
-| `pixel` | Familien mit 8-Bit-Variante: Phosphor, Neon Cyberpunk |
+| `pixel` | Familien mit 8-Bit-Variante: Phosphor, Neon Cyberpunk, Cyberspace |
 | Schrift je Gruppe | Standard: Fira Sans; Nerd: Maple Mono |
 
 - **Ergebnis:** eine statische Seite in `site/` (`index.html` = Streifen-Ansicht). Sie wird als eigener Branch `gh-pages` ohne Historie veröffentlicht, nicht in `main`.
