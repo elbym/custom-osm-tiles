@@ -953,7 +953,8 @@ def tileserver(style, tag, mb):
     built = DATA / f"style-{tag}.json"
     built.write_text(json.dumps(style, ensure_ascii=False))
     name = f"tiles-{PORT}"
-    run("podman", "run", "-d", "--rm", "--name", name, "-p", f"127.0.0.1:{PORT}:8080",
+    run("podman", "run", "-d", "--rm", "--replace", "--name", name,  # --replace: Rest eines abgebrochenen Laufs
+        "-p", f"127.0.0.1:{PORT}:8080",
         "-v", f"{ROOT / 'style'}:/data:Z", "-v", f"{mb}:/data/tiles.mbtiles:ro,Z",
         "-v", f"{built}:/data/style.json:ro,Z",
         TILESERVER, "--config", "/data/config.json")
