@@ -6,7 +6,7 @@ Beispiel:
   ./make-tiles.py --lat 52.115 --lon 8.67 --style styles/north.toml --out out/kunde-xy
   ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # jeder Stil × jede Schrift zum Vergleichen
 """
-import argparse, fnmatch, functools, gzip, hashlib, os, re, io, sqlite3, struct, tempfile, threading, json, math, shutil, subprocess, sys, time, tomllib, urllib.parse, urllib.request, zipfile
+import argparse, fnmatch, functools, gzip, hashlib, http.client, os, re, io, sqlite3, struct, tempfile, threading, json, math, shutil, subprocess, sys, time, tomllib, urllib.parse, urllib.error, urllib.request, zipfile
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
@@ -20,7 +20,9 @@ NOTO = "https://github.com/openmaptiles/fonts/releases/download/v2.0/noto-sans.z
 WORKERS = 4   # gleichzeitige Kachel-Anfragen; gemessen: mehr bremst (Rendern + WebP nutzen schon mehrere Kerne)
 # Pixel-Nachbearbeitung (watercolor/halftone/stains) ist numpy und gibt die GIL frei: Threads skalieren gemessen linear
 # mit den Kernen (4 Threads = 4,1× auf 4 Kernen), daher dort so viele Threads wie Kerne. ~240 MB je Kachel gleichzeitig.
-POST_WORKERS = max(WORKERS, os.cpu_count() or 1)
+# Nicht mehr als Kerne (bis 2026-11-27 mindestens 4): auf ionos (2 vCPU, 3,8 GB ohne Swap) Cyberspace 154 z16-Retina-
+# Kacheln mit 2 Threads 249 s / 0,9 GB, mit 3 Threads 282 s / 1,05 GB. Überschreibbar mit der Umgebungsvariable POST_WORKERS.
+POST_WORKERS = int(os.environ.get("POST_WORKERS") or os.cpu_count() or 1)
 
 
 def tile(lat, lon, z):
@@ -72,9 +74,19 @@ def ensure_noto():
         zipfile.ZipFile(io.BytesIO(fetch(NOTO))).extractall(fonts)
 
 
-def fetch(url):
-    with urllib.request.urlopen(url, timeout=60) as r:
-        return r.read()
+def fetch(url, tries=3):
+    """GET mit zwei Wiederholungen: auf ionos (2 Kerne) brach einmal eine Verbindung ab (RemoteDisconnected) und kostete
+    den ganzen Stil. HTTP-Fehler (404 usw.) werden nicht wiederholt."""
+    for i in range(tries):
+        try:
+            with urllib.request.urlopen(url, timeout=60) as r:
+                return r.read()
+        except urllib.error.HTTPError:
+            raise
+        except (OSError, http.client.HTTPException):
+            if i == tries - 1:
+                raise
+            time.sleep(2 * (i + 1))
 
 
 def geocode(query):
@@ -966,9 +978,9 @@ def tileserver(style, tag, mb):
     try:
         for _ in range(300):  # bis 60 s; Start dauert meist < 1 s
             try:
-                fetch(f"http://127.0.0.1:{PORT}/health")
+                fetch(f"http://127.0.0.1:{PORT}/health", tries=1)
                 break
-            except OSError:
+            except (OSError, http.client.HTTPException):
                 time.sleep(0.2)
         else:
             sys.exit("tileserver-gl startet nicht: podman logs " + name)
