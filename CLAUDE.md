@@ -15,7 +15,7 @@ pip install -r requirements.txt && cargo install build_pbf_glyphs oxipng   # onc
 ./make-tiles.py --all --zoom 16-16 --radius 1.5 --retina   # preview set: each style in its preview_font -> out/<style>-<font> (~4 min for 34 styles)
 ./make-tiles.py --all --all-fonts --missing ...           # full matrix: each style × every font of its groups (slow)
 ./make-tiles.py --all --style styles/wiki.toml ...     # one style (preview_font; add --all-fonts for all);  --font X: one font for all styles, ignoring groups
-./make-tiles.py --site [--missing]                     # public preview per site.toml (Köln/Kölner Dom since 2026-11-27, Bielefeld values kept as comments; z16–17, radius 0.5 km, retina, 8-bit for Phosphor/Neon Cyberpunk/Cyberspace) -> site/ for GitHub Pages
+./make-tiles.py --site [--missing]                     # public preview per site.toml (Bielefeld/SchücoArena again, Köln/Kölner Dom kept as comments; z15–17, radius 1.2 km, retina, 8-bit for Phosphor/Neon Cyberpunk/Cyberspace) -> site/ for GitHub Pages
 ./make-tiles.py --site --regenerate --missing           # list rendered styles (numbered), delete the picked ones, rebuild them + missing (also with --all; out/)
 tools/deploy-site.sh [--no-build]                      # --site --missing, then publish site/ as a single-commit gh-pages (force push; git dir in a temp folder)
 npm install && npm run css                             # rebuild vendor/streifen.css (Tailwind v4) after changing streifen.html classes

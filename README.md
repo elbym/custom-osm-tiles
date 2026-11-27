@@ -204,9 +204,9 @@ tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffen
 `site.toml` legt fest:
 
 | Einstellung | Wert |
-|---|---|
+| Ort und Label | Bielefeld, SchücoArena (Köln/Kölner Dom als Kommentar in `site.toml`) |
 | Ort und Label | Köln, Kölner Dom (bis 2026-11-27 Bielefeld, SchücoArena) |
-| Zoom | 16–17 |
+| Bereich | 1,2 km um die SchücoArena |
 | Bereich | 0,5 km um den Kölner Dom |
 | Retina | an (GitHub Pages erlaubt 1 GB) |
 | `exclude` | Familien, die nur in der README-Galerie stehen |
