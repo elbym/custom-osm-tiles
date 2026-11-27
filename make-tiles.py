@@ -1991,7 +1991,8 @@ def readme_previews(a, mb):
         post, holo = post_of(meta), meta.get("holo")
         if holo:
             style, bld = holo_split(style, "terrain" in holo)
-        if post or holo:  # Karte und Beschriftung getrennt, wie in render()
+        crisp = holo or (post and post[0] is not glitch)   # wie in render(): glitch trifft auch die Schrift
+        if crisp:  # Karte und Beschriftung getrennt, wie in render()
             style, labels = split_labels(style, shift=False)
         with tileserver(style, f"readme-{st.stem}", mb) as base:
             data = fetch(base + url)
@@ -2004,7 +2005,7 @@ def readme_previews(a, mb):
                     data = screen(data, wc_static(bimg, (terrain_light, dict(holo["terrain"], lat=a.lat)), 1, 13),
                                   holo["terrain"].get("blend"))
                 data = screen(data, wc_static(bimg, (holo_light, dict(holo, lat=a.lat)), 1, 13), holo.get("blend"))
-        if post or holo:
+        if crisp:
             with tileserver(labels, f"readme-{st.stem}-labels", mb) as base:
                 data = over(data, fetch(base + url))
         if meta.get("stains"):   # Flecken/Nordlicht wie in den Kacheln (Bild wie eine @2x-Kachel bei 0/0)
@@ -2039,7 +2040,9 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
     holo = meta.get("holo")  # Hologramm: Gebäude als eigener Durchgang, holo_light() legt sie aufhellend über die Karte
     if holo:
         style, bld = holo_split(style, "terrain" in holo)
-    if a.pixel or wc or holo:  # Beschriftung getrennt rendern, dither_tiles()/over() backt sie ein
+    # Beschriftung scharf obenauf, außer bei glitch: dort trifft der Fehler auch die Schrift (Nutzerwunsch 2026-11-27)
+    crisp = holo or (wc and wc[0] is not glitch)
+    if a.pixel or crisp:  # Beschriftung getrennt rendern, dither_tiles()/over() backt sie ein
         style, labels = split_labels(style, shift=not (wc or holo))
     stains = meta.get("stains")  # Versuch: Flecken eingebacken
     colors = a.colors or meta.get("colors", 32)  # colors im Stil: weiche Verläufe (Lichthöfe) brauchen mehr als 32
@@ -2075,7 +2078,8 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
             elif wc or holo:  # Gebäude, Beschriftung und pngquant erst in weiteren Durchgängen
                 if ext != "png":
                     sys.exit("watercolor/halftone/glitch/holo nur mit PNG")
-                f.write_bytes(wc_tile(base, z, x, y, sfx, wc) if wc else fetch(f"{base}/{z}/{x}/{y}{sfx}.png"))
+                data = wc_tile(base, z, x, y, sfx, wc) if wc else fetch(f"{base}/{z}/{x}/{y}{sfx}.png")
+                f.write_bytes(data if crisp else quantize(data, colors))
                 return f
             else:
                 data = fetch(f"{base}/{z}/{x}/{y}{sfx}.{ext}")
@@ -2110,7 +2114,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                         data = screen(data, wc_tile(base, *zxy(f), (terrain_light, holo["terrain"])), holo["terrain"].get("blend"))
                     f.write_bytes(screen(data, wc_tile(base, *zxy(f), (holo_light, holo)), holo.get("blend")))
                 list(pool.map(holo_tile, written))
-    if wc or holo:
+    if crisp:
         parent.cache_clear()
         with tileserver(labels, out.name + "-labels", mb) as base:
             def lab(f):

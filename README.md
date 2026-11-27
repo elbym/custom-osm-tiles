@@ -380,7 +380,7 @@ Eigener Entwurf (Arbeitstitel) im Look von Tron Legacy, Schrift Mozilla Text.
 
 #### Datamosh / Signalverlust
 
-Eigener Entwurf (Familie Glitch), Schrift Fira Code. Die Fehler werden als Pixel-Nachbearbeitung in die Kacheln eingerechnet (`[glitch]` im Stil), die Beschriftung liegt scharf obenauf.
+Eigener Entwurf (Familie Glitch), Schrift Fira Code. Die Fehler werden als Pixel-Nachbearbeitung in die Kacheln eingerechnet (`[glitch]` im Stil) und treffen auch die Beschriftung.
 
 - **Signalverlust** (dunkel): fast schwarzer Bildschirm, Straßen in kaltem Weiß, POIs in Signalgrün, einzelne Neonblöcke.
 - **Datamosh** (hell): nüchterne helle Karte, Straßen in Tinte, ohne Neonblöcke.
