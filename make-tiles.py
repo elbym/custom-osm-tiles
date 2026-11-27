@@ -1433,14 +1433,17 @@ def holo_light(img, ox, oy, k, cfg, z=16):
     return light
 
 
-def screen(data, light):
-    """Licht (PNG, Schwarz = nichts) aufhellend über die Kachel legen (Hologramm)."""
+def screen(data, light, blend=None):
+    """Licht (PNG, Schwarz = nichts) aufhellend über die Kachel legen (Hologramm). blend = "folie" (helle Partner,
+    2026-11-27): als Farbfilter multiplizieren, Filter = 1 - max(Licht) + Licht, also färbt Licht im Farbton ein und
+    dunkelt ab, Schwarz bleibt ohne Wirkung. Fast weißes Licht (Deckelkanten) verschwindet dabei auf hellem Grund."""
     import numpy as np
     from PIL import Image
     a = np.asarray(Image.open(io.BytesIO(data)).convert("RGB"), float) / 255
     b = np.asarray(Image.open(io.BytesIO(light)).convert("RGB"), float) / 255
+    out = a * (1 - b.max(-1, keepdims=True) + b) if blend == "folie" else 1 - (1 - a) * (1 - b)
     buf = io.BytesIO()
-    Image.fromarray(((1 - (1 - a) * (1 - b)) * 255).round().astype(np.uint8)).save(buf, "PNG")
+    Image.fromarray((out * 255).round().astype(np.uint8)).save(buf, "PNG")
     return buf.getvalue()
 
 
@@ -1709,7 +1712,7 @@ def readme_previews(a, mb):
             data = wc_static(data, post, 1, 13)
         if holo:
             with tileserver(bld, f"readme-{st.stem}-holo", mb) as base:
-                data = screen(data, wc_static(fetch(base + url), (holo_light, dict(holo, lat=a.lat)), 1, 13))
+                data = screen(data, wc_static(fetch(base + url), (holo_light, dict(holo, lat=a.lat)), 1, 13), holo.get("blend"))
         if post or holo:
             with tileserver(labels, f"readme-{st.stem}-labels", mb) as base:
                 data = over(data, fetch(base + url))
@@ -1810,7 +1813,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
         parent.cache_clear()
         with tileserver(bld, out.name + "-holo", mb) as base:
             with ThreadPoolExecutor(WORKERS) as pool:
-                list(pool.map(lambda f: f.write_bytes(screen(f.read_bytes(), wc_tile(base, *zxy(f), (holo_light, holo)))),
+                list(pool.map(lambda f: f.write_bytes(screen(f.read_bytes(), wc_tile(base, *zxy(f), (holo_light, holo)), holo.get("blend"))),
                               written))
     if wc or holo:
         parent.cache_clear()

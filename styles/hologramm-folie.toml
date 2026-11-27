@@ -1,0 +1,138 @@
+# "Hologrammfolie" (Arbeitstitel, Entwurf, Nutzerwunsch 2026-11-27): heller Partner von Hologramm, wie eine
+# Hologramm-Sicherheitsfolie auf einem Ausweis:
+#   - Grund perlweiß mit Silber-Violett-Stich, dasselbe Messraster (holoraster) in hellem Grau-Violett
+#   - Gebäude im selben Durchgang wie Hologramm (holo_light(), doppelte Höhe), aber blend = "folie": das Licht färbt
+#     als Farbfilter ein und dunkelt ab statt aufzuhellen; dafür gesättigter Farbkreis, Fläche deckender (fill)
+#   - Straßen in Petrol statt Cyan, Autobahn Magenta, kein Leuchtschein (auf hellem Grund wirkt Blur nur schmutzig)
+#   - Schrift dunkles Tinten-Violett, POIs Petrol
+title = "Hologrammfolie"
+category = "nerd"
+mode = "light"
+family = "Hologramm"
+order = 96
+font = "Maple Mono"
+preview_font = "Maple Mono"
+site_font = "Maple Mono"
+fonts = ["sans", "mono"]
+text_scale = 1.05
+colors = 64
+hide = ["poi_r20", "road_oneway*", "building-top"]
+
+[paint."background"]
+background-pattern = "holoraster"
+background-color = "#eceaf2"
+[paint."landuse-*"]
+fill-color = "#eceaf2"
+fill-opacity = 0
+[paint."park"]
+fill-color = "#d3e6e1"
+fill-opacity = 0.6
+[paint."landcover-*"]
+fill-color = "#d3e6e1"
+fill-opacity = 0.6
+[paint."landuse-cemetery"]
+fill-color = "#d3e6e1"
+fill-opacity = 0.6
+
+[paint."water*"]
+fill-color = "#d4daec"
+line-color = "#8fa6cc"
+
+# Grundriss als leichter Abdruck auf der Folie, die Scheiben tragen die Farbe
+[paint."building"]
+fill-color = "#dedae8"
+fill-outline-color = "#dedae8"
+
+[paint."*-minor*"]
+line-color = "#b4c7d0"
+[paint."*-service-track"]
+line-color = "#c6d2da"
+[paint."*-link"]
+line-color = "#5f9bb0"
+[paint."*-secondary-tertiary*"]
+line-color = "#5f9bb0"
+[paint."*-primary*"]
+line-color = "#2f7f99"
+[paint."*-trunk*"]
+line-color = "#2f7f99"
+[paint."*-motorway*"]
+line-color = "#c8329a"
+[paint."*-casing"]
+line-opacity = 0
+[paint."highway-area"]
+fill-color = "#e2dfec"
+fill-outline-color = "#b4c7d0"
+[paint."aeroway-*"]
+fill-color = "#e2dfec"
+line-color = "#e2dfec"
+[paint."*-path"]
+line-color = "#a4b8c8"
+[paint."*railway*"]
+line-color = "#9a92b8"
+[paint."road_area_pier"]
+fill-color = "#eceaf2"
+[paint."road_pier"]
+line-color = "#eceaf2"
+
+# Beschriftung: Versalien, dunkles Tinten-Violett, harter heller Halo; POIs Petrol (5,1:1 auf dem Grund)
+[layout."label_*"]
+text-transform = "uppercase"
+text-letter-spacing = 0.15
+[paint."label_*"]
+text-color = "#2a2340"
+text-halo-color = "#eceaf2"
+text-halo-width = 2
+text-halo-blur = 0
+[paint."highway-name-*"]
+text-color = "#3a4a5c"
+text-halo-color = "#eceaf2"
+[paint."poi_*"]
+text-color = "#176a80"
+text-halo-color = "#eceaf2"
+[paint."airport"]
+text-color = "#176a80"
+text-halo-color = "#eceaf2"
+[paint."water*label"]
+text-color = "#4a5f8a"
+
+[marker]
+type = "terminal"
+color = "#176a80"
+color2 = "#c8329a"
+bg = "#eceaf2"
+fg = "#1a1530"
+
+[patterns]
+holoraster = { symbol = "holoraster", color = "#bdb8d2", bg = "#eceaf2" }
+
+# >>> Hologramm (holo, Regler siehe hologramm.toml); blend = "folie": Farbfilter statt Aufhellen (screen() in
+# make-tiles.py). Farbkreis gesättigt, sonst bleibt der Filter fast weiß und unsichtbar.
+[holo]
+blend = "folie"
+colors = ["#ff3fa4", "#ff9a3a", "#e6e23a", "#3ae69a", "#3ab4ff", "#8a5cff"]
+slices = 6
+lean = 1.0
+angle = 15
+spread = 25
+period = 30
+shimmer = 0.8
+slice_shift = 0.22
+fill = 0.12
+fringe = 1000
+edge = 0.9
+glitch = 0.05
+glitch_px = 8
+aberration = 1
+# <<<
+
+# >>> Akzent-Beschriftung: Straßennummern ohne weißes Schild, Autobahn Magenta, Hauptstraßen Petrol
+[layout."*shield*"]
+icon-image = ""
+text-size = 12
+[paint."*shield*"]
+text-color = ["match", ["get", "class"], "motorway", "#a82680", ["trunk", "primary"], "#176a80", "#3a6f82"]
+text-halo-color = "#eceaf2"
+text-halo-width = 1.5
+[paint."highway-name-major"]
+text-color = "#176a80"
+# <<<

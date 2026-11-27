@@ -1,0 +1,145 @@
+# "Holotisch Tag" (Arbeitstitel, Entwurf, Nutzerwunsch 2026-11-27): heller Partner von Holotisch, der Kartentisch bei
+# Tageslicht:
+#   - Grund kühles helles Blaugrau, dasselbe enge Raster (holotisch) etwas dunkler
+#   - Gebäude im selben Durchgang (holo_light(), by = "height"), aber blend = "folie": halbtransparente Glasblöcke, die
+#     den Grund einfärben, niedrig blau, hoch petrol bis grün und deckender (fill_top)
+#   - Straßen als korallrotes Datennetz ohne Leuchtschein, Nebenstraßen hellblau
+#   - Haltestellen als weiße Knoten mit rotem Ring; nur Orts- und Stadtteilnamen in dunklem Marineblau
+title = "Holotisch Tag"
+category = "nerd"
+mode = "light"
+family = "Holotisch"
+order = 95
+font = "Maple Mono"
+preview_font = "Maple Mono"
+site_font = "Maple Mono"
+fonts = ["sans", "mono"]
+text_scale = 1.05
+colors = 64
+hide = ["poi_*", "airport", "road_oneway*", "building-top", "highway-name-*", "*shield*", "water*label"]
+
+[paint."background"]
+background-pattern = "holotisch"
+background-color = "#e3edf5"
+[paint."landuse-*"]
+fill-color = "#e3edf5"
+fill-opacity = 0
+[paint."park"]
+fill-color = "#cfe6e6"
+fill-opacity = 0.6
+[paint."landcover-*"]
+fill-color = "#cfe6e6"
+fill-opacity = 0.6
+[paint."landuse-cemetery"]
+fill-color = "#cfe6e6"
+fill-opacity = 0.6
+
+[paint."water*"]
+fill-color = "#c5d9ea"
+line-color = "#7fa8cc"
+
+[paint."building"]
+fill-color = "#d5e3ee"
+fill-outline-color = "#d5e3ee"
+
+[paint."*-minor*"]
+line-color = "#a9c4d8"
+[paint."*-service-track"]
+line-color = "#bcd2e2"
+line-opacity = 0.6
+[paint."*-link"]
+line-color = "#d0506c"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.3, 16, 0.8, 18, 1.4]
+[paint."*-secondary-tertiary*"]
+line-color = "#c0506a"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.3, 16, 0.8, 18, 1.4]
+[paint."*-primary*"]
+line-color = "#d8304e"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.4, 16, 1.2, 18, 2]
+[paint."*-trunk*"]
+line-color = "#d8304e"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.4, 16, 1.2, 18, 2]
+[paint."*-motorway*"]
+line-color = "#c0203e"
+line-width = ["interpolate", ["exponential", 1.4], ["zoom"], 10, 0.5, 16, 1.6, 18, 2.6]
+[paint."*-casing"]
+line-opacity = 0
+[paint."highway-area"]
+fill-color = "#d8e6f0"
+fill-outline-color = "#a9c4d8"
+[paint."aeroway-*"]
+fill-color = "#d8e6f0"
+line-color = "#d8e6f0"
+[paint."*-path"]
+line-color = "#a0bed4"
+[paint."*railway*"]
+line-color = "#b07890"
+[paint."road_area_pier"]
+fill-color = "#e3edf5"
+[paint."road_pier"]
+line-color = "#e3edf5"
+
+[layout."label_*"]
+text-transform = "uppercase"
+text-letter-spacing = 0.2
+[paint."label_*"]
+text-color = "#0d3a5c"
+text-halo-color = "#e3edf5"
+text-halo-width = 2
+text-halo-blur = 0
+
+[paint."poi_*"]   # ausgeblendet; die Farbe braucht nur poi_sprite()
+text-color = "#0f6e9e"
+
+[marker]
+type = "terminal"
+color = "#0f6e9e"
+color2 = "#d8304e"
+bg = "#e3edf5"
+fg = "#0a2238"
+
+[patterns]
+holotisch = { symbol = "holotisch", color = "#9dbcd6", bg = "#e3edf5" }
+
+# Knoten im Datennetz: weiße Punkte mit rotem Ring, der Schein nur schwach (auf hellem Grund ein Hof statt Leuchten)
+[[layers]]
+source-layer = "poi"
+like = "poi_transit"
+type = "circle"
+after = "highway-motorway"
+id = "knoten-schein"
+filter = ["in", ["get", "class"], ["literal", ["bus", "railway", "tram"]]]
+minzoom = 14
+paint = { circle-color = "#d8304e", circle-radius = 6, circle-blur = 1, circle-opacity = 0.3 }
+[[layers]]
+source-layer = "poi"
+like = "poi_transit"
+type = "circle"
+after = "knoten-schein"
+id = "knoten"
+filter = ["in", ["get", "class"], ["literal", ["bus", "railway", "tram"]]]
+minzoom = 14
+paint = { circle-color = "#ffffff", circle-radius = 2, circle-stroke-color = "#d8304e", circle-stroke-width = 1.2 }
+
+# >>> Gebäude-Durchgang (holo_light(), Regler siehe hologramm.toml/holotisch.toml); blend = "folie": Farbfilter statt
+# Aufhellen. Verlauf gesättigt und eher dunkel, helle Töne wie Holotischs Mint würden als Filter verschwinden.
+[holo]
+blend = "folie"
+by = "height"
+colors = ["#3a7ad8", "#1e9ad0", "#10a8b0", "#10a880", "#0a8a5a"]
+hmax = 30
+slices = 10
+lean = 1.0
+angle = 12
+spread = 15
+shimmer = 0.6
+fill = 0.05
+fill_top = 6
+fringe = 1000
+edge = 0.6
+bloom = 0.3
+bloom_r = 5
+glitch = 0.01
+glitch_px = 4
+aberration = 0
+# <<<
