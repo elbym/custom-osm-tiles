@@ -142,7 +142,8 @@ paint = { circle-color = "#ffffff", circle-radius = 2, circle-stroke-color = "#f
 
 # >>> Gebäude-Durchgang (holo_light() in make-tiles.py, Regler siehe hologramm.toml): Farbe nach Höhe (by = "height",
 # Cyan -> Türkis -> Mint bis hmax m), hohe Häuser deckender (fill_top), Leuchtschein (bloom), sauber: kein Farbversatz,
-# kaum Glitch, Scanlinien bleiben
+# kaum Glitch, Scanlinien bleiben. Durchsichtiger (Nutzerwunsch 2026-11-27): Kanten unten nur 20 % (edge_low), Fläche
+# unten dünner (fill), oben wie bisher (fill_top), damit hohe Häuser nach oben stärker leuchten
 [holo]
 by = "height"
 colors = ["#1a78d0", "#22b8f0", "#3ff0e0", "#6affc0", "#c8ffe0"]
@@ -152,11 +153,12 @@ lean = 1.0
 angle = 12
 spread = 15
 shimmer = 0.6
-fill = 0.03
-fill_top = 6
+fill = 0.02
+fill_top = 9
 fringe = 1000
 edge = 0.45
-bloom = 0.5
+edge_low = 0.2
+bloom = 0.4
 bloom_r = 5
 glitch = 0.01
 glitch_px = 4

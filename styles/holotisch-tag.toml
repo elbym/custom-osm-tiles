@@ -123,6 +123,7 @@ paint = { circle-color = "#ffffff", circle-radius = 2, circle-stroke-color = "#d
 
 # >>> Gebäude-Durchgang (holo_light(), Regler siehe hologramm.toml/holotisch.toml); blend = "folie": Farbfilter statt
 # Aufhellen. Verlauf gesättigt und eher dunkel, helle Töne wie Holotischs Mint würden als Filter verschwinden.
+# Durchsichtiger wie Holotisch (2026-11-27): Kanten unten 20 % (edge_low), Fläche unten dünner, oben wie bisher.
 [holo]
 blend = "folie"
 by = "height"
@@ -133,10 +134,11 @@ lean = 1.0
 angle = 12
 spread = 15
 shimmer = 0.6
-fill = 0.05
-fill_top = 6
+fill = 0.033
+fill_top = 9
 fringe = 1000
 edge = 0.6
+edge_low = 0.2
 bloom = 0.3
 bloom_r = 5
 glitch = 0.01

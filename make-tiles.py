@@ -1369,7 +1369,8 @@ def holo_light(img, ox, oy, k, cfg, z=16):
     Bänder seitlich verrutscht (glitch = Anteil, glitch_px = Weite), Farbkanäle um aberration Weltpixel auseinander.
     by = "height" (Holotisch, nach einem Referenzbild): Farbe als Verlauf durch colors nach Höhe (0 … hmax m) statt
     Farbkreis, shimmer verschiebt dann nur leicht; fill_top macht die Fläche nach oben und bei hohen Gebäuden deckender
-    (Lichtsäulen); bloom = Stärke eines weichen Leuchtscheins (Radius bloom_r Weltpixel) um alles Licht."""
+    (Lichtsäulen); edge_low = Kantenstärke der untersten Scheibe relativ zu edge (Standard 0.75), steigt linear bis
+    zur obersten; bloom = Stärke eines weichen Leuchtscheins (Radius bloom_r Weltpixel) um alles Licht."""
     import numpy as np
     from scipy import ndimage
     h, w, _ = img.shape
@@ -1403,7 +1404,8 @@ def holo_light(img, ox, oy, k, cfg, z=16):
         top = j == n - 1
         rise = np.clip(height / cfg.get("hmax", 60), 0, 1)
         fill = cfg.get("fill", .12) * (1 + cfg.get("fill_top", 0) * t * rise)
-        a = np.where(edge, cfg.get("edge", .9) * (1.15 if top else .75 + .25 * t), fill * ring * scan)
+        lo = cfg.get("edge_low", .75)   # Kantenstärke der untersten Scheibe; klein = unten durchsichtig, nach oben heller
+        a = np.where(edge, cfg.get("edge", .9) * (1.15 if top else lo + (1 - lo) * t), fill * ring * scan)
         if cfg.get("by") == "height":   # Verlauf nach Höhe und Scheibe, nicht zyklisch
             u = np.clip(rise * (.4 + .6 * t) + (shim - .5 * cfg.get("shimmer", .8)) * .15, 0, .999)
             col = hue(u * (len(iris) - 1) / len(iris))

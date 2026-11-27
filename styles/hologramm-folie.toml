@@ -109,20 +109,23 @@ holoraster = { symbol = "holoraster", color = "#bdb8d2", bg = "#eceaf2" }
 # make-tiles.py). Farbkreis gesättigt, sonst bleibt der Filter fast weiß und unsichtbar.
 [holo]
 blend = "folie"
+# Mittelweg (Nutzerwunsch 2026-11-27): erster Entwurf (edge 0.9, aberration 1, glitch 0.05) zu hart, weiche Fassung
+# (edge 0.6, entsättigt, aberration 0, bloom) zu schwach. Hier: Farben und Kanten wie im ersten Entwurf, Farbversatz
+# halbiert (1 Bildpixel bei @2x), weniger Glitch. Kein bloom: er hellt alle Kanäle auf und macht den Filter blass.
 colors = ["#ff3fa4", "#ff9a3a", "#e6e23a", "#3ae69a", "#3ab4ff", "#8a5cff"]
 slices = 6
 lean = 1.0
 angle = 15
 spread = 25
 period = 30
-shimmer = 0.8
+shimmer = 0.7
 slice_shift = 0.22
 fill = 0.12
 fringe = 1000
-edge = 0.9
-glitch = 0.05
-glitch_px = 8
-aberration = 1
+edge = 0.85
+glitch = 0.025
+glitch_px = 6
+aberration = 0.5
 # <<<
 
 # >>> Akzent-Beschriftung: Straßennummern ohne weißes Schild, Autobahn Magenta, Hauptstraßen Petrol
