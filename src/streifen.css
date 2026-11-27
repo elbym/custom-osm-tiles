@@ -12,12 +12,18 @@
 /* "solo:" Einzelansicht aktiv (data-solo am <html>) */
 @custom-variant solo (&:where([data-solo], [data-solo] *));
 
+/* Handy in Safari: Seite --s höher als der Bildschirm (scrollbar über #nav, damit Safari seine Leisten einklappt);
+   als Web-App vom Home-Bildschirm gibt es keine Leisten, also kein Scrollen. --sy = Scrollposition (JS) */
+:root { --s: 0px; --sy: 0px; }
+@media (orientation: portrait), (max-height: 32rem) { :root { --s: 6rem; } }
+@media (display-mode: standalone), (display-mode: fullscreen) { :root { --s: 0px; } }
+
 /* Karte ist 100lvh hoch (hinter den Safari-Leisten); Zoom und Namensnennung bleiben über der unteren Leiste */
 .leaflet-bottom { bottom: calc(100lvh - 100dvh + env(safe-area-inset-bottom)); }
 .leaflet-right { right: env(safe-area-inset-right); }
 /* Handy: Zoom und Namensnennung über der Navigationsleiste (#nav: 2.75rem Knöpfe + .5rem oben + Abstand unten) */
 @media (orientation: portrait), (max-height: 32rem) {
-  .leaflet-bottom { bottom: calc(100lvh - 100dvh + 3.25rem + max(.5rem, env(safe-area-inset-bottom))); }
+  .leaflet-bottom { bottom: calc(100lvh + var(--s) - 100dvh - var(--sy) + 3.25rem + max(.5rem, env(safe-area-inset-bottom))); }
 }
 
 /* "compact:" kleine Bildschirme (Hochformat oder niedrige Höhe, z. B. Handy quer): Optionen zugeklappt */

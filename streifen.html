@@ -17,14 +17,16 @@
 <link rel="stylesheet" href="leaflet/leaflet.css">
 <link rel="stylesheet" href="streifen.css">
 </head>
-<body class="h-dvh overflow-hidden bg-neutral-400 font-sans text-sm text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100">
+<body class="h-dvh overflow-hidden compact:h-[calc(100lvh+var(--s))] compact:overflow-visible bg-neutral-400 font-sans text-sm text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100">
 
-<div id="map" class="absolute inset-x-0 top-0 h-lvh bg-neutral-400 dark:bg-neutral-800"></div>
+<div id="map" class="absolute inset-x-0 top-0 h-[calc(100lvh+var(--s))] bg-neutral-400 dark:bg-neutral-800"></div>
 
 <!-- Stilnamen: senkrechte Streifen (cols) oben je Streifen, waagerechte (rows) links je Streifen.
      Karte und Titel sind 100lvh hoch, reichen also auf dem iPhone hinter die Safari-Leisten (viewport-fit=cover).
+     Auf dem Handy in Safari um --s höher: Hochwischen der unteren Leiste scrollt die Seite, Safari klappt seine Leisten ein
+     und die Karte liegt bis unter die Statusleiste (wie bei Nachrichtenseiten; ohne Scrollen geht das in Safari nicht).
      absolute statt fixed: Safari 26 zeichnet fixed-Elemente nicht unter seine Leisten, sondern füllt sie mit deren Hintergrundfarbe (grauer Rand). -->
-<div id="titles" class="pointer-events-none absolute inset-x-0 top-0 h-lvh z-[1000] flex cols:flex-row rows:flex-col compact:solo:hidden"></div>
+<div id="titles" class="pointer-events-none absolute inset-x-0 top-0 h-[calc(100lvh+var(--s))] z-[1000] flex cols:flex-row rows:flex-col compact:solo:hidden"></div>
 
 <!-- Bedienleiste (Desktop/Querformat groß): oben links unter den Titeln bzw. oben rechts bei waagerechten Streifen.
      Auf kleinen Bildschirmen (compact: Hochformat oder niedrige Höhe) ausgeblendet: dort Navigation unten (#nav),
@@ -71,7 +73,7 @@
 
 <!-- Handy (compact): Navigation unten in Daumenreichweite. ‹ › oder Wischen über die Leiste schaltet den Stil,
      Tipp auf den Namen öffnet die Stilliste (#jump), ⚙︎ die Optionen (#sheet). -->
-<nav id="nav" aria-label="Stile" class="absolute inset-x-0 top-[100dvh] -translate-y-full z-[1001] hidden touch-none select-none items-center gap-1 bg-white/90 px-2 pt-2
+<nav id="nav" aria-label="Stile" class="absolute inset-x-0 top-[calc(100dvh+var(--sy))] -translate-y-full z-[1001] hidden touch-pan-y select-none items-center gap-1 bg-white/90 px-2 pt-2
   pb-[max(.5rem,env(safe-area-inset-bottom))] shadow-[0_-2px_8px_rgb(0_0_0/.2)] backdrop-blur dark:bg-neutral-900/90 compact:flex">
   <button data-step="-1" aria-label="Vorheriger Stil" class="size-11 shrink-0 rounded-lg active:bg-black/10 dark:active:bg-white/10 text-2xl">‹</button>
   <button id="nav-name" aria-haspopup="dialog" class="flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-2 text-base font-medium active:bg-black/10 dark:active:bg-white/10">
@@ -115,7 +117,7 @@
       <h1 class="text-lg font-semibold">Kartenstile im Vergleich</h1>
       <button id="about-close" class="rounded-md border border-neutral-400 px-2 py-0.5 dark:border-neutral-600" aria-label="Schließen">✕</button>
     </div>
-    <p class="hidden compact:block">Vollbild auf dem iPhone: in Safari <em>Teilen → Zum Home-Bildschirm</em>, dann von dort öffnen. Safari selbst blendet seine Leisten auf dieser Seite nicht aus.</p>
+    <p class="hidden compact:block">Mehr Karte auf dem iPhone: die untere Leiste nach oben wischen, dann klappt Safari seine Leisten ein. Ganz ohne Leisten: in Safari <em>Teilen → Zum Home-Bildschirm</em>, dann von dort öffnen.</p>
     <p>Eine Karte, ein Streifen pro Stil. Die Kacheln sind vorab gerendert und liegen statisch auf dieser Seite; es gibt keine Anfragen an Kartendienste oder CDNs. Erzeugt mit <a class="underline" href="https://github.com/elbym/custom-osm-tiles">custom-osm-tiles</a> (MIT).</p>
     <section>
       <h2 class="font-semibold">Tastatur</h2>
@@ -413,6 +415,8 @@ nav.addEventListener('pointerup', e => {
   x0 = null;
 });
 nav.addEventListener('click', e => { if (swiped) { e.stopPropagation(); swiped = false; } }, true);
+// Seite scrollt auf dem Handy um --s (Leiste hochwischen): #nav und Leaflet-Knöpfe folgen über --sy dem sichtbaren unteren Rand
+addEventListener('scroll', () => document.documentElement.style.setProperty('--sy', scrollY + 'px'), { passive: true });
 // Stilliste: "Alle Stile" und jeder gerenderte Stil, Tipp wählt und schließt
 for (const i of [-1, ...rendered]) {
   const b = document.getElementById('jump-list').appendChild(document.createElement('button'));
