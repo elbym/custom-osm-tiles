@@ -26,12 +26,12 @@
      Auf dem Handy in Safari um --s höher: Hochwischen der unteren Leiste scrollt die Seite, Safari klappt seine Leisten ein
      und die Karte liegt bis unter die Statusleiste (wie bei Nachrichtenseiten; ohne Scrollen geht das in Safari nicht).
      absolute statt fixed: Safari 26 zeichnet fixed-Elemente nicht unter seine Leisten, sondern füllt sie mit deren Hintergrundfarbe (grauer Rand). -->
-<div id="titles" class="pointer-events-none absolute inset-x-0 top-0 h-[calc(100lvh+var(--s))] z-[1000] flex cols:flex-row rows:flex-col compact:solo:hidden"></div>
+<div id="titles" class="pointer-events-none absolute inset-x-0 top-0 h-[calc(100lvh+var(--s))] z-1000 flex cols:flex-row rows:flex-col compact:solo:hidden"></div>
 
 <!-- Bedienleiste (Desktop/Querformat groß): oben links unter den Titeln bzw. oben rechts bei waagerechten Streifen.
      Auf kleinen Bildschirmen (compact: Hochformat oder niedrige Höhe) ausgeblendet: dort Navigation unten (#nav),
      #bar-items wandert per JS ins Bottom-Sheet #sheet. -->
-<div id="bar" class="absolute z-[1001] flex items-start gap-2 rounded-lg bg-white/90 p-2 shadow-lg backdrop-blur dark:bg-neutral-900/90
+<div id="bar" class="absolute z-1001 flex items-start gap-2 rounded-lg bg-white/90 p-2 shadow-lg backdrop-blur dark:bg-neutral-900/90
   flex-col cols:top-10 cols:left-2 rows:right-2 rows:top-[max(.5rem,env(safe-area-inset-top))] rows:items-end
   max-w-[calc(100%-1rem)] compact:hidden">
   <!-- Stile einzeln durchschalten (‹ ›, "Alle" zurück zu den Streifen) -->
@@ -43,7 +43,7 @@
   </span>
   <!-- compact: im Bottom-Sheet untereinander, große Tippflächen -->
   <div id="bar-items" class="flex flex-wrap items-center gap-2 rows:justify-end
-    compact:flex-col compact:flex-nowrap compact:items-stretch compact:gap-3 compact:text-base compact:[&>*]:w-full
+    compact:flex-col compact:flex-nowrap compact:items-stretch compact:gap-3 compact:text-base compact:*:w-full
     compact:[&>span]:flex compact:[&>span>button]:flex-1 compact:[&_button]:py-2.5 compact:[&_summary]:py-2.5">
   <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="cat" role="group" aria-label="Gruppe">
     <button value="standard" class="px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Standard</button>
@@ -73,7 +73,7 @@
 
 <!-- Handy (compact): Navigation unten in Daumenreichweite. ‹ › oder Wischen über die Leiste schaltet den Stil,
      Tipp auf den Namen öffnet die Stilliste (#jump), ⚙︎ die Optionen (#sheet). -->
-<nav id="nav" aria-label="Stile" class="absolute inset-x-0 top-[calc(100dvh+var(--sy))] -translate-y-full z-[1001] hidden touch-pan-y select-none items-center gap-1 bg-white/90 px-2 pt-2
+<nav id="nav" aria-label="Stile" class="absolute inset-x-0 top-[calc(100dvh+var(--sy))] -translate-y-full z-1001 hidden touch-pan-y select-none items-center gap-1 bg-white/90 px-2 pt-2
   pb-[max(.5rem,env(safe-area-inset-bottom))] shadow-[0_-2px_8px_rgb(0_0_0/.2)] backdrop-blur dark:bg-neutral-900/90 compact:flex">
   <button data-step="-1" aria-label="Vorheriger Stil" class="size-11 shrink-0 rounded-lg active:bg-black/10 dark:active:bg-white/10 text-2xl">‹</button>
   <button id="nav-name" aria-haspopup="dialog" class="flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-2 text-base font-medium active:bg-black/10 dark:active:bg-white/10">
@@ -86,7 +86,7 @@
 
 <!-- Vergleich (?vs=Familie): Trennlinie zwischen Stil A (links/oben) und B (rechts/unten). Griff ziehen verschiebt,
      Tippen tauscht die Seiten. Lage setzt clip(). -->
-<div id="divider" hidden class="pointer-events-none absolute z-[1000]">
+<div id="divider" hidden class="pointer-events-none absolute z-1000">
   <div class="absolute bg-white shadow-[0_0_4px_rgb(0_0_0/.6)] cols:inset-y-0 cols:-left-px cols:w-0.5 rows:inset-x-0 rows:-top-px rows:h-0.5"></div>
   <span id="tag-a" class="absolute whitespace-nowrap rounded-md bg-white/85 px-2 py-1 font-medium dark:bg-neutral-900/85
     cols:right-2 cols:top-[calc(env(safe-area-inset-top)+.5rem)] rows:bottom-2 rows:left-[calc(env(safe-area-inset-left)+.5rem)]"></span>
