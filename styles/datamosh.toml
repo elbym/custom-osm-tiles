@@ -1,0 +1,98 @@
+# Datamosh (Entwurf, helles Gegenstück zu Signalverlust): nüchterne helle Karte, Straßen in Tinte;
+# Glitch per [glitch] unten.
+title = "Datamosh"
+category = "nerd"
+mode = "light"
+family = "Glitch"
+order = 93
+font = "Fira Code"
+preview_font = "Maple Mono"
+site_font = "Fira Code"
+fonts = ["sans", "mono"]
+attribution = ""
+colors = 64
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#f4f4f1"
+[paint."landuse-*"]
+fill-color = "#eeeeea"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#e3ece3"
+[paint."landcover-*"]
+fill-color = "#e3ece3"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#d6e4d6"
+[paint."landuse-cemetery"]
+fill-color = "#e3ece3"
+[paint."water*"]
+fill-color = "#cfe0ec"
+line-color = "#9cc0dc"
+[paint."building*"]
+fill-color = "#e2e2de"
+fill-outline-color = "#cfcfca"
+
+[paint."*-minor*"]
+line-color = "#ffffff"
+[paint."*-service-track"]
+line-color = "#fbfbf9"
+[paint."*-link"]
+line-color = "#9a9ea6"
+[paint."*-secondary-tertiary*"]
+line-color = "#9a9ea6"
+[paint."*-primary*"]
+line-color = "#3b3f47"
+[paint."*-trunk*"]
+line-color = "#3b3f47"
+[paint."*-motorway*"]
+line-color = "#111316"
+[paint."*-casing"]
+line-color = "#c9cbcf"
+[paint."highway-area"]
+fill-color = "#e8e8e4"
+fill-outline-color = "#e8e8e4"
+[paint."aeroway-*"]
+fill-color = "#e8e8e4"
+line-color = "#e8e8e4"
+[paint."*-path"]
+line-color = "#c4c6c9"
+[paint."*railway*"]
+line-color = "#8c9096"
+[paint."road_area_pier"]
+fill-color = "#f4f4f1"
+[paint."road_pier"]
+line-color = "#f4f4f1"
+
+# Beschriftung: Ortsnamen kaltweiß, POIs im Signalgrün
+[paint."*label*"]
+text-color = "#15171b"
+text-halo-color = "#f4f4f1"
+[paint."label_*"]
+text-color = "#15171b"
+text-halo-color = "#f4f4f1"
+[paint."highway-name-*"]
+text-color = "#5b616b"
+text-halo-color = "#f4f4f1"
+[paint."poi_*"]
+text-color = "#00a352"
+text-halo-color = "#f4f4f1"
+[paint."water*label"]
+text-color = "#2f6f9c"
+[paint."airport"]
+text-color = "#00a352"
+text-halo-color = "#f4f4f1"
+
+# >>> Marker
+[marker]
+type = "terminal"
+color = "#111316"
+color2 = "#ff2a6d"
+bg = "#f4f4f1"
+fg = "#111316"
+# <<< Marker
+
+# Datenfehler wie Signalverlust, aber ohne Neonblöcke (wirkten auf Weiß wie Konfetti)
+[glitch]
+scan = 0.92

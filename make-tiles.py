@@ -1446,6 +1446,92 @@ def holo_light(img, ox, oy, k, cfg, z=16):
     return light
 
 
+def glitch(img, ox, oy, k, cfg, z=None):
+    """Datenfehler (glitch im Stil, Familie Glitch; Nutzerwunsch 2026-11-27, Streifen nach jpg-glitch von snorpey):
+    A. JPEG-Streifen: Ausschnitt als JPEG kodiert, 1–3 Bytes im Scan gekippt, wieder dekodiert (Farbkippung und
+       versetzte Blockzeilen ab der Fehlerstelle). Raster 128 Weltpixel breit, um 64 gegen die Kacheln versetzt,
+       Zeilenblöcke 64 hoch: jeder Streifen liegt ganz im Bild (wc_tile-Rand 3/4 Kachel), beide Nachbarn rechnen ihn gleich.
+    B. Makroblöcke (16 Weltpixel): Kopie aus bis zu 2 Blöcken Entfernung, verpixelt (mush) oder Neonfarbe (neon = [hex…]).
+    C. Bänder (4 bzw. 16 Weltpixel hoch, 512 breit): seitlich versetzt (shift) mit RGB-Split (aberration).
+    D. Pixel-Sorting in wenigen Zellen (64×8 Weltpixel) nach Helligkeit. E. Scanlines (scan = Helligkeit).
+    Alles per ihash() an Weltkoordinaten; Reichweite A 0 + B 32 + C ≤ 80 bleibt im Rand von 192 Weltpixeln."""
+    import numpy as np
+    from PIL import Image, ImageFile
+    ImageFile.LOAD_TRUNCATED_IMAGES = True  # gekippte Bytes beenden den Scan oft vorzeitig
+    kk = int(round(k))
+    h, w, _ = img.shape
+    X0, Y0 = round(ox), round(oy)
+    a = (img * 255).round().astype(np.uint8)
+    # A. JPEG-Streifen auf dem sauberen Bild
+    for b in range(-(-Y0 // 64), (Y0 + h // kk) // 64):
+        if ihash(b, 0, 401) >= cfg.get("strips", .3):
+            continue
+        y0 = (64 * b + 16 * int(ihash(b, 1, 401) * 2) - Y0) * kk
+        y1 = min(y0 + 16 * kk * (1 + int(ihash(b, 2, 401) * 3)), (64 * b + 64 - Y0) * kk)
+        for i in range(-(-(X0 - 64) // 128), (X0 + w // kk - 192) // 128 + 1):
+            if ihash(i, b, 403) >= cfg.get("strip_cells", .6):
+                continue
+            x0 = (128 * i + 64 - X0) * kk
+            strip = a[y0:y1, x0:x0 + 128 * kk]
+            rng = np.random.default_rng(int(ihash(i, b, 409) * 2 ** 31))
+            for _ in range(4):  # Fehler ohne sichtbare Wirkung (unwichtiges Byte): neu würfeln
+                buf = io.BytesIO()
+                Image.fromarray(strip).save(buf, "JPEG", quality=int(rng.integers(20, 60)))
+                d = bytearray(buf.getvalue())
+                sos = d.index(b"\xff\xda") + 20
+                for _ in range(int(rng.integers(1, 4))):
+                    j = int(rng.integers(sos, len(d) - 2))
+                    if d[j] != 0xFF and d[j - 1] != 0xFF:  # nie 0xFF: Marker
+                        d[j] = int(rng.integers(0, 255))
+                try:
+                    g = np.asarray(Image.open(io.BytesIO(bytes(d))).convert("RGB"))
+                except Exception:
+                    continue
+                if g.shape == strip.shape and np.abs(g.astype(int) - strip).mean() > 6:
+                    a[y0:y1, x0:x0 + 128 * kk] = g
+                    break
+    yy, xx = np.mgrid[0:h, 0:w]
+    gx, gy = X0 * kk + xx, Y0 * kk + yy  # Weltkoordinate in Bildpixeln
+    # B. Makroblöcke
+    bx, by = gx // (16 * kk), gy // (16 * kk)
+    u = ihash(bx, by, 503)
+    cp, mu = cfg.get("copy", .025), cfg.get("mush", .006)
+    c = u < cp
+    sx = np.where(c, xx + (np.floor(ihash(bx, by, 509) * 5) - 2).astype(int) * 16 * kk, xx)
+    sy = np.where(c, yy + (np.floor(ihash(bx, by, 521) * 5) - 2).astype(int) * 16 * kk, yy)
+    m = (u >= cp) & (u < cp + mu)
+    q = 4 * kk
+    sx, sy = np.where(m, gx // q * q - X0 * kk, sx), np.where(m, gy // q * q - Y0 * kk, sy)
+    a = a[sy.clip(0, h - 1), sx.clip(0, w - 1)].astype(float)
+    if cfg.get("neon"):
+        cols = np.array([[int(s[i:i + 2], 16) for i in (1, 3, 5)] for s in cfg["neon"]], float)
+        n = (u >= cp + mu) & (u < cp + mu + cfg.get("neon_p", .012))
+        col = cols[np.floor(ihash(bx, by, 523) * len(cols)).astype(int) % len(cols)]
+        lum = a.mean(2, keepdims=True) / 255
+        a = np.where(n[..., None], a * .3 + (.35 + lum * 2).clip(0, 1) * col * .7, a)
+    # C. versetzte Bänder mit RGB-Split
+    sg = gx // (512 * kk)
+    rc, rf = gy // (16 * kk), gy // (4 * kk)
+    p = cfg.get("bands", .12)
+    on_c, on_f = ihash(sg, rc, 601) < p * .5, ihash(sg, rf, 607) < p * .5
+    key = np.where(on_c, rc, rf)
+    on = on_c | on_f
+    sh = np.where(on, np.round((ihash(sg, key, 611) - .5) * 2 * cfg.get("shift", 48)), 0).astype(int) * kk
+    ab = np.where(on, 1 + np.floor(ihash(sg, key, 613) * cfg.get("aberration", 8)), 0).astype(int) * kk
+    a = np.stack([a[yy, (xx - sh + d).clip(0, w - 1), ch] for ch, d in ((0, ab), (1, 0), (2, -ab))], -1)
+    # D. Pixel-Sorting
+    ps = cfg.get("sort", .004)
+    for cy in range(-(-gy[0, 0] // (8 * kk)), (gy[-1, 0] + 1) // (8 * kk)):
+        for cx in range(-(-gx[0, 0] // (64 * kk)), (gx[0, -1] + 1) // (64 * kk)):
+            if ihash(cx, cy, 701) < ps:
+                ya, xa = cy * 8 * kk - Y0 * kk, cx * 64 * kk - X0 * kk
+                seg = a[ya:ya + 8 * kk, xa:xa + 64 * kk]
+                a[ya:ya + 8 * kk, xa:xa + 64 * kk] = np.take_along_axis(seg, np.argsort(seg.sum(2), 1)[..., None], 1)
+    # E. Scanlines
+    a[gy[:, 0] % 4 == 1] *= cfg.get("scan", .8)
+    return (a / 255).clip(0, 1)
+
+
 @functools.lru_cache(maxsize=None)
 def star_kernel(r):
     """Vierstrahliger Stern (Leuchtpunkt auf dem Raster, nach der Vorlage des Nutzers 2026-11-27): je Achse ein Strahl,
@@ -1661,7 +1747,7 @@ def wc_tile(base, z, x, y, sfx, post):
             return get(0, 0)
     big = np.concatenate([np.concatenate([get(i, j) for i in (-1, 0, 1)], 1) for j in (-1, 0, 1)], 0)
     s = big.shape[0] // 3
-    m = s // 4
+    m = s * 3 // 4 if post[0] is glitch else s // 4  # glitch verschiebt weiter (Reichweite in glitch())
     img = big[s - m:2 * s + m, s - m:2 * s + m] / 255
     k = s / 256
     out = post[0](img, x * 256 - m / k, y * 256 - m / k, k, post[1], z)[m:m + s, m:m + s]
@@ -1681,8 +1767,8 @@ def wc_static(data, post, k=1, z=17):
 
 
 def post_of(meta):
-    """Pixel-Nachbearbeitung eines Stils: (Funktion, Einstellungen) aus watercolor = {…} oder halftone = {…}, sonst None."""
-    for key, fn in (("watercolor", watercolor), ("halftone", halftone)):
+    """Pixel-Nachbearbeitung eines Stils: (Funktion, Einstellungen) aus watercolor/halftone/glitch = {…}, sonst None."""
+    for key, fn in (("watercolor", watercolor), ("halftone", halftone), ("glitch", glitch)):
         if key in meta:
             return fn, meta[key]
     return None
@@ -1988,7 +2074,7 @@ def render(a, style_file, out, mb, font=None, standalone=True, keep=False):
                 return f
             elif wc or holo:  # Gebäude, Beschriftung und pngquant erst in weiteren Durchgängen
                 if ext != "png":
-                    sys.exit("watercolor/halftone/holo nur mit PNG")
+                    sys.exit("watercolor/halftone/glitch/holo nur mit PNG")
                 f.write_bytes(wc_tile(base, z, x, y, sfx, wc) if wc else fetch(f"{base}/{z}/{x}/{y}{sfx}.png"))
                 return f
             else:

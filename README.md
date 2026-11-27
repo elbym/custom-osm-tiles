@@ -79,6 +79,7 @@ Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bi
 | **Bluecron**<br><sub>Nerd</sub> | <a href="docs/previews/bluecron-tag.png"><img src="docs/previews/bluecron-tag.png" width="256" alt="Bluecron Tag"></a><br>Bluecron Tag | <a href="docs/previews/bluecron.png"><img src="docs/previews/bluecron.png" width="256" alt="Bluecron"></a><br>Bluecron |
 | **Phosphor**<br><sub>Nerd</sub> | <a href="docs/previews/bernstein.png"><img src="docs/previews/bernstein.png" width="256" alt="Bernstein"></a><br>Bernstein | <a href="docs/previews/phosphor.png"><img src="docs/previews/phosphor.png" width="256" alt="Phosphor"></a><br>Phosphor |
 | **Neon Cyberpunk**<br><sub>Nerd</sub> | <a href="docs/previews/cyberpunk-day.png"><img src="docs/previews/cyberpunk-day.png" width="256" alt="Cyberpunk Day"></a><br>Cyberpunk Day | <a href="docs/previews/cyberpunk.png"><img src="docs/previews/cyberpunk.png" width="256" alt="Neon Cyberpunk"></a><br>Neon Cyberpunk |
+| **Glitch**<br><sub>Nerd</sub> | <a href="docs/previews/datamosh.png"><img src="docs/previews/datamosh.png" width="256" alt="Datamosh"></a><br>Datamosh | <a href="docs/previews/signalverlust.png"><img src="docs/previews/signalverlust.png" width="256" alt="Signalverlust"></a><br>Signalverlust |
 
 ## Begriffe
 
@@ -260,6 +261,7 @@ tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffen
 | **Bluecron Tag** / **Bluecron** | Mozilla Text | 🟢 easy | eigener Entwurf im Look von Tron Legacy → [Details](#bluecron-tag--bluecron) |
 | **Bernstein** / **Phosphor** | VT323 | 🟢 easy | eigener Entwurf: Röhrenmonitor → [Details](#bernstein--phosphor) |
 | **Cyberpunk Day** / **Neon Cyberpunk** | Space Mono | 🟢 easy | maptoposter „neon_cyberpunk“ (MIT) → [Details](#cyberpunk-day--neon-cyberpunk) |
+| **Datamosh** / **Signalverlust** | Fira Code | 🔴 dangerzone | eigener Entwurf: kaputte Bilddaten → [Details](#datamosh--signalverlust) |
 
 **Renderzeit** (gemessen auf einem 8-Kern-Rechner: 154 Retina-Kacheln auf Zoom 16 um die Bielefelder Innenstadt, je Stil ein Lauf. Gemessen sind die in der Tabelle genannten Stile; die übrigen sind nach ihren Effekten eingeordnet, z. B. Sonnenaufgang wie Stadtlichter. Bei zwei Angaben gilt die erste für hell, die zweite für dunkel):
 
@@ -267,7 +269,7 @@ tools/deploy-site.sh [--no-build]      # baut mit --site --missing und veröffen
 |---|---|---|---|
 | 🟢 easy | 8–15 s | 1× | nur Farben, Muster und Figuren; rendert der Kartenserver allein (gemessen: Clear 12 s, Schwarzplan 8 s, Anime 14 s, Island 13 s, Gaslicht 14 s) |
 | 🟠 heavy | 19–41 s | 1,5–3,5× | Stadtlichter/Sonnenaufgang: viele weichgezeichnete Lichtebenen (19 s); Historisch, Kupferstich, Kupferplatte, Nordlicht: Flecken bzw. Nordlicht werden in jede Kachel eingerechnet (Historisch 25 s, Nordlicht 41 s) |
-| 🔴 dangerzone | 1–2,5 min | 6–13× | Pixel-Nachbearbeitung jeder Kachel samt ihrer acht Nachbarn: Aquarell (75 s), CMYK-Druckraster (153 s) |
+| 🔴 dangerzone | 1–2,5 min | 6–13× | Pixel-Nachbearbeitung jeder Kachel samt ihrer acht Nachbarn: Aquarell (75 s), Glitch (72 s / 86 s), CMYK-Druckraster (153 s) |
 
 Der 8-Bit-Modus (`--pixel`) kommt bei jedem Stil obendrauf (zwei Durchläufe in dreifacher Auflösung); er ist nicht gemessen.
 
@@ -375,6 +377,15 @@ Eigener Entwurf (Arbeitstitel) im Look von Tron Legacy, Schrift Mozilla Text.
 
 - **Neon Cyberpunk:** nach maptoposter „neon_cyberpunk“ (MIT).
 - **Cyberpunk Day** (hell): eigener Entwurf in Warnfarben. Gelber Grund, Pink und Cyan, schwarze Konturen, ohne Leuchten.
+
+#### Datamosh / Signalverlust
+
+Eigener Entwurf (Familie Glitch), Schrift Fira Code. Die Fehler werden als Pixel-Nachbearbeitung in die Kacheln eingerechnet (`[glitch]` im Stil), die Beschriftung liegt scharf obenauf.
+
+- **Signalverlust** (dunkel): fast schwarzer Bildschirm, Straßen in kaltem Weiß, POIs in Signalgrün, einzelne Neonblöcke.
+- **Datamosh** (hell): nüchterne helle Karte, Straßen in Tinte, ohne Neonblöcke.
+- Fehlerbilder: JPEG-Streifen mit gekippten Bytes (Farbstich und versetzte Blockzeilen, nach jpg-glitch von snorpey), kopierte oder verpixelte Makroblöcke, seitlich versetzte Bänder mit RGB-Split, Pixel-Sorting, Scanlines.
+- Alle Fehler hängen an Weltkoordinaten, die Kacheln passen daher nahtlos aneinander.
 
 ### Eigenen Stil schreiben
 

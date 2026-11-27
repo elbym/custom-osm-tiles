@@ -1,0 +1,98 @@
+# Signalverlust (Entwurf): fast schwarzer Bildschirm, kalte weiß-graue Straßen;
+# Glitch per [glitch] unten.
+title = "Signalverlust"
+category = "nerd"
+mode = "dark"
+family = "Glitch"
+order = 93
+font = "Fira Code"
+preview_font = "Maple Mono"
+site_font = "Fira Code"
+fonts = ["sans", "mono"]
+attribution = ""
+colors = 64
+hide = ["poi_r20", "road_oneway*"]
+
+[paint."background"]
+background-color = "#07080a"
+[paint."landuse-*"]
+fill-color = "#0b0c0f"
+fill-opacity = 1
+[paint."park"]
+fill-color = "#0d1410"
+[paint."landcover-*"]
+fill-color = "#0d1410"
+fill-opacity = 1
+[paint."landcover-wood"]
+fill-color = "#0f1a13"
+[paint."landuse-cemetery"]
+fill-color = "#0d1410"
+[paint."water*"]
+fill-color = "#0a1620"
+line-color = "#16324a"
+[paint."building*"]
+fill-color = "#15171c"
+fill-outline-color = "#2a2e36"
+
+[paint."*-minor*"]
+line-color = "#3a3e46"
+[paint."*-service-track"]
+line-color = "#2c3037"
+[paint."*-link"]
+line-color = "#6b717c"
+[paint."*-secondary-tertiary*"]
+line-color = "#6b717c"
+[paint."*-primary*"]
+line-color = "#c9ced8"
+[paint."*-trunk*"]
+line-color = "#c9ced8"
+[paint."*-motorway*"]
+line-color = "#f2f4f8"
+[paint."*-casing"]
+line-color = "#07080a"
+[paint."highway-area"]
+fill-color = "#1c1f25"
+fill-outline-color = "#1c1f25"
+[paint."aeroway-*"]
+fill-color = "#1c1f25"
+line-color = "#1c1f25"
+[paint."*-path"]
+line-color = "#2f333a"
+[paint."*railway*"]
+line-color = "#4a505a"
+[paint."road_area_pier"]
+fill-color = "#07080a"
+[paint."road_pier"]
+line-color = "#07080a"
+
+# Beschriftung: Ortsnamen kaltweiß, POIs im Signalgrün
+[paint."*label*"]
+text-color = "#e8ecf2"
+text-halo-color = "#07080a"
+[paint."label_*"]
+text-color = "#e8ecf2"
+text-halo-color = "#07080a"
+[paint."highway-name-*"]
+text-color = "#9aa1ad"
+text-halo-color = "#07080a"
+[paint."poi_*"]
+text-color = "#39ff88"
+text-halo-color = "#07080a"
+[paint."water*label"]
+text-color = "#5aa7d6"
+[paint."airport"]
+text-color = "#39ff88"
+text-halo-color = "#07080a"
+
+# >>> Marker
+[marker]
+type = "terminal"
+color = "#39ff88"
+color2 = "#ff2a6d"
+bg = "#07080a"
+fg = "#e8ecf2"
+# <<< Marker
+
+# Datenfehler als Nachbearbeitung (glitch(): JPEG-Streifen, Makroblöcke, Bänder mit RGB-Split, Pixel-Sorting, Scanlines)
+[glitch]
+neon = ["#39ff88", "#ff2a6d", "#00e5ff", "#f0f0ff"]
