@@ -1380,6 +1380,23 @@ def holo_split(style, terrain=False):
     return m, b
 
 
+def pixel_holo(holo, fl, line):
+    """holo-Einstellungen für 8 Bit: das Licht entsteht fl-mal gröber (Vorfahrkachel eine Stufe feiner als die Karte),
+    also Weltpixel-Werte ÷ fl (Meter-Werte bleiben, mpp kommt aus z). Vereinfacht, weil dünne Kanten und Rauschen in
+    verstreute Pixel zerfielen: Rasterzelle doppelt, Linien genau ein 8-Bit-Pixel (line Weltpixel), kein Schein/Funkeln/
+    Rauschen; Gebäude 3 gefüllte Scheiben, Kanten ein 8-Bit-Pixel, ohne Scanlinien, Schimmer, Glitch, Versatz, Unschärfe."""
+    def px(c, keys):
+        return {n: c[n] / fl for n in keys if n in c}
+    hp = dict(holo, **px(holo, ("period", "bloom_r", "band")), slices=3, fill=.3, fill_top=0, edge_w=line, scan=0,
+              shimmer=0, glitch=0, aberration=0, soft=0, bloom=0)
+    if "terrain" in holo:
+        t = holo["terrain"]
+        hp["terrain"] = dict(t, **px(t, ("scale", "max_px", "fade", "star_r", "cloud_scale")),
+                             cell=t.get("cell", 16) / fl * 2, width=line, line_shift=line / 2,
+                             glow=0, sparkle=0, static=0)
+    return hp
+
+
 def holo_light(img, ox, oy, k, cfg, z=16):
     """Hologramm-Licht (holo im Stil; Nutzerwunsch 2026-11-26): img = Gebäude-Durchgang (holo_split()), Rückgabe RGB-Licht
     0..1 (Schwarz = nichts), das screen() über die Karte legt. Je Gebäude slices Kopien des Grundrisses, die k-te um
