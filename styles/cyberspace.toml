@@ -100,7 +100,7 @@ fill-color = "#05070b"
 line-color = "#05070b"
 
 # Schrift: Orts- und Stadtteilnamen in Eisblau, Namen der Hauptstraßen in Neon
-# Orts- und Stadtteilnamen in Orbitron (Nutzerwunsch 2026-11-27); im 8-Bit-Modus bleibt Silkscreen (build_style())
+# Orts- und Stadtteilnamen in Orbitron, Gewicht 700 (Nutzerwunsch 2026-11-27; Schnitt "Regular" in fonts.toml); im 8-Bit-Modus bleibt Silkscreen (build_style())
 [layout."label_*"]
 text-font = ["Orbitron Regular", "Noto Sans Regular"]
 text-transform = "uppercase"
