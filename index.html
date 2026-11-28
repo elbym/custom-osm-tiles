@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="de" data-mode="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kartenstile im Vergleich</title>
+<meta name="description" content="Selbst gerenderte OpenStreetMap-Kartenstile für Leaflet im Vergleich: eine Karte, ein Streifen pro Stil.">
+<!-- iPhone: Safari blendet seine Leisten auf einer nicht scrollenden Seite nie aus. Vom Home-Bildschirm gestartet
+     läuft die Seite als Web-App ohne Leisten; die Statusleiste ist durchsichtig, die Karte reicht bis an den Rand. -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kartenstile">
+<meta name="theme-color" content="#a3a3a3">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="leaflet/leaflet.css">
+<link rel="stylesheet" href="streifen.css?v=67ca8cac">
+</head>
+<body class="h-dvh overflow-hidden compact:h-[calc(100lvh+var(--s))] compact:overflow-visible bg-neutral-400 font-sans text-sm text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100">
+
+<div id="map" class="absolute inset-x-0 top-0 h-[calc(100lvh+var(--s))] bg-neutral-400 dark:bg-neutral-800"></div>
+
+<!-- Stilnamen: senkrechte Streifen (cols) oben je Streifen, waagerechte (rows) links je Streifen.
+     Karte und Titel sind 100lvh hoch, reichen also auf dem iPhone hinter die Safari-Leisten (viewport-fit=cover).
+     Auf dem Handy in Safari um --s höher: Hochwischen der unteren Leiste scrollt die Seite, Safari klappt seine Leisten ein
+     und die Karte liegt bis unter die Statusleiste (wie bei Nachrichtenseiten; ohne Scrollen geht das in Safari nicht).
+     absolute statt fixed: Safari 26 zeichnet fixed-Elemente nicht unter seine Leisten, sondern füllt sie mit deren Hintergrundfarbe (grauer Rand). -->
+<div id="titles" class="pointer-events-none absolute inset-x-0 top-0 h-[calc(100lvh+var(--s))] z-1000 flex cols:flex-row rows:flex-col compact:solo:hidden"></div>
+
+<!-- Bedienleiste (Desktop/Querformat groß): oben links unter den Titeln bzw. oben rechts bei waagerechten Streifen.
+     Auf kleinen Bildschirmen (compact: Hochformat oder niedrige Höhe) ausgeblendet: dort Navigation unten (#nav),
+     #bar-items wandert per JS ins Bottom-Sheet #sheet. -->
+<div id="bar" class="absolute z-1001 flex items-start gap-2 rounded-lg bg-white/90 p-2 shadow-lg backdrop-blur dark:bg-neutral-900/90
+  flex-col cols:top-10 cols:left-2 rows:right-2 rows:top-[max(.5rem,env(safe-area-inset-top))] rows:items-end
+  max-w-[calc(100%-1rem)] compact:hidden">
+  <!-- Stile einzeln durchschalten (‹ ›, "Alle" zurück zu den Streifen) -->
+  <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="solo" role="group" aria-label="Stile einzeln">
+    <button data-step="-1" title="Vorheriger Stil" aria-label="Vorheriger Stil" class="px-2.5 py-1">‹</button>
+    <button data-step="0" title="Alle Stile als Streifen" class="border-x border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Alle</button>
+    <button data-step="1" title="Nächster Stil" aria-label="Nächster Stil" class="px-2.5 py-1">›</button>
+    <button data-cmp title="Zwei Stile mit Schieberegler vergleichen" class="border-l border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900 dark:border-neutral-600">⇆ Vergleich</button>
+  </span>
+  <!-- compact: im Bottom-Sheet untereinander, große Tippflächen -->
+  <div id="bar-items" class="flex flex-wrap items-center gap-2 rows:justify-end
+    compact:flex-col compact:flex-nowrap compact:items-stretch compact:gap-3 compact:text-base compact:*:w-full
+    compact:[&>span]:flex compact:[&>span>button]:flex-1 compact:[&_button]:py-2.5 compact:[&_summary]:py-2.5">
+  <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="cat" role="group" aria-label="Gruppe">
+    <button value="standard" class="px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Standard</button>
+    <button value="nerd" class="border-l border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Nerd</button>
+  </span>
+  <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="mode" role="group" aria-label="Modus">
+    <button value="light" class="px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Hell</button>
+    <button value="dark" class="border-l border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Dunkel</button>
+  </span>
+  <!-- 8-Bit-Variante (?px=1), nur sichtbar, wenn die Gruppe welche hat (site.toml: pixel) -->
+  <button id="px" class="hidden rounded-md border border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">8 Bit</button>
+  <!-- Nur Straßen, Wasser und Ortsnamen (?st=1), nur sichtbar, wenn die Gruppe welche hat (site.toml: streets) -->
+  <button id="st" title="Nur Straßennetz, Wasser und Ortsnamen" class="hidden rounded-md border border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">Straßen</button>
+  <!-- Stile ein-/ausblenden: Häkchen setzen, beim Zuklappen wird neu geladen (?aus=Familie,…) -->
+  <details id="pick" class="relative">
+    <summary class="cursor-pointer list-none rounded-md border border-neutral-400 px-3 py-1 dark:border-neutral-600">Stile <span id="pick-count"></span></summary>
+    <div id="pick-list" class="absolute left-0 top-full z-10 mt-1 flex max-h-[60dvh] flex-col gap-1 overflow-auto whitespace-nowrap rounded-md bg-white p-2 shadow-lg rows:left-auto rows:right-0 dark:bg-neutral-900
+      compact:static compact:max-h-[35dvh] compact:gap-0 compact:bg-transparent compact:p-1 compact:shadow-none compact:[&>label]:py-2"></div>
+  </details>
+  <span class="inline-flex overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600" id="split" role="group" aria-label="Teilung">
+    <button value="cols" title="Senkrechte Streifen" class="px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">▥ Senkrecht</button>
+    <button value="rows" title="Waagerechte Streifen" class="border-l border-neutral-400 px-3 py-1 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:border-neutral-600 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900">▤ Waagerecht</button>
+  </span>
+  <button id="about-open" class="rounded-md border border-neutral-400 px-3 py-1 dark:border-neutral-600">Über</button>
+  </div>
+</div>
+
+<!-- Handy (compact): Navigation unten in Daumenreichweite. ‹ › oder Wischen über die Leiste schaltet den Stil,
+     Tipp auf den Namen öffnet die Stilliste (#jump), ⚙︎ die Optionen (#sheet). -->
+<nav id="nav" aria-label="Stile" class="absolute inset-x-0 top-[calc(100dvh+var(--sy))] -translate-y-full z-1001 hidden touch-pan-y select-none items-center gap-1 bg-white/90 px-2 pt-2
+  pb-[max(.5rem,env(safe-area-inset-bottom))] shadow-[0_-2px_8px_rgb(0_0_0/.2)] backdrop-blur dark:bg-neutral-900/90 compact:flex">
+  <button data-step="-1" aria-label="Vorheriger Stil" class="size-11 shrink-0 rounded-lg active:bg-black/10 dark:active:bg-white/10 text-2xl">‹</button>
+  <button id="nav-name" aria-haspopup="dialog" class="flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-2 text-base font-medium active:bg-black/10 dark:active:bg-white/10">
+    <span id="nav-title" class="truncate"></span><span id="nav-count" class="shrink-0 text-sm font-normal text-neutral-500"></span><span aria-hidden="true" class="text-xs text-neutral-500">▾</span>
+  </button>
+  <button data-step="1" aria-label="Nächster Stil" class="size-11 shrink-0 rounded-lg active:bg-black/10 dark:active:bg-white/10 text-2xl">›</button>
+  <button data-cmp aria-label="Zwei Stile vergleichen" class="size-11 shrink-0 rounded-lg text-xl active:bg-black/10 aria-pressed:bg-neutral-800 aria-pressed:text-white dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900 dark:active:bg-white/10">⇆</button>
+  <button id="nav-opt" aria-label="Optionen" aria-haspopup="dialog" class="size-11 shrink-0 rounded-lg active:bg-black/10 dark:active:bg-white/10 text-xl">⚙&#xFE0E;</button>
+</nav>
+
+<!-- Vergleich (?vs=Familie): Trennlinie zwischen Stil A (links/oben) und B (rechts/unten). Griff ziehen verschiebt,
+     Tippen tauscht die Seiten. Lage setzt clip(). -->
+<div id="divider" hidden class="pointer-events-none absolute z-1000">
+  <div class="absolute bg-white shadow-[0_0_4px_rgb(0_0_0/.6)] cols:inset-y-0 cols:-left-px cols:w-0.5 rows:inset-x-0 rows:-top-px rows:h-0.5"></div>
+  <span id="tag-a" class="absolute whitespace-nowrap rounded-md bg-white/85 px-2 py-1 font-medium dark:bg-neutral-900/85
+    cols:right-2 cols:top-[calc(env(safe-area-inset-top)+.5rem)] rows:bottom-2 rows:left-[calc(env(safe-area-inset-left)+.5rem)]"></span>
+  <span id="tag-b" class="absolute whitespace-nowrap rounded-md bg-white/85 px-2 py-1 font-medium dark:bg-neutral-900/85
+    cols:left-2 cols:top-[calc(env(safe-area-inset-top)+.5rem)] rows:top-2 rows:left-[calc(env(safe-area-inset-left)+.5rem)]"></span>
+  <button id="handle" aria-label="Seiten tauschen (ziehen verschiebt die Trennlinie)" class="pointer-events-auto absolute size-11 -translate-1/2 touch-none
+    rounded-full border border-black/20 bg-white text-lg text-neutral-900 shadow-lg cols:top-1/2 cols:left-0 rows:top-0 rows:left-1/2"><span class="inline-block rows:rotate-90">⇆</span></button>
+</div>
+
+<!-- Bottom-Sheets (Handy): Stilliste und Optionen. Polsterung im inneren div, damit ein Tipp auf den Hintergrund schließt. -->
+<dialog id="jump" aria-label="Stil wählen" class="m-0 mt-auto w-full max-w-none max-h-[85dvh] overflow-auto overscroll-contain rounded-t-2xl bg-white p-0 text-neutral-900 shadow-2xl backdrop:bg-black/40 dark:bg-neutral-900 dark:text-neutral-100">
+  <div class="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+    <div class="mb-2 flex items-center justify-between"><h2 id="jump-head" class="text-base font-semibold">Stil wählen</h2><button data-close aria-label="Schließen" class="size-11 shrink-0 rounded-lg active:bg-black/10 dark:active:bg-white/10">✕</button></div>
+    <div id="jump-list" class="flex max-h-[65dvh] flex-col overflow-auto text-base"></div>
+  </div>
+</dialog>
+<dialog id="sheet" aria-label="Optionen" class="m-0 mt-auto w-full max-w-none max-h-[85dvh] overflow-auto overscroll-contain rounded-t-2xl bg-white p-0 text-neutral-900 shadow-2xl backdrop:bg-black/40 dark:bg-neutral-900 dark:text-neutral-100">
+  <div class="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+    <div class="mb-2 flex items-center justify-between"><h2 class="text-base font-semibold">Optionen</h2><button data-close aria-label="Schließen" class="size-11 shrink-0 rounded-lg active:bg-black/10 dark:active:bg-white/10">✕</button></div>
+    <div id="sheet-body"></div>
+  </div>
+</dialog>
+
+<!-- Über / Namensnennung -->
+<dialog id="about" class="m-auto max-h-[85dvh] w-[min(42rem,92vw)] rounded-xl bg-white p-0 text-neutral-900 shadow-2xl backdrop:bg-black/50 dark:bg-neutral-900 dark:text-neutral-100">
+  <div class="space-y-4 p-5 leading-relaxed">
+    <div class="flex items-start justify-between gap-4">
+      <h1 class="text-lg font-semibold">Kartenstile im Vergleich</h1>
+      <button id="about-close" class="rounded-md border border-neutral-400 px-2 py-0.5 dark:border-neutral-600" aria-label="Schließen">✕</button>
+    </div>
+    <p class="hidden compact:block">Mehr Karte auf dem iPhone: die untere Leiste nach oben wischen, dann klappt Safari seine Leisten ein. Ganz ohne Leisten: in Safari <em>Teilen → Zum Home-Bildschirm</em>, dann von dort öffnen.</p>
+    <p>Eine Karte, ein Streifen pro Stil. Die Kacheln sind vorab gerendert und liegen statisch auf dieser Seite; es gibt keine Anfragen an Kartendienste oder CDNs. Erzeugt mit <a class="underline" href="https://github.com/elbym/custom-osm-tiles">custom-osm-tiles</a> (MIT).</p>
+    <section>
+      <h2 class="font-semibold">Tastatur</h2>
+      <ul class="mt-1 list-disc pl-5">
+        <li><kbd>←</kbd> <kbd>→</kbd> oder <kbd>J</kbd> <kbd>Ö</kbd>: vorheriger / nächster Stil</li>
+        <li><kbd>↑</kbd> <kbd>↓</kbd>, <kbd>L</kbd> <kbd>K</kbd> oder <kbd>I</kbd> (invertieren): Hell / Dunkel umschalten</li>
+        <li><kbd>N</kbd>: Standard / Nerd umschalten</li>
+        <li><kbd>1</kbd>–<kbd>9</kbd>: Stil Nr. 1–9 einzeln zeigen</li>
+        <li><kbd>Esc</kbd> oder <kbd>A</kbd>: zurück zu allen Stilen</li>
+        <li><kbd>V</kbd>: Vergleich an / aus, <kbd>X</kbd>: im Vergleich die Seiten tauschen</li>
+        <li><kbd>T</kbd>: Teilung senkrecht / waagerecht, <kbd>B</kbd>: 8 Bit an / aus (wo vorhanden)</li>
+        <li><kbd>0</kbd>: zurück zum Marker</li>
+        <li><kbd>+</kbd> <kbd>−</kbd>: zoomen</li>
+        <li><kbd>H</kbd> oder <kbd>?</kbd>: diese Hilfe öffnen und schließen</li>
+      </ul>
+    </section>
+    <section>
+      <h2 class="font-semibold">Kartendaten</h2>
+      <p>© <a class="underline" href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>, Open Database License (ODbL). Vektorschema © <a class="underline" href="https://openmaptiles.org/">OpenMapTiles</a> (CC BY 4.0), erzeugt mit Planetiler; gerendert mit tileserver-gl.</p>
+    </section>
+    <section>
+      <h2 class="font-semibold">Stile</h2>
+      <p>Alle Stile bauen auf <a class="underline" href="https://github.com/openmaptiles/osm-bright-gl-style">OSM Bright</a> auf (© OpenMapTiles, BSD-3-Clause, Design CC BY 4.0). Nachbauten übernehmen nur Farbwerte ihrer Vorbilder:</p>
+      <ul id="about-styles" class="mt-1 list-disc pl-5"></ul>
+    </section>
+    <section>
+      <h2 class="font-semibold">Schriften</h2>
+      <p>Adwaita Mono, Atkinson Hyperlegible Next, Bangers (Orts- und Stadtteilnamen und Marker in Anime), Caveat (Aquarell), DINish, Fantasque Sans Mono, Figtree, Fira Code, Fira Sans, IBM Plex Mono, IM Fell English (Kupferstich), Intel One Mono, Kalam (Anime), JetBrains Mono, Literata, Maple Mono, Mozilla Text, Orbitron (Orts- und Stadtteilnamen in Cyberspace), Overpass, Public Sans, Silkscreen (8 Bit), Space Mono, UnifrakturMaguntia (Ortsnamen in Historisch und Kupferstich), VT323 (Phosphor, Bernstein), Work Sans: SIL Open Font License 1.1. Hack: MIT-Lizenz und Bitstream-Vera-Lizenz. Ubuntu Sans Mono: Ubuntu Font Licence 1.0. TeX Gyre Schola (Historisch), TeX Gyre Heros (Schwarzplan): GUST Font License. Ersatzschrift für fehlende Zeichen: Noto Sans (OFL).</p>
+    </section>
+    <section>
+      <h2 class="font-semibold">Software auf dieser Seite</h2>
+      <p><a class="underline" href="https://leafletjs.com/">Leaflet</a> (BSD-2-Clause, © Volodymyr Agafonkin, CloudMade), CSS mit <a class="underline" href="https://tailwindcss.com/">Tailwind CSS</a> (MIT). Marker angelehnt an Heroicons (MIT). POI-Symbole: <a class="underline" href="https://phosphoricons.com/">Phosphor Icons</a> (MIT).</p>
+    </section>
+  </div>
+</dialog>
+
+<script src="variants.js?v=8be94428"></script>
+<script src="leaflet/leaflet.js"></script>
+<script>
+// Eine Karte, ein Streifen pro Stil-Familie der gewählten Gruppe (?cat=standard|nerd) im gewählten Modus
+// (?mode=light|dark), alle in derselben Schrift. Kein Schrift-Schalter: die Vorschau rendert je Gruppe nur eine
+// Schrift (site.toml); ?font=… wählt bei mehreren gerenderten Schriften trotzdem eine aus. Jeder Stil ist eine Kachelebene in einem eigenen
+// Pane, das per clip-path auf seinen Streifen beschnitten wird. Querformat: senkrechte Streifen,
+// Hochformat: waagerechte. Familien ohne diesen Modus bleiben leer.
+const q = new URLSearchParams(location.search);
+const all = Object.entries(CONFIGS);
+const cat = q.get('cat') === 'nerd' ? 'nerd' : 'standard';
+// Modus: ?mode=light|dark, sonst Systemeinstellung (Wechsel im System lädt neu, solange kein ?mode gesetzt ist)
+const dark = matchMedia('(prefers-color-scheme: dark)');
+const mode = ['light', 'dark'].includes(q.get('mode')) ? q.get('mode') : dark.matches ? 'dark' : 'light';
+dark.addEventListener('change', () => { if (!q.has('mode')) location.reload(); });
+document.documentElement.dataset.mode = mode;
+const hasPx = all.some(([, c]) => c.category === cat && c.pixel), px = hasPx && q.get('px') === '1';
+const hasSt = all.some(([, c]) => c.category === cat && c.streets), st = hasSt && !px && q.get('st') === '1';
+const inSet = c => c.category === cat && c.mode === mode && !!c.pixel === px && !!c.streets === st;
+// 8 Bit: hochgezoomte Kacheln ohne Glättung
+if (px) document.head.appendChild(document.createElement('style')).textContent = '.leaflet-tile { image-rendering: pixelated; }';
+const fonts = [...new Set(all.filter(([, c]) => inSet(c)).map(([, c]) => c.font))].sort();
+const font = fonts.includes(q.get('font')) ? q.get('font') : fonts[0];
+// Reihenfolge der Streifen: order aus der Stil-Datei (Standard 50, höher = weiter rechts), dann alphabetisch
+const orderOf = fam => Math.min(...all.filter(([, c]) => c.family === fam).map(([, c]) => c.order ?? 50));
+const families = [...new Set(all.filter(([, c]) => c.category === cat && !!c.pixel === px && !!c.streets === st)  // 8 Bit/Straßen: nur Familien mit solchen Varianten (beide Modi, damit Hell/Dunkel nicht umsortiert)
+  .map(([, c]) => c.family))]
+  .sort((a, b) => orderOf(a) - orderOf(b) || a.localeCompare(b));
+// Ausgeblendete Familien (?aus=…); mindestens ein Streifen bleibt
+const off = new Set((q.get('aus') || '').split(',').filter(Boolean));
+const shown = families.filter(f => !off.has(f)).length ? families.filter(f => !off.has(f)) : families;
+// Familie in der gewählten Schrift, sonst in ihrer eigenen (site_font, z. B. Phosphor in VT323)
+const strips = shown.map(fam => [fam, all.find(([, c]) => inSet(c) && c.family === fam && c.font === font)
+  || all.find(([, c]) => inSet(c) && c.family === fam)]);
+
+const go = (key, val) => { q.set(key, val); location.search = q; };
+for (const [id, val] of [['cat', cat], ['mode', mode]]) {
+  for (const b of document.querySelectorAll(`#${id} button`)) {
+    b.setAttribute('aria-pressed', b.value === val);
+    b.onclick = () => { if (id === 'cat') { q.delete('aus'); q.delete('solo'); } go(id, b.value); };  // aus= gilt je Gruppe
+  }
+}
+const pxb = document.getElementById('px');
+pxb.classList.toggle('hidden', !hasPx); pxb.setAttribute('aria-pressed', px);
+pxb.onclick = () => { q.delete('font'); q.delete('st'); if (px) { q.delete('px'); location.search = q; } else go('px', '1'); };
+const stb = document.getElementById('st');  // Nur-Straßen-Variante (?st=1), schließt 8 Bit aus
+stb.classList.toggle('hidden', !hasSt); stb.setAttribute('aria-pressed', st);
+stb.onclick = () => { q.delete('font'); q.delete('px'); if (st) { q.delete('st'); location.search = q; } else go('st', '1'); };
+
+// Stil-Auswahl: Änderungen sammeln, beim Zuklappen anwenden
+const pick = document.getElementById('pick'), list = document.getElementById('pick-list');
+document.getElementById('pick-count').textContent = `(${shown.length}/${families.length})`;
+for (const fam of families) {
+  const label = list.appendChild(document.createElement('label'));
+  label.className = 'flex cursor-pointer items-center gap-2.5 rounded px-2 py-1.5 hover:bg-black/5 dark:hover:bg-white/10';
+  const box = label.appendChild(document.createElement('input'));
+  box.type = 'checkbox'; box.className = 'size-4 cursor-pointer'; box.value = fam; box.checked = shown.includes(fam);
+  label.append(fam);
+}
+pick.addEventListener('toggle', () => {
+  if (pick.open) return;
+  const aus = [...list.querySelectorAll('input:not(:checked)')].map(b => b.value);
+  if (aus.length === families.length) { for (const b of list.querySelectorAll('input')) b.checked = shown.includes(b.value); return; }
+  if (aus.join() === families.filter(f => !shown.includes(f)).join()) return;
+  if (aus.length) go('aus', aus.join(',')); else { q.delete('aus'); location.search = q; }
+});
+
+// Handy (compact): Optionen (#bar-items) im Bottom-Sheet statt in der Leiste; beim Wechsel der Größe zurück
+const compact = matchMedia('(orientation: portrait), (max-height: 32rem)');
+const bar = document.getElementById('bar'), items = document.getElementById('bar-items');
+const sheet = document.getElementById('sheet'), jump = document.getElementById('jump');
+const place = () => (compact.matches ? document.getElementById('sheet-body') : bar).appendChild(items);
+place();
+compact.addEventListener('change', () => { sheet.close(); jump.close(); place(); });
+document.getElementById('nav-opt').onclick = () => sheet.showModal();
+document.getElementById('nav-name').onclick = () => jump.showModal();
+sheet.addEventListener('close', () => { pick.open = false; });  // Stil-Häkchen beim Schließen anwenden
+for (const d of [sheet, jump]) {
+  d.addEventListener('click', e => { if (e.target === d || e.target.closest('[data-close]')) d.close(); });
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') pick.open = false; });
+document.addEventListener('click', e => { if (pick.open && !pick.contains(e.target) && !compact.matches) pick.open = false; });  // Klick daneben wendet an
+// Tastatur: ← → bzw. J Ö Stil wechseln, ↑ ↓ bzw. L K oder I (invertieren) Hell/Dunkel, N Standard/Nerd, H Über, Esc/A alle Streifen,
+// V Vergleich, X Seiten tauschen, B 8 Bit, T Teilung, 0 zurück zum Marker, ? wie H, 1–9 Stil Nr. n,
+// + − zoomen ohne Fokus auf der Karte (Liste im Über-Dialog).
+// Capture-Phase und stopPropagation, damit Leaflet die Pfeiltasten nicht zusätzlich zum Verschieben nutzt (+/− zoomen weiter).
+const KEYS = { arrowleft: 'prev', j: 'prev', arrowright: 'next', 'ö': 'next',
+  arrowup: 'mode', arrowdown: 'mode', l: 'mode', k: 'mode', i: 'mode', n: 'cat', h: 'about',
+  escape: 'all', a: 'all', v: 'cmp', '+': 'in', '-': 'out', '−': 'out',
+  x: 'swap', b: 'px', t: 'split', '?': 'about', 0: 'home' };
+addEventListener('keydown', e => {
+  const act = /^[1-9]$/.test(e.key) ? 'nr' : KEYS[e.key.toLowerCase()];
+  if (act === 'px' && pxb.classList.contains('hidden')) return;  // 8 Bit nur, wo es Varianten gibt
+  if (!act || e.ctrlKey || e.altKey || e.metaKey || e.target.closest?.('input, textarea, select')) return;
+  if (document.querySelector('dialog[open]') && act !== 'about') return;  // offener Dialog: nur H (schließt Über), Esc schließt ihn selbst
+  if (act === 'all' && pick.open) return;  // Esc schließt zuerst die Stil-Liste
+  e.preventDefault(); e.stopPropagation();
+  if (act === 'prev' || act === 'next') step(act === 'prev' ? -1 : 1);
+  else if (act === 'all') step(0);
+  else if (act === 'nr') { if (rendered[e.key - 1] !== undefined) { solo = rendered[e.key - 1]; cmp = -1; showSolo(); } }
+  else if (act === 'cmp') document.querySelector('[data-cmp]').click();
+  else if (act === 'in' || act === 'out') act === 'in' ? map.zoomIn() : map.zoomOut();
+  else if (act === 'about') about.open ? about.close() : about.showModal();
+  else if (act === 'swap') { if (cmp >= 0) { [solo, cmp] = [cmp, solo]; showSolo(); } }  // Vergleich: Seiten tauschen
+  else if (act === 'px') pxb.click();
+  else if (act === 'home') map.setView([c0.lat, c0.lon], Math.min(c0.zmax, c0.detail_from - 1));  // zurück zum Marker
+  else document.querySelector(`#${act} button[aria-pressed="false"]`).click();  // wie ein Klick auf den anderen Schalter
+}, true);
+
+const c0 = (strips.find(([, v]) => v)?.[1] || all[0])[1];
+const map = L.map('map', {
+  minZoom: c0.zmin, maxZoom: c0.zmax, maxBounds: c0.bounds, maxBoundsViscosity: 1, zoomControl: false
+}).setView([c0.lat, c0.lon], Math.min(c0.zmax, c0.detail_from - 1));
+if (c0.zmax > c0.zmin) L.control.zoom({ position: 'bottomright' }).addTo(map);
+map.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
+map.attributionControl.addAttribution('© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>, © <a href="https://openmaptiles.org/">OpenMapTiles</a> | <a href="#about">Über</a>');
+// Vorbilder der Stile (Hydda, Wikimedia CC BY 3.0, Editor-Themes …) stehen nur im Über-Dialog, die Kartenecke bleibt kurz
+
+const layers = strips.map(() => []);
+const panes = strips.map(([, v], i) => {
+  const pane = map.createPane('strip' + i);
+  pane.style.zIndex = 200 + i;
+  if (!v) return pane;
+  const [name, c] = v;
+  const ext = c.ext || 'webp';
+  const url = name + (c.retina ? `/tiles/{z}/{x}/{y}{r}.${ext}` : `/tiles/{z}/{x}/{y}.${ext}`);
+  layers[i].push(L.tileLayer(url, { pane: 'strip' + i, maxNativeZoom: Math.min(c.zmax, c.detail_from - 1), bounds: c.bounds }));
+  if (c.zmax >= c.detail_from) layers[i].push(L.tileLayer(url, { pane: 'strip' + i, minZoom: c.detail_from, bounds: c.detail }));
+  return pane;
+});
+// Ebene je Streifen für overlay im Stil (Phosphor, Bernstein: crt), zugeschnitten in clip(), Glühen in der Markerfarbe
+const overlays = strips.map(([, v]) => {
+  if (!v?.[1].overlay) return null;
+  const el = Object.assign(document.createElement('div'), { className: 'ov-' + v[1].overlay });
+  el.style.setProperty('--glow', v[1].marker?.color);
+  return document.body.insertBefore(el, document.getElementById('titles'));
+});
+// Marker im Stil des mittleren Streifens (dort liegt er beim Öffnen)
+const mid = strips[Math.floor(strips.length / 2)][1] || strips.find(([, v]) => v)[1];
+// 8 Bit: Marker im Pixelraster (u = Größe eines 8-Bit-Pixels), eingerastet auf die Kachelpixel
+const pxu = px ? (+c0.pixel === 1 || c0.pixel === true ? 2 : +c0.pixel) : 0;
+// Marker in der Schrift des Stils: Originaldatei aus fonts/ (marker_font() in make-tiles.py), erst bei Bedarf geladen.
+// Gewichtsbereich 100–900, damit der Browser die fette Datei nicht noch künstlich verfettet.
+const fontLoads = {};
+function loadFont(name, url) {
+  if (!name || !url) return Promise.resolve();
+  return fontLoads[name] ??= new FontFace(name, `url("${url}")`, { weight: '100 900' }).load()
+    .then(f => document.fonts.add(f)).catch(() => {});
+}
+function setMarker(cfg) {  // Marker im Stil cfg, nach dem Laden seiner Schrift neu gemessen
+  const draw = () => { marker.setIcon(markerIcon(cfg?.marker, pxu, cfg?.marker?.font || cfg?.font)); marker.options.title = cfg?.marker?.label; snapMarker(); };
+  draw();
+  loadFont(cfg?.marker?.font || cfg?.font, cfg?.font_url).then(() => { if (markerCfg === cfg) draw(); });
+}
+let markerCfg = mid?.[1];
+const marker = L.marker([c0.lat, c0.lon], { icon: markerIcon(mid?.[1].marker, pxu, mid?.[1].marker?.font || mid?.[1].font), title: mid?.[1].marker?.label }).addTo(map);
+function snapMarker() {  // Raster = pxu * 2^Hochskalierung über die gerenderte Stufe hinaus
+  const el = marker.getElement()?.firstChild;
+  if (!pxu || !el) return;
+  const g = pxu * 2 ** Math.max(0, map.getZoom() - Math.min(c0.zmax, c0.detail_from - 1));
+  const a = marker.options.icon.options.iconAnchor, p = map.project(marker.getLatLng()).round();
+  const m = v => ((v % g) + g) % g;
+  el.style.translate = `${-m(p.x - a[0])}px ${-m(p.y - a[1])}px`;
+}
+snapMarker(); map.on('zoomend', snapMarker);
+
+// Einzelansicht (?solo=Familie): nur ein Stil bildschirmfüllend, ‹ › schalten ohne Neuladen weiter, "Alle" zurück.
+// Ausgeblendete Streifen verlieren ihre Kachelebenen, damit nur der sichtbare Stil lädt.
+const rendered = strips.flatMap(([, v], i) => v ? [i] : []);
+// Handy ohne ?solo: Einzelansicht des ersten Stils (Streifen sind dort zu schmal); "Alle" merkt sich ?solo= (leer)
+let solo = strips.findIndex(([fam, v]) => v && fam === q.get('solo'));
+if (!q.has('solo') && compact.matches) solo = rendered[0] ?? -1;
+const titleOf = i => TITLES[strips[i][1][0]].split(' · ')[0];
+// Vergleich: zweiter Stil cmp neben solo, Trennlinie bei frac (Anteil der Breite bzw. Höhe)
+let cmp = strips.findIndex(([fam, v]) => v && fam === q.get('vs'));
+if (solo < 0 || cmp === solo) cmp = -1;
+let frac = 0.5;
+const visible = i => solo < 0 || i === solo || i === cmp;
+// Safari-Leisten (theme-color, ab iOS 26 die Seitenfarbe am Rand) in der Grundfarbe des gezeigten Stils statt grau
+function tint(bg) {
+  const c = bg || getComputedStyle(document.body).backgroundColor;
+  document.documentElement.style.background = bg || '';
+  document.body.style.background = bg || '';
+  document.querySelector('meta[name="theme-color"]').content = c;
+}
+function showSolo() {
+  layers.forEach((ls, i) => ls.forEach(l => visible(i) ? l.addTo(map) : l.remove()));
+  [...document.getElementById('titles').children].forEach((cell, i) => cell.hidden = !visible(i));
+  markerCfg = (strips[solo]?.[1] || mid)?.[1];
+  setMarker(markerCfg);
+  document.querySelector('#solo [data-step="0"]').setAttribute('aria-pressed', solo < 0);
+  document.documentElement.toggleAttribute('data-solo', solo >= 0);
+  tint(cmp >= 0 ? null : strips[solo]?.[1]?.[1]?.bg);
+  document.getElementById('titles').hidden = cmp >= 0;
+  document.getElementById('divider').hidden = cmp < 0;
+  for (const b of document.querySelectorAll('[data-cmp]')) b.setAttribute('aria-pressed', cmp >= 0);
+  if (cmp >= 0) {
+    // Name, darunter klein die Schrift der Kacheln
+    for (const [id, i] of [['tag-a', solo], ['tag-b', cmp]]) {
+      const f = document.createElement('span');
+      f.className = 'block text-xs font-normal opacity-75';
+      f.textContent = strips[i][1][1].font;
+      document.getElementById(id).replaceChildren(titleOf(i), f);
+    }
+    // Senkrecht am Desktop: Schilder unter die Bedienleiste, sonst verdeckt sie die Schriftzeile
+    const bar = document.getElementById('bar').getBoundingClientRect();
+    for (const id of ['tag-a', 'tag-b']) document.getElementById(id).style.top =
+      document.documentElement.dataset.split === 'cols' && bar.height ? `${bar.bottom + 8}px` : '';
+  }
+  document.getElementById('nav-title').textContent = solo < 0 ? 'Alle Stile' : cmp >= 0 ? `${titleOf(solo)} ⇆ ${titleOf(cmp)}` : titleOf(solo);
+  document.getElementById('nav-count').textContent = solo < 0 ? `(${rendered.length})` : cmp >= 0 ? '' : `${rendered.indexOf(solo) + 1}/${rendered.length}`;
+  document.getElementById('jump-head').textContent = cmp >= 0 ? `${titleOf(solo)} vergleichen mit …` : 'Stil wählen';
+  for (const b of document.querySelectorAll('#jump-list button')) b.setAttribute('aria-current', +b.value === (cmp >= 0 ? cmp : solo));
+  if (solo >= 0) q.set('solo', strips[solo][0]); else if (compact.matches) q.set('solo', ''); else q.delete('solo');
+  if (cmp >= 0) q.set('vs', strips[cmp][0]); else q.delete('vs');
+  history.replaceState(null, '', '?' + q);
+  clip();
+}
+function step(d) {  // d = -1 / 1: vorheriger/nächster Stil (aus "Alle" heraus der erste/letzte), 0: alle
+  if (!d) cmp = -1;
+  if (cmp >= 0) {  // Vergleich: ‹ › wechseln die rechte/untere Seite, die linke bleibt
+    const others = rendered.filter(i => i !== solo), k = others.indexOf(cmp), n = others.length;
+    cmp = others[(k + d + n) % n];
+    return showSolo();
+  }
+  const k = rendered.indexOf(solo), n = rendered.length;
+  solo = !d ? -1 : rendered[k < 0 ? (d > 0 ? 0 : n - 1) : (k + d + n) % n];
+  showSolo();
+}
+for (const b of document.querySelectorAll('[data-step]')) b.onclick = () => step(+b.dataset.step);
+// Vergleich an/aus: A = aktueller Stil (aus "Alle" heraus der erste), B = der nächste
+for (const b of document.querySelectorAll('[data-cmp]')) b.onclick = () => {
+  if (cmp >= 0) cmp = -1;
+  else if (rendered.length > 1) {
+    if (solo < 0) solo = rendered[0];
+    cmp = rendered[(rendered.indexOf(solo) + 1) % rendered.length];
+  }
+  showSolo();
+};
+// Griff: ziehen verschiebt die Trennlinie, tippen tauscht A und B
+const handle = document.getElementById('handle');
+let drag = null;
+handle.addEventListener('pointerdown', e => { handle.setPointerCapture(e.pointerId); drag = { x: e.clientX, y: e.clientY, moved: false }; });
+handle.addEventListener('pointermove', e => {
+  if (!drag) return;
+  if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 5) drag.moved = true;
+  if (!drag.moved) return;
+  const size = map.getSize(), rows = split === 'rows';
+  frac = Math.min(.95, Math.max(.05, rows ? e.clientY / size.y : e.clientX / size.x));
+  clip();
+});
+handle.addEventListener('pointerup', () => { if (drag && !drag.moved) { [solo, cmp] = [cmp, solo]; showSolo(); } drag = null; });
+// Wischen über die Navigationsleiste: links = nächster Stil; der Klick danach wird verschluckt
+const nav = document.getElementById('nav');
+let x0 = null, swiped = false;
+nav.addEventListener('pointerdown', e => { x0 = e.clientX; swiped = false; });
+nav.addEventListener('pointerup', e => {
+  const dx = e.clientX - x0;
+  if (x0 !== null && Math.abs(dx) > 40) { swiped = true; step(dx < 0 ? 1 : -1); }
+  x0 = null;
+});
+nav.addEventListener('click', e => { if (swiped) { e.stopPropagation(); swiped = false; } }, true);
+// Seite scrollt auf dem Handy um --s (Leiste hochwischen): #nav und Leaflet-Knöpfe folgen über --sy dem sichtbaren unteren Rand
+addEventListener('scroll', () => document.documentElement.style.setProperty('--sy', scrollY + 'px'), { passive: true });
+// Stilliste: "Alle Stile" und jeder gerenderte Stil, Tipp wählt und schließt
+for (const i of [-1, ...rendered]) {
+  const b = document.getElementById('jump-list').appendChild(document.createElement('button'));
+  b.value = i; b.textContent = i < 0 ? `Alle Stile als Streifen (${rendered.length})` : titleOf(i);
+  b.className = 'rounded-lg px-3 py-3 text-left active:bg-black/10 aria-[current=true]:bg-neutral-800 aria-[current=true]:text-white dark:active:bg-white/10 dark:aria-[current=true]:bg-neutral-100 dark:aria-[current=true]:text-neutral-900';
+  b.onclick = () => {  // im Vergleich: rechte/untere Seite wählen (A gewählt = tauschen), "Alle" beendet ihn
+    if (cmp >= 0 && i >= 0) { if (i === solo) [solo, cmp] = [cmp, solo]; else cmp = i; }
+    else { solo = i; cmp = -1; }
+    showSolo(); jump.close();
+  };
+}
+
+// Teilung (?split=cols|rows): ohne Angabe nach Ausrichtung (Hochformat waagerecht). data-split am <html>
+// steuert die Tailwind-Varianten cols:/rows:, clip() die Streifen. Umschalten ohne Neuladen.
+const portrait = matchMedia('(orientation: portrait)');
+let split;
+function setSplit(v) {
+  split = v || (portrait.matches ? 'rows' : 'cols');
+  document.documentElement.dataset.split = split;
+  for (const b of document.querySelectorAll('#split button')) b.setAttribute('aria-pressed', b.value === split);
+}
+setSplit(['cols', 'rows'].includes(q.get('split')) && q.get('split'));
+for (const b of document.querySelectorAll('#split button')) b.onclick = () => {
+  q.set('split', b.value); history.replaceState(null, '', '?' + q);
+  setSplit(b.value); map.invalidateSize(); clip();
+};
+
+// Streifen-Zuschnitt: Panes liegen im verschobenen mapPane, daher dessen Position abziehen
+function clip() {
+  const size = map.getSize(), pos = L.DomUtil.getPosition(map.getPane('mapPane'));
+  const n = solo < 0 ? panes.length : 1;
+  // Anteil [a, b] der Breite/Höhe je Streifen: alle gleich breit, Einzelansicht ganz, Vergleich A bis frac, B ab frac
+  const part = j => cmp >= 0 ? (j === cmp ? [frac, 1] : [0, frac]) : solo < 0 ? [j / n, (j + 1) / n] : [0, 1];
+  panes.forEach((pane, j) => {
+    const [a, b] = part(j);
+    let x0 = 0, x1 = size.x, y0 = 0, y1 = size.y;
+    if (split === 'rows') { y0 = size.y * a; y1 = size.y * b; }
+    else { x0 = size.x * a; x1 = size.x * b; }
+    const ov = overlays[j];  // feste Ebene: Bildschirmkoordinaten, ohne mapPane-Versatz
+    if (ov) { ov.hidden = !visible(j); ov.style.clipPath = `polygon(${x0}px ${y0}px, ${x1}px ${y0}px, ${x1}px ${y1}px, ${x0}px ${y1}px)`; }
+    x0 -= pos.x; x1 -= pos.x; y0 -= pos.y; y1 -= pos.y;
+    pane.style.clipPath = `polygon(${x0}px ${y0}px, ${x1}px ${y0}px, ${x1}px ${y1}px, ${x0}px ${y1}px)`;
+  });
+  if (cmp >= 0) document.getElementById('divider').style.cssText = split === 'rows'
+    ? `left:0;right:0;top:${frac * size.y}px;height:0` : `top:0;bottom:0;left:${frac * size.x}px;width:0`;
+}
+map.on('move zoom viewreset resize', clip);
+portrait.addEventListener('change', () => { if (!q.get('split')) setSplit(); map.invalidateSize(); clip(); });
+
+// Stilnamen je Streifen bzw. Hinweis, wenn die Familie diesen Modus/diese Schrift nicht hat
+const head = document.getElementById('titles');
+strips.forEach(([fam, v], i) => {
+  const cell = head.appendChild(document.createElement('div'));
+  cell.className = 'flex-1 min-w-0 min-h-0 cols:pt-[env(safe-area-inset-top)] rows:first:pt-[env(safe-area-inset-top)] rows:pl-[env(safe-area-inset-left)] cols:first:pl-[env(safe-area-inset-left)] cols:border-l rows:border-t border-black/30 first:border-0 dark:border-white/30';
+  const tag = cell.appendChild(document.createElement(v ? 'button' : 'span'));
+  tag.className = 'inline-block max-w-full truncate bg-white/85 px-2 py-1 text-left font-medium dark:bg-neutral-900/85 cols:w-full rows:rounded-br-md';
+  if (v) {  // Name, darunter klein die Schrift der Kacheln; Klick in der Übersicht öffnet den Stil einzeln
+    tag.classList.add('pointer-events-auto', 'cursor-pointer', 'hover:underline', 'solo:pointer-events-none');
+    tag.title = 'Diesen Stil einzeln zeigen';
+    tag.onclick = () => { solo = i; cmp = -1; showSolo(); };
+    const f = document.createElement('span');
+    f.className = 'block truncate text-xs font-normal opacity-75';
+    f.textContent = v[1].font;
+    tag.replaceChildren(TITLES[v[0]].split(' · ')[0], f);
+  }
+  else {
+    const hasMode = all.some(([, c]) => inSet(c) && c.family === fam);
+    tag.textContent = hasMode ? `${fam}: nicht in ${font} gerendert` : `${fam}: nur ${mode === 'dark' ? 'hell' : 'dunkel'}`;
+    tag.classList.add('italic', 'text-neutral-500');
+  }
+});
+
+showSolo();
+
+// Über-Dialog: Vorbilder der Stile aus deren Namensnennung
+const about = document.getElementById('about');
+document.getElementById('about-open').onclick = () => about.showModal();
+map.attributionControl.getContainer().addEventListener('click', e => {
+  if (e.target.closest('a[href="#about"]')) { e.preventDefault(); about.showModal(); }
+});
+document.getElementById('about-close').onclick = () => about.close();
+about.addEventListener('click', e => { if (e.target === about) about.close(); });
+const credits = [...new Set(all.map(([, c]) => c.attribution).filter(Boolean))].sort();
+document.getElementById('about-styles').innerHTML = '';
+for (const t of credits) document.getElementById('about-styles').appendChild(document.createElement('li')).textContent = t;
+
+// Marker laut Stil: "bubble" (Standard-Stile), "terminal" (Nerd-Stile) oder der Leaflet-Standard
+function markerIcon(m, px, font) {
+  const PX_PROMPT = '<svg viewBox="0 0 12 5" fill="currentColor" shape-rendering="crispEdges"><rect x="1" y="2" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="9" y="1" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="7" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/></svg>';  // 8 Bit: ~/ als Pixelgrafik (Silkscreen-Tilde sitzt zu hoch, / zu rund)
+  const el = document.createElement('div');
+  if (m?.type === 'bubble') {
+    el.className = 'bubble' + (m.look ? ' ' + m.look : '');  // look: z. B. manga
+    if (font) el.style.fontFamily = `"${font}", system-ui, sans-serif`;
+    for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg })) el.style.setProperty('--' + k, v);
+    el.innerHTML = '<span class="box"></span><span class="stem"></span><span class="dot"></span>';
+    el.querySelector('.box').textContent = m.label;  // Text, kein HTML
+  } else if (m?.type === 'terminal') {
+    el.className = px ? 'term px' : 'term';
+    if (font) el.style.fontFamily = `"${font}", ui-monospace, monospace`;
+    for (const [k, v] of Object.entries({ c1: m.color, c2: m.color2, bg: m.bg, fg: m.fg, u: px + 'px' })) el.style.setProperty('--' + k, v);
+    el.innerHTML = '<span class="box"><span class="p">~/</span><span class="t"></span><span class="cur"></span></span><span class="stem"></span><span class="dot"></span>';
+    el.querySelector('.t').textContent = m.label;  // Text, kein HTML
+    if (px) el.querySelector('.p').innerHTML = PX_PROMPT;
+  } else return new L.Icon.Default();
+  // Größe messen, damit der Punkt (unten Mitte) genau auf der Position liegt
+  document.body.appendChild(el); const w = el.offsetWidth, h = el.offsetHeight; el.remove();
+  return L.divIcon({ className: '', html: el, iconSize: [w, h],
+    iconAnchor: [Math.round(w / 2), h - (m.type === 'terminal' && px || 4)] });
+}
+</script>
+</body>
+</html>
