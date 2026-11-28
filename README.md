@@ -40,7 +40,8 @@ Unentschlossen? Alle Stile nebeneinander: **[Live-Vorschau](https://elbym.github
 10. [Bildformat](#bildformat)
 11. [8-Bit-Modus](#8-bit-modus)
 12. [Wie es technisch funktioniert](#wie-es-technisch-funktioniert)
-13. [Lizenz](#lizenz)
+13. [Gebäudehöhen](#gebäudehöhen)
+14. [Lizenz](#lizenz)
 
 ## Vorschau
 
@@ -577,6 +578,14 @@ Geprüfte Alternativen (Stand 11/2026, aus dem Gedächtnis zusammengefasst):
 | Lizenz Schema | CC BY 4.0 | CC0 | BSD, Design CC0 |
 
 Ab z14 enthalten alle drei praktisch das volle OSM-Detail; Unterschiede gibt es nur bei z10–13. Ein Wechsel würde `style/base.json` und alle Stile betreffen (Layer-Namen ändern sich) und hier nichts Sichtbares verbessern, nur „© OpenMapTiles“ sparen. `rank` nutzen wir, um unwichtige POIs auszublenden (`poi_r20`).
+
+## Gebäudehöhen
+
+Einige Stile leben von Gebäudehöhen: Hologramm, Holotisch und Cyberspace färben und stapeln Gebäude nach ihrer Höhe, Stadtlichter und Sonnenaufgang zeigen Hochhäuser anders und werfen Schatten nach Höhenklassen. Die Kacheln nehmen die Höhe aus OSM (`render_height` im OpenMapTiles-Schema). Dort fehlt sie aber bei den meisten Gebäuden, und die Kacheln rechnen mit einer Ersatzhöhe. Dann sehen diese Stile nicht aus wie gewünscht.
+
+Deshalb gibt es das Repository [osm-gebaeudehoehen-nrw](https://github.com/elbym/osm-gebaeudehoehen-nrw). Es bereitet einen Import vor, der OSM-Gebäuden die gemessene Höhe aus dem amtlichen 3D-Gebäudemodell LoD2 von Geobasis NRW (Datenlizenz Deutschland – Zero) ergänzt, zuerst für Bielefeld. Die Höhen landen in OSM statt nur in diesen Kacheln, damit alle etwas davon haben. Hochgeladen wird erst nach Abstimmung mit der OSM-Community.
+
+Sind die Höhen in OSM, kommen sie hier mit dem nächsten Geofabrik-Extrakt an: `data/detmold-regbez.mbtiles` löschen und neu rendern.
 
 ## Lizenz
 
