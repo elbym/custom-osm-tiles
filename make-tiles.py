@@ -2048,6 +2048,42 @@ def readme_previews(a, mb):
         optimize([dest / f"{st.stem}.png"])
         data = (dest / f"{st.stem}.png").read_bytes()
         print(f"{st.stem}: {len(data) / 1e3:.0f} kB", flush=True)
+    readme_gallery()
+
+
+def readme_gallery():
+    """Je Kategorie eine Collage docs/previews/grid-<kategorie>.png (zwei Familien je Zeile, Hell links, Dunkel rechts)
+    und der README-Abschnitt zwischen den vorschau-Markern: Collage plus eine Linkzeile je Familie (Nutzerwunsch 2026-11-28,
+    die Tabelle mit 62 Bildern war zu lang und zu breit fürs Handy)."""
+    dest = ROOT / "docs" / "previews"
+    fams = {}
+    for st in (ROOT / "styles").glob("*.toml"):
+        m = tomllib.loads(st.read_text())
+        if (dest / f"{st.stem}.png").exists():
+            fams.setdefault((m.get("category", "standard"), m.get("family", m["title"])), []).append((m, st.stem))
+    md = []
+    for cat, head in (("standard", "Standard"), ("nerd", "Nerd")):
+        rows = sorted(((min(m.get("order", 50) for m, _ in v), fam), sorted(v, key=lambda e: e[0].get("mode") == "dark"))
+                      for (c, fam), v in fams.items() if c == cat)
+        args = []
+        for _, v in rows:
+            for m, stem in v:
+                args += ["-label", m["title"], str(dest / f"{stem}.png")]
+        grid = dest / f"grid-{cat}.png"
+        out = subprocess.run(["magick", "montage", "-font", str(ROOT / "fonts-src/fira-sans/FiraSans-Regular.ttf"),
+                              "-pointsize", "15", "-fill", "#1f2328", "-background", "#eaeef2", *args,
+                              "-tile", "4x", "-geometry", "256x256+4+4", "png:-"], capture_output=True, check=True).stdout
+        grid.write_bytes(quantize(out, 256))
+        optimize([grid])
+        md += [f"### {head}", "", f'<a href="docs/previews/{grid.name}"><img src="docs/previews/{grid.name}" '
+               f'alt="Alle {head}-Stile"></a>', ""]
+        md += [f"**{fam}**: " + " · ".join(f"[{m['title']}](docs/previews/{stem}.png)" for m, stem in v) + "  "
+               for (_, fam), v in rows]
+        md += [""]
+    readme = ROOT / "README.md"
+    text = readme.read_text()
+    a, b = "<!-- vorschau:start -->", "<!-- vorschau:end -->"
+    readme.write_text(text[:text.index(a) + len(a)] + "\n" + "\n".join(md) + text[text.index(b):])
 
 
 STATUS = {"stil": "", "kacheln": ""}

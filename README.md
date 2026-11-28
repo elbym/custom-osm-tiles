@@ -44,42 +44,54 @@ Unentschlossen? Alle Stile nebeneinander: **[Live-Vorschau](https://elbym.github
 
 ## Vorschau
 
-Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bielefeld auf Zoom 12. Erzeugt mit `./make-tiles.py --readme-previews` (je Stil ein 512×512-Bild ohne Marker nach `docs/previews/`).
+Alle Stile in ihrer Vorschau-Schrift (Standard: Fira Sans, Nerd: Maple Mono), Bielefeld auf Zoom 12. Erzeugt mit `./make-tiles.py --readme-previews` (je Stil ein 512×512-Bild ohne Marker nach `docs/previews/`, dazu je Kategorie eine Collage und dieser Abschnitt). Ein Klick auf einen Namen öffnet das Einzelbild.
 
-| | Hell | Dunkel |
-|---|---|---|
-| **Americana**<br><sub>Standard</sub> | <a href="docs/previews/americana.png"><img src="docs/previews/americana.png" width="256" alt="OSM Americana"></a><br>OSM Americana | <a href="docs/previews/americana-dark.png"><img src="docs/previews/americana-dark.png" width="256" alt="OSM Americana Dark"></a><br>OSM Americana Dark |
-| **Clear**<br><sub>Standard</sub> | <a href="docs/previews/clear.png"><img src="docs/previews/clear.png" width="256" alt="Clear"></a><br>Clear | <a href="docs/previews/clear-dark.png"><img src="docs/previews/clear-dark.png" width="256" alt="Clear Dark"></a><br>Clear Dark |
-| **Photon**<br><sub>Standard</sub> | <a href="docs/previews/photon.png"><img src="docs/previews/photon.png" width="256" alt="Photon"></a><br>Photon | <a href="docs/previews/photon-dark.png"><img src="docs/previews/photon-dark.png" width="256" alt="Photon Dark"></a><br>Photon Dark |
-| **Cupertino**<br><sub>Standard</sub> | <a href="docs/previews/cupertino.png"><img src="docs/previews/cupertino.png" width="256" alt="Cupertino"></a><br>Cupertino | <a href="docs/previews/cupertino-dark.png"><img src="docs/previews/cupertino-dark.png" width="256" alt="Cupertino Dark"></a><br>Cupertino Dark |
-| **North**<br><sub>Standard</sub> | <a href="docs/previews/north.png"><img src="docs/previews/north.png" width="256" alt="North"></a><br>North | <a href="docs/previews/north-dark.png"><img src="docs/previews/north-dark.png" width="256" alt="North Dark"></a><br>North Dark |
-| **OSM**<br><sub>Standard</sub> | <a href="docs/previews/osm-light.png"><img src="docs/previews/osm-light.png" width="256" alt="OSM light"></a><br>OSM light | <a href="docs/previews/osm-dark.png"><img src="docs/previews/osm-dark.png" width="256" alt="OSM dark"></a><br>OSM dark |
-| **Papier**<br><sub>Standard</sub> | <a href="docs/previews/papier.png"><img src="docs/previews/papier.png" width="256" alt="Papier"></a><br>Papier | <a href="docs/previews/papier-dark.png"><img src="docs/previews/papier-dark.png" width="256" alt="Papier Dunkel"></a><br>Papier Dunkel |
-| **Protomaps**<br><sub>Standard</sub> | <a href="docs/previews/protomaps-light.png"><img src="docs/previews/protomaps-light.png" width="256" alt="Protomaps Light"></a><br>Protomaps Light | <a href="docs/previews/protomaps-dark.png"><img src="docs/previews/protomaps-dark.png" width="256" alt="Protomaps Dark"></a><br>Protomaps Dark |
-| **Wiki**<br><sub>Standard</sub> | <a href="docs/previews/wiki.png"><img src="docs/previews/wiki.png" width="256" alt="Wiki"></a><br>Wiki | <a href="docs/previews/wiki-dark.png"><img src="docs/previews/wiki-dark.png" width="256" alt="Wiki Dark"></a><br>Wiki Dark |
-| **Historisch**<br><sub>Standard</sub> | <a href="docs/previews/historisch.png"><img src="docs/previews/historisch.png" width="256" alt="Historisch"></a><br>Historisch | <a href="docs/previews/gaslicht.png"><img src="docs/previews/gaslicht.png" width="256" alt="Gaslicht"></a><br>Gaslicht |
-| **Kupferstich**<br><sub>Standard</sub> | <a href="docs/previews/kupferstich.png"><img src="docs/previews/kupferstich.png" width="256" alt="Kupferstich"></a><br>Kupferstich | <a href="docs/previews/kupferplatte.png"><img src="docs/previews/kupferplatte.png" width="256" alt="Kupferplatte"></a><br>Kupferplatte |
-| **Anime**<br><sub>Standard</sub> | <a href="docs/previews/anime.png"><img src="docs/previews/anime.png" width="256" alt="Anime"></a><br>Anime | <a href="docs/previews/anime-nacht.png"><img src="docs/previews/anime-nacht.png" width="256" alt="Anime Nacht"></a><br>Anime Nacht |
-| **Island**<br><sub>Standard</sub> | <a href="docs/previews/island.png"><img src="docs/previews/island.png" width="256" alt="Island"></a><br>Island | <a href="docs/previews/nordlicht.png"><img src="docs/previews/nordlicht.png" width="256" alt="Nordlicht"></a><br>Nordlicht |
-| **Stadtlichter**<br><sub>Standard</sub> | <a href="docs/previews/sonnenaufgang.png"><img src="docs/previews/sonnenaufgang.png" width="256" alt="Sonnenaufgang"></a><br>Sonnenaufgang | <a href="docs/previews/stadtlichter.png"><img src="docs/previews/stadtlichter.png" width="256" alt="Stadtlichter"></a><br>Stadtlichter |
-| **Schwarzplan**<br><sub>Standard</sub> | <a href="docs/previews/schwarzplan.png"><img src="docs/previews/schwarzplan.png" width="256" alt="Schwarzplan"></a><br>Schwarzplan | <a href="docs/previews/schwarzplan-dark.png"><img src="docs/previews/schwarzplan-dark.png" width="256" alt="Weißplan"></a><br>Weißplan |
-| **Blaupause**<br><sub>Standard</sub> | <a href="docs/previews/lichtpause.png"><img src="docs/previews/lichtpause.png" width="256" alt="Lichtpause"></a><br>Lichtpause | <a href="docs/previews/blaupause.png"><img src="docs/previews/blaupause.png" width="256" alt="Blaupause"></a><br>Blaupause |
-| **CMYK**<br><sub>Standard</sub> | <a href="docs/previews/cmyk.png"><img src="docs/previews/cmyk.png" width="256" alt="CMYK"></a><br>CMYK | <a href="docs/previews/cmyk-nacht.png"><img src="docs/previews/cmyk-nacht.png" width="256" alt="CMYK Nacht"></a><br>CMYK Nacht |
-| **Aquarell**<br><sub>Standard</sub> | <a href="docs/previews/aquarell.png"><img src="docs/previews/aquarell.png" width="256" alt="Aquarell"></a><br>Aquarell | <a href="docs/previews/aquarell-nacht.png"><img src="docs/previews/aquarell-nacht.png" width="256" alt="Aquarell Nacht"></a><br>Aquarell Nacht |
-| **Marke**<br><sub>Standard</sub> | <a href="docs/previews/marke.png"><img src="docs/previews/marke.png" width="256" alt="Marke"></a><br>Marke | <a href="docs/previews/marke-dark.png"><img src="docs/previews/marke-dark.png" width="256" alt="Marke Dunkel"></a><br>Marke Dunkel |
-| **Catppuccin**<br><sub>Nerd</sub> | <a href="docs/previews/catppuccin-latte.png"><img src="docs/previews/catppuccin-latte.png" width="256" alt="Catppuccin Latte"></a><br>Catppuccin Latte | <a href="docs/previews/catppuccin-mocha.png"><img src="docs/previews/catppuccin-mocha.png" width="256" alt="Catppuccin Mocha"></a><br>Catppuccin Mocha |
-| **Dracula**<br><sub>Nerd</sub> | <a href="docs/previews/dracula-light.png"><img src="docs/previews/dracula-light.png" width="256" alt="Alucard"></a><br>Alucard | <a href="docs/previews/dracula.png"><img src="docs/previews/dracula.png" width="256" alt="Dracula"></a><br>Dracula |
-| **Everforest**<br><sub>Nerd</sub> | <a href="docs/previews/everforest-light.png"><img src="docs/previews/everforest-light.png" width="256" alt="Everforest Light"></a><br>Everforest Light | <a href="docs/previews/everforest-dark.png"><img src="docs/previews/everforest-dark.png" width="256" alt="Everforest Dark"></a><br>Everforest Dark |
-| **One**<br><sub>Nerd</sub> | <a href="docs/previews/one-light.png"><img src="docs/previews/one-light.png" width="256" alt="One Light"></a><br>One Light | <a href="docs/previews/one-dark.png"><img src="docs/previews/one-dark.png" width="256" alt="One Dark"></a><br>One Dark |
-| **Photon Dev**<br><sub>Nerd</sub> | <a href="docs/previews/photon-dev-light.png"><img src="docs/previews/photon-dev-light.png" width="256" alt="Photon Dev Light"></a><br>Photon Dev Light | <a href="docs/previews/photon-dev-dark.png"><img src="docs/previews/photon-dev-dark.png" width="256" alt="Photon Dev Dark"></a><br>Photon Dev Dark |
-| **Gruvbox**<br><sub>Nerd</sub> | <a href="docs/previews/gruvbox-light.png"><img src="docs/previews/gruvbox-light.png" width="256" alt="Gruvbox Light"></a><br>Gruvbox Light | <a href="docs/previews/gruvbox-dark.png"><img src="docs/previews/gruvbox-dark.png" width="256" alt="Gruvbox Dark"></a><br>Gruvbox Dark |
-| **Nightfox**<br><sub>Nerd</sub> | <a href="docs/previews/dayfox.png"><img src="docs/previews/dayfox.png" width="256" alt="Dayfox"></a><br>Dayfox | <a href="docs/previews/nightfox.png"><img src="docs/previews/nightfox.png" width="256" alt="Nightfox"></a><br>Nightfox |
-| **Solarized**<br><sub>Nerd</sub> | <a href="docs/previews/solarized-light.png"><img src="docs/previews/solarized-light.png" width="256" alt="Solarized Light"></a><br>Solarized Light | <a href="docs/previews/solarized-dark.png"><img src="docs/previews/solarized-dark.png" width="256" alt="Solarized Dark"></a><br>Solarized Dark |
-| **Tokyo Night**<br><sub>Nerd</sub> | <a href="docs/previews/tokyonight-day.png"><img src="docs/previews/tokyonight-day.png" width="256" alt="Tokyo Night Day"></a><br>Tokyo Night Day | <a href="docs/previews/tokyonight-night.png"><img src="docs/previews/tokyonight-night.png" width="256" alt="Tokyo Night"></a><br>Tokyo Night |
-| **Bluecron**<br><sub>Nerd</sub> | <a href="docs/previews/bluecron-tag.png"><img src="docs/previews/bluecron-tag.png" width="256" alt="Bluecron Tag"></a><br>Bluecron Tag | <a href="docs/previews/bluecron.png"><img src="docs/previews/bluecron.png" width="256" alt="Bluecron"></a><br>Bluecron |
-| **Phosphor**<br><sub>Nerd</sub> | <a href="docs/previews/bernstein.png"><img src="docs/previews/bernstein.png" width="256" alt="Bernstein"></a><br>Bernstein | <a href="docs/previews/phosphor.png"><img src="docs/previews/phosphor.png" width="256" alt="Phosphor"></a><br>Phosphor |
-| **Neon Cyberpunk**<br><sub>Nerd</sub> | <a href="docs/previews/cyberpunk-day.png"><img src="docs/previews/cyberpunk-day.png" width="256" alt="Cyberpunk Day"></a><br>Cyberpunk Day | <a href="docs/previews/cyberpunk.png"><img src="docs/previews/cyberpunk.png" width="256" alt="Neon Cyberpunk"></a><br>Neon Cyberpunk |
-| **Glitch**<br><sub>Nerd</sub> | <a href="docs/previews/datamosh.png"><img src="docs/previews/datamosh.png" width="256" alt="Datamosh"></a><br>Datamosh | <a href="docs/previews/signalverlust.png"><img src="docs/previews/signalverlust.png" width="256" alt="Signalverlust"></a><br>Signalverlust |
+<!-- vorschau:start -->
+### Standard
+
+<a href="docs/previews/grid-standard.png"><img src="docs/previews/grid-standard.png" alt="Alle Standard-Stile"></a>
+
+**Americana**: [OSM Americana](docs/previews/americana.png) · [OSM Americana Dark](docs/previews/americana-dark.png)  
+**Anime**: [Anime](docs/previews/anime.png) · [Anime Nacht](docs/previews/anime-nacht.png)  
+**Aquarell**: [Aquarell](docs/previews/aquarell.png) · [Aquarell Nacht](docs/previews/aquarell-nacht.png)  
+**Blaupause**: [Lichtpause](docs/previews/lichtpause.png) · [Blaupause](docs/previews/blaupause.png)  
+**CMYK**: [CMYK](docs/previews/cmyk.png) · [CMYK Nacht](docs/previews/cmyk-nacht.png)  
+**Clear**: [Clear](docs/previews/clear.png) · [Clear Dark](docs/previews/clear-dark.png)  
+**Cupertino**: [Cupertino](docs/previews/cupertino.png) · [Cupertino Dark](docs/previews/cupertino-dark.png)  
+**Historisch**: [Historisch](docs/previews/historisch.png) · [Gaslicht](docs/previews/gaslicht.png)  
+**Island**: [Island](docs/previews/island.png) · [Nordlicht](docs/previews/nordlicht.png)  
+**Kupferstich**: [Kupferstich](docs/previews/kupferstich.png) · [Kupferplatte](docs/previews/kupferplatte.png)  
+**Marke**: [Marke](docs/previews/marke.png) · [Marke Dunkel](docs/previews/marke-dark.png)  
+**North**: [North](docs/previews/north.png) · [North Dark](docs/previews/north-dark.png)  
+**OSM**: [OSM light](docs/previews/osm-light.png) · [OSM dark](docs/previews/osm-dark.png)  
+**Papier**: [Papier](docs/previews/papier.png) · [Papier Dunkel](docs/previews/papier-dark.png)  
+**Photon**: [Photon](docs/previews/photon.png) · [Photon Dark](docs/previews/photon-dark.png)  
+**Protomaps**: [Protomaps Light](docs/previews/protomaps-light.png) · [Protomaps Dark](docs/previews/protomaps-dark.png)  
+**Schwarzplan**: [Schwarzplan](docs/previews/schwarzplan.png) · [Weißplan](docs/previews/schwarzplan-dark.png)  
+**Wiki**: [Wiki](docs/previews/wiki.png) · [Wiki Dark](docs/previews/wiki-dark.png)  
+**Stadtlichter**: [Sonnenaufgang](docs/previews/sonnenaufgang.png) · [Stadtlichter](docs/previews/stadtlichter.png)  
+
+### Nerd
+
+<a href="docs/previews/grid-nerd.png"><img src="docs/previews/grid-nerd.png" alt="Alle Nerd-Stile"></a>
+
+**Catppuccin**: [Catppuccin Latte](docs/previews/catppuccin-latte.png) · [Catppuccin Mocha](docs/previews/catppuccin-mocha.png)  
+**Dracula**: [Alucard](docs/previews/dracula-light.png) · [Dracula](docs/previews/dracula.png)  
+**Everforest**: [Everforest Light](docs/previews/everforest-light.png) · [Everforest Dark](docs/previews/everforest-dark.png)  
+**Gruvbox**: [Gruvbox Light](docs/previews/gruvbox-light.png) · [Gruvbox Dark](docs/previews/gruvbox-dark.png)  
+**Nightfox**: [Dayfox](docs/previews/dayfox.png) · [Nightfox](docs/previews/nightfox.png)  
+**One**: [One Light](docs/previews/one-light.png) · [One Dark](docs/previews/one-dark.png)  
+**Photon Dev**: [Photon Dev Light](docs/previews/photon-dev-light.png) · [Photon Dev Dark](docs/previews/photon-dev-dark.png)  
+**Solarized**: [Solarized Light](docs/previews/solarized-light.png) · [Solarized Dark](docs/previews/solarized-dark.png)  
+**Tokyo Night**: [Tokyo Night Day](docs/previews/tokyonight-day.png) · [Tokyo Night](docs/previews/tokyonight-night.png)  
+**Glitch**: [Datamosh](docs/previews/datamosh.png) · [Signalverlust](docs/previews/signalverlust.png)  
+**Cyberspace**: [Cyberspace Hell](docs/previews/cyberspace-hell.png) · [Cyberspace](docs/previews/cyberspace.png)  
+**Holotisch**: [Holotisch Tag](docs/previews/holotisch-tag.png) · [Holotisch](docs/previews/holotisch.png)  
+**Hologramm**: [Hologrammfolie](docs/previews/hologramm-folie.png) · [Hologramm](docs/previews/hologramm.png)  
+**Bluecron**: [Bluecron Tag](docs/previews/bluecron-tag.png) · [Bluecron](docs/previews/bluecron.png)  
+**Phosphor**: [Bernstein](docs/previews/bernstein.png) · [Phosphor](docs/previews/phosphor.png)  
+**Neon Cyberpunk**: [Cyberpunk Day](docs/previews/cyberpunk-day.png) · [Neon Cyberpunk](docs/previews/cyberpunk.png)  
+<!-- vorschau:end -->
 
 ## Begriffe
 

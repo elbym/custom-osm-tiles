@@ -18,7 +18,7 @@ radius = 1.2               # km um den Mittelpunkt; kleiner Ausschnitt rund um d
 viewport = "1920x1920"     # größte Kartengröße; quadratisch, damit Hoch- und Querformat gefüllt sind
 retina = true              # @2x zusätzlich; bei 1,2 km Radius ca. 350–400 MB (Pages-Limit 1 GB)
 exclude = ["OSM", "Americana", "Papier", "Cupertino", "Protomaps",   # Familien nur in der README-Galerie,
-           "One", "Everforest", "Gruvbox", "Photon Dev", "Holotisch", "Hologramm",
+           "One", "Everforest", "Gruvbox", "Photon Dev",
            "Wiki", "Kupferstich", "Tokyo Night", "Catppuccin", "Solarized", "North", "Marke"]               # nicht auf der öffentlichen Vorschau
 pixel = ["Phosphor", "Neon Cyberpunk", "Cyberspace"]   # diese Gruppen/Familien zusätzlich im 8-Bit-Modus (--pixel 4, Schrift Silkscreen), Schalter "8 Bit"
 
